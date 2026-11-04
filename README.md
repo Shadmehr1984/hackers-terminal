@@ -32,6 +32,7 @@ zig build
 | `help` | List commands |
 | `status` | Show operator status |
 | `missions` | List available contracts |
+| `briefing` | Show clues for the active contract |
 | `accept <id>` | Accept a contract |
 | `scan <target>` | Scan the active fictional target |
 | `connect <target>` | Establish a simulated session |
@@ -51,10 +52,10 @@ zig build
 The first contract is **Cold Storage**. Its fictional target is `vault-01.local`.
 
 1. Run `missions` and accept `job-01`.
-2. Scan and connect to the target.
-3. Solve the password challenge with `brute orion42`.
+2. Run `briefing` to read the clues, then scan and connect to the target.
+3. Solve the password clue with `brute orion42`.
 4. Buy the decryptor with `buy decryptor` (it costs $150).
-5. Decrypt the file with `decrypt midnight`.
+5. Solve the decryption clue with `decrypt midnight`.
 6. Extract it with `extract ledger.enc`.
 
 The other contracts unlock through the same gameplay loop.
