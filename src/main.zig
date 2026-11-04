@@ -97,7 +97,7 @@ fn saveGame(player: Player, missions: []const Mission) !void {
     const file = try std.fs.cwd().createFile("saves/player.sav", .{ .truncate = true });
     defer file.close();
 
-    const writer = file.writer();
+    var writer = file.writer();
     try writer.print("{d}\n{d}\n{d}\n", .{
         player.balance,
         player.reputation,
@@ -283,8 +283,8 @@ pub fn main() !void {
     defer _ = general_purpose_allocator.deinit();
     const allocator = general_purpose_allocator.allocator();
 
-    const stdout = std.io.getStdOut().writer();
-    const stdin = std.io.getStdIn().reader();
+    var stdout = std.io.getStdOut().writer();
+    var stdin = std.io.getStdIn().reader();
 
     var player = Player{};
     var missions = [_]Mission{
