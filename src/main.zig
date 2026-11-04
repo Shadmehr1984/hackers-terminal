@@ -5,7 +5,9 @@ const Mission = struct {
     name: []const u8,
     target: []const u8,
     password: []const u8,
+    password_hint: []const u8,
     encrypted_file: []const u8,
+    decryption_hint: []const u8,
     decryption_key: []const u8,
     reward: u32,
     completed: bool = false,
@@ -37,6 +39,7 @@ fn printHelp(writer: anytype) !void {
         \\  help                 Show this help
         \\  status               Show operator status
         \\  missions             List available contracts
+        \\  briefing             Show clues for the active contract
         \\  accept <id>          Accept a contract
         \\  scan <target>        Scan the active fictional target
         \\  connect <target>     Connect after scanning
@@ -152,6 +155,13 @@ fn runCommand(
         try printStatus(writer, player.*, active.*, missions);
     } else if (std.mem.eql(u8, command, "missions")) {
         try printMissions(writer, missions);
+    } else if (std.mem.eql(u8, command, "briefing")) {
+        if (active.*) |index| {
+            const mission = missions[index];
+            try writer.print("CONTRACT BRIEFING: {s}\\nTarget: {s}\\nPassword clue: {s}\\nEncrypted file: {s}\\nDecryption clue: {s}\\n", .{
+                mission.name, mission.target, mission.password_hint, mission.encrypted_file, mission.decryption_hint,
+            });
+        } else try writer.writeAll("No active contract. Accept a mission first.\\n");
     } else if (std.mem.eql(u8, command, "accept")) {
         if (active.* != null) {
             try writer.writeAll("A contract is already active. Complete it first.\n");
@@ -283,7 +293,9 @@ pub fn main() !void {
             .name = "Cold Storage",
             .target = "vault-01.local",
             .password = "orion42",
+            .password_hint = "A hunter constellation, followed by the number 42.",
             .encrypted_file = "ledger.enc",
+            .decryption_hint = "The middle of the night.",
             .decryption_key = "midnight",
             .reward = 300,
         },
@@ -292,7 +304,9 @@ pub fn main() !void {
             .name = "Paper Trail",
             .target = "archive-02.local",
             .password = "copper17",
+            .password_hint = "A reddish metal, followed by the number 17.",
             .encrypted_file = "mailbox.enc",
+            .decryption_hint = "A small songbird often associated with a clear blue color.",
             .decryption_key = "bluebird",
             .reward = 500,
         },
@@ -301,7 +315,9 @@ pub fn main() !void {
             .name = "Quiet Exit",
             .target = "relay-03.local",
             .password = "northstar",
+            .password_hint = "A fixed point used for navigation in the northern sky.",
             .encrypted_file = "manifest.enc",
+            .decryption_hint = "The time after normal business hours.",
             .decryption_key = "afterhours",
             .reward = 800,
         },
