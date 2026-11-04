@@ -58,7 +58,7 @@ The first contract is **Cold Storage**. Its fictional target is `vault-01.local`
 5. Solve the decryption clue with `decrypt midnight`.
 6. Extract it with `extract ledger.enc`.
 
-The other contracts unlock through the same gameplay loop.
+The other contracts use the same gameplay loop.
 
 ## Save data
 
