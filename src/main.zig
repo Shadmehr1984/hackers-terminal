@@ -55,8 +55,8 @@ fn printHelp(writer: anytype) !void {
         \\  exit                 Leave the game
         \\
         \\MISSION FLOW
-        \\  missions -> accept -> scan -> connect -> brute
-        \\  -> decrypt -> extract
+        \\  missions -> accept -> briefing -> scan -> connect
+        \\  -> brute -> decrypt -> extract
         \\
     );
 }
@@ -134,7 +134,6 @@ fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
 }
 
 fn runCommand(
-    allocator: std.mem.Allocator,
     writer: anytype,
     line: []const u8,
     player: *Player,
@@ -272,7 +271,6 @@ fn runCommand(
         try writer.writeAll("Closing terminal. Stay safe, operator.\n");
         return false;
     } else {
-        _ = allocator;
         try writer.writeAll("Unknown command. Type 'help' for available commands.\n");
     }
     return true;
@@ -348,7 +346,6 @@ pub fn main() !void {
         if (line.len == 0) continue;
 
         const keep_running = try runCommand(
-            allocator,
             stdout,
             line,
             &player,
