@@ -40,7 +40,7 @@ zig build
 | `brute <password>` | Solve the mission's password challenge |
 | `decrypt <key>` | Decrypt the mission file (requires the decryptor) |
 | `extract <filename>` | Complete the contract |
-| `inventory` | Show owned tools |
+| `history` | Show completed contracts |\n| `inventory` | Show owned tools |
 | `shop` | List tools for sale |
 | `buy <item>` | Purchase a tool |
 | `save` | Save player progress |
@@ -62,7 +62,7 @@ The other contracts use the same gameplay loop.
 
 ## Save data
 
-Progress is stored locally in `saves/player.sav`. The game loads this file automatically on startup. Use `save` to write the current balance, reputation, purchased tools, and completed contracts.
+Progress is stored locally in `saves/player.sav`. The game loads this file automatically on startup. Use `save` to write the current balance, reputation, purchased tools, completed contracts, and active contract. If an active contract is restored after restarting, its scan and connection session must be started again. The loader also accepts save files created by the previous version.
 
 ## Project layout
 
