@@ -127,12 +127,7 @@ fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) 
 fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
     player.balance += mission.reward;
     player.reputation += 1;
-    try writer.print(
-        \\\n[CONTRACT COMPLETE] {s}
-        \\Reward received: ${d}
-        \\Reputation increased.
-        \\
-    , .{ mission.name, mission.reward });
+    try writer.print("\\n[CONTRACT COMPLETE] {s}\\nReward received: ${d}\\nReputation increased.\\n", .{ mission.name, mission.reward });
 }
 
 fn runCommand(
