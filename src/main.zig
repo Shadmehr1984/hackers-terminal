@@ -50,6 +50,7 @@ fn printHelp(writer: anytype) !void {
         \\  inventory            Show owned tools
         \\  shop                 Show available tools
         \\  buy <item>           Purchase a tool
+        \\  history              Show completed contracts
         \\  save                 Save progress
         \\  clear                Clear the terminal
         \\  exit                 Leave the game
@@ -92,45 +93,82 @@ fn printMissions(writer: anytype, missions: []const Mission) !void {
     try writer.writeAll("\nUse: accept <id>\n");
 }
 
-fn saveGame(player: Player, missions: []const Mission) !void {
+fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
     try std.fs.cwd().makePath("saves");
     const file = try std.fs.cwd().createFile("saves/player.sav", .{ .truncate = true });
     defer file.close();
 
     var writer = file.writer();
-    try writer.print("{d}\n{d}\n{d}\n", .{
+    try writer.print("HACKERS_TERMINAL_SAVE_V1\n{d}\n{d}\n{d}\n", .{
         player.balance,
         player.reputation,
         @as(u8, if (player.has_decryptor) 1 else 0),
     });
+    if (active) |index| {
+        try writer.print("{d}\n", .{index});
+    } else {
+        try writer.writeAll("-1\n");
+    }
     for (missions) |mission| {
         try writer.print("{d}\n", .{@as(u8, if (mission.completed) 1 else 0)});
     }
 }
 
-fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) void {
-    const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch return;
+fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
+    const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch return null;
     defer file.close();
 
-    const data = file.readToEndAlloc(allocator, 4096) catch return;
+    const data = file.readToEndAlloc(allocator, 4096) catch return null;
     defer allocator.free(data);
 
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
-    if (lines.next()) |value| player.balance = std.fmt.parseInt(u32, value, 10) catch player.balance;
-    if (lines.next()) |value| player.reputation = std.fmt.parseInt(u32, value, 10) catch player.reputation;
-    if (lines.next()) |value| player.has_decryptor = std.mem.eql(u8, value, "1");
+    const first_line = lines.next() orelse return null;
+    var active: ?usize = null;
+
+    if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V1")) {
+        if (lines.next()) |value| player.balance = std.fmt.parseInt(u32, value, 10) catch player.balance;
+        if (lines.next()) |value| player.reputation = std.fmt.parseInt(u32, value, 10) catch player.reputation;
+        if (lines.next()) |value| player.has_decryptor = std.mem.eql(u8, value, "1");
+        if (lines.next()) |value| {
+            const parsed = std.fmt.parseInt(i64, value, 10) catch -1;
+            if (parsed >= 0) {
+                const index: usize = @intCast(parsed);
+                if (index < missions.len and !missions[index].completed) active = index;
+            }
+        }
+    } else {
+        // Read saves created by the first public version.
+        player.balance = std.fmt.parseInt(u32, first_line, 10) catch player.balance;
+        if (lines.next()) |value| player.reputation = std.fmt.parseInt(u32, value, 10) catch player.reputation;
+        if (lines.next()) |value| player.has_decryptor = std.mem.eql(u8, value, "1");
+    }
 
     for (missions) |*mission| {
         if (lines.next()) |value| {
             mission.completed = std.mem.eql(u8, value, "1");
         }
     }
+    return active;
+}
+
+fn printHistory(writer: anytype, missions: []const Mission) !void {
+    try writer.writeAll("CONTRACT HISTORY\n");
+    var found = false;
+    for (missions) |mission| {
+        if (mission.completed) {
+            found = true;
+            try writer.print("  [COMPLETED] {s} ({s}) | reward: ${d}\n", .{
+                mission.name, mission.id, mission.reward,
+            });
+        }
+    }
+    if (!found) try writer.writeAll("  No completed contracts yet.\n");
 }
 
 fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
     player.balance += mission.reward;
     player.reputation += 1;
-    try writer.print("\\n[CONTRACT COMPLETE] {s}\\nReward received: ${d}\\nReputation increased.\\n", .{ mission.name, mission.reward });
+    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}\nReputation increased.\n", .{ mission.name, mission.reward });
 }
 
 fn runCommand(
@@ -157,10 +195,10 @@ fn runCommand(
     } else if (std.mem.eql(u8, command, "briefing")) {
         if (active.*) |index| {
             const mission = missions[index];
-            try writer.print("CONTRACT BRIEFING: {s}\\nTarget: {s}\\nPassword clue: {s}\\nEncrypted file: {s}\\nDecryption clue: {s}\\n", .{
+            try writer.print("CONTRACT BRIEFING: {s}\nTarget: {s}\nPassword clue: {s}\nEncrypted file: {s}\nDecryption clue: {s}\n", .{
                 mission.name, mission.target, mission.password_hint, mission.encrypted_file, mission.decryption_hint,
             });
-        } else try writer.writeAll("No active contract. Accept a mission first.\\n");
+        } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "accept")) {
         if (active.* != null) {
             try writer.writeAll("A contract is already active. Complete it first.\n");
@@ -259,8 +297,10 @@ fn runCommand(
                 try writer.writeAll("Purchase complete: decryptor installed.\n");
             }
         } else try writer.writeAll("Unknown item. Use 'shop'.\n");
+    } else if (std.mem.eql(u8, command, "history")) {
+        try printHistory(writer, missions);
     } else if (std.mem.eql(u8, command, "save")) {
-        saveGame(player.*, missions) catch {
+        saveGame(player.*, missions, active.*) catch {
             try writer.writeAll("Save failed. Check filesystem permissions.\n");
             return true;
         };
@@ -321,7 +361,7 @@ pub fn main() !void {
         },
     };
 
-    loadGame(allocator, &player, &missions);
+    const active_from_save = loadGame(allocator, &player, &missions);
 
     try printBanner(stdout);
     try stdout.print("Welcome back, {s}.\nBalance: ${d} | Reputation: {d}\n", .{
@@ -332,7 +372,7 @@ pub fn main() !void {
     try stdout.writeAll("Type 'help' to see commands.\n");
 
     var input_buffer: [512]u8 = undefined;
-    var active: ?usize = null;
+    var active: ?usize = active_from_save;
     var scanned = false;
     var connected = false;
     var access_granted = false;
