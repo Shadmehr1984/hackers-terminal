@@ -1,13 +1,13 @@
 const std = @import("std");
-const Player = @import("player.zig").Player;
-const MissionState = @import("mission_state.zig");
+const Player = @import("domain/player.zig").Player;
+const MissionState = @import("domain/mission_state.zig");
 const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
-const save = @import("save.zig");
-const game = @import("game.zig");
-const progression = @import("progression.zig");
-const terminal = @import("terminal.zig");
-const mission_data = @import("mission_data.zig");
+const save = @import("persistence/save.zig");
+const game = @import("application/game.zig");
+const progression = @import("application/progression.zig");
+const terminal = @import("presentation/terminal.zig");
+const mission_data = @import("catalog/mission_data.zig");
 
 pub fn main() !void {
     var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};

@@ -23,20 +23,22 @@ This file is the persistent source of project-specific instructions for AI codin
 
 ## Current architecture (verify against source before editing)
 
+Production modules are grouped by responsibility under `src/domain/`, `src/application/`, `src/catalog/`, `src/presentation/`, and `src/persistence/`. `src/main.zig` remains the composition root. The original top-level `src/*.zig` module paths are compatibility facades; new production code should import the grouped implementation paths directly.
+
 - `src/main.zig`: application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop.
-- `src/game.zig`: shared command dispatch and game-state validation/transitions.
-- `src/detection.zig`: Detection exposure costs, warnings, compromise failure, and bounded penalty.
-- `src/progression.zig`: XP thresholds, player levels, Reputation tiers, and mission reward progression.
-- `src/contacts.zig`: fictional Contact identities, unlock thresholds, and Fixer service pricing.
-- `src/player.zig`: player profile, typed equipment ownership, utility slot, upgrade levels, and pure risk modifier calculations.
-- `src/mission.zig`: mission/contract data types, optional topology reference, level/Reputation requirements, difficulty classification, and typed objective definitions.
-- `src/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and validation that required operation nodes are reachable from the entry node.
-- `src/mission_data.zig`: built-in mission catalog.
-- `src/mission_state.zig`: runtime-only mission preparation choice, active-mission progress, connection state, objective completion tracking, detection exposure (0–100), topology position, traversal count, per-run loadout snapshot, and one-use Fixer service state.
-- `src/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
-- `src/terminal.zig`: terminal presentation, including mission list, briefing-related output, and topology maps.
-- `src/save.zig`: V3 persistence and compatibility with V2, V1, and legacy save formats.
-- `src/shop.zig`: equipment catalog, inventory, purchases, equipping, and utility upgrades.
+- `src/application/game.zig`: shared command dispatch and game-state validation/transitions.
+- `src/application/detection.zig`: Detection exposure costs, warnings, compromise failure, and bounded penalty.
+- `src/domain/progression.zig`: XP thresholds, player levels, Reputation tiers, and mission reward progression.
+- `src/domain/contacts.zig`: fictional Contact identities, unlock thresholds, and Fixer service pricing.
+- `src/domain/player.zig`: player profile, typed equipment ownership, utility slot, upgrade levels, and pure risk modifier calculations.
+- `src/domain/mission.zig`: mission/contract data types, optional topology reference, level/Reputation requirements, difficulty classification, and typed objective definitions.
+- `src/domain/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and validation that required operation nodes are reachable from the entry node.
+- `src/catalog/mission_data.zig`: built-in mission catalog.
+- `src/domain/mission_state.zig`: runtime-only mission preparation choice, active-mission progress, connection state, objective completion tracking, detection exposure (0–100), topology position, traversal count, per-run loadout snapshot, and one-use Fixer service state.
+- `src/application/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
+- `src/presentation/terminal.zig`: terminal presentation, including mission list, briefing-related output, and topology maps.
+- `src/persistence/save.zig`: V3 persistence and compatibility with V2, V1, and legacy save formats.
+- `src/application/shop.zig`: equipment catalog, inventory, purchases, equipping, and utility upgrades.
 - `tests/`: unit tests, separate from production source.
 - `docs/`: user and developer documentation.
 
@@ -76,11 +78,13 @@ Use Zig **0.13.0** and the repository's documented commands:
 ```sh
 zig fmt --check test_root.zig build.zig src tests
 zig build
+zig build test
 zig test test_root.zig
 ```
 
 - Add tests under `tests/`; do not put test modules back into `src/`.
 - Keep `tests/test_all.zig` as the aggregate test list and include new test modules there.
+- `zig build test` is the supported build-system test step; it uses `test_root.zig` and the unchanged aggregate list.
 - Use `test_root.zig` as the test command's root module.
 - Add tests for state transitions, objective definitions and completion tracking, parsing edge cases, progression rules, and save compatibility when those areas change.
 - If local build execution is unavailable, perform static inspection and say clearly that build/tests were not run. Never describe static inspection as a passing build or test.

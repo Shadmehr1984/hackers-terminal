@@ -10,7 +10,8 @@ The project targets Zig 0.13.0. Use the same version locally and in CI.
 zig build
 zig build run
 zig fmt --check test_root.zig build.zig src tests
-zig test test_root.zig
+zig build test
+# Direct equivalent: zig test test_root.zig
 ```
 
 CI runs formatting, build, and tests on pushes and pull requests targeting main.
@@ -38,11 +39,11 @@ Run the complete unit-test suite with:
 zig test test_root.zig
 ```
 
-The CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/`, and `tests/`, then builds the game and runs the root test module.
+The CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/`, and `tests/`, then builds the game and runs the root test module through `zig build test`.
 
 ## Architecture workflow
 
-Keep modules focused and dependencies one-way. `main.zig` owns application setup and the input loop; `game.zig` owns the shared command dispatcher; `detection.zig` owns exposure and compromise rules; `progression.zig` owns XP, Reputation tiers, and reward calculations; `contacts.zig` owns Contact unlock and service-price rules. `mission_state.zig` owns temporary mission-session progress, objective completion, current node, and traversal count. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
+Keep modules focused and dependencies one-way. Production code is grouped under `src/domain/`, `src/application/`, `src/catalog/`, `src/presentation/`, and `src/persistence/`; `src/main.zig` remains the composition root and old top-level paths are compatibility facades. `main.zig` owns application setup and the input loop; `game.zig` owns the shared command dispatcher; `detection.zig` owns exposure and compromise rules; `progression.zig` owns XP, Reputation tiers, and reward calculations; `contacts.zig` owns Contact unlock and service-price rules. `mission_state.zig` owns temporary mission-session progress, objective completion, current node, and traversal count. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
 
 Preserve existing behavior unless a task explicitly requests a gameplay change. Update `docs/architecture.md` when module responsibilities or runtime state change. Update `docs/save-format.md` whenever serialized save layout changes. Temporary mission state is not persisted, so a loaded active mission starts at the accepted stage. Mission difficulty, objective definitions, and level/Reputation requirements are static metadata and are not serialized. Objective completion is temporary session state and is not currently persisted.
 
