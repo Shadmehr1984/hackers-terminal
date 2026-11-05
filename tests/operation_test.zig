@@ -131,6 +131,24 @@ test "successful stage grants its fact and reveals only the next authored object
         @import("../src/domain/mission_objectives.zig").ObjectiveState.discovered,
         session.objective_tracker.stateOf("routing-header").?,
     );
+
+    session.progress = .decrypted;
+    session.current_node = "mail-store";
+    session.completeObjective(.scan_target);
+    session.completeObjective(.authenticate);
+    session.completeObjective(.decrypt_file);
+    session.completeObjective(.analyze_metadata);
+    try run(&writer, "extract mailbox.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(preparation.operation_state.hasFact(.routing_header));
+    try std.testing.expectEqual(@as(u8, 2), preparation.operation_state.stage_index);
+    try std.testing.expectEqual(@as(?usize, 2), preparation.mission_index);
+
+    try run(&writer, "accept job-03", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?usize, 2), active);
+    try std.testing.expectEqual(
+        @import("../src/domain/mission_objectives.zig").ObjectiveState.discovered,
+        session.objective_tracker.stateOf("relay-trace").?,
+    );
 }
 
 test "compromised operation stage retries cleanly without losing earlier facts" {
