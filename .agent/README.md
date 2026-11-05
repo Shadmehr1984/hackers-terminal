@@ -33,6 +33,7 @@ Legacy top-level `src/*.zig` files are compatibility facades. New code and curre
 - decisions/: accepted Architecture Decision Records.
 - tasks/README.md: index of approved feature task briefs and dependency order.
 - tasks/HT-001 through HT-005: goals, scope, constraints, dependencies, and acceptance criteria for the completed foundational gameplay systems.
+- tasks/HT-006-contract-board.md: active implementation contract for the separately invoked Contract Board.
 - plans/GAMEPLAY-EXPANSION-OVERVIEW.md and PHASE-1 through PHASE-4: the owner-approved planning baseline and handoff specifications for 20 future gameplay features (HT-006 through HT-025). Planning approval is not implementation authorization.
 - tasks/TEMPLATE.md: concise task specification.
 - review-checklist.md: independent review criteria.
