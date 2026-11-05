@@ -24,7 +24,9 @@ This file is the persistent source of project-specific instructions for AI codin
 ## Current architecture (verify against source before editing)
 
 - `src/main.zig`: application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop.
-- `src/game.zig`: command dispatch, game-state validation/transitions, mission completion rewards, and player progression calculations.
+- `src/game.zig`: shared command dispatch and game-state validation/transitions.
+- `src/detection.zig`: Detection exposure costs, warnings, compromise failure, and bounded penalty.
+- `src/progression.zig`: XP thresholds, player levels, and mission reward progression.
 - `src/player.zig`: player profile, typed equipment ownership, utility slot, upgrade levels, and pure risk modifier calculations.
 - `src/mission.zig`: mission/contract data types, optional topology reference, difficulty classification, and typed objective definitions.
 - `src/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and graph validation.
