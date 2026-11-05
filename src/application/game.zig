@@ -291,6 +291,7 @@ pub fn runCommand(
                 mission.name, mission.target, mission.difficulty.label(), mission.password_hint, mission.encrypted_file, mission.decryption_hint,
             });
             if (mission.topology != null) try writer.writeAll("Network: use 'map' to inspect nodes and objective locations.\n");
+            if (session.modifier) |modifier| try writer.print("Mission modifier: {s}\nEffect: {s}\n", .{ modifier.label(), modifier.description() });
             try terminal.printObjectives(writer, mission, session.*);
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "objectives")) {
