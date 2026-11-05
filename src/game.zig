@@ -1,6 +1,10 @@
 const std = @import("std");
 const Mission = @import("mission.zig").Mission;
-const MissionSession = @import("mission_state.zig").MissionSession;
+const MissionState = @import("mission_state.zig");
+const MissionSession = MissionState.MissionSession;
+const MissionPreparation = MissionState.MissionPreparation;
+const MissionLoadout = MissionState.MissionLoadout;
+const UtilityEquipment = @import("player.zig").UtilityEquipment;
 const Player = @import("player.zig").Player;
 const save = @import("save.zig");
 const terminal = @import("terminal.zig");
@@ -8,6 +12,18 @@ const shop = @import("shop.zig");
 const commands = @import("commands.zig");
 
 pub const detection_failure_penalty: u32 = 50;
+
+fn parseUtility(name: []const u8) ?UtilityEquipment {
+    if (std.mem.eql(u8, name, "silent-boots")) return .silent_boots;
+    if (std.mem.eql(u8, name, "signal-scrubber")) return .signal_scrubber;
+    return null;
+}
+
+pub fn currentLoadout(player: Player) MissionLoadout {
+    const utility = player.equipment.equipped_utility orelse return .{};
+    if (!player.equipment.owns(utility)) return .{};
+    return .{ .utility = utility, .level = player.equipment.level(utility) };
+}
 
 fn atMissionNode(mission: Mission, session: MissionSession, expected: []const u8) bool {
     if (mission.topology == null) return true;
@@ -67,13 +83,14 @@ fn applyDetection(
     return false;
 }
 
-pub fn runCommand(
+pub fn runCommandWithPreparation(
     writer: anytype,
     line: []const u8,
     player: *Player,
     missions: []Mission,
     active: *?usize,
     session: *MissionSession,
+    preparation: *MissionPreparation,
 ) !bool {
     const parsed = commands.parse(line) orelse return true;
     const command = parsed.name;
