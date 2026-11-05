@@ -1,5 +1,6 @@
 const std = @import("std");
 const Mission = @import("mission.zig").Mission;
+const MissionSession = @import("mission_state.zig").MissionSession;
 const Player = @import("player.zig").Player;
 const save = @import("save.zig");
 const terminal = @import("terminal.zig");
@@ -39,10 +40,7 @@ pub fn runCommand(
     player: *Player,
     missions: []Mission,
     active: *?usize,
-    scanned: *bool,
-    connected: *bool,
-    access_granted: *bool,
-    decrypted: *bool,
+    session: *MissionSession,
 ) !bool {
     const parsed = commands.parse(line) orelse return true;
     const command = parsed.name;
@@ -69,10 +67,7 @@ pub fn runCommand(
             for (missions, 0..) |mission, index| {
                 if (std.mem.eql(u8, mission.id, arg) and !mission.completed and playerLevel(player.*) >= mission.required_level) {
                     active.* = index;
-                    scanned.* = false;
-                    connected.* = false;
-                    access_granted.* = false;
-                    decrypted.* = false;
+                    session.start();
                     found = true;
                     try writer.print("Contract accepted: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
                     break;
@@ -95,29 +90,29 @@ pub fn runCommand(
             if (!std.mem.eql(u8, arg, missions[index].target)) {
                 try writer.writeAll("No active contract matches that target.\n");
             } else {
-                scanned.* = true;
+                session.markScanned();
                 try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                 try writer.writeAll("A password challenge was identified.\n");
             }
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "connect")) {
         if (active.*) |index| {
-            if (!scanned.* or !std.mem.eql(u8, arg, missions[index].target)) {
+            if (!session.hasScanned() or !std.mem.eql(u8, arg, missions[index].target)) {
                 try writer.writeAll("Scan the active target first: scan <target>\n");
             } else {
-                connected.* = true;
+                session.connected = true;
                 try writer.print("Simulated session established with {s}.\n", .{arg});
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "disconnect")) {
-        connected.* = false;
+        session.connected = false;
         try writer.writeAll("Session closed.\n");
     } else if (std.mem.eql(u8, command, "brute")) {
         if (active.*) |index| {
-            if (!connected.*) {
+            if (!session.connected) {
                 try writer.writeAll("No session. Connect to the target first.\n");
             } else if (std.mem.eql(u8, arg, missions[index].password)) {
-                access_granted.* = true;
+                session.markAuthenticated();
                 try writer.writeAll("[ACCESS GRANTED] Authentication challenge solved.\n");
             } else {
                 try writer.writeAll("[ACCESS DENIED] Incorrect password. Check the mission briefing.\n");
@@ -125,12 +120,12 @@ pub fn runCommand(
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "decrypt")) {
         if (active.*) |index| {
-            if (!access_granted.*) {
+            if (!session.isAuthenticated()) {
                 try writer.writeAll("Authentication is required before decryption.\n");
             } else if (!player.has_decryptor) {
                 try writer.writeAll("Missing tool: decryptor. Visit the shop.\n");
             } else if (std.mem.eql(u8, arg, missions[index].decryption_key)) {
-                decrypted.* = true;
+                session.markDecrypted();
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now extract the file.\n");
             } else {
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
@@ -138,16 +133,13 @@ pub fn runCommand(
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "extract")) {
         if (active.*) |index| {
-            if (!decrypted.* or !std.mem.eql(u8, arg, missions[index].encrypted_file)) {
+            if (!session.isDecrypted() or !std.mem.eql(u8, arg, missions[index].encrypted_file)) {
                 try writer.writeAll("The requested file is unavailable or still encrypted.\n");
             } else {
                 const finished = missions[index];
                 missions[index].completed = true;
                 active.* = null;
-                scanned.* = false;
-                connected.* = false;
-                access_granted.* = false;
-                decrypted.* = false;
+                session.reset();
                 try writer.print("[EXTRACTED] {s}\n", .{finished.encrypted_file});
                 try completeMission(writer, player, finished);
             }
