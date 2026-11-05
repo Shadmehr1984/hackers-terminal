@@ -83,6 +83,33 @@ const quiet_exit_topology = Topology{
     .extract_node = "exit",
 };
 
+const ghost_signal_nodes = [_]Node{
+    .{ .id = "entry", .label = "Abandoned relay entrance" },
+    .{ .id = "uplink", .label = "Uplink switchboard" },
+    .{ .id = "handshake", .label = "Handshake relay" },
+    .{ .id = "cache", .label = "Signal cache" },
+    .{ .id = "mirror", .label = "Mirrored traffic branch" },
+    .{ .id = "beacon", .label = "Ghost beacon" },
+};
+const ghost_signal_links = [_]Link{
+    .{ .from = "entry", .to = "uplink" },
+    .{ .from = "uplink", .to = "handshake" },
+    .{ .from = "handshake", .to = "cache" },
+    .{ .from = "cache", .to = "beacon" },
+    .{ .from = "uplink", .to = "mirror" },
+    .{ .from = "mirror", .to = "cache" },
+};
+const ghost_signal_topology = Topology{
+    .nodes = &ghost_signal_nodes,
+    .links = &ghost_signal_links,
+    .entry_node = "entry",
+    .scan_node = "uplink",
+    .auth_node = "handshake",
+    .decrypt_node = "cache",
+    .analyze_node = "cache",
+    .extract_node = "beacon",
+};
+
 const cold_storage_objectives: []const MissionObjective = &.{
     .{ .kind = .scan_target, .description = "Survey vault-01.local and identify its exposed service." },
     .{ .kind = .authenticate, .description = "Authenticate to the vault service." },
@@ -107,8 +134,17 @@ const quiet_exit_objectives: []const MissionObjective = &.{
     .{ .kind = .analyze_metadata, .description = "Analyze manifest metadata to uncover an alternate relay marker.", .optional = true, .bonus_reward = 125 },
 };
 
+const ghost_signal_objectives: []const MissionObjective = &.{
+    .{ .kind = .scan_target, .description = "Survey signal-04.local and identify the dormant uplink." },
+    .{ .kind = .authenticate, .description = "Authenticate through the handshake relay." },
+    .{ .kind = .decrypt_file, .description = "Decrypt the ghost-signal.enc transmission." },
+    .{ .kind = .extract_file, .description = "Recover ghost-signal.enc from the beacon." },
+    .{ .kind = .analyze_metadata, .description = "Analyze the transmission metadata to identify its origin marker.", .optional = true, .bonus_reward = 175 },
+};
+
 /// Returns the built-in contracts with their original order and configuration.
-pub fn defaultMissions() [3]Mission {
+/// job-04 is appended so persisted indices 0..2 retain their original meaning.
+pub fn defaultMissions() [4]Mission {
     return .{
         .{
             .id = "job-01",
@@ -157,6 +193,23 @@ pub fn defaultMissions() [3]Mission {
             .reward = 800,
             .xp_reward = 200,
             .required_level = 3,
+        },
+        .{
+            .id = "job-04",
+            .name = "Ghost Signal",
+            .target = "signal-04.local",
+            .difficulty = .hard,
+            .objectives = ghost_signal_objectives,
+            .topology = &ghost_signal_topology,
+            .password = "glasshouse",
+            .password_hint = "A transparent shelter used to grow delicate plants.",
+            .encrypted_file = "ghost-signal.enc",
+            .decryption_hint = "A sudden, brief fall of rain.",
+            .decryption_key = "cloudburst",
+            .reward = 1100,
+            .xp_reward = 250,
+            .required_level = 3,
+            .required_reputation = 3,
         },
     };
 }
