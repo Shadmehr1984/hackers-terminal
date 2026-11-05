@@ -8,7 +8,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | --- | --- | --- |
 | `help` | None | Print the command list and mission flow |
 | `status` | None | Show player profile, decryptor ownership, active utility, active contract, and detection level/band |
-| `missions` | None | List contracts, difficulty labels, and level/Reputation requirements |
+| `missions` | None | Legacy compact list of contracts, difficulty labels, and level/Reputation requirements; behavior is unchanged |\n| `board` | None | Open the Contract Board with categories, reward ranges, availability states, and reasons |
 | `contacts` | None | Show both fictional contacts and their unlock status |
 | `contact <id>` | `broker` or `fixer` | Inspect a contact, its role, and relevant offers |
 | `offers` | None | List currently actionable contact offers |
@@ -23,7 +23,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `clear` | None | Clear the terminal using an ANSI escape sequence |
 | `exit` | None | Leave the game |
 
-## Mission commands
+## Contract Board\n\nUse `board` to inspect every catalog contract without changing the existing `missions` command. Entries remain in catalog order and show category, difficulty, base-to-maximum cash reward, XP, and one derived state: `AVAILABLE`, `LOCKED`, `COMPLETED`, `EXCLUSIVE`, or `UNAVAILABLE`. Locked entries explain each unmet level/Reputation requirement. Exclusive entries must be obtained through their Contact offer. While another contract is active or being prepared, other incomplete entries remain visible as unavailable; completed entries remain completed. The Board does not reveal puzzle clues or answers and does not save any additional state.\n\n## Mission commands
 
 | Command | Arguments | Prerequisites | Effect |
 | --- | --- | --- | --- |
