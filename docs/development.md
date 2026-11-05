@@ -46,7 +46,7 @@ The CI workflow runs:
 zig test src/main.zig
 ```
 
-This compiles and runs Zig tests declared in the source file. The current repository does not define a dedicated test suite yet. As modules are extracted, add focused tests for independently testable data and game logic. Persistence currently remains behavior-compatible with V2, V1, and the original legacy save layouts. `main.zig` imports the extracted modules, including `save.zig`, so this command also checks that those module imports compile.
+This compiles and runs Zig tests declared in the source file. The current repository does not define a dedicated test suite yet. As modules are extracted, add focused tests for independently testable data and game logic. Persistence currently remains behavior-compatible with V2, V1, and the original legacy save layouts. `main.zig` imports the extracted modules, including `save.zig` and `terminal.zig`, so this command also checks that those module imports compile.
 
 ## Continuous integration
 
