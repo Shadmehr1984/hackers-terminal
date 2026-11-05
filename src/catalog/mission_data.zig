@@ -1,4 +1,7 @@
 const Mission = @import("../domain/mission.zig").Mission;
+const ModifierId = @import("../domain/mission_modifier.zig").ModifierId;
+
+const all_mission_modifiers = [_]ModifierId{ .heightened_monitoring, .security_sweep, .hardened_encryption };
 const MissionObjective = @import("../domain/mission.zig").MissionObjective;
 const Topology = @import("../domain/topology.zig").Topology;
 const Node = @import("../domain/topology.zig").Node;
@@ -152,6 +155,7 @@ pub fn defaultMissions() [4]Mission {
             .target = "vault-01.local",
             .difficulty = .easy,
             .category = .data_recovery,
+            .allowed_modifiers = &all_mission_modifiers,
             .objectives = cold_storage_objectives,
             .topology = &cold_storage_topology,
             .password = "orion42",
@@ -169,6 +173,7 @@ pub fn defaultMissions() [4]Mission {
             .target = "archive-02.local",
             .difficulty = .medium,
             .category = .intelligence,
+            .allowed_modifiers = &all_mission_modifiers,
             .objectives = paper_trail_objectives,
             .topology = &paper_trail_topology,
             .password = "copper17",
@@ -186,6 +191,7 @@ pub fn defaultMissions() [4]Mission {
             .target = "relay-03.local",
             .difficulty = .hard,
             .category = .extraction,
+            .allowed_modifiers = &all_mission_modifiers,
             .objectives = quiet_exit_objectives,
             .topology = &quiet_exit_topology,
             .password = "northstar",
@@ -203,6 +209,7 @@ pub fn defaultMissions() [4]Mission {
             .target = "signal-04.local",
             .difficulty = .hard,
             .category = .infiltration,
+            .allowed_modifiers = &all_mission_modifiers,
             .objectives = ghost_signal_objectives,
             .topology = &ghost_signal_topology,
             .password = "glasshouse",

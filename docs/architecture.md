@@ -27,9 +27,9 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
 | `src/domain/contract_board.zig` | Pure derived availability and reward-range calculations for the separate `board` command; no persistence or I/O |
-| `src/domain/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, `MissionCategory`, and typed `MissionObjective` definitions |
+| `src/domain/mission.zig` | Public `Mission` contract data type, static allowed-modifier metadata, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, `MissionCategory`, and typed `MissionObjective` definitions |
 | `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
-| `src/domain/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
+| `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
 | `src/catalog/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
 | `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, Contacts, offers, history, and topology map |
@@ -75,7 +75,7 @@ The player profile type is defined in `src/domain/player.zig` and imported by `m
 
 ### Temporary preparation and mission session
 
-`MissionPreparation` stores the prepared mission index and selected owned utility before launch. It is runtime-only and is cleared on launch or cancellation. The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than independent booleans.
+`MissionPreparation` stores the prepared mission index, selected owned utility, and optional selected mission modifier before launch. Modifier eligibility is authored in each mission's static allowlist; the `modifier` command lists, selects, or clears one allowed choice. Selection is runtime-only, rejected selections leave the prior choice unchanged, and preparation clearing resets it. On accept, the utility and modifier are copied into `MissionSession`; no preparation or modifier state is serialized. The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than independent booleans.
 
 The session tracks the following related pieces of temporary state:
 - `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
@@ -84,12 +84,14 @@ The session tracks the following related pieces of temporary state:
 - `detection_level`: simulated exposure from 0 to 100, with Quiet, Noticed, Traced, Critical, and Compromised bands.
 - `current_node`: the current node ID in the active mission topology, or null for missions without topology.
 - `traversal_count`: number of successful node-to-node movements in this session.
-- `loadout`: the selected utility and upgrade level snapshotted at launch; Detection modifiers read this snapshot rather than the player inventory.
+- `loadout`: the selected utility and upgrade level snapshotted at launch; equipment Detection costs read this snapshot rather than the player inventory.
+- `modifier`: the optional typed mission modifier snapshotted at launch; modifier effects never read the preparation state or live player equipment.
+- `completion_reward_paid`: runtime guard that prevents the same active session from applying completion rewards more than once; reset with the session and never serialized.
 - `fixer_service_used`: whether the one-use Fixer Detection service has been consumed during this mission.
 
 Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
 
-Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`. Objective completion and detection exposure are runtime-only and are cleared when a mission starts or resets. Detection reaching 100 fails the active contract and applies a $50 penalty, capped at the player's current balance.
+Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`. Objective completion, detection exposure, the utility loadout snapshot, and the modifier snapshot are runtime-only and are cleared when a mission starts or resets. `heightened-monitoring` adds 2 after the adjusted successful movement cost; `security-sweep` adds 8 after every third successful traversal; `hardened-encryption` changes incorrect decryption exposure from 10 to 15. All modifier Detection events use `detection.apply` and its compromise path. Detection reaching 100 fails the active contract and applies a $50 penalty, capped at the player's current balance.
 
 ## Runtime flow
 
@@ -132,13 +134,13 @@ inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
 
 `progression.playerLevel` calculates the level from total XP. The first threshold is 100 XP and each subsequent threshold increases by 150 XP. `progression.xpForNextLevel` returns the cumulative threshold associated with a level for display in the status output.
 
-`progression.reputationTier` maps Reputation 0 to Unknown, 1–2 to Recognized, 3–4 to Trusted, and 5+ to Elite. `progression.completeMission` adds the mission's cash reward and optional-objective bonus, increments Reputation by one, grants one additional Reputation when every optional objective is complete, adds the XP reward, and prints the resulting tier and any level-up.
+`progression.reputationTier` maps Reputation 0 to Unknown, 1–2 to Recognized, 3–4 to Trusted, and 5+ to Elite. `progression.completeMission` adds the mission's cash reward, optional-objective bonus, and optional modifier completion bonus (+$50/+25 XP), increments Reputation by one, grants one additional Reputation when every optional objective is complete, and prints the resulting tier and any level-up.
 
 ## Persistence boundary
 
 Persistent state includes balance, reputation, XP, decryptor ownership, utility ownership, equipped utility, both utility upgrade levels, active mission index, and mission completion flags. Save V3 is current; `src/persistence/save.zig` continues to read V2, V1, and the original legacy layout. Older saves migrate with no utility equipment owned or equipped.
 
-Mission difficulty, objective definitions, and Reputation requirements are static catalog metadata and are not serialized. Contact unlocks and tiers are derived from the persisted Reputation value. Fixer service use is runtime-only. Temporary `MissionPreparation`, the run-specific loadout snapshot, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
+Mission difficulty, objective definitions, and Reputation requirements are static catalog metadata and are not serialized. Contact unlocks and tiers are derived from the persisted Reputation value. Fixer service use is runtime-only. Temporary `MissionPreparation`, the run-specific loadout and modifier snapshots, the per-session completion payout guard, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
 ## Error handling style
 

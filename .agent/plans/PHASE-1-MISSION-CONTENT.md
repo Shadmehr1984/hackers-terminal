@@ -1,7 +1,7 @@
 # Phase 1 — Contract and Mission Content
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** Planned; implementation not authorized  
+**Status:** HT-006 implemented; HT-007 implementation complete (PR #11 open/unmerged; CI passed); HT-008–009 planned  
 **Goal:** Increase contract variety and replayability before expanding the wider world.
 
 ## Shared baseline and constraints
@@ -43,29 +43,47 @@ Online job boards, real clients, player-to-player contracts, story branches.
 ## HT-007 — Mission Modifiers
 
 ### Goal
-Make repeat runs of a contract mechanically different through a small set of understandable conditions.
+Make repeat runs of an existing contract mechanically different through a small set of understandable, player-selected conditions.
 
-### Design direction
-Potential modifier categories include heightened monitoring, encrypted storage, limited access, security sweeps, time pressure, decoy data, and unstable nodes. Each modifier must define exact effects, visibility, eligibility, stacking/exclusion rules, and reset behavior. Do not choose numeric costs in this plan.
+### Owner-approved design
+- Manual player selection during Preparation; no random/seeded selection.
+- New separate command: `modifier [id|none]`. Preserve all existing command behavior, especially `missions` and `board`.
+- Zero or one modifier per run; no stacking. No selection means normal mission rules.
+- Exact effects and bonus are disclosed before `accept`; the selected modifier is copied into an immutable runtime session snapshot.
+- Owner-confirmed on 2026-11-05: all three modifiers are available for all four current built-in contracts. Eligibility remains static catalog metadata.
+- Modifier state and Security Sweep cadence are runtime-only. No Save V3 or legacy format changes.
 
-Prefer authored or seeded deterministic selection. The same run seed and contract definition must reproduce the same modifier set. Display modifiers during preparation before the player commits.
+| ID | Exact effect | Successful completion bonus |
+|---|---|---|
+| `heightened-monitoring` | +2 Detection per successful topology traversal, after Silent Boots adjustment | +$50 and +25 XP |
+| `security-sweep` | +8 Detection after every third successful traversal (3, 6, 9, ...); revisits count; rejected moves do not | +$50 and +25 XP |
+| `hardened-encryption` | Incorrect decryption-key attempt costs +15 Detection instead of +10; successful decryption remains +10 | +$50 and +25 XP |
 
-### Likely scope
-Mission modifier definitions/catalog, a run-specific modifier snapshot in mission runtime state, focused pure rule functions, application coordination, terminal presentation, tests/docs.
+The completion bonus is granted exactly once only when a modified contract completes successfully. It stacks with existing base rewards and earned optional-objective cash bonuses. It is not granted for compromise, cancellation, or incomplete runs. All modifier Detection events use the existing central Detection/failure path.
+
+### Command contract
+- `modifier`: show allowed choices, exact effects, bonus, and current selection during Preparation.
+- `modifier <id>`: select an allowed ID for the prepared contract.
+- `modifier none`: clear the selection.
+- Reject selection outside Preparation, unknown IDs, and IDs not allowed by that contract without mutating state.
+- Preparation starts with no selection. Accept snapshots the selection. Retry starts without the previous modifier.
+- The existing command-plus-first-argument parser is sufficient; do not broaden it.
+
+### Likely ownership
+- New `src/domain/mission_modifier.zig`: typed IDs/definitions and pure effect metadata.
+- `src/domain/mission.zig` / `src/catalog/mission_data.zig`: authored eligibility.
+- `src/domain/mission_state.zig`: Preparation selection, Session snapshot, and successful traversal count for Security Sweep.
+- `src/application/game.zig`: command, lifecycle, event calculations, and reward coordination.
+- `src/application/detection.zig`: single central Detection application and compromise path.
+- `src/domain/progression.zig`: one-time +25 XP bonus through existing progression flow.
+- `src/presentation/terminal.zig`: pre-accept choice disclosure and active modifier display.
+- `tests/`: focused domain and integration coverage, registered in `tests/test_all.zig`.
 
 ### Acceptance criteria
-- [ ] A modifier is typed, documented, and has a bounded observable effect.
-- [ ] The player sees all active modifiers before accepting the contract.
-- [ ] Modifier combinations are validated; incompatible modifiers cannot coexist.
-- [ ] A run's selected modifiers remain stable for that run and do not mutate static mission definitions.
-- [ ] Detection, objective, reward, and retry interactions have boundary tests.
-- [ ] Random selection, if used, is injectable/seeded and reproducible in tests.
+See the complete implementation contract in [HT-007 task brief](../tasks/HT-007-mission-modifiers.md). The implementation must cover typed definitions, eligibility, manual selection, pre-accept disclosure, immutable session snapshot, equipment/Detection interactions, sweep cadence, hardened decryption behavior, immediate compromise at 100, one-time payout, retry reset, and unchanged save compatibility. Zig 0.13.0 checks, docs, review, and actual CI are required before marking Implemented.
 
-### Dependencies
-HT-006 Contract Board; existing Detection, topology, and preparation systems.
-
-### Out of scope
-Unexplained random punishment, unseeded nondeterminism, real-time timers, changing existing balance without approval.
+### Dependencies and scope boundaries
+Depends on HT-006 Contract Board, current Mission Preparation, MissionSession, equipment loadout snapshots, Detection, and progression. Do not add other modifier types, random selection, stacking, real-time timers, new missions, baseline rebalance, or persistence. Design approval is recorded in [ADR 0009](../decisions/0009-mission-modifiers.md); implementation is authorized and in progress; follow the milestone plan in the task brief.
 
 ## HT-008 — Hidden Objectives
 

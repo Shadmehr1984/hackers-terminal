@@ -44,17 +44,22 @@ pub fn xpForNextLevel(level: u32) u32 {
 }
 
 /// Applies a completed contract's cash, XP, and Reputation rewards and writes the result.
-pub fn completeMission(writer: anytype, player: *Player, mission: Mission, session: MissionSession) !void {
+pub fn completeMission(writer: anytype, player: *Player, mission: Mission, session: *MissionSession) !void {
+    if (session.completion_reward_paid) return;
+    session.completion_reward_paid = true;
+    const run = session.*;
     const old_level = playerLevel(player.*);
-    const bonus_reward = session.optionalReward(mission.objectives);
-    const reputation_bonus: u32 = if (session.allOptionalObjectivesComplete(mission.objectives)) 1 else 0;
+    const bonus_reward = run.optionalReward(mission.objectives);
+    const modifier_bonus = if (run.modifier) |modifier| modifier.completionBonus() else @import("mission_modifier.zig").CompletionBonus{ .cash = 0, .xp = 0 };
+    const reputation_bonus: u32 = if (run.allOptionalObjectivesComplete(mission.objectives)) 1 else 0;
     const reputation_gain: u32 = 1 + reputation_bonus;
-    player.balance += mission.reward + bonus_reward;
+    player.balance += mission.reward + bonus_reward + modifier_bonus.cash;
     player.reputation += reputation_gain;
-    player.xp += mission.xp_reward;
+    player.xp += mission.xp_reward + modifier_bonus.xp;
     const new_level = playerLevel(player.*);
     try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}", .{ mission.name, mission.reward });
     if (bonus_reward > 0) try writer.print("\nOptional objective bonus: +${d}", .{bonus_reward});
+    if (modifier_bonus.cash > 0 or modifier_bonus.xp > 0) try writer.print("\nMission modifier bonus: +${d}, +{d} XP", .{ modifier_bonus.cash, modifier_bonus.xp });
     try writer.print("\nXP gained: {d}\nReputation increased by {d} ({s}).\n", .{
         mission.xp_reward,
         reputation_gain,

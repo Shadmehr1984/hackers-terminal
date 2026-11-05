@@ -4,6 +4,7 @@ const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
 const Player = @import("../domain/player.zig").Player;
 const UtilityEquipment = @import("../domain/player.zig").UtilityEquipment;
+const ModifierId = @import("../domain/mission_modifier.zig").ModifierId;
 const std = @import("std");
 const progression = @import("../domain/progression.zig");
 const contacts = @import("../domain/contacts.zig");
@@ -42,6 +43,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  Detection is shown by 'status'; risky actions increase exposure.
         \\  prepare <id>         Review a contract and prepare its loadout
         \\  loadout <utility|none> Select this run's utility
+        \\  modifier [id|none] Select or inspect this run's mission modifier
         \\  accept <id>          Launch the prepared contract
         \\  cancel               Cancel mission preparation
         \\  scan <target>        Scan the active fictional target
@@ -101,6 +103,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
         });
         if (session.current_node) |node| try writer.print("  Location:    {s}\n", .{node});
         try writer.print("  Traversals:  {d}\n", .{session.traversal_count});
+        if (session.modifier) |modifier| try writer.print("  Modifier:    {s}\n", .{modifier.label()});
     } else {
         try writer.writeAll("  Active job:  none\n  Detection:   inactive\n");
     }
@@ -283,7 +286,7 @@ pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSessio
 }
 
 /// Writes a pre-launch briefing without revealing undiscovered puzzle clues or answers.
-pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selected_utility: ?UtilityEquipment) !void {
+pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selected_utility: ?UtilityEquipment, selected_modifier: ?ModifierId) !void {
     try writer.print("MISSION PREPARATION: {s} ({s})\nTarget: {s}\nDifficulty: {s}\nReward: ${d} + {d} XP\n", .{
         mission.name, mission.id, mission.target, mission.difficulty.label(), mission.reward, mission.xp_reward,
     });
@@ -328,9 +331,31 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
             try writer.print("{d} Detection (Signal Scrubber).\n", .{cost});
         } else try writer.writeAll("15 Detection.\n");
     } else try writer.writeAll("15 Detection.\n");
-    try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility, then 'accept <id>' to launch or 'cancel' to leave preparation.\n");
+    try writer.writeAll("\n");
+    try printModifierOptions(writer, mission, selected_modifier);
+    try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility; use 'modifier <id|none>' to choose one modifier. Then 'accept <id>' to launch or 'cancel' to leave preparation.\n");
 }
 
+/// Writes the modifiers allowed by a prepared contract and the current selection.
+pub fn printModifierOptions(writer: anytype, mission: Mission, selected: ?ModifierId) !void {
+    try writer.writeAll("MISSION MODIFIERS (choose at most one)\n");
+    if (mission.allowed_modifiers.len == 0) {
+        try writer.writeAll("  No modifiers are available for this contract.\n");
+        return;
+    }
+    for (mission.allowed_modifiers) |modifier| {
+        const bonus = modifier.completionBonus();
+        try writer.print("  {s}{s} — {s}\n    Effect: {s}\n    Successful completion bonus: +${d}, +{d} XP\n", .{
+            if (selected != null and selected.? == modifier) "[SELECTED] " else "",
+            modifier.commandId(),
+            modifier.label(),
+            modifier.description(),
+            bonus.cash,
+            bonus.xp,
+        });
+    }
+    try writer.print("  Current selection: {s}\n", .{if (selected) |modifier| modifier.commandId() else "none"});
+}
 /// Writes the completion history for the supplied contracts.
 pub fn printHistory(writer: anytype, missions: []const Mission) !void {
     try writer.writeAll("CONTRACT HISTORY\n");

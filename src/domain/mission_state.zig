@@ -1,6 +1,8 @@
 const MissionObjective = @import("mission.zig").MissionObjective;
 const MissionObjectiveKind = @import("mission.zig").MissionObjectiveKind;
 const UtilityEquipment = @import("player.zig").UtilityEquipment;
+const Mission = @import("mission.zig").Mission;
+const ModifierId = @import("mission_modifier.zig").ModifierId;
 
 /// A temporary, per-contract equipment snapshot. It never changes player inventory.
 pub const MissionLoadout = struct {
@@ -24,11 +26,21 @@ pub const MissionLoadout = struct {
 pub const MissionPreparation = struct {
     mission_index: ?usize = null,
     selected_utility: ?UtilityEquipment = null,
+    selected_modifier: ?ModifierId = null,
 
-    /// Clears the prepared contract and selected utility.
+    /// Selects a modifier only when the prepared contract explicitly allows it.
+    /// A rejected selection leaves the current choice unchanged.
+    pub fn selectModifier(self: *MissionPreparation, mission: Mission, modifier: ModifierId) bool {
+        if (!mission.allowsModifier(modifier)) return false;
+        self.selected_modifier = modifier;
+        return true;
+    }
+
+    /// Clears the prepared contract, selected utility, and selected modifier.
     pub fn clear(self: *MissionPreparation) void {
         self.mission_index = null;
         self.selected_utility = null;
+        self.selected_modifier = null;
     }
 };
 
@@ -72,6 +84,8 @@ pub const MissionSession = struct {
     current_node: ?[]const u8 = null,
     traversal_count: u32 = 0,
     loadout: MissionLoadout = .{},
+    modifier: ?ModifierId = null,
+    completion_reward_paid: bool = false,
     fixer_service_used: bool = false,
 
     /// Starts a fresh accepted mission and clears transient run state.
@@ -83,6 +97,8 @@ pub const MissionSession = struct {
         self.current_node = null;
         self.traversal_count = 0;
         self.loadout = .{};
+        self.modifier = null;
+        self.completion_reward_paid = false;
         self.fixer_service_used = false;
     }
 
@@ -90,6 +106,12 @@ pub const MissionSession = struct {
     pub fn startWithLoadout(self: *MissionSession, loadout: MissionLoadout) void {
         self.start();
         self.loadout = loadout;
+    }
+
+    /// Starts a fresh mission with an immutable run-specific utility and modifier snapshot.
+    pub fn startWithModifier(self: *MissionSession, loadout: MissionLoadout, modifier: ?ModifierId) void {
+        self.startWithLoadout(loadout);
+        self.modifier = modifier;
     }
 
     /// Returns the mission session to its inactive default state.
@@ -101,6 +123,8 @@ pub const MissionSession = struct {
         self.current_node = null;
         self.traversal_count = 0;
         self.loadout = .{};
+        self.modifier = null;
+        self.completion_reward_paid = false;
         self.fixer_service_used = false;
     }
 

@@ -1,3 +1,5 @@
+const ModifierId = @import("mission_modifier.zig").ModifierId;
+
 /// Re-exports the static topology type used by mission definitions.
 pub const Topology = @import("topology.zig").Topology;
 
@@ -59,6 +61,8 @@ pub const Mission = struct {
     target: []const u8,
     difficulty: MissionDifficulty,
     category: MissionCategory = .data_recovery,
+    /// Static catalog allowlist; an empty list means no modifiers are available.
+    allowed_modifiers: []const ModifierId = &.{},
     objectives: []const MissionObjective,
     topology: ?*const Topology = null,
     password: []const u8,
@@ -72,4 +76,12 @@ pub const Mission = struct {
     required_reputation: u32 = 0,
     requires_contact_offer: bool = false,
     completed: bool = false,
+
+    /// Reports whether this contract explicitly allows the supplied modifier.
+    pub fn allowsModifier(self: Mission, modifier: ModifierId) bool {
+        for (self.allowed_modifiers) |allowed| {
+            if (allowed == modifier) return true;
+        }
+        return false;
+    }
 };

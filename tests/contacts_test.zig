@@ -65,13 +65,19 @@ test "mission completion grants one reputation and one extra for all optional ob
     session.completeObjective(.extract_file);
     var capture = Capture{};
 
-    try progression.completeMission(&capture, &player, mission, session);
+    try progression.completeMission(&capture, &player, mission, &session);
     try std.testing.expectEqual(@as(u32, 1), player.reputation);
 
     player = Player{};
+    session.reset();
+    session.start();
+    session.completeObjective(.scan_target);
+    session.completeObjective(.authenticate);
+    session.completeObjective(.decrypt_file);
+    session.completeObjective(.extract_file);
     session.completeObjective(.analyze_metadata);
     capture.len = 0;
-    try progression.completeMission(&capture, &player, mission, session);
+    try progression.completeMission(&capture, &player, mission, &session);
     try std.testing.expectEqual(@as(u32, 2), player.reputation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Reputation increased by 2") != null);
 }

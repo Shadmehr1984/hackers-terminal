@@ -6,6 +6,7 @@ const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
 const Player = @import("../src/player.zig").Player;
 const Mission = @import("../src/mission.zig").Mission;
+const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 
 const TestWriter = struct {
     pub fn writeAll(_: @This(), _: []const u8) error{}!void {}
@@ -279,4 +280,140 @@ test "incorrect retries after authentication and decryption do not add detection
     try run(writer, "decrypt wrong-key", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(detection_after_decryption, session.detection_level);
     try std.testing.expectEqual(@as(?usize, 0), active);
+}
+
+test "heightened monitoring adds two after the utility-adjusted successful traversal cost" {
+    var player = Player{};
+    player.equipment.setOwned(.silent_boots);
+    player.equipment.equipped_utility = .silent_boots;
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(writer, "modifier heightened-monitoring", &player, &missions, &active, &session, &preparation);
+    try run(writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try run(writer, "move service", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u8, 6), session.detection_level);
+    try std.testing.expectEqual(@as(u32, 1), session.traversal_count);
+
+    try run(writer, "move vault", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u8, 6), session.detection_level);
+    try std.testing.expectEqual(@as(u32, 1), session.traversal_count);
+}
+
+test "security sweep adds eight only after every third successful traversal" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(writer, "modifier security-sweep", &player, &missions, &active, &session, &preparation);
+    try run(writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+
+    try run(writer, "move service", &player, &missions, &active, &session, &preparation);
+    try run(writer, "move entry", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u8, 10), session.detection_level);
+    try run(writer, "move vault", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u32, 2), session.traversal_count);
+    try run(writer, "move service", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u32, 3), session.traversal_count);
+    try std.testing.expectEqual(@as(u8, 23), session.detection_level);
+}
+
+test "security sweep does not run after the base traversal compromises the contract" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{
+        .progress = .accepted,
+        .detection_level = 95,
+        .current_node = "service",
+        .traversal_count = 2,
+        .modifier = .security_sweep,
+    };
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "move corridor", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(active == null);
+    try std.testing.expectEqual(@as(u32, 200), player.balance);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(session.modifier == null);
+    try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
+}
+
+test "hardened encryption increases only incorrect decryption-key exposure" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(writer, "modifier hardened-encryption", &player, &missions, &active, &session, &preparation);
+    try run(writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try run(writer, "move service", &player, &missions, &active, &session, &preparation);
+    try run(writer, "scan vault-01.local", &player, &missions, &active, &session, &preparation);
+    try run(writer, "connect vault-01.local", &player, &missions, &active, &session, &preparation);
+    try run(writer, "brute orion42", &player, &missions, &active, &session, &preparation);
+    try run(writer, "move corridor", &player, &missions, &active, &session, &preparation);
+    try run(writer, "move vault", &player, &missions, &active, &session, &preparation);
+    try run(writer, "buy decryptor", &player, &missions, &active, &session, &preparation);
+    try run(writer, "decrypt wrong-key", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u8, 45), session.detection_level);
+
+    try run(writer, "decrypt midnight", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u8, 55), session.detection_level);
+    try run(writer, "decrypt wrong-key", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u8, 55), session.detection_level);
+}
+
+test "modified contract compromise applies only the existing penalty and no modifier reward" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{
+        .progress = .accepted,
+        .detection_level = 95,
+        .current_node = "service",
+        .modifier = .hardened_encryption,
+    };
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "move corridor", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(active == null);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(@as(u32, 200), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
+    try std.testing.expect(session.modifier == null);
+}
+
+test "modified extraction with incomplete required objectives does not pay rewards" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{
+        .progress = .decrypted,
+        .current_node = "vault",
+        .modifier = .security_sweep,
+    };
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(active != null);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(@as(u32, 250), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
+    try std.testing.expectEqual(@as(?ModifierId, .security_sweep), session.modifier);
 }

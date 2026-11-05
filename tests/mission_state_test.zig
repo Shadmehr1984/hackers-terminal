@@ -3,6 +3,9 @@ const mission_state = @import("../src/mission_state.zig");
 
 const MissionProgress = mission_state.MissionProgress;
 const MissionSession = mission_state.MissionSession;
+const MissionPreparation = mission_state.MissionPreparation;
+const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
+const mission_data = @import("../src/catalog/mission_data.zig");
 
 test "new session starts inactive and disconnected" {
     const session = MissionSession{};
@@ -110,4 +113,30 @@ test "starting and resetting a mission clear detection exposure" {
     session.reset();
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
     try std.testing.expectEqual(mission_state.DetectionBand.quiet, session.detectionBand());
+}
+
+test "preparation selects only modifiers allowed by the prepared mission" {
+    const missions = mission_data.defaultMissions();
+    var preparation = MissionPreparation{};
+
+    try std.testing.expect(preparation.selected_modifier == null);
+    try std.testing.expect(preparation.selectModifier(missions[0], .heightened_monitoring));
+    try std.testing.expectEqual(@as(?ModifierId, .heightened_monitoring), preparation.selected_modifier);
+
+    var restricted = missions[0];
+    restricted.allowed_modifiers = &.{.security_sweep};
+    try std.testing.expect(!preparation.selectModifier(restricted, .hardened_encryption));
+    try std.testing.expectEqual(@as(?ModifierId, .heightened_monitoring), preparation.selected_modifier);
+    try std.testing.expect(preparation.selectModifier(restricted, .security_sweep));
+    try std.testing.expectEqual(@as(?ModifierId, .security_sweep), preparation.selected_modifier);
+}
+
+test "clearing preparation also clears the selected modifier" {
+    const missions = mission_data.defaultMissions();
+    var preparation = MissionPreparation{};
+    try std.testing.expect(preparation.selectModifier(missions[0], .security_sweep));
+    preparation.clear();
+    try std.testing.expect(preparation.mission_index == null);
+    try std.testing.expect(preparation.selected_utility == null);
+    try std.testing.expect(preparation.selected_modifier == null);
 }

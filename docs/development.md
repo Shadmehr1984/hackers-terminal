@@ -26,9 +26,10 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/topology_test.zig` covers graph lookup, bidirectional adjacency, graph validation, and both allocation-failure points in reachability traversal.
 - `tests/equipment_test.zig` covers utility ownership, purchases, equipping, upgrade tiers, shared Detection-cost profiles, V3/V2/V1/legacy save migration, and truncated/malformed save input.
 - `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, optional rewards, and session reset behavior.
-- `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, and location-gated operations.
-- `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, matching launch, cancellation, and shared command dispatch.
-- `tests/progression_test.zig` covers cumulative XP thresholds and player levels.
+- `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, location-gated operations, modifier Detection costs, sweep cadence, and modifier failure boundaries.
+- `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, modifier command/eligibility, launch snapshots, cancellation, and one-time modifier rewards.
+- `tests/mission_modifier_test.zig` covers typed modifier IDs, exact metadata, Detection effect definitions, and the completion bonus.
+- `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, and duplicate-payout protection.
 - `tests/contacts_test.zig` covers Reputation tier thresholds, Contact unlocks, optional-objective Reputation bonuses, paid intelligence, Fixer service pricing/usage, and the Ghost Signal offer.
 - `tests/test_all.zig` is the aggregate test list that imports the test modules.
 - `test_root.zig` is the repository-root module used to run the aggregate suite while keeping all test files under `tests/`.
@@ -52,8 +53,8 @@ Preserve existing behavior unless a task explicitly requests a gameplay change. 
 ## Manual smoke test
 
 1. Run `help` and `missions`; verify each contract shows its difficulty.
-2. Run `prepare job-01`, then `accept job-01` and `briefing`; verify the briefing shows Easy, four required objectives, and one optional objective.
-3. Run `map`; verify the mission-specific nodes, links, operation locations, and current entry node are shown. Try an invalid/non-adjacent `move` and verify neither location nor Detection changes.
+2. Run `prepare job-01`; inspect the modifier list, select `heightened-monitoring`, verify its exact +2 movement effect and +$50/+25 XP completion bonus, then run `modifier none` and `accept job-01`. Verify the briefing shows Easy, four required objectives, and one optional objective.
+3. Run `status` and verify the selected modifier is shown for the active run. Run `map`; verify the mission-specific nodes, links, operation locations, and current entry node are shown. Try an invalid/non-adjacent `move` and verify neither location nor Detection changes.
 4. Run `move service`; verify Detection increases by 5. Run `objectives`; verify all five objectives are initially unchecked and the optional one displays its bonus.
 5. Verify scanning is rejected away from the assigned node; scan the target at `service` and confirm the survey objective is checked.
 6. Connect and authenticate at the assigned authentication node using the mission briefing password; confirm the authentication objective is checked.
