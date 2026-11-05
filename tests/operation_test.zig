@@ -217,7 +217,7 @@ test "operation save uses the unchanged V3 layout with no active mission index" 
 
     const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
     defer std.testing.allocator.free(data);
-    var lines = std.mem.tokenizeScalar(u8, data, '\\n');
+    var lines = std.mem.tokenizeScalar(u8, data, '\n');
     try std.testing.expectEqualStrings("HACKERS_TERMINAL_SAVE_V3", lines.next().?);
     inline for (0..8) |_| _ = lines.next().?;
     try std.testing.expectEqualStrings("-1", lines.next().?);
