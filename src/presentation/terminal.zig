@@ -276,7 +276,9 @@ pub fn printOffers(
 pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSession) !void {
     try writer.print("OBJECTIVES: {s}\n", .{mission.name});
     for (mission.objectives) |objective| {
-        const state = if (session.isObjectiveComplete(objective.kind)) "[x]" else "[ ]";
+        const objective_state = session.objective_tracker.stateOf(objective.id) orelse continue;
+        if (objective_state == .undiscovered or objective_state == .unavailable) continue;
+        const state = if (objective_state == .completed) "[x]" else "[ ]";
         const category = if (objective.optional) "[OPTIONAL] " else "";
         try writer.print("  {s} {s}{s}", .{ state, category, objective.description });
         if (objective.optional) try writer.print(" (+${d})", .{objective.bonus_reward});
@@ -293,6 +295,7 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
     try writer.print("Decryptor: {s}\n", .{if (player.equipment.has_decryptor) "owned" else "not owned — purchase before decryption"});
     try writer.writeAll("\nKNOWN OBJECTIVES\n");
     for (mission.objectives) |objective| {
+        if (objective.hidden) continue;
         try writer.print("  {s}{s}\n", .{ if (objective.optional) "[OPTIONAL] " else "", objective.description });
     }
     if (mission.topology) |topology| {
