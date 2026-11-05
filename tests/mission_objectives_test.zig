@@ -92,11 +92,11 @@ test "file and action discovery triggers are isolated from unrelated events" {
     try std.testing.expectEqual(@as(usize, 0), quiet.discoverAction(.scan_target, missions[2].objectives));
 }
 
-test "undiscovered hidden objectives become unavailable at terminal extraction" {
+test "uncompleted optional objectives become unavailable only when the contract ends" {
     const missions = mission_data.defaultMissions();
     var session = MissionSession{};
     try std.testing.expect(session.startWithMission(.{}, null, missions[0].objectives));
-    session.markUndiscoveredObjectivesUnavailable();
+    session.markUncompletedOptionalObjectivesUnavailable();
     try std.testing.expectEqual(ObjectiveState.unavailable, session.objective_tracker.stateOf("maintenance-telemetry").?);
     try std.testing.expect(!session.allOptionalObjectivesComplete(missions[0].objectives));
 }
