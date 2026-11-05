@@ -18,10 +18,10 @@ Validate restored active missions against completion flags loaded from the same 
 - [x] Tests cover an inconsistent save whose active index points to a mission marked completed, and a valid active incomplete mission.
 - [x] Replace literal backslash-n output in `printStatus` with actual newline escapes.
 - [x] Tests cover active status output, including location, and inactive status output; assert line breaks rather than literal `\\n`.
-- [ ] Save V3 layout, V1/V2/legacy compatibility, gameplay behavior, and command semantics remain unchanged.
+- [x] Save V3 layout, V1/V2/legacy compatibility, gameplay behavior, and command semantics remain unchanged.
 - [x] Update this brief and task index; correct the stale QUALITY-002 status in the task index.
 - [ ] Zig 0.13.0 formatting, build, full tests, and agent-doc check pass in GitHub Actions.
-- [ ] Complete a self-review against `.agent/review-checklist.md`; do not claim an independent reviewer unless one is actually available.
+- [x] Complete a self-review against `.agent/review-checklist.md`; no independent reviewer was available.
 
 ## Scope
 - `src/save.zig`
@@ -64,4 +64,4 @@ Reviewed the changed save loader, terminal output, regression tests, and task in
 - [ ] `zig test test_root.zig`
 - [ ] `sh scripts/check-agent-docs.sh`
 - [ ] Inspect actual GitHub Actions result for the final commit.
-- [ ] Self-review recorded; independent reviewer availability stated accurately.
+- [x] Self-review recorded; independent reviewer availability stated accurately.
