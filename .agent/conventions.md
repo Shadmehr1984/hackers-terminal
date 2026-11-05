@@ -20,7 +20,7 @@ Derived from the current source tree; re-check source before relying on this map
 | src/catalog/operation_data.zig | Authored static operation sequences and stage fact/objective links | Dispatch, runtime state, or terminal output |
 | src/domain/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/catalog/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
-| src/domain/mission_state.zig | Runtime preparation selection (utility and optional modifier), session progress, connection, per-objective tracker, detection, current node, traversal count, and per-run utility/modifier snapshots, and one-time completion payout guard | Serialization or user-facing output |
+| src/domain/mission_state.zig | Runtime preparation selection (utility, optional modifier, and OperationState), session progress, connection, per-objective tracker, detection, current node, traversal count, and per-run utility/modifier snapshots, and one-time completion payout guard | Serialization or user-facing output |
 | src/application/commands.zig | Allocation-free command/first-argument parsing | Gameplay validation and dispatch |
 | src/presentation/terminal.zig | Reusable terminal presentation | Mutating game state or deciding rewards |
 | src/persistence/save.zig | Save/load serialization and legacy compatibility | Gameplay command handling |
