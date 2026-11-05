@@ -1,8 +1,10 @@
 const Player = @import("../domain/player.zig").Player;
 const MissionSession = @import("../domain/mission_state.zig").MissionSession;
 
+/// Defines the maximum in-game balance penalty when a mission is compromised.
 pub const failure_penalty: u32 = 50;
 
+/// Applies simulated Detection exposure and resets the active run if it reaches 100.
 pub fn apply(
     writer: anytype,
     player: *Player,
