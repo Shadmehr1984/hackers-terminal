@@ -22,17 +22,21 @@ HACKERS_TERMINAL_SAVE_V3
 <mission_0_completed: 0|1>
 <mission_1_completed: 0|1>
 <mission_2_completed: 0|1>
+<mission_3_completed: 0|1>
 ```
 
 Utility ownership bit 0 represents Silent Boots; bit 1 represents Signal Scrubber. Equipped code 0 means none, 1 means Silent Boots, and 2 means Signal Scrubber. The loader clears an equipped selection and upgrade levels when the corresponding ownership bit is absent.
 
-For the current three missions, indices map as follows:
+For the current four missions, indices map as follows:
 
 | Index | Contract |
 | ---: | --- |
 | 0 | `job-01` — Cold Storage |
 | 1 | `job-02` — Paper Trail |
 | 2 | `job-03` — Quiet Exit |
+| 3 | `job-04` — Ghost Signal |
+
+The fourth mission is appended at index 3; the original indices 0–2 are unchanged. Older V3/V2/V1/legacy saves with only three completion flags leave the appended mission incomplete by default. The V3 marker and player-field order are unchanged; the current writer emits four mission completion flags.
 
 An active mission index of `-1` means there is no active contract. A non-negative index is accepted only when it is in range and the mission is not already completed.
 
@@ -45,7 +49,8 @@ An active mission index of `-1` means there is no active contract. A non-negativ
 | Utility ownership, equipped utility, and upgrade levels | Yes (V3) |
 | Active mission index and mission completion flags | Yes |
 | Scan, connection, authentication, and decryption state | No |
-| Objective completion and Detection exposure | No |
+| Objective completion, Detection exposure, and Fixer service-use flag | No |
+| Reputation tiers, Contact unlocks, and Contact catalog | Derived from persisted Reputation/static catalog |
 | Current topology node and traversal count | No |
 
 When the application restarts, an active contract may be restored, but temporary session state starts over at the mission topology's entry node. The player must repeat mission stages as needed.
