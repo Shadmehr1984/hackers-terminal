@@ -20,7 +20,7 @@ The project owner approved these five feature areas on 2026-11-05. Implement the
 | 2 | Fictional Network Topology | [HT-002](tasks/HT-002-network-topology.md) | Implemented | Detection/risk model should be defined first so topology can expose risk-aware choices |
 | 3 | Equipment & Upgrade System | [HT-003](tasks/HT-003-equipment-upgrades.md) | Implemented | Detection/risk and topology provide meaningful equipment trade-offs |
 | 4 | Mission Preparation | [HT-004](tasks/HT-004-mission-preparation.md) | Implemented | Reuses mission topology, equipment, and risk concepts |
-| 5 | Reputation & Contacts | [HT-005](tasks/HT-005-reputation-contacts.md) | Planned | Builds on mission outcomes and preparation/progression |
+| 5 | Reputation & Contacts | [HT-005](tasks/HT-005-reputation-contacts.md) | In Progress | Builds on mission outcomes and preparation/progression; Save V3 remains unchanged |
 
 ### Program-wide design constraints
 - All hacking, hosts, networks, detection, and operations remain fictional, deterministic or game-randomized simulations running locally/offline.
