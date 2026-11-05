@@ -36,7 +36,7 @@ pub const Entry = struct {
     maximum_reward: u32,
 };
 
-/// Calculates the cash reward ceiling from all authored optional objectives.
+/// Calculates the visible cash reward ceiling without leaking undiscovered hidden rewards.
 pub fn maximumReward(mission: Mission) u32 {
     var result = mission.reward;
     for (mission.objectives) |objective| {
