@@ -1,6 +1,6 @@
 # HT-001 — Detection & Risk System
 
-**Status:** Planned  
+**Status:** In Progress  
 **Priority:** 1 (first feature in the approved gameplay program)  
 **Approved:** 2026-11-05  
 **Depends on:** Existing mission/session model; no other new feature.
@@ -23,15 +23,23 @@ Introduce a readable, testable, entirely fictional detection/risk mechanic that 
 - Focused tests under `tests/`, registered in `tests/test_all.zig`.
 - `.agent/conventions.md`, `AGENTS.md`, `docs/architecture.md`, `docs/gameplay.md`, and `docs/commands.md` only where the final design changes their contracts.
 
+## Accepted implementation decisions
+
+- Detection is a runtime-only integer meter from 0 to 100; it resets on mission start, completion, failure, and application restart (including restored active missions).
+- Bands: Quiet 0–24, Noticed 25–49, Traced 50–74, Critical 75–99, Compromised 100.
+- Action costs: first successful scan +10; first successful authentication +5; each incorrect password +15; first successful decryption +10; each incorrect decryption key +10; first successful metadata analysis +5; first successful extraction +5. Connect/disconnect, invalid commands, rejected prerequisites, and repeated successful actions cost 0.
+- Reaching 100 immediately fails the contract, grants no contract rewards/XP/reputation, and applies a fixed $50 penalty capped at the current balance. The contract remains available for retry.
+- No save-format change; V2, V1, and legacy formats remain untouched.
+
 ## Acceptance criteria
-- [ ] A dedicated, testable representation of simulated detection/risk exists with documented initial and maximum values.
-- [ ] At least the relevant mission actions have explicit, tested risk effects; safe/no-op actions do not accidentally increase risk.
-- [ ] Threshold behavior and consequences are defined, communicated, and tested at boundary values.
-- [ ] The player can inspect current detection/risk through an existing or deliberately added terminal command/status output.
-- [ ] Reset behavior on mission start, mission completion, failure, and restart is explicit and tested.
-- [ ] No real network, host, shell, credential, or external-system interaction is introduced.
-- [ ] Save compatibility is preserved unless a separate, explicitly justified migration is designed.
-- [ ] User/developer docs, task status, and roadmap reflect the implemented behavior.
+- [x] A dedicated, testable representation of simulated detection/risk exists with documented initial and maximum values.
+- [x] At least the relevant mission actions have explicit, tested risk effects; safe/no-op actions do not accidentally increase risk.
+- [x] Threshold behavior and consequences are defined, communicated, and tested at boundary values.
+- [x] The player can inspect current detection/risk through an existing or deliberately added terminal command/status output.
+- [x] Reset behavior on mission start, mission completion, failure, and restart is explicit and tested.
+- [x] No real network, host, shell, credential, or external-system interaction is introduced.
+- [x] Save compatibility is preserved unless a separate, explicitly justified migration is designed.
+- [x] User/developer docs, task status, and roadmap reflect the implemented behavior.
 
 ## Non-goals
 - No branching narrative or mission outcomes.
@@ -47,4 +55,4 @@ Introduce a readable, testable, entirely fictional detection/risk mechanic that 
 - [ ] Inspect CI result before marking Implemented.
 
 ## Agent progress notes
-- Initial handoff: scope and acceptance criteria recorded; implementation has not started.
+- Implementation pass: detection state, action costs, threshold warnings, compromise failure, bounded cash penalty, retry behavior, status output, tests, and gameplay/architecture documentation added. Zig/CI verification and review remain pending.
