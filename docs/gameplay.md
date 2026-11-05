@@ -102,6 +102,7 @@ Risk costs are deterministic:
 | Action | Detection change |
 | --- | ---: |
 | Successful scan (first time only) | +10 |
+| Every successful topology traversal (including revisits) | +5 |
 | Successful authentication (first time only) | +5 |
 | Incorrect password attempt | +15 |
 | Successful decryption (first time only) | +10 |
@@ -145,9 +146,9 @@ The first contract is a guided introduction to the complete game loop.
 4. Run `connect vault-01.local`.
 5. Solve the clue with `brute orion42`.
 6. Buy the file decryptor with `buy decryptor`. It costs $150.
-7. Solve the decryption clue with `decrypt midnight`.
-8. Optionally run `analyze ledger.enc` to complete the metadata objective and earn an extra $75.
-9. Run `objectives` to review the checklist, then retrieve the file with `extract ledger.enc`.
+7. Move through `corridor` to `vault` (or take the longer maintenance route), then buy the decryptor and solve the clue with `decrypt midnight`.
+8. Optionally run `analyze ledger.enc` at `vault` to complete the metadata objective and earn an extra $75.
+9. Run `objectives` to review the checklist, then retrieve the file with `extract ledger.enc` at `vault`.
 10. Run `status` to see the updated balance, XP, reputation, level, and current detection level.
 11. Run `save` to persist your progress.
 
