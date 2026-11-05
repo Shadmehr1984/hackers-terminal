@@ -48,6 +48,11 @@ pub const Topology = struct {
             !self.containsNode(self.decrypt_node) or
             !self.containsNode(self.analyze_node) or
             !self.containsNode(self.extract_node)) return false;
+        for (self.nodes, 0..) |node, index| {
+            for (self.nodes[index + 1 ..]) |other| {
+                if (std.mem.eql(u8, node.id, other.id)) return false;
+            }
+        }
         for (self.links) |link| {
             if (!self.containsNode(link.from) or !self.containsNode(link.to) or
                 std.mem.eql(u8, link.from, link.to)) return false;
@@ -56,13 +61,22 @@ pub const Topology = struct {
     }
 
     pub fn purposeAt(self: *const Topology, id: []const u8) []const u8 {
-        var purpose: []const u8 = "";
-        if (std.mem.eql(u8, id, self.scan_node)) purpose = appendPurpose(purpose, "SCAN");
-        if (std.mem.eql(u8, id, self.auth_node)) purpose = appendPurpose(purpose, "AUTH");
-        if (std.mem.eql(u8, id, self.decrypt_node)) purpose = appendPurpose(purpose, "DECRYPT");
-        if (std.mem.eql(u8, id, self.analyze_node)) purpose = appendPurpose(purpose, "ANALYZE");
-        if (std.mem.eql(u8, id, self.extract_node)) purpose = appendPurpose(purpose, "EXTRACT");
-        return purpose;
+        const scan = std.mem.eql(u8, id, self.scan_node);
+        const auth = std.mem.eql(u8, id, self.auth_node);
+        const decrypt = std.mem.eql(u8, id, self.decrypt_node);
+        const analyze = std.mem.eql(u8, id, self.analyze_node);
+        const extract = std.mem.eql(u8, id, self.extract_node);
+
+        if (scan and auth) return "SCAN,AUTH";
+        if (decrypt and analyze and extract) return "DECRYPT,ANALYZE,EXTRACT";
+        if (decrypt and analyze) return "DECRYPT,ANALYZE";
+        if (decrypt and extract) return "DECRYPT,EXTRACT";
+        if (scan) return "SCAN";
+        if (auth) return "AUTH";
+        if (decrypt) return "DECRYPT";
+        if (analyze) return "ANALYZE";
+        if (extract) return "EXTRACT";
+        return "";
     }
 };
 
