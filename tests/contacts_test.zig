@@ -224,13 +224,13 @@ test "Fixer service rejects zero Detection and inactive missions without chargin
 
 test "exclusive Ghost Signal offer is hidden while another contract is active or prepared" {
     var player = Player{ .reputation = 3, .xp = 250 };
-    const missions = mission_data.defaultMissions();
+    var missions = mission_data.defaultMissions();
     var active: ?usize = 0;
     var session = MissionSession{ .detection_level = 10 };
     var preparation = MissionPreparation{};
     var capture = Capture{};
 
-    try run(&capture, "offers", &player, @constCast(&missions), &active, &session, &preparation);
+    try run(&capture, "offers", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "scrub-detection") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
 
