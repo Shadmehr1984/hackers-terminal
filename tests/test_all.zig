@@ -6,4 +6,5 @@ test {
     _ = @import("game_detection_test.zig");
     _ = @import("topology_test.zig");
     _ = @import("equipment_test.zig");
+    _ = @import("mission_preparation_test.zig");
 }
