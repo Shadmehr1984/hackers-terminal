@@ -180,6 +180,7 @@ test "save writes and replaces a V3 file in an isolated directory" {
     player.equipment.silent_boots_level = 2;
     var missions = mission_data.defaultMissions();
     missions[0].completed = true;
+    missions[3].completed = true;
 
     try save.saveGameToDirectory(tmp.dir, player, &missions, null);
     player.balance = 888;
@@ -198,6 +199,7 @@ test "save writes and replaces a V3 file in an isolated directory" {
     try std.testing.expect(restored_player.equipment.owns(.silent_boots));
     try std.testing.expectEqual(@as(u2, 2), restored_player.equipment.level(.silent_boots));
     try std.testing.expect(!restored_missions[0].completed);
+    try std.testing.expect(restored_missions[3].completed);
     try std.testing.expectError(error.FileNotFound, tmp.dir.openFile("saves/player.sav.tmp", .{}));
 }
 
