@@ -1,6 +1,6 @@
 # QUALITY-001 — Code Review Remediation
 
-**Status:** In Progress  
+**Status:** Implemented  
 **Priority:** High  
 **Approved:** 2026-11-05
 
@@ -22,9 +22,11 @@ Address the verified findings from the project-wide code review without changing
 - [x] Save writes stage to a temporary file before replacing the previous save.
 - [x] Detection and progression responsibilities have focused modules.
 - [x] Progression threshold tests are registered in the aggregate suite.
-- [ ] Zig 0.13.0 formatter, build, full test suite, and agent-doc check pass in CI.
-- [ ] Final self-review and temporary workflow cleanup completed.
+- [x] Zig 0.13.0 formatter, build, full test suite, and agent-doc check pass in CI.
+- [x] Final self-review and temporary workflow cleanup completed.
 
 ## Verification notes
 - Initial CI identified formatter changes required in src/game.zig and src/progression.zig.
-- No local build or manual gameplay test was performed.
+- GitHub Actions run [42019324021](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42019324021) passed on commit `86f23a40ba3d584afa89d5673b4783d0fda8d15c`: formatting, build, all 46 tests, and agent-doc structure check.
+- Self-review confirmed the Save V3 field order and V1/V2/legacy loaders are unchanged; the temporary formatter workflow was removed.
+- No local build or manual gameplay test was performed; no independent second reviewer was available.
