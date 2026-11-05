@@ -73,7 +73,7 @@ pub const MissionSession = struct {
 
     pub fn allObjectivesComplete(self: MissionSession, objectives: []const MissionObjective) bool {
         for (objectives) |objective| {
-            if (!self.isObjectiveComplete(objective.kind)) return false;
+            if (!objective.optional and !self.isObjectiveComplete(objective.kind)) return false;
         }
         return true;
     }
