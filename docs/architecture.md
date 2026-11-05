@@ -27,9 +27,9 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
 | `src/domain/contract_board.zig` | Pure derived availability and reward-range calculations for the separate `board` command; no persistence or I/O |
-| `src/domain/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, `MissionCategory`, and typed `MissionObjective` definitions |
+| `src/domain/mission.zig` | Public `Mission` contract data type, static allowed-modifier metadata, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, `MissionCategory`, and typed `MissionObjective` definitions |
 | `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
-| `src/domain/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
+| `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
 | `src/catalog/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
 | `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, Contacts, offers, history, and topology map |
@@ -75,7 +75,7 @@ The player profile type is defined in `src/domain/player.zig` and imported by `m
 
 ### Temporary preparation and mission session
 
-`MissionPreparation` stores the prepared mission index and selected owned utility before launch. It is runtime-only and is cleared on launch or cancellation. The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than independent booleans.
+`MissionPreparation` stores the prepared mission index, selected owned utility, and optional selected mission modifier before launch. Modifier eligibility is authored in each mission's static allowlist; selection is runtime-only, rejected selections leave the prior choice unchanged, and preparation clearing resets it. No preparation state is serialized. The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than independent booleans.
 
 The session tracks the following related pieces of temporary state:
 - `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
