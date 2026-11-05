@@ -12,8 +12,9 @@ There is no client/server split, real networking layer, database, plugin system,
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Public `Player` profile data type and its defaults |
-| `src/mission.zig` | Public `Mission` contract data type, `MissionDifficulty`, and typed `MissionObjective` definitions |
-| `src/mission_state.zig` | Runtime-only mission progress, connection state, objective completion bitset, and detection exposure |
+| `src/mission.zig` | Public `Mission` contract data type, optional topology reference, `MissionDifficulty`, and typed `MissionObjective` definitions |
+| `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and topology validation |
+| `src/mission_state.zig` | Runtime-only mission progress, connection state, objective completion bitset, detection exposure, and current topology node |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
@@ -41,7 +42,7 @@ A mission stores its static contract definition and completion state:
 
 Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives may be required or optional. Required objectives gate contract completion; optional objectives never block it and can grant configured bonus cash. Successful scan, authentication, decryption, extraction, and metadata-analysis commands complete their matching objective.
 
-The three built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array, preserving their original order.
+The three built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array, preserving their original order. Each has its own static graph from `src/topology.zig`: Cold Storage has an exposed short corridor and a maintenance detour; Paper Trail branches from an indexing hub into mail and records systems; Quiet Exit uses a relay chain with a decoy branch and controlled exit.
 
 ### `Player`
 
@@ -62,6 +63,7 @@ The session tracks four related pieces of temporary state:
 - `connected`: whether the simulated connection is currently open.
 - `completed_objectives`: an eight-bit mask keyed by `MissionObjectiveKind`.
 - `detection_level`: simulated exposure from 0 to 100, with Quiet, Noticed, Traced, Critical, and Compromised bands.
+- `current_node`: the current node ID in the active mission topology, or null for missions without topology.
 
 Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
 
@@ -96,7 +98,9 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 - `extract` requires decrypted progress and the exact mission filename. It adds 5 detection on the first successful extraction; if the meter reaches 100 the contract fails instead of paying out. Otherwise it completes the extraction objective and awards the contract when every required objective is complete; completed optional objectives add their configured cash bonus.
 - Successful scan (+10), authentication (+5), decryption (+10), optional analysis (+5), and extraction (+5) actions add detection once per objective. Incorrect password attempts add 15; incorrect decryption keys add 10. Connect/disconnect, invalid commands, rejected prerequisites, and repeated successful actions add no exposure.
 - Crossing a detection band prints a warning. At 100, the contract is failed, a $50 penalty (capped by available balance) is applied, and the contract remains retryable.
-- `briefing` displays the objective list and current status; `objectives` displays the live checklist at any time.
+- `map` displays the active graph, node purposes, links, and current location. `move <node-id>` accepts only directly adjacent nodes; every successful traversal adds 5 detection, including revisits. Invalid destinations do not alter state.
+- Each topology assigns scan, authentication, decryption, optional analysis, and extraction to specific nodes. The corresponding commands are rejected away from those locations.
+- `briefing` displays the objective list and points players to `map`; `objectives` displays the live checklist at any time.
 
 ## Progression calculations
 
@@ -108,7 +112,7 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 
 Persistent state includes balance, reputation, XP (in V2), decryptor ownership, active mission index, and each mission's completion flag. The implementation lives in `src/save.zig` and continues to read V2, V1, and the original legacy layout.
 
-Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionSession` progress, connection state, objective completion, and detection exposure are also not persisted. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
+Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionSession` progress, connection state, objective completion, detection exposure, and current topology node are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
 ## Error handling style
 
