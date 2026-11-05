@@ -98,3 +98,24 @@ test "compromise penalty never makes player balance negative" {
     }
     try std.testing.expectEqual(@as(u32, 0), player.balance);
 }
+
+
+test "extraction can trigger compromise before contract payout" {
+    var player = Player{ .balance = 75 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{ .progress = .decrypted, .detection_level = 95 };
+    session.completeObjective(.scan_target);
+    session.completeObjective(.authenticate);
+    session.completeObjective(.decrypt_file);
+
+    const writer = TestWriter{};
+    try run(writer, "extract ledger.enc", &player, &missions, &active, &session);
+
+    try std.testing.expect(active == null);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(@as(u32, 25), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+}
