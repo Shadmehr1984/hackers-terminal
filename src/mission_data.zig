@@ -6,6 +6,7 @@ const cold_storage_objectives: []const MissionObjective = &.{
     .{ .kind = .authenticate, .description = "Authenticate to the vault service." },
     .{ .kind = .decrypt_file, .description = "Decrypt the ledger.enc evidence file." },
     .{ .kind = .extract_file, .description = "Recover ledger.enc from the vault." },
+    .{ .kind = .analyze_metadata, .description = "Analyze the recovered ledger metadata for a hidden reference.", .optional = true, .bonus_reward = 75 },
 };
 
 const paper_trail_objectives: []const MissionObjective = &.{
@@ -13,6 +14,7 @@ const paper_trail_objectives: []const MissionObjective = &.{
     .{ .kind = .authenticate, .description = "Gain access to the archive mail service." },
     .{ .kind = .decrypt_file, .description = "Decrypt the mailbox.enc message archive." },
     .{ .kind = .extract_file, .description = "Recover mailbox.enc from the archive." },
+    .{ .kind = .analyze_metadata, .description = "Analyze mailbox metadata and identify its concealed sender tag.", .optional = true, .bonus_reward = 100 },
 };
 
 const quiet_exit_objectives: []const MissionObjective = &.{
@@ -20,6 +22,7 @@ const quiet_exit_objectives: []const MissionObjective = &.{
     .{ .kind = .authenticate, .description = "Authenticate to the relay service." },
     .{ .kind = .decrypt_file, .description = "Decrypt the manifest.enc transfer manifest." },
     .{ .kind = .extract_file, .description = "Recover manifest.enc from the relay." },
+    .{ .kind = .analyze_metadata, .description = "Analyze manifest metadata to uncover an alternate relay marker.", .optional = true, .bonus_reward = 125 },
 };
 
 /// Returns the built-in contracts with their original order and configuration.
