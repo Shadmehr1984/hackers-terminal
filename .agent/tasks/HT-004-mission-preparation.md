@@ -67,5 +67,20 @@ Add a pre-mission planning phase where the player reviews available intelligence
 - M3: Add focused tests for intel secrecy, locked/completed/unknown missions, ownership validation, launch matching, cancel/reprepare, and modifier snapshot behavior.
 - M4: Update command/gameplay/architecture/agent docs, perform self-review, and verify with CI.
 
-### Open owner decision
-Confirm the proposed interaction and especially the rule that an active mission cannot be abandoned/restarted manually; a compromised mission remains retryable through the existing failure path. No gameplay code has been changed for HT-004 yet.
+### Accepted owner decisions
+- The proposed `prepare` → `loadout` → `accept` interaction is approved.
+- `cancel` is free and applies only before launch.
+- An active mission cannot be manually abandoned or restarted. Detection compromise invokes the existing failure/penalty path; the failed contract can then be prepared and launched again.
+- The selected utility is temporary per run. Its upgrade level is snapshotted at launch; persistent player equipment is not changed.
+- Preparation and the loadout snapshot remain runtime-only. Save V3 is unchanged.
+
+### Implementation progress
+- [x] Added runtime-only `MissionPreparation` and `MissionLoadout` state.
+- [x] Added preparation intel presentation that withholds password/decryption clues and answers.
+- [x] Added `prepare`, `loadout`, and `cancel`; changed interactive `accept` to launch only the matching prepared contract.
+- [x] Snapshot selected utility and level at launch; Detection costs use the session snapshot.
+- [x] Wired preparation state into the interactive main loop.
+- [x] Added focused mission-preparation tests and registered them in the aggregate suite.
+- [x] Updated command, gameplay, architecture, and agent documentation.
+- [ ] Run formatter/build/full tests and inspect CI.
+- [ ] Complete review checklist and final self-review.
