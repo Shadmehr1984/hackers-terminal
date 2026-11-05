@@ -6,24 +6,38 @@ Hacker's Terminal is being developed incrementally as a modular, single-player t
 
 There is no client/server split, real networking layer, database, plugin system, or external game service. All targets and hacking actions are fictional game content.
 
+## Source layout
+
+```text
+src/
+├── main.zig                 # Composition root and interactive loop
+├── domain/                  # Player, mission/session, topology, progression, and Contact rules
+├── application/              # Command coordination and gameplay services
+├── catalog/                  # Built-in mission definitions
+├── presentation/             # Terminal output
+└── persistence/              # Save/load and legacy compatibility
+```
+
+The former top-level module paths remain as thin compatibility facades so existing imports continue to work. New production imports should target the grouped implementation modules directly.
+
 ## Repository structure
 
 | Path | Responsibility |
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
-| `src/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and risk modifier calculations |
-| `src/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, and typed `MissionObjective` definitions |
-| `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
-| `src/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
-| `src/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
-| `src/save.zig` | Save/load persistence for player progress and mission completion state |
-| `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contacts, offers, history, and topology map |
-| `src/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
-| `src/commands.zig` | Parses an input line into a command name and its first argument |
-| `src/game.zig` | Coordinates the shared preparation-aware command dispatcher, Contact commands, offer transactions, and game-state transitions |
-| `src/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
-| `src/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
-| `src/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
+| `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and risk modifier calculations |
+| `src/domain/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, and typed `MissionObjective` definitions |
+| `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
+| `src/domain/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
+| `src/catalog/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
+| `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
+| `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contacts, offers, history, and topology map |
+| `src/application/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
+| `src/application/commands.zig` | Parses an input line into a command name and its first argument |
+| `src/application/game.zig` | Coordinates the shared preparation-aware command dispatcher, Contact commands, offer transactions, and game-state transitions |
+| `src/application/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
+| `src/domain/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
+| `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
 | `tests/` | Unit tests for command parsing, mission state, mission data, Reputation, Contacts, and offers |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
@@ -46,11 +60,11 @@ A mission stores its static contract definition and completion state:
 
 Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives may be required or optional. Required objectives gate contract completion; optional objectives never block it and can grant configured bonus cash. Successful scan, authentication, decryption, extraction, and metadata-analysis commands complete their matching objective.
 
-The four built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array. Ghost Signal is appended at index 3 so the original mission indices remain stable. Each contract has its own static graph from `src/topology.zig`: Cold Storage has an exposed short corridor and a maintenance detour; Paper Trail branches from an indexing hub into mail and records systems; Quiet Exit uses a relay chain with a decoy branch and controlled exit; Ghost Signal uses an abandoned relay with a mirrored-traffic branch.
+The four built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array. Ghost Signal is appended at index 3 so the original mission indices remain stable. Each contract has its own static graph from `src/domain/topology.zig`: Cold Storage has an exposed short corridor and a maintenance detour; Paper Trail branches from an indexing hub into mail and records systems; Quiet Exit uses a relay chain with a decoy branch and controlled exit; Ghost Signal uses an abandoned relay with a mirrored-traffic branch.
 
 ### `Player`
 
-The player profile type is defined in `src/player.zig` and imported by `main.zig`. It stores:
+The player profile type is defined in `src/domain/player.zig` and imported by `main.zig`. It stores:
 
 - `handle`: terminal identity; defaults to `ghost`.
 - `balance`: in-game currency; defaults to 250.
@@ -121,7 +135,7 @@ inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
 
 ## Persistence boundary
 
-Persistent state includes balance, reputation, XP, decryptor ownership, utility ownership, equipped utility, both utility upgrade levels, active mission index, and mission completion flags. Save V3 is current; `src/save.zig` continues to read V2, V1, and the original legacy layout. Older saves migrate with no utility equipment owned or equipped.
+Persistent state includes balance, reputation, XP, decryptor ownership, utility ownership, equipped utility, both utility upgrade levels, active mission index, and mission completion flags. Save V3 is current; `src/persistence/save.zig` continues to read V2, V1, and the original legacy layout. Older saves migrate with no utility equipment owned or equipped.
 
 Mission difficulty, objective definitions, and Reputation requirements are static catalog metadata and are not serialized. Contact unlocks and tiers are derived from the persisted Reputation value. Fixer service use is runtime-only. Temporary `MissionPreparation`, the run-specific loadout snapshot, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 

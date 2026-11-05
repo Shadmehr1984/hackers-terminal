@@ -140,7 +140,7 @@ The `saves/` directory is created at runtime when the player saves. It is ignore
 
 ## Current scope and limitations
 
-- The game currently contains four built-in missions defined in `src/mission_data.zig`; `job-04` (Ghost Signal) is appended and requires level 3 and Reputation 3.
+- The game currently contains four built-in missions defined in `src/catalog/mission_data.zig`; `job-04` (Ghost Signal) is appended and requires level 3 and Reputation 3.
 - Mission difficulty is descriptive metadata only; it is displayed in the mission list and briefing but does not yet affect gameplay mechanics.
 - There is one player profile and one local save file.
 - The command parser accepts a command and at most one whitespace-delimited argument.
