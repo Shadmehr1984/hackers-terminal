@@ -78,6 +78,7 @@ pub const MissionSession = struct {
     current_node: ?[]const u8 = null,
     traversal_count: u32 = 0,
     loadout: MissionLoadout = .{},
+    fixer_service_used: bool = false,
 
     pub fn start(self: *MissionSession) void {
         self.progress = .accepted;
@@ -87,6 +88,7 @@ pub const MissionSession = struct {
         self.current_node = null;
         self.traversal_count = 0;
         self.loadout = .{};
+        self.fixer_service_used = false;
     }
 
     pub fn startWithLoadout(self: *MissionSession, loadout: MissionLoadout) void {
@@ -102,6 +104,7 @@ pub const MissionSession = struct {
         self.current_node = null;
         self.traversal_count = 0;
         self.loadout = .{};
+        self.fixer_service_used = false;
     }
 
     pub fn detectionBand(self: MissionSession) DetectionBand {
@@ -167,6 +170,18 @@ pub const MissionSession = struct {
             if (!objective.optional and !self.isObjectiveComplete(objective.kind)) return false;
         }
         return true;
+    }
+
+    /// Returns true only when the mission has at least one optional objective
+    /// and every optional objective has been completed.
+    pub fn allOptionalObjectivesComplete(self: MissionSession, objectives: []const MissionObjective) bool {
+        var found_optional = false;
+        for (objectives) |objective| {
+            if (!objective.optional) continue;
+            found_optional = true;
+            if (!self.isObjectiveComplete(objective.kind)) return false;
+        }
+        return found_optional;
     }
 
     pub fn optionalReward(self: MissionSession, objectives: []const MissionObjective) u32 {
