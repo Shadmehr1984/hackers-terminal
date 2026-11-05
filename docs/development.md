@@ -38,7 +38,7 @@ The CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/`, and `
 
 ## Architecture workflow
 
-Keep modules focused and dependencies one-way. `main.zig` owns application setup and the input loop; `game.zig` coordinates command handling; `mission_state.zig` owns temporary mission-session progress, objective completion, detection, and current node. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
+Keep modules focused and dependencies one-way. `main.zig` owns application setup and the input loop; `game.zig` coordinates command handling; `mission_state.zig` owns temporary mission-session progress, objective completion, detection, current node, and traversal count. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
 
 Preserve existing behavior unless a task explicitly requests a gameplay change. Update `docs/architecture.md` when module responsibilities or runtime state change. Update `docs/save-format.md` whenever serialized save layout changes. Temporary mission state is not persisted, so a loaded active mission starts at the accepted stage. Mission difficulty and objective definitions are static metadata and are not serialized. Objective completion is temporary session state and is not currently persisted.
 
@@ -53,7 +53,7 @@ Preserve existing behavior unless a task explicitly requests a gameplay change. 
 8. Buy the decryptor, decrypt with the briefing key, and confirm the decryption objective is checked.
 9. Optionally run `analyze ledger.enc` at `vault`; verify the optional objective is checked.
 10. Extract `ledger.enc` at `vault`; verify the required objectives permit completion and the optional bonus is included only if analysis was completed.
-11. Save and restart; persistent progress should be restored while temporary objective and location state starts at the contract entry node.
+11. Save and restart; persistent progress should be restored while temporary objective and location state starts at the contract entry node, with a traversal count of zero.
 
 Back up `saves/player.sav` before testing save migration or clean-profile progression.
 
