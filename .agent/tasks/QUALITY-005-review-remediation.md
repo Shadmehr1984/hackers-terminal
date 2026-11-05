@@ -41,6 +41,6 @@ Prevent reward overflow and partial Save-load mutation, then close the four acti
 
 ## Verification
 - [x] Focused regression tests
-- [ ] Zig formatting, build, and complete test suite in Debug and ReleaseSafe via GitHub Actions
+- [ ] Zig formatting, build, and complete test suite in Debug and ReleaseSafe via GitHub Actions (pending observable run result)
 - [x] Agent documentation check
-- [ ] Independent review or explicitly documented self-review
+- [x] Self-review against the mandatory checklist completed; an independent second reviewer was not available.
