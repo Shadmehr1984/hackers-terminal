@@ -80,4 +80,3 @@ pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Missi
     }
     return active;
 }
-
