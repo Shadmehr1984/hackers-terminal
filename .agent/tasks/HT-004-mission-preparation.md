@@ -85,4 +85,6 @@ Add a pre-mission planning phase where the player reviews available intelligence
 - [x] Run formatter/build/full tests and inspect CI.
 - [x] Complete review checklist and final self-review.
 
-### Verification and review result\n- GitHub Actions run [42016491969](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42016491969) passed on commit `cdd7ecb9187f7e49e723fcbbf0dab45e2d1f5b8a`: Zig 0.13.0 format check, `zig build`, all 44 tests, and agent-doc structure check.\n- No independent second reviewer was available; completed a self-review against `.agent/review-checklist.md`.\n- Save V3 code and serialized field layout were not changed. No real networking, shell execution, or external-system interaction was introduced.
+### Verification and review result
+- GitHub Actions run [42016491969](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42016491969) passed on commit `cdd7ecb9187f7e49e723fcbbf0dab45e2d1f5b8a`: Zig 0.13.0 format check, `zig build`, all 44 tests, and agent-doc structure check.
+- No independent second reviewer was available; completed a self-review against `.agent/review-checklist.md`.\n- Save V3 code and serialized field layout were not changed. No real networking, shell execution, or external-system interaction was introduced.
