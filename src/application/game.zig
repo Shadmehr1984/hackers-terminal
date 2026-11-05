@@ -14,7 +14,6 @@ const commands = @import("commands.zig");
 const progression = @import("../domain/progression.zig");
 const detection = @import("detection.zig");
 const contacts = @import("../domain/contacts.zig");
-const DiscoveryAction = @import("../domain/mission_objectives.zig").DiscoveryAction;
 
 /// Re-exports the configured in-game penalty for a Detection compromise.
 pub const detection_failure_penalty: u32 = detection.failure_penalty;
