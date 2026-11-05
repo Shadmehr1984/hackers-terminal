@@ -101,7 +101,7 @@ pub fn runCommand(
                         session.current_node = node.id;
                         session.traversal_count += 1;
                         try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
-                        _ = try applyDetection(writer, player, active, session, 5);
+                        _ = try applyDetection(writer, player, active, session, player.equipment.movementDetectionCost());
                     }
                 } else try writer.writeAll("Current location is unavailable. Restart the contract.\n");
             } else try writer.writeAll("This contract has no network map.\n");
