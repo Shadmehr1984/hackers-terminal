@@ -487,10 +487,10 @@ pub fn runCommand(
                 try reportObjectiveDiscoveries(writer, session.discoverAction(.extract_file, mission.objectives));
                 session.completeObjective(.extract_file);
                 if (!already_extracted and try detection.apply(writer, player, active, session, 5)) return true;
-                session.markUndiscoveredObjectivesUnavailable();
                 if (!session.allObjectivesComplete(mission.objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
+                    session.markUncompletedOptionalObjectivesUnavailable();
                     missions[index].completed = true;
                     try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
                     try progression.completeMission(writer, player, mission, session);
