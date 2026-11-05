@@ -52,8 +52,12 @@ An active mission index of `-1` means there is no active contract. A non-negativ
 | Connection state | No |
 | Authentication state | No |
 | Decryption state | No |
+| Objective completion | No |
+| Detection exposure | No |
+| Current topology node | No |
+| Successful traversal count | No |
 
-When the application restarts, the active contract may be restored but its temporary session state starts over. The player must scan and connect again and repeat the authentication and decryption steps.
+When the application restarts, the active contract may be restored but its temporary session state starts over at that mission topology's entry node. The player must traverse the graph again, scan and connect, and repeat authentication, decryption, and any optional analysis. The current node and successful traversal count are not persisted.
 
 ## Backward compatibility
 
