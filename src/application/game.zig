@@ -208,6 +208,24 @@ fn printOperationStatus(writer: anytype, preparation: MissionPreparation) !void 
     if (!any) try writer.writeAll(" none");
     try writer.writeAll("\n");
 }
+/// Re-prepares the current operation stage after Detection compromise.
+fn retryOperationStage(
+    writer: anytype,
+    player: Player,
+    missions: []Mission,
+    active: ?usize,
+    preparation: *MissionPreparation,
+) !void {
+    if (!preparation.operation_state.active or active != null or preparation.mission_index != null) return;
+    const operation = operation_data.find(preparation.operation_state.operation_id) orelse return;
+    const stage = preparation.operation_state.currentStage(operation) orelse return;
+    if (findMissionIndex(missions, stage.mission_id)) |index| {
+        prepareOperationStage(preparation, player, index);
+        try writer.print("[STAGE RETRY] {s} is ready again; prior facts retained.\n", .{missions[index].name});
+        try terminal.printPreparation(writer, missions[index], player, preparation.selected_utility, null);
+    }
+}
+
 /// Applies the base movement cost before any modifier-specific traversal exposure.
 fn applyTraversalDetection(
     writer: anytype,
@@ -603,7 +621,10 @@ pub fn runCommand(
                 const already_extracted = session.isObjectiveComplete(.extract_file);
                 try reportObjectiveDiscoveries(writer, session.discoverAction(.extract_file, mission.objectives));
                 session.completeObjective(.extract_file);
-                if (!already_extracted and try detection.apply(writer, player, active, session, 5)) return true;
+                if (!already_extracted and try detection.apply(writer, player, active, session, 5)) {
+                    try retryOperationStage(writer, player.*, missions, active.*, preparation);
+                    return true;
+                }
                 if (!session.allObjectivesComplete(mission.objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
@@ -672,14 +693,6 @@ pub fn runCommand(
     } else {
         try writer.writeAll("Unknown command. Type 'help' for available commands.\n");
     }
-    if (preparation.operation_state.active and active.* == null and preparation.mission_index == null) {
-        const op = operation_data.find(preparation.operation_state.operation_id) orelse return true;
-        const stage = preparation.operation_state.currentStage(op) orelse return true;
-        if (findMissionIndex(missions, stage.mission_id)) |idx| {
-            prepareOperationStage(preparation, player.*, idx);
-            try writer.print("[STAGE RETRY] {s} is ready again; prior facts retained.\n", .{missions[idx].name});
-            try terminal.printPreparation(writer, missions[idx], player.*, preparation.selected_utility, null);
-        }
-    }
+    try retryOperationStage(writer, player.*, missions, active.*, preparation);
     return true;
 }
