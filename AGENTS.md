@@ -96,3 +96,30 @@ Before implementing a new system:
 4. Add focused tests and update docs as part of the same coherent change.
 5. Avoid implementing future roadmap items pre-emptively.
 6. Whenever an agreed feature changes project architecture, gameplay rules, data contracts, or development conventions, update this `AGENTS.md` in the same implementation step. Do not edit it mechanically for a change that introduces no lasting project rule or design decision.
+
+
+## Agent infrastructure and required work cycle
+
+The `.agent/` directory is the project memory for coding agents. Read `.agent/README.md` after this file; it links the workflow, module contracts, roadmap, known constraints, ADRs, task template, and independent review checklist.
+
+For every code change, follow `.agent/workflow.md`: Explore → Understand → Plan → Implement → Verify → Document → Review → Commit. For non-trivial work, create a task brief from `.agent/tasks/TEMPLATE.md`. Before implementation, confirm current behavior from source and identify the owning module, affected tests, documentation, and persistence implications.
+
+### Definition of Done
+A change is complete only when all applicable items are satisfied:
+- [ ] Acceptance criteria are met and unrelated behavior is preserved.
+- [ ] Focused tests cover new behavior and important rejection/edge cases.
+- [ ] Zig formatting, build, and the full test suite pass, or unrun checks are explicitly reported.
+- [ ] `sh scripts/check-agent-docs.sh` passes when agent infrastructure is present.
+- [ ] Relevant README/docs and this file are updated for lasting architecture, gameplay, data-contract, save, or development-rule changes.
+- [ ] The independent review checklist in `.agent/review-checklist.md` is completed.
+- [ ] A focused commit is confirmed on the authorized `main` branch.
+- [ ] The actual CI result for that commit is inspected and reported; manual gameplay testing is never implied unless performed.
+
+### Review expectations
+For substantial changes, use a second, independent reviewer/agent where available. The reviewer should inspect the diff against the task acceptance criteria and checklist, not merely approve the implementer's summary. If no independent reviewer is available, state that limitation and perform a clearly identified self-review; do not claim a second-agent review occurred.
+
+### Documentation maintenance
+Keep `.agent/roadmap.md` for candidate work, not commitments. Keep `.agent/known-issues.md` factual and distinguish verified constraints from open questions. Add ADRs only for decisions actually accepted by the project owner. Update module contracts when source responsibilities change. Do not mechanically edit every agent file for trivial changes.
+
+### CI documentation check
+The CI workflow also runs `sh scripts/check-agent-docs.sh` to ensure the required agent guidance and core docs remain present. This structural check does not replace code review, Zig compilation, unit tests, or manual playtesting.
