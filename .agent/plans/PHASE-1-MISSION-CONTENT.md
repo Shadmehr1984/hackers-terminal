@@ -1,7 +1,7 @@
 # Phase 1 — Contract and Mission Content
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implemented on `main` (design ADR 0010; owner authorization and CI run #679 passed); HT-009 planned  
+**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implemented on `main` (design ADR 0010; owner authorization and CI run #679 passed); HT-009 design approved (ADR 0011; Runtime-only), implementation not authorized  
 **Goal:** Increase contract variety and replayability before expanding the wider world.
 
 ## Shared baseline and constraints
