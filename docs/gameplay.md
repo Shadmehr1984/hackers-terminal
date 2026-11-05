@@ -38,9 +38,11 @@ Use `prepare <id>` to inspect an available, unlocked contract before committing 
 
 The selected utility defaults to the currently equipped utility if it is owned. Use `loadout silent-boots`, `loadout signal-scrubber`, or `loadout none` to choose a run-specific utility. A utility must already be owned. This selection does not change the player's persistent equipment slot; its current upgrade level is snapshotted when the contract launches.
 
+Use `modifier` to list the modifiers allowed by this contract, including their exact effects and completion bonuses. Choose at most one with `modifier <id>`, or clear it with `modifier none`. All three current modifiers are allowed on all four built-in contracts. A selection is displayed again in the preparation summary and copied into the active session when you accept.
+
 Use `accept <id>` to launch only the contract currently being prepared. The ID must match. Use `cancel` to leave preparation without cost and then prepare another contract. Only one preparation or active contract can exist at a time.
 
-After launch, the run's utility and upgrade level are fixed for that contract. Buying, equipping, or upgrading items later does not change its Detection modifiers. Active contracts cannot be abandoned or manually restarted. If Detection reaches 100, the existing failure penalty applies and the failed contract can be prepared and launched again.
+After launch, the run's utility, upgrade level, and selected mission modifier are fixed for that contract. Buying, equipping, or upgrading items later does not change its Detection effects. Active contracts cannot be abandoned or manually restarted. If Detection reaches 100, the existing failure penalty applies and the failed contract can be prepared and launched again.
 
 Preparation and its selected loadout are runtime-only and are not written to Save V3. Restoring a saved active contract starts a fresh accepted session and snapshots the player's currently equipped utility.
 
@@ -94,7 +96,7 @@ The descriptions differ between contracts even though the current core objective
 
 Each contract has a purpose-built, entirely fictional network graph. Accepting a contract places the operator at its entry node. Use `map` to inspect nodes, links, current position, and the node assigned to each operation; use `move <node-id>` to traverse one adjacent link.
 
-Every successful traversal normally adds **5 Detection**, including revisiting a previously used link. Equipped Silent Boots reduce this cost to 4 at level 0, 3 at level 1, or 2 at level 2. Unknown and non-adjacent destinations are rejected without changing location or Detection. Movement can therefore make a route choice safer or riskier, and reaching 100 still invokes the HT-001 failure and penalty rules.
+Every successful traversal normally adds **5 Detection**, including revisiting a previously used link. Equipped Silent Boots reduce this cost to 4 at level 0, 3 at level 1, or 2 at level 2. If `heightened-monitoring` is selected, add another 2 after that adjustment. If `security-sweep` is selected, add 8 after traversal numbers 3, 6, 9, and so on; invalid or non-adjacent movement does not increment the counter. Unknown and non-adjacent destinations are rejected without changing location or Detection. Movement can therefore make a route choice safer or riskier, and reaching 100 still invokes the HT-001 failure and penalty rules.
 
 | Contract | Graph layout | Operation locations |
 | --- | --- | --- |
@@ -126,12 +128,12 @@ Risk costs are deterministic:
 | Successful authentication (first time only) | +5 |
 | Incorrect password attempt | +15 normally; equipped Signal Scrubber: +12/+9/+6 |
 | Successful decryption (first time only) | +10 |
-| Incorrect decryption key | +10 |
+| Incorrect decryption key | +10 normally; +15 with `hardened-encryption` |
 | Successful optional metadata analysis (first time only) | +5 |
 | Successful extraction (first time only) | +5 |
 | Connect, disconnect, invalid commands, or rejected prerequisites | +0 |
 
-Repeated successful actions do not add exposure again. Once authentication or decryption succeeds, further attempts at that completed stage are acknowledged without evaluating the supplied password/key or adding Detection. Crossing a band boundary prints a warning. At 100, the active contract immediately fails: no contract reward, XP, or reputation is granted, and a $50 penalty is deducted. The penalty is capped at the player's available balance, so the balance never becomes negative. The failed contract remains available to accept again. Detection resets when a contract starts, completes, or fails.
+Repeated successful actions do not add exposure again. A modifier is applied only to its named event: `heightened-monitoring` and `security-sweep` affect successful topology traversals, while `hardened-encryption` affects only incorrect decryption keys. Once authentication or decryption succeeds, further attempts at that completed stage are acknowledged without evaluating the supplied password/key or adding Detection. Crossing a band boundary prints a warning. At 100, the active contract immediately fails: no contract reward, XP, or reputation is granted, and a $50 penalty is deducted. The penalty is capped at the player's available balance, so the balance never becomes negative. The failed contract remains available to accept again. Detection resets when a contract starts, completes, or fails.
 
 Detection is session-only and is deliberately excluded from all save versions. Restoring an active contract after restarting begins with 0 detection, just as other temporary mission progress is reset.
 
@@ -177,6 +179,8 @@ The first contract is a guided introduction to the complete game loop.
 The initial $250 is enough to buy the decryptor. Completing the first contract grants $300 and 100 XP.
 
 ## Progression and leveling
+
+A successful modified contract also grants its separate +25 XP bonus, in addition to the modifier's +$50 cash bonus.
 
 The player begins at level 1. The XP threshold for level 2 is 100 XP; the threshold for level 3 is 250 total XP. Each level after level 2 requires another 150 XP.
 
