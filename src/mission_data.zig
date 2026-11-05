@@ -1,6 +1,5 @@
 const Mission = @import("mission.zig").Mission;
 const MissionObjective = @import("mission.zig").MissionObjective;
-const MissionObjectiveKind = @import("mission.zig").MissionObjectiveKind;
 
 const cold_storage_objectives: []const MissionObjective = &.{
     .{ .kind = .scan_target, .description = "Survey vault-01.local and identify its exposed service." },
