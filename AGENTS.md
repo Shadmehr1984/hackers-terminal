@@ -55,7 +55,7 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 - The built-in mission catalog currently contains `job-01` through `job-04`; Ghost Signal (`job-04`) is appended after the original three and requires level 3 and Reputation 3. The first three mission indices must remain stable for save compatibility. Difficulty values remain descriptive metadata only.
 - Keep mission definitions, rewards, clues, puzzle answers, and their ordering consistent with the existing catalog unless explicitly changed.
 - Temporary mission-session state, mission preparation, and per-run loadout snapshots are runtime-only and are not persisted. A restored active mission starts again at the accepted stage.
-- Mission difficulty and objective definitions are static catalog data and are not serialized. Do not change the save format merely to persist them.
+- Mission difficulty, category, and objective definitions are static catalog data and are not serialized. Do not change the save format merely to persist them.
 - Each built-in mission defines objectives using `MissionObjectiveKind`; successful scan, authentication, decryption, extraction, and optional metadata analysis actions complete their corresponding objectives.
 - `MissionObjective.optional` marks work that does not block contract completion. Completed optional objectives grant their configured `bonus_reward` when the contract is completed.
 - Objective completion and detection exposure are runtime-only session state. `extract` may complete a contract only when every required objective is complete. Keep the objective-kind bit positions within the current eight-bit session mask; redesign the storage before adding more than eight kinds.
