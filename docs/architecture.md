@@ -78,9 +78,9 @@ Progress is monotonic. Connection is independent because disconnecting must not 
 3. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
 4. `terminal.printBanner` and the welcome/status text are written to standard output.
 5. The application repeatedly prints the prompt and reads a line from standard input.
-6. Input is trimmed and passed to `game.runCommandWithPreparation`, together with runtime preparation state.
+6. Input is trimmed and passed to `game.runCommand`, together with runtime preparation state.
 7. `commands.parse` separates the command name and first argument without allocating memory.
-8. `game.runCommandWithPreparation` dispatches the parsed command, validates preparation and active game state, and performs the requested state transition.
+8. `game.runCommand` dispatches the parsed command, validates preparation and active game state, and performs the requested state transition.
 9. The loop ends on `exit`, end-of-input, or an input/output error propagated by the relevant function.
 
 ## Mission state transitions
@@ -131,7 +131,7 @@ Most user input errors are handled by printing a message and returning to the pr
 - The current objective kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds. Optional objective rewards are calculated at contract completion and are not separately persisted.
 - Detection is a runtime-only 0–100 meter. Its thresholds, action costs, failure penalty, and reset behavior are defined in the gameplay guide and implemented through `MissionSession` and `game.zig`.
 - The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
-- The save parser is line-oriented and has no checksum or schema validation layer.
+- The save parser is line-oriented and has no checksum or schema validation layer. Save writes are staged to a temporary file and renamed into place after the complete payload is written.
 - Command-specific output is written by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output in `shop.zig`.
 - Automated tests live under `tests/` and are aggregated by `tests/test_all.zig`, with `test_root.zig` providing the repository-root module path.
 
