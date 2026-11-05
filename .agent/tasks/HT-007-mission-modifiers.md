@@ -2,7 +2,7 @@
 
 **Feature:** Mission Modifiers  
 **Program:** EXPANSION-001 / Phase 1  
-**Status:** Implementation complete; final CI and review verification pending  
+**Status:** Implementation complete; PR #11 open and unmerged; CI passed; awaiting owner merge approval  
 **Design approval:** 2026-11-05
 
 ## Goal
@@ -119,7 +119,7 @@ Keep dependencies one-way. Domain rules must be testable without terminal I/O. T
 - [x] Save V3 writer and V2/V1/legacy readers remain unchanged.
 - [x] Tests cover selection, eligibility, snapshot, equipment interaction, Detection boundaries, sweep cadence, idempotency, payout uniqueness, and reset.
 - [x] User docs, architecture, ADR, and agent handoffs are synchronized.
-- [ ] Zig 0.13.0 formatting, build, tests, agent-doc check, review, and actual CI are verified before marking Implemented.
+- [x] Zig 0.13.0 formatting, build, tests, agent-doc check, self-review, and actual CI are verified. Independent second-agent review was unavailable; see review note below.
 
 ## Explicit non-goals
 
@@ -142,4 +142,4 @@ Keep dependencies one-way. Domain rules must be testable without terminal I/O. T
 8. Run Zig 0.13.0 fmt/build/full tests and agent-doc check; inspect actual CI.
 9. Complete independent review when available (otherwise label self-review honestly) and record commit/PR/CI evidence.
 
-**Progress note:** On 2026-11-05 the owner approved manual selection, one modifier maximum, the three exact effects, all-four-contract eligibility, and the common +$50/+25 XP successful-completion bonus. Implementation authorization was granted by the owner on 2026-11-05. Domain and preparation eligibility were added first; this implementation now wires the `modifier` command, preparation/active-run disclosure, immutable session snapshot, all three Detection effects, and one-time completion payout. Focused tests cover invalid selections, retry/reset, Silent Boots interaction, sweep cadence and compromise order, hardened-key idempotency, successful payout uniqueness, and failure/incomplete no-payout paths. User docs, architecture, root agent instructions, and module conventions were updated. The Save V3 writer and all readers are untouched. Final CI for the latest commit and final PR review remain pending.
+**Progress note:** On 2026-11-05 the owner approved manual selection, one modifier maximum, the three exact effects, all-four-contract eligibility, and the common +$50/+25 XP successful-completion bonus. Implementation authorization was granted by the owner on 2026-11-05. Domain and preparation eligibility were added first; this implementation now wires the `modifier` command, preparation/active-run disclosure, immutable session snapshot, all three Detection effects, and one-time completion payout. Focused tests cover invalid selections, retry/reset, Silent Boots interaction, sweep cadence and compromise order, hardened-key idempotency, successful payout uniqueness, and failure/incomplete no-payout paths. User docs, architecture, root agent instructions, and module conventions were updated. The Save V3 writer and all readers are untouched. Latest PR head `580050d74e75fbb15317a35380a9e0e7d278f25d` passed GitHub Actions run #567 (`42099651800`): Zig 0.13.0 format, build, full tests, and agent documentation check all succeeded. The full diff was self-reviewed against `.agent/review-checklist.md`; no independent second reviewer was available. PR #11 remains open and unmerged pending owner approval.
