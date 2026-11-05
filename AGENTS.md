@@ -26,9 +26,9 @@ This file is the persistent source of project-specific instructions for AI codin
 - `src/main.zig`: application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop.
 - `src/game.zig`: command dispatch, game-state validation/transitions, mission completion rewards, and player progression calculations.
 - `src/player.zig`: player profile data and defaults.
-- `src/mission.zig`: mission/contract data type, including the `MissionDifficulty` classification and player-facing difficulty labels.
+- `src/mission.zig`: mission/contract data types, difficulty classification, and typed objective definitions.
 - `src/mission_data.zig`: built-in mission catalog.
-- `src/mission_state.zig`: temporary active-mission progress and connection state.
+- `src/mission_state.zig`: temporary active-mission progress, connection state, and objective completion tracking.
 - `src/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
 - `src/terminal.zig`: terminal presentation, including mission list and briefing-related output.
 - `src/save.zig`: persistence and compatibility with V2, V1, and legacy save formats.
@@ -48,7 +48,9 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 - The built-in mission catalog currently classifies `job-01` as `easy`, `job-02` as `medium`, and `job-03` as `hard`. These difficulty values are descriptive metadata only; do not imply they affect mechanics until a separate feature explicitly implements and tests that behavior.
 - Keep mission definitions, rewards, clues, puzzle answers, and their ordering consistent with the existing catalog unless explicitly changed.
 - Temporary mission-session state is runtime-only and is not currently persisted. A restored active mission starts again at the accepted stage.
-- Mission difficulty is static catalog data and is not serialized. Do not change the save format merely to persist it.
+- Mission difficulty and objective definitions are static catalog data and are not serialized. Do not change the save format merely to persist them.
+- Each built-in mission defines objectives using `MissionObjectiveKind`; successful scan, authentication, decryption, and extraction actions complete the corresponding objective.
+- Objective completion is runtime-only session state. `extract` may complete a contract only when every objective defined for that mission is complete. Keep the objective-kind bit positions within the current eight-bit session mask; redesign the storage before adding more than eight kinds.
 
 ## Persistence safety
 
@@ -69,7 +71,7 @@ zig test test_root.zig
 - Add tests under `tests/`; do not put test modules back into `src/`.
 - Keep `tests/test_all.zig` as the aggregate test list and include new test modules there.
 - Use `test_root.zig` as the test command's root module. It exists so test imports such as `../src/commands.zig` remain within the repository-root module path.
-- Add tests for state transitions, parsing edge cases, progression rules, and save compatibility when those areas change.
+- Add tests for state transitions, objective definitions and completion tracking, parsing edge cases, progression rules, and save compatibility when those areas change.
 - If local build execution is unavailable, perform static inspection and say clearly that build/tests were not run. Never describe static inspection as a passing build or test.
 - When CI is available, inspect the actual workflow run and report its conclusion; do not infer success from a commit being pushed.
 
