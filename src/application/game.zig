@@ -4,6 +4,7 @@ const MissionState = @import("../domain/mission_state.zig");
 const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
 const MissionLoadout = MissionState.MissionLoadout;
+const ModifierId = @import("../domain/mission_modifier.zig").ModifierId;
 const UtilityEquipment = @import("../domain/player.zig").UtilityEquipment;
 const Player = @import("../domain/player.zig").Player;
 const save = @import("../persistence/save.zig");
@@ -121,12 +122,13 @@ fn handleDeal(
                 try printMissionLock(writer, mission, player.*);
             } else {
                 preparation.mission_index = index;
+                preparation.selected_modifier = null;
                 preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
                     (if (player.equipment.owns(utility)) utility else null)
                 else
                     null;
                 try writer.writeAll("[FIXER CONTRACT OFFER ACCEPTED]\n");
-                try terminal.printPreparation(writer, mission, player.*, preparation.selected_utility);
+                try terminal.printPreparation(writer, mission, player.*, preparation.selected_utility, preparation.selected_modifier);
             }
             return;
         }
@@ -134,6 +136,28 @@ fn handleDeal(
     } else {
         try writer.writeAll("Unknown offer. Use offers to see available IDs.\n");
     }
+}
+
+/// Applies the base movement cost before any modifier-specific traversal exposure.
+fn applyTraversalDetection(
+    writer: anytype,
+    player: *Player,
+    active: *?usize,
+    session: *MissionSession,
+) !bool {
+    if (try detection.apply(writer, player, active, session, session.loadout.movementDetectionCost())) return true;
+    if (session.modifier) |modifier| {
+        switch (modifier) {
+            .heightened_monitoring => return detection.apply(writer, player, active, session, 2),
+            .security_sweep => {
+                if (session.traversal_count > 0 and session.traversal_count % 3 == 0) {
+                    return detection.apply(writer, player, active, session, 8);
+                }
+            },
+            .hardened_encryption => {},
+        }
+    }
+    return false;
 }
 
 /// Parses and dispatches one game command, applying validation and state transitions.
@@ -212,6 +236,27 @@ pub fn runCommand(
                 try writer.print("Preparation loadout set to {s} (level {d}).\n", .{ utility.label(), player.equipment.level(utility) });
             }
         } else try writer.writeAll("Unknown loadout. Use loadout silent-boots, loadout signal-scrubber, or loadout none.\n");
+    } else if (std.mem.eql(u8, command, "modifier")) {
+        if (preparation.mission_index) |index| {
+            const mission = missions[index];
+            if (arg.len == 0) {
+                try terminal.printModifierOptions(writer, mission, preparation.selected_modifier);
+            } else if (std.mem.eql(u8, arg, "none")) {
+                preparation.selected_modifier = null;
+                try writer.writeAll("Preparation modifier cleared.\n");
+            } else if (ModifierId.fromCommandId(arg)) |modifier| {
+                if (preparation.selectModifier(mission, modifier)) {
+                    try writer.print("Modifier selected: {s}. Its effects and completion bonus are shown below.\n", .{modifier.label()});
+                    try terminal.printModifierOptions(writer, mission, preparation.selected_modifier);
+                } else {
+                    try writer.print("Modifier '{s}' is not available for this contract. No selection was changed.\n", .{arg});
+                }
+            } else {
+                try writer.writeAll("Unknown modifier. Use modifier to list choices, modifier <id> to select, or modifier none to clear.\n");
+            }
+        } else {
+            try writer.writeAll("No contract is being prepared. Use prepare <id> first.\n");
+        }
     } else if (std.mem.eql(u8, command, "cancel")) {
         if (preparation.mission_index != null) {
             preparation.clear();
@@ -234,7 +279,7 @@ pub fn runCommand(
                         session.current_node = node.id;
                         session.traversal_count += 1;
                         try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
-                        _ = try detection.apply(writer, player, active, session, session.loadout.movementDetectionCost());
+                        _ = try applyTraversalDetection(writer, player, active, session);
                     }
                 } else try writer.writeAll("Current location is unavailable. Restart the contract.\n");
             } else try writer.writeAll("This contract has no network map.\n");
@@ -267,7 +312,7 @@ pub fn runCommand(
                 if (!player.equipment.owns(utility)) {
                     try writer.writeAll("Selected utility is no longer owned. Choose another loadout.\n");
                 } else {
-                    session.startWithLoadout(.{ .utility = utility, .level = player.equipment.level(utility) });
+                    session.startWithModifier(.{ .utility = utility, .level = player.equipment.level(utility) }, preparation.selected_modifier);
                     active.* = index;
                     preparation.clear();
                     if (mission.topology) |topology| session.current_node = topology.entry_node;
@@ -275,7 +320,7 @@ pub fn runCommand(
                     if (session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
                 }
             } else {
-                session.startWithLoadout(.{});
+                session.startWithModifier(.{}, preparation.selected_modifier);
                 active.* = index;
                 preparation.clear();
                 if (mission.topology) |topology| session.current_node = topology.entry_node;
