@@ -1,6 +1,6 @@
 pub const Topology = @import("topology.zig").Topology;
 
-const MissionDifficulty = enum {
+pub const MissionDifficulty = enum {
     easy,
     medium,
     hard,
