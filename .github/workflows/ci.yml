@@ -26,6 +26,11 @@ jobs:
         with:
           version: 0.13.0
 
+      - name: Diagnose Zig formatting
+        run: |
+          zig fmt src/application/game.zig
+          git diff -- src/application/game.zig
+
       - name: Check formatting
         run: zig fmt --check test_root.zig build.zig src tests
 
