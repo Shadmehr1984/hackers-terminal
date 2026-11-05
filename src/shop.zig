@@ -47,7 +47,7 @@ pub fn equipItem(writer: anytype, player: *Player, item: []const u8) !void {
         try writer.writeAll("Unknown utility. Use 'inventory' to inspect owned equipment.\n");
         return;
     };
-    if (!player.equipment.owns(utility)) try writer.writeAll("You do not own this utility.\n") else if (player.equipment.equipped_utility == utility) try writer.writeAll("This utility is already equipped.\n") else {
+    if (!player.equipment.owns(utility)) try writer.writeAll("You do not own this utility.\n") else if (player.equipment.isEquipped(utility)) try writer.writeAll("This utility is already equipped.\n") else {
         player.equipment.equipped_utility = utility;
         try writer.print("{s} equipped. It is now your active utility.\n", .{utility.label()});
     }
