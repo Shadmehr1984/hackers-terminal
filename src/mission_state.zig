@@ -35,12 +35,14 @@ pub const MissionSession = struct {
     connected: bool = false,
     completed_objectives: u8 = 0,
     detection_level: u8 = 0,
+    current_node: ?[]const u8 = null,
 
     pub fn start(self: *MissionSession) void {
         self.progress = .accepted;
         self.connected = false;
         self.completed_objectives = 0;
         self.detection_level = 0;
+        self.current_node = null;
     }
 
     pub fn reset(self: *MissionSession) void {
@@ -48,6 +50,7 @@ pub const MissionSession = struct {
         self.connected = false;
         self.completed_objectives = 0;
         self.detection_level = 0;
+        self.current_node = null;
     }
 
     pub fn detectionBand(self: MissionSession) DetectionBand {
