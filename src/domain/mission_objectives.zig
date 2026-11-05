@@ -130,6 +130,23 @@ pub const Tracker = struct {
         };
     }
 
+    /// Reveals one authored hidden optional objective by stable ID.
+    /// The catalog identity is checked before mutation and repeated reveals are harmless.
+    pub fn revealById(self: *Tracker, id: []const u8, objectives: anytype) bool {
+        if (objectives.len != self.count) return false;
+        for (objectives, 0..) |objective, index| {
+            if (!std.mem.eql(u8, self.entries[index].id, objective.id)) return false;
+        }
+        for (objectives, 0..) |objective, index| {
+            if (!std.mem.eql(u8, objective.id, id)) continue;
+            if (!objective.hidden or !objective.optional or self.entries[index].state != .undiscovered) return false;
+            self.entries[index].state = .discovered;
+            self.entries[index].revealed = true;
+            return true;
+        }
+        return false;
+    }
+
     /// Completes every discovered objective configured for the supplied event kind.
     /// Returns the number of objectives newly completed by this event.
     pub fn complete(self: *Tracker, kind: u8) usize {
