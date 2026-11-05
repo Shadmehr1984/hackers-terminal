@@ -42,12 +42,15 @@ grep -q 'ADR 0007' .agent/decisions/0007-reputation-contacts.md
 grep -q 'Acceptance criteria' .agent/tasks/HT-005-reputation-contacts.md
 
 # Guard the mandatory code-review standard against accidental truncation.
-grep -q 'Correctness — **40%' .agent/review-checklist.md
-grep -q 'Security (OWASP Top 10:2025) — **20%' .agent/review-checklist.md
-grep -q 'Architecture and Design — **30%' .agent/review-checklist.md
-grep -q 'Performance — **10%' .agent/review-checklist.md
-grep -q 'ALWAYS FLAG' .agent/review-checklist.md
-grep -q 'NEEDS-VERIFICATION' .agent/review-checklist.md
+grep -q '## 3. Correctness — 40%' .agent/review-checklist.md
+grep -q '## 4. Security — 20% — OWASP Top 10:2025' .agent/review-checklist.md
+grep -q '## 5. Architecture and Design — 30%' .agent/review-checklist.md
+grep -q '## 6. Performance — 10%' .agent/review-checklist.md
+grep -q '### 7.2 ALWAYS FLAG' .agent/review-checklist.md
+grep -q 'root_source_file' .agent/review-checklist.md
+grep -q 'getOrPut' .agent/review-checklist.md
+grep -q 'std.heap.DebugAllocator' .agent/review-checklist.md
+grep -q 'OWASP Top 10:2025' .agent/review-checklist.md
 grep -q 'Mandatory final report format' .agent/review-checklist.md
 grep -q 'For a full review' .agent/README.md
 grep -q 'Maintainability/Observability' .agent/workflow.md
