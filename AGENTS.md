@@ -101,7 +101,7 @@ zig test test_root.zig
 
 ## Working with future feature ideas
 
-The approved five-feature gameplay program is recorded in `.agent/roadmap.md`. Its task briefs in `.agent/tasks/` are the execution contracts. Before implementing one, read its brief, inspect current source and docs, create/update progress notes, and work in the approved order. Approval of the program does not mean all five systems should be implemented in one change; implement one small, reviewable milestone at a time. Branching objectives/story consequences remain deferred.
+The completed foundational gameplay program HT-001 through HT-005 is recorded in `.agent/roadmap.md` and `.agent/tasks/`. The next 20-feature expansion program (HT-006 through HT-025) is planned in `.agent/plans/GAMEPLAY-EXPANSION-OVERVIEW.md` and its four phase handoff documents. The owner has approved planning only; implementation is not authorized until the owner explicitly starts it. Before any future implementation, read the master plan and matching phase document, inspect current source/docs/tests/save behavior, create a feature-specific task brief and progress notes, and work in dependency order one small reviewable milestone at a time. Do not interpret inclusion in the plan as permission to code. Branching narrative and dialogue trees remain out of scope; multi-stage operations are mechanical sequences only.
 
 All new systems must remain entirely fictional, local, and offline. Never implement real networking, external host interaction, shell execution, or credential collection.
 
