@@ -5,7 +5,6 @@ const shop = @import("../src/shop.zig");
 const save = @import("../src/save.zig");
 const game = @import("../src/game.zig");
 const mission_data = @import("../src/mission_data.zig");
-const Mission = @import("../src/mission.zig").Mission;
 const MissionSession = @import("../src/mission_state.zig").MissionSession;
 
 const TestWriter = struct {
@@ -123,5 +122,4 @@ test "invalid V3 equipment references are normalized" {
 test "equipment enum catalog remains stable" {
     try std.testing.expectEqual(@as(u8, 0), @intFromEnum(UtilityEquipment.silent_boots));
     try std.testing.expectEqual(@as(u8, 1), @intFromEnum(UtilityEquipment.signal_scrubber));
-    const _: []const Mission = &.{};
 }
