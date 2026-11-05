@@ -68,12 +68,13 @@ The marker is `HACKERS_TERMINAL_SAVE_V1`. V1 did not store XP. The loader recons
 
 ### Original unversioned format
 
-The first line is interpreted as balance, followed by reputation and decryptor ownership. Subsequent lines are mission completion flags. Utility state migrates to no utilities owned/equipped and level 0.
+The first line must be a valid unsigned numeric balance, followed by reputation and decryptor ownership. Subsequent lines are mission completion flags. Utility state migrates to no utilities owned/equipped and level 0. Unknown non-numeric version markers are rejected; the loader returns no active mission and leaves the supplied player and mission state unchanged.
 
 ## Failure behavior and caveats
 
 - If the file cannot be opened or read, loading returns no active mission and the game continues with defaults.
-- Invalid numeric values generally leave the corresponding default/current value unchanged.
+- Unknown non-numeric format markers are rejected before mutating player or mission state.
+- Invalid numeric values inside a recognized format generally leave the corresponding default/current value unchanged.
 - The loader reads at most 4096 bytes.
 - The format is positional: line order matters.
 - The format has no checksum, backup rotation, or explicit corruption recovery. Writes use a temporary file and rename to avoid truncating the previous save on a write failure.
