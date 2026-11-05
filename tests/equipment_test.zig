@@ -122,6 +122,69 @@ test "V3 save restores utilities while V2 V1 and legacy saves migrate without ut
     try std.testing.expectEqual(v1_missions[0].xp_reward, v1_player.xp);
 }
 
+test "unknown save versions are rejected without mutating existing state" {
+    var player = Player{};
+    player.balance = 321;
+    player.reputation = 7;
+    player.xp = 99;
+    player.equipment.setOwned(.silent_boots);
+    player.equipment.equipped_utility = .silent_boots;
+    player.equipment.silent_boots_level = 1;
+    var missions = mission_data.defaultMissions();
+    missions[0].completed = true;
+
+    const result = save.loadGameFromBytes("HACKERS_TERMINAL_SAVE_V4\\n999\\n", &player, &missions);
+
+    try std.testing.expect(result == null);
+    try std.testing.expectEqual(@as(u32, 321), player.balance);
+    try std.testing.expectEqual(@as(u32, 7), player.reputation);
+    try std.testing.expectEqual(@as(u32, 99), player.xp);
+    try std.testing.expect(player.equipment.owns(.silent_boots));
+    try std.testing.expect(player.equipment.isEquipped(.silent_boots));
+    try std.testing.expectEqual(@as(u2, 1), player.equipment.level(.silent_boots));
+    try std.testing.expect(missions[0].completed);
+
+    try std.testing.expect(save.loadGameFromBytes("not-a-save-format\\n", &player, &missions) == null);
+}
+
+test "save writes and replaces a V3 file in an isolated directory" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    var player = Player{};
+    player.balance = 777;
+    player.reputation = 3;
+    player.xp = 250;
+    player.equipment.setOwned(.silent_boots);
+    player.equipment.equipped_utility = .silent_boots;
+    player.equipment.silent_boots_level = 2;
+    var missions = mission_data.defaultMissions();
+    missions[0].completed = true;
+
+    try save.saveGameToDirectory(tmp.dir, player, &missions, null);
+    player.balance = 888;
+    missions[0].completed = false;
+    try save.saveGameToDirectory(tmp.dir, player, &missions, null);
+
+    const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
+    defer std.testing.allocator.free(data);
+    try std.testing.expect(std.mem.startsWith(u8, data, "HACKERS_TERMINAL_SAVE_V3\\n"));
+    var restored_player = Player{};
+    var restored_missions = mission_data.defaultMissions();
+    _ = save.loadGameFromBytes(data, &restored_player, &restored_missions);
+    try std.testing.expectEqual(@as(u32, 888), restored_player.balance);
+    try std.testing.expectEqual(@as(u32, 3), restored_player.reputation);
+    try std.testing.expectEqual(@as(u32, 250), restored_player.xp);
+    try std.testing.expect(restored_player.equipment.owns(.silent_boots));
+    try std.testing.expectEqual(@as(u2, 2), restored_player.equipment.level(.silent_boots));
+    try std.testing.expect(!restored_missions[0].completed);
+    const temp_file = tmp.dir.openFile("saves/player.sav.tmp", .{}) catch null;
+    if (temp_file) |file| {
+        file.close();
+        return error.TemporarySaveFileWasNotRemoved;
+    }
+}
+
 test "invalid V3 equipment references are normalized" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
