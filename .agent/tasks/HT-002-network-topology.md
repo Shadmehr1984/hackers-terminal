@@ -43,7 +43,7 @@ The implementation should keep each graph small enough to understand from termin
 - [x] Scan/connect/authentication/decryption/analysis/extraction are location-aware and covered by integration tests.
 - [x] Current node initializes on accept, resets on completion/failure, and restores at entry for loaded active contracts.
 - [x] Missions without topology remain backward-compatible through optional topology checks.
-- [x] Save V2, V1, and legacy formats remain unchanged; topology and current node are not serialized.
+- [x] Save V2, V1, and legacy formats remain unchanged; topology, current node, and traversal count are not serialized.
 - [x] Focused tests, docs, AGENTS/module contracts, and CI are updated.
 
 ## Non-goals
@@ -64,7 +64,7 @@ The implementation should keep each graph small enough to understand from termin
 - Added `map` and `move`; location-gated scan, connection/authentication, decryption, analysis, and extraction; +5 detection per successful traversal; and transient current-node/traversal-count initialization/reset.
 - Added graph/data/session/game integration tests. Formatting, build, full tests, and agent-documentation checks passed in CI run [42005306937](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42005306937).
 - Repository review confirmed that mission definitions are static in `mission_data.zig`, runtime state is owned by `MissionSession`, and `game.zig` coordinates command behavior.
-- HT-001 is now CI-verified (run 42001487382 succeeded); HT-002 is the active implementation task.
+- HT-001 was CI-verified in run 42001487382; HT-002 is now implemented.
 - Owner confirmed that all three missions need unique, purpose-built topologies.
 - Initial topology concepts and the +5-per-traversal risk rule are recorded above. The graph model, three mission maps, movement, location-gated operations, tests, and documentation are now implemented; verification and review completed; this task is implemented.
 
