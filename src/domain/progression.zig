@@ -44,11 +44,14 @@ pub fn xpForNextLevel(level: u32) u32 {
 }
 
 /// Applies a completed contract's cash, XP, and Reputation rewards and writes the result.
-pub fn completeMission(writer: anytype, player: *Player, mission: Mission, session: MissionSession) !void {
+pub fn completeMission(writer: anytype, player: *Player, mission: Mission, session: *MissionSession) !void {
+    if (session.completion_reward_paid) return;
+    session.completion_reward_paid = true;
+    const run = session.*;
     const old_level = playerLevel(player.*);
-    const bonus_reward = session.optionalReward(mission.objectives);
-    const modifier_bonus = if (session.modifier) |modifier| modifier.completionBonus() else @import("mission_modifier.zig").CompletionBonus{ .cash = 0, .xp = 0 };
-    const reputation_bonus: u32 = if (session.allOptionalObjectivesComplete(mission.objectives)) 1 else 0;
+    const bonus_reward = run.optionalReward(mission.objectives);
+    const modifier_bonus = if (run.modifier) |modifier| modifier.completionBonus() else @import("mission_modifier.zig").CompletionBonus{ .cash = 0, .xp = 0 };
+    const reputation_bonus: u32 = if (run.allOptionalObjectivesComplete(mission.objectives)) 1 else 0;
     const reputation_gain: u32 = 1 + reputation_bonus;
     player.balance += mission.reward + bonus_reward + modifier_bonus.cash;
     player.reputation += reputation_gain;
