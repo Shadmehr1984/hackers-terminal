@@ -27,7 +27,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
 | `src/domain/contract_board.zig` | Pure derived availability and reward-range calculations for the separate `board` command; no persistence or I/O |
-| `src/domain/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, and typed `MissionObjective` definitions |
+| `src/domain/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, `MissionCategory`, and typed `MissionObjective` definitions |
 | `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
 | `src/domain/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
 | `src/catalog/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
