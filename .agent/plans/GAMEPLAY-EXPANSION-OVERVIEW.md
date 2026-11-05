@@ -2,14 +2,14 @@
 
 **Program ID:** EXPANSION-001  
 **Owner direction:** Approved for planning on 2026-11-05  
-**Implementation authorization:** HT-007 specifically authorized and completed; HT-008 design approved on 2026-11-05 but implementation not yet authorized; all other features require explicit owner authorization  
-**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation and all other features remain subject to explicit authorization
+**Implementation authorization:** HT-007 specifically authorized and completed; HT-008 design approved and implementation authorized on 2026-11-05; implementation is in progress; all other features require explicit owner authorization  
+**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation is in progress; all other features remain subject to explicit authorization
 
 ## Purpose
 
 Expand the length, variety, replayability, and sense of a living fictional cyber-world while preserving Hacker's Terminal's identity: a single-player, command-driven, text-terminal hacking simulation. This document is the persistent handoff contract for future agents. It replaces reliance on the originating chat: an agent must be able to understand the intended work, dependencies, constraints, and verification expectations from repository files.
 
-This is primarily a planning artifact, not blanket implementation authorization. HT-007 is implemented and merged to `main` via PR #11. HT-008 design is approved, but its implementation is not authorized. Do not add gameplay code, commands, save fields, balance values, or user-facing behavior for HT-008 or any other feature until the owner explicitly authorizes implementation.
+This is primarily a planning artifact, not blanket implementation authorization. HT-007 is implemented and merged to `main` via PR #11. HT-008 implementation was explicitly authorized on 2026-11-05 and is in progress under its task brief. Do not add gameplay code, commands, save fields, balance values, or user-facing behavior for any other feature until the owner explicitly authorizes that feature.
 
 ## Current baseline verified during planning
 
@@ -101,7 +101,7 @@ Implement one feature/milestone at a time. This order is dependency-aware, not a
 
 - Contract Board must be designed before recurring contracts, challenge listings, and rival-driven contract availability.
 - Mission Modifiers must not become arbitrary random penalties. HT-007 is designed for manual player selection of zero or one modifier during Preparation; exact effects, eligibility, reward, lifecycle, and no-save-change rules are in its task brief. Implementation is complete and merged to `main` via PR #11; CI run #575 passed. Follow the HT-007 task brief.
-- Hidden Objectives must not exceed the current eight-bit objective-kind mask. Prefer redesigning objective progress around objective identity/counts before introducing a ninth kind; do not overload existing bits.
+- Hidden Objectives use the approved fixed-capacity 32-entry per-objective tracker keyed by stable mission-local IDs; the former eight-bit objective-kind mask is retired.
 - Multi-stage Operations must define failure, retry, stage reward, and partial-completion behavior. They are mechanical sequences, not branching stories.
 - Factions should use derived relationship state where possible. Do not add persisted faction scores before a separate save decision.
 - Rival Hackers must not simulate actual network traffic or external users. Their actions are local deterministic game events.
