@@ -12,7 +12,9 @@
 - Mission difficulty labels: Easy, Medium, and Hard
 - Required and optional mission objectives with live completion tracking and bonus rewards
 - Mission progression gated by operator level
-- Mission-specific fictional network maps with adjacent-node navigation and location-based operations\n- Detection exposure increases with risky actions and every successful network traversal\n- Simulated scan, connection, authentication, decryption, metadata analysis, and extraction stages
+- Mission-specific fictional network maps with adjacent-node navigation and location-based operations
+- Detection exposure increases with risky actions and every successful network traversal
+- Simulated scan, connection, authentication, decryption, metadata analysis, and extraction stages
 - Player balance, reputation, XP, and level progression
 - A small shop and persistent tool inventory
 - Local save/load, including migration from older save formats
