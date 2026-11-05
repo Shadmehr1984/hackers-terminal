@@ -50,7 +50,7 @@ Derived from the current source tree; re-check source before relying on this map
 - HT-007 modifier Detection events use the central `detection.apply` path. `heightened-monitoring` adds +2 after adjusted movement cost; `security-sweep` adds +8 after every third successful traversal only if the normal event did not compromise the run; `hardened-encryption` changes incorrect decryption-key exposure to +15. Successful modified completion adds +$50/+25 XP once; a runtime session guard prevents duplicate completion payouts, and failure does not.
 - Player progression and mission completion are persisted. Reputation tiers and Contact unlocks are derived from Reputation; Fixer service usage is transient.
 - Save format is positional and writes V3 and reads V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
-- Objective completion currently uses an eight-bit mask; adding a ninth kind requires redesign and tests.
+- Objective progress uses HT-008's fixed-capacity 32-entry tracker keyed by stable mission-local IDs; never use an event-kind enum ordinal as objective identity.
 
 ## Git workflow
 - Work directly on `main` by default, as requested by the owner on 2026-11-05.
