@@ -136,3 +136,18 @@ test "active loadout is snapshotted and ignores later persistent equipment chang
     try std.testing.expectEqual(@as(u8, 4), session.loadout.movementDetectionCost());
     try std.testing.expectEqual(@as(u8, 15), session.loadout.incorrectAuthenticationDetectionCost());
 }
+
+test "accept without preparation is rejected by the shared command dispatcher" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "accept job-01", &player, &missions, &active, &session, &preparation);
+
+    try std.testing.expect(active == null);
+    try std.testing.expectEqual(MissionState.MissionProgress.inactive, session.progress);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Prepare a contract before launching it") != null);
+}
