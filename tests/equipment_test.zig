@@ -98,6 +98,20 @@ test "equipment and mission loadout share the same Detection cost profiles" {
     try std.testing.expectEqual(@as(u8, 15), no_utility.incorrectAuthenticationDetectionCost());
     try std.testing.expectEqual(@as(u8, 5), wrong_movement_utility.movementDetectionCost());
     try std.testing.expectEqual(@as(u8, 15), wrong_authentication_utility.incorrectAuthenticationDetectionCost());
+
+    var equipment = @import("../src/player.zig").Equipment{};
+    equipment.setOwned(.signal_scrubber);
+    equipment.equipped_utility = .signal_scrubber;
+    try std.testing.expectEqual(@as(u8, 5), equipment.movementDetectionCost());
+    equipment.setOwned(.silent_boots);
+    equipment.equipped_utility = .silent_boots;
+    try std.testing.expectEqual(@as(u8, 15), equipment.incorrectAuthenticationDetectionCost());
+
+    const launch_snapshot = MissionState.MissionLoadout{ .utility = .silent_boots, .level = 1 };
+    equipment.equipped_utility = .signal_scrubber;
+    equipment.setLevel(.signal_scrubber, 2);
+    try std.testing.expectEqual(@as(u8, 3), launch_snapshot.movementDetectionCost());
+    try std.testing.expectEqual(@as(u8, 6), equipment.incorrectAuthenticationDetectionCost());
 }
 
 test "Silent Boots reduce movement Detection and Signal Scrubber reduces failed authentication" {
