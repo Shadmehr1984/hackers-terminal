@@ -99,7 +99,7 @@ Implement one feature/milestone at a time. This order is dependency-aware, not a
 ## Dependency and sequencing rules
 
 - Contract Board must be designed before recurring contracts, challenge listings, and rival-driven contract availability.
-- Mission Modifiers must not become arbitrary random penalties. HT-007 is designed for manual player selection of zero or one modifier during Preparation; exact effects, eligibility, reward, lifecycle, and no-save-change rules are in its task brief. Do not implement without separate authorization.
+- Mission Modifiers must not become arbitrary random penalties. HT-007 is designed for manual player selection of zero or one modifier during Preparation; exact effects, eligibility, reward, lifecycle, and no-save-change rules are in its task brief. Implementation is authorized and in progress; follow the HT-007 task brief and milestone boundaries.
 - Hidden Objectives must not exceed the current eight-bit objective-kind mask. Prefer redesigning objective progress around objective identity/counts before introducing a ninth kind; do not overload existing bits.
 - Multi-stage Operations must define failure, retry, stage reward, and partial-completion behavior. They are mechanical sequences, not branching stories.
 - Factions should use derived relationship state where possible. Do not add persisted faction scores before a separate save decision.
