@@ -179,37 +179,6 @@ fn operationFactLabel(fact: @import("../domain/operation.zig").OperationFact) []
         .routing_header => "routing_header",
     };
 }
-fn printOperationStatus(writer: anytype, preparation: MissionPreparation, missions: []const Mission) !void {
-    if (!preparation.operation_state.active) {
-        if (preparation.operation_state.last_completed_operation_id.len > 0) {
-            try writer.print("Last completed this session: {s}\n", .{preparation.operation_state.last_completed_operation_id});
-        } else {
-            try writer.writeAll("No active operation.\n");
-        }
-        return;
-    }
-    const op = operation_data.find(preparation.operation_state.operation_id) orelse return;
-    const stage = op.stages[preparation.operation_state.stage_index];
-    const mission = @import("../domain/operation.zig").findMission(missions, stage.mission_id) orelse return;
-    try writer.print("OPERATION: {s}\nStage: {d}/{d} — {s} ({s})\nEarned facts:", .{
-        op.name,
-        @as(usize, preparation.operation_state.stage_index) + 1,
-        op.stages.len,
-        stage.mission_id,
-        mission.name,
-    });
-    var any = false;
-    if (preparation.operation_state.hasFact(.maintenance_telemetry)) {
-        try writer.writeAll(" maintenance_telemetry");
-        any = true;
-    }
-    if (preparation.operation_state.hasFact(.routing_header)) {
-        try writer.writeAll(" routing_header");
-        any = true;
-    }
-    if (!any) try writer.writeAll(" none");
-    try writer.writeAll("\n");
-}
 /// Re-prepares the current operation stage after Detection compromise.
 fn retryOperationStage(
     writer: anytype,
@@ -275,60 +244,13 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "missions")) {
         try terminal.printMissions(writer, missions, progression.playerLevel(player.*), player.reputation);
     } else if (std.mem.eql(u8, command, "operations")) {
-        try writer.writeAll("OPERATIONS\n");
-        for (operation_data.all()) |op| {
-            var available = true;
-            for (op.stages) |stage| {
-                const stage_mission = @import("../domain/operation.zig").findMission(missions, stage.mission_id) orelse {
-                    available = false;
-                    break;
-                };
-                if (!isMissionUnlocked(stage_mission, player.*)) available = false;
-            }
-            const status = if (preparation.operation_state.active and
-                std.mem.eql(u8, preparation.operation_state.operation_id, op.id))
-                "IN PROGRESS"
-            else if (available)
-                "AVAILABLE"
-            else
-                "LOCKED";
-            try writer.print("  [{s}] {s} — {d} stages | {s}\n", .{ op.id, op.name, op.stages.len, status });
-        }
-        try writer.writeAll("Use operation <id>, then operation-start <id>.\n");
+        try terminal.printOperations(writer, player.*, missions, preparation.*);
     } else if (std.mem.eql(u8, command, "operation")) {
-        if (operation_data.find(arg)) |op| {
-            try writer.print("{s} ({s})\n{s}\nSTAGES\n", .{ op.name, op.id, op.description });
-            for (op.stages, 0..) |stage, i| {
-                const m = @import("../domain/operation.zig").findMission(missions, stage.mission_id).?;
-                try writer.print("  {d}. {s} — {s} | level {d}, Reputation {d}\n", .{ i + 1, m.id, m.name, m.required_level, m.required_reputation });
-            }
+        if (operation_data.find(arg)) |operation| {
+            try terminal.printOperationDetails(writer, operation, player.*, missions);
         } else try writer.writeAll("Unknown operation. Use operations.\n");
     } else if (std.mem.eql(u8, command, "operation-status")) {
-        try printOperationStatus(writer, preparation.*, missions);
-    } else if (std.mem.eql(u8, command, "operation-start")) {
-        if (active.* != null or preparation.mission_index != null or preparation.operation_state.active) {
-            try writer.writeAll("Finish the current contract/preparation/operation first.\n");
-        } else if (operation_data.find(arg)) |op| {
-            if (!op.validate(missions)) {
-                try writer.writeAll("Operation catalog validation failed; start rejected.\n");
-            } else {
-                var unlocked = true;
-                for (op.stages) |stage| {
-                    const m = @import("../domain/operation.zig").findMission(missions, stage.mission_id).?;
-                    if (!isMissionUnlocked(m, player.*)) {
-                        try printMissionLock(writer, m, player.*);
-                        unlocked = false;
-                    }
-                }
-                if (unlocked) {
-                    const idx = findMissionIndex(missions, op.stages[0].mission_id).?;
-                    _ = preparation.operation_state.start(op, !missions[idx].completed);
-                    prepareOperationStage(preparation, player.*, idx);
-                    try writer.print("[OPERATION STARTED] {s}; first stage prepared: {s}.\n", .{ op.name, missions[idx].name });
-                    try terminal.printPreparation(writer, missions[idx], player.*, preparation.selected_utility, null);
-                } else try writer.writeAll("Operation requirements are not met; no state changed.\n");
-            }
-        } else try writer.writeAll("Unknown operation. Use operations.\n");
+        try terminal.printOperationStatus(writer, preparation.*, missions);
     } else if (std.mem.eql(u8, command, "contacts")) {
         try terminal.printContacts(writer, player.*);
     } else if (std.mem.eql(u8, command, "contact")) {
