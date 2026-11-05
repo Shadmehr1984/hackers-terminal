@@ -79,7 +79,6 @@ test "reset returns session to inactive" {
     try std.testing.expect(!session.isDecrypted());
 }
 
-
 test "detection starts quiet, changes bands at thresholds, and caps at 100" {
     var session = MissionSession{};
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
