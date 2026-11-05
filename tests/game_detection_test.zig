@@ -414,6 +414,7 @@ test "modified extraction with incomplete required objectives does not pay rewar
     try run(writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(active != null);
     try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(@import("../src/domain/mission_objectives.zig").ObjectiveState.undiscovered, session.objective_tracker.stateOf("maintenance-telemetry").?);
     try std.testing.expectEqual(@as(u32, 250), player.balance);
     try std.testing.expectEqual(@as(u32, 0), player.xp);
     try std.testing.expectEqual(@as(u32, 0), player.reputation);
