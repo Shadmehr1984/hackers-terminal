@@ -47,7 +47,7 @@ Each feature has a stable ID. The matching phase document contains its goal, des
 | HT-006 | Contract Board | Phase 1 | Existing mission catalog, unlock rules, Contacts offers |
 | HT-007 | Mission Modifiers | Phase 1 | Contract metadata, Detection model |
 | HT-008 | Hidden Objectives | Phase 1 | Implemented: bounded 32-entry objective tracker; stable IDs; Node/File/Action discovery |
-| HT-009 | Multi-stage Operations | Phase 1 | Approved: linear 3-stage operation, typed objective carry-over, per-stage rewards, Runtime-only state; implementation not authorized |
+| HT-009 | Multi-stage Operations | Phase 1 | In progress: linear 3-stage operation, typed objective carry-over, per-stage rewards, Runtime-only state; owner authorized |
 | HT-010 | Factions | Phase 2 | Reputation, Contracts, Contacts |
 | HT-011 | Rival Hackers | Phase 2 | Factions, contract availability/results |
 | HT-012 | Information Market | Phase 2 | Contacts, mission intelligence, economy |
