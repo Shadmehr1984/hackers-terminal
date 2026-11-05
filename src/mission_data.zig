@@ -1,5 +1,72 @@
 const Mission = @import("mission.zig").Mission;
 const MissionObjective = @import("mission.zig").MissionObjective;
+const Topology = @import("topology.zig").Topology;
+const Node = @import("topology.zig").Node;
+const Link = @import("topology.zig").Link;
+
+const cold_storage_nodes = [_]Node{
+    .{ .id = "entry", .label = "Facility perimeter" },
+    .{ .id = "service", .label = "Service kiosk" },
+    .{ .id = "corridor", .label = "Exposed service corridor" },
+    .{ .id = "maintenance", .label = "Maintenance access" },
+    .{ .id = "plant", .label = "Utility room" },
+    .{ .id = "vault", .label = "Evidence vault" },
+};
+const cold_storage_links = [_]Link{
+    .{ .from = "entry", .to = "service" },
+    .{ .from = "service", .to = "corridor" },
+    .{ .from = "corridor", .to = "vault" },
+    .{ .from = "service", .to = "maintenance" },
+    .{ .from = "maintenance", .to = "plant" },
+    .{ .from = "plant", .to = "vault" },
+};
+const cold_storage_topology = Topology{
+    .nodes = &cold_storage_nodes, .links = &cold_storage_links,
+    .entry_node = "entry", .scan_node = "service", .auth_node = "service",
+    .decrypt_node = "vault", .analyze_node = "vault", .extract_node = "vault",
+};
+
+const paper_trail_nodes = [_]Node{
+    .{ .id = "entry", .label = "Archive gateway" },
+    .{ .id = "index", .label = "Indexing hub" },
+    .{ .id = "mail-gw", .label = "Mail-processing gateway" },
+    .{ .id = "mail-store", .label = "Mailbox store" },
+    .{ .id = "records-gw", .label = "Records-access gateway" },
+    .{ .id = "records", .label = "Records metadata vault" },
+};
+const paper_trail_links = [_]Link{
+    .{ .from = "entry", .to = "index" },
+    .{ .from = "index", .to = "mail-gw" },
+    .{ .from = "mail-gw", .to = "mail-store" },
+    .{ .from = "index", .to = "records-gw" },
+    .{ .from = "records-gw", .to = "records" },
+};
+const paper_trail_topology = Topology{
+    .nodes = &paper_trail_nodes, .links = &paper_trail_links,
+    .entry_node = "entry", .scan_node = "index", .auth_node = "mail-gw",
+    .decrypt_node = "mail-store", .analyze_node = "records", .extract_node = "mail-store",
+};
+
+const quiet_exit_nodes = [_]Node{
+    .{ .id = "entry", .label = "Outer relay entry" },
+    .{ .id = "relay-a", .label = "Relay station A" },
+    .{ .id = "relay-core", .label = "Central relay" },
+    .{ .id = "decoy", .label = "Decoy relay branch" },
+    .{ .id = "transfer", .label = "Transfer cache" },
+    .{ .id = "exit", .label = "Controlled exit node" },
+};
+const quiet_exit_links = [_]Link{
+    .{ .from = "entry", .to = "relay-a" },
+    .{ .from = "relay-a", .to = "relay-core" },
+    .{ .from = "relay-core", .to = "decoy" },
+    .{ .from = "relay-core", .to = "transfer" },
+    .{ .from = "transfer", .to = "exit" },
+};
+const quiet_exit_topology = Topology{
+    .nodes = &quiet_exit_nodes, .links = &quiet_exit_links,
+    .entry_node = "entry", .scan_node = "relay-a", .auth_node = "relay-core",
+    .decrypt_node = "transfer", .analyze_node = "transfer", .extract_node = "exit",
+};
 
 const cold_storage_objectives: []const MissionObjective = &.{
     .{ .kind = .scan_target, .description = "Survey vault-01.local and identify its exposed service." },
@@ -34,6 +101,7 @@ pub fn defaultMissions() [3]Mission {
             .target = "vault-01.local",
             .difficulty = .easy,
             .objectives = cold_storage_objectives,
+            .topology = &cold_storage_topology,
             .password = "orion42",
             .password_hint = "A hunter constellation, followed by the number 42.",
             .encrypted_file = "ledger.enc",
@@ -49,6 +117,7 @@ pub fn defaultMissions() [3]Mission {
             .target = "archive-02.local",
             .difficulty = .medium,
             .objectives = paper_trail_objectives,
+            .topology = &paper_trail_topology,
             .password = "copper17",
             .password_hint = "A reddish metal, followed by the number 17.",
             .encrypted_file = "mailbox.enc",
@@ -64,6 +133,7 @@ pub fn defaultMissions() [3]Mission {
             .target = "relay-03.local",
             .difficulty = .hard,
             .objectives = quiet_exit_objectives,
+            .topology = &quiet_exit_topology,
             .password = "northstar",
             .password_hint = "A fixed point used for navigation in the northern sky.",
             .encrypted_file = "manifest.enc",
