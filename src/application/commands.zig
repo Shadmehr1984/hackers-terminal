@@ -1,5 +1,6 @@
 const std = @import("std");
 
+/// Contains the parsed command name and its optional first argument.
 pub const ParsedCommand = struct {
     name: []const u8,
     argument: []const u8,
