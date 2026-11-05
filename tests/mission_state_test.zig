@@ -19,6 +19,7 @@ test "start initializes an accepted mission" {
     try std.testing.expectEqual(MissionProgress.accepted, session.progress);
     try std.testing.expect(!session.connected);
     try std.testing.expect(session.current_node == null);
+    try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
 }
 
 test "mission progress follows required stages" {
