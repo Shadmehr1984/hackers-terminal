@@ -1,6 +1,6 @@
 # Task: Phase 3 — API and design-pattern refinement
 
-Status: In Progress.
+Status: In Progress; implementation and self-review complete, CI pending.
 
 ## Goal
 Refine the existing public model APIs and remove duplicated domain policy without changing gameplay, command behavior, import compatibility, or persistence.
@@ -22,21 +22,21 @@ Refine the existing public model APIs and remove duplicated domain policy withou
 - Do not modify save serialization or save compatibility.
 
 ## Acceptance criteria
-- [ ] Utility cost tables exist in one implementation only.
-- [ ] Equipment and MissionLoadout delegate to the shared UtilityEquipment calculations.
-- [ ] Tests cover both utilities at every supported upgrade level, base costs, and non-matching utility behavior.
-- [ ] Existing Equipment and MissionLoadout public APIs remain source-compatible.
-- [ ] Mission state semantics, command behavior, and Detection outcomes remain unchanged.
-- [ ] Save V3 writing and V2/V1/legacy reads remain untouched.
-- [ ] Architecture/convention docs and an accepted ADR record the ownership rule.
+- [x] Utility cost tables exist in one implementation only.
+- [x] Equipment and MissionLoadout delegate to the shared UtilityEquipment calculations.
+- [x] Tests cover both utilities at every supported upgrade level, base costs, non-matching utility behavior, and snapshot isolation.
+- [x] Existing Equipment and MissionLoadout public APIs remain source-compatible.
+- [x] Mission state semantics, command behavior, and Detection outcomes remain unchanged by source review and regression coverage.
+- [x] Save V3 writing and V2/V1/legacy reads remain untouched.
+- [x] Architecture/convention docs and an accepted ADR record the ownership rule.
 - [ ] Zig 0.13.0 formatting, build, and full test suite pass in CI.
-- [ ] Self-review against `.agent/review-checklist.md` is recorded; independent review limitation is stated if applicable.
+- [x] Self-review against `.agent/review-checklist.md` is recorded; independent review is unavailable.
 
 ## Likely scope
 - `src/domain/player.zig`
 - `src/domain/mission_state.zig`
 - `tests/equipment_test.zig`
-- `AGENTS.md`, `.agent/conventions.md`, `.agent/decisions/0008-shared-detection-profiles.md`
+- `.agent/conventions.md`, `.agent/decisions/0008-shared-detection-profiles.md`
 - `docs/architecture.md`, `docs/development.md`
 
 ## Constraints and non-goals
@@ -45,10 +45,18 @@ Refine the existing public model APIs and remove duplicated domain policy withou
 - Explicitly out of scope: gameplay balancing, command syntax changes, save schema changes, mission-state union redesign, dispatcher decomposition, speculative abstractions, and unrelated cleanup.
 
 ## Verification
-- [ ] Focused Detection-cost tests
+- [x] Focused Detection-cost test coverage added (execution pending CI).
 - [ ] `zig fmt --check test_root.zig build.zig src tests`
 - [ ] `zig build`
 - [ ] `zig build test`
 - [ ] `sh scripts/check-agent-docs.sh`
-- [ ] Diff and API compatibility self-review
-- [ ] Independent review completed or unavailable status recorded
+- [x] Diff and API compatibility self-review
+- [x] Independent reviewer unavailable; self-review performed.
+
+## Self-review notes
+- The cost values remain movement 5/4/3/2 and incorrect-authentication 15/12/9/6 for no matching utility / upgrade levels 0/1/2.
+- The existing Equipment and MissionLoadout method signatures remain unchanged; only additive UtilityEquipment methods were introduced.
+- The mission loadout continues to use its captured utility and level even if live equipment changes later.
+- MissionSession progress and connection remain independent, preserving disconnect semantics.
+- No save or command-dispatch source was changed. The V3 writer and V2/V1/legacy loaders are untouched.
+- No independent second reviewer was available; this is explicitly a self-review, not an independent review.
