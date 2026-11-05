@@ -78,3 +78,21 @@ test "contract board marks incomplete contracts unavailable while another is bus
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Finish or fail the active contract") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "EXCLUSIVE") == null);
 }
+
+test "objective output hides undiscovered objectives but retains revealed unavailable ones" {
+    const missions = mission_data.defaultMissions();
+    var session = MissionSession{};
+    try std.testing.expect(session.startWithMission(.{}, null, missions[0].objectives));
+    session.markUncompletedOptionalObjectivesUnavailable();
+    var capture = Capture{};
+    try terminal.printObjectives(&capture, missions[0], session);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "maintenance telemetry signature") == null);
+
+    try std.testing.expect(session.startWithMission(.{}, null, missions[0].objectives));
+    try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
+    session.markUncompletedOptionalObjectivesUnavailable();
+    capture.len = 0;
+    try terminal.printObjectives(&capture, missions[0], session);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[!] [OPTIONAL] Recover the maintenance telemetry signature") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "(+$50)") != null);
+}
