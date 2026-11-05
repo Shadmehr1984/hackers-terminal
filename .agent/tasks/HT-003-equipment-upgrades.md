@@ -1,6 +1,6 @@
 # HT-003 — Equipment & Upgrade System
 
-**Status:** In Progress  
+**Status:** Implemented  
 **Priority:** 3  
 **Approved:** 2026-11-05  
 **Depends on:** HT-001 detection/risk rules and HT-002 topology interaction model.
@@ -24,14 +24,14 @@ Expand the existing shop/decryptor flag into a coherent equipment and upgrade sy
 - Tests and shop/gameplay/command/architecture/save documentation as required.
 
 ## Acceptance criteria
-- [ ] Equipment is represented by typed, testable data rather than unrelated ad-hoc booleans.
-- [ ] The player can inspect owned/equipped equipment and available upgrades.
-- [ ] Purchase/equip/upgrade validation handles insufficient funds, duplicate ownership, invalid items, and valid transitions.
-- [ ] At least two equipment choices provide distinct, meaningful trade-offs tied to existing game mechanics.
-- [ ] Existing decryptor purchase and decryption gating continue to work.
-- [ ] Equipment effects are applied in one clear place and have focused tests.
-- [ ] Persistent inventory, if selected, loads old V2, V1, and legacy saves safely through an explicit migration; otherwise transient behavior is clearly documented.
-- [ ] No real system tools, external services, or host interaction are introduced.
+- [x] Equipment is represented by typed, testable data rather than unrelated ad-hoc booleans.
+- [x] The player can inspect owned/equipped equipment and available upgrades.
+- [x] Purchase/equip/upgrade validation handles insufficient funds, duplicate ownership, invalid items, and valid transitions.
+- [x] At least two equipment choices provide distinct, meaningful trade-offs tied to existing game mechanics.
+- [x] Existing decryptor purchase and decryption gating continue to work.
+- [x] Equipment effects are applied in one clear place and have focused tests.
+- [x] Persistent inventory, if selected, loads old V2, V1, and legacy saves safely through an explicit migration; otherwise transient behavior is clearly documented.
+- [x] No real system tools, external services, or host interaction are introduced.
 
 ## Non-goals
 - No real cybersecurity utilities or executable payloads.
@@ -39,10 +39,10 @@ Expand the existing shop/decryptor flag into a coherent equipment and upgrade sy
 - No story branching.
 
 ## Verification
-- [ ] Tests for catalog data, purchase/equip/upgrade, effects, and save compatibility if touched.
-- [ ] Zig 0.13.0 formatting, build, and full tests.
-- [ ] Agent docs check and independent review/self-review.
-- [ ] Inspect CI before marking Implemented.
+- [x] Tests for catalog data, purchase/equip/upgrade, effects, and save compatibility if touched.
+- [x] Zig 0.13.0 formatting, build, and full tests.
+- [x] Agent docs check and independent review/self-review.
+- [x] Inspect CI before marking Implemented.
 
 ## Agent progress notes
 - Initial handoff: scope and acceptance criteria recorded; implementation has not started.
@@ -83,3 +83,9 @@ Expand the existing shop/decryptor flag into a coherent equipment and upgrade sy
 - Wired equipment modifiers into topology movement and incorrect-password attempts.
 - Introduced Save V3 and retained V2, V1, and legacy readers. Added a byte-based parser entry point for migration tests without filesystem coupling.
 - Added focused equipment, shop, risk modifier, and save migration tests. CI verification and review remain pending.
+
+
+### Completion review (2026-11-05)
+- Implemented and self-reviewed all acceptance criteria. No independent second reviewer was available in this session; the review checklist was completed as a self-review.
+- GitHub Actions run `42010464662` completed the Zig 0.13.0 formatting, build, unit-test, and agent-docs checks successfully for commit `f77355ead443bfbc8a5c269088b2cc9dae46a4ec`.
+- No manual local build or interactive gameplay test was performed; the owner currently cannot build locally. CI is the verification source for compilation and automated tests.
