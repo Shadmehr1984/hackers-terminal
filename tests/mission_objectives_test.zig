@@ -53,3 +53,20 @@ test "starting and resetting a session clear objective progress" {
     session.reset();
     try std.testing.expect(!session.isObjectiveComplete(.decrypt_file));
 }
+
+
+test "optional work is not required and grants its configured bonus" {
+    const missions = mission_data.defaultMissions();
+    var session = MissionSession{};
+    session.start();
+    session.completeObjective(.scan_target);
+    session.completeObjective(.authenticate);
+    session.completeObjective(.decrypt_file);
+    session.completeObjective(.extract_file);
+
+    try std.testing.expect(session.allObjectivesComplete(missions[0].objectives));
+    try std.testing.expectEqual(@as(u32, 0), session.optionalReward(missions[0].objectives));
+
+    session.completeObjective(.analyze_metadata);
+    try std.testing.expectEqual(@as(u32, 75), session.optionalReward(missions[0].objectives));
+}
