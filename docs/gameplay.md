@@ -59,6 +59,10 @@ A new player starts with:
 
 The decryptor costs $150. It is a persistent tool: once purchased, it remains owned in subsequent sessions when the save is loaded. Utility equipment is separate from the decryptor and uses one mutually exclusive active slot.
 
+## Contract Board
+
+Use `board` to open the full catalog overview. It displays each contract's category, difficulty, base-to-maximum cash reward (including all authored optional-objective bonuses), XP, and derived availability. States are `AVAILABLE`, `LOCKED`, `COMPLETED`, `EXCLUSIVE`, and `UNAVAILABLE`. Lock reasons show the exact unmet level and/or Reputation requirement. Exclusive contracts must be accepted through their Contact offer. If a contract is active or being prepared, other incomplete entries are shown as unavailable; completed entries retain their completed status. The original `missions` command remains unchanged as a compact list. Board availability is calculated from current game state and is not persisted. The Board never reveals puzzle clues or answers.
+
 ## Contracts
 
 The game currently defines four contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer.
