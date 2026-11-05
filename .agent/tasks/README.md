@@ -14,7 +14,7 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 
 - [QUALITY-001 — Code Review Remediation](QUALITY-001-code-review-remediation.md) — Implemented: documentation consistency, command-path unification, atomic save writes, and focused module boundaries.
 - [QUALITY-002 — Save, Topology, and Persistence Test Hardening](QUALITY-002-code-review-remediation.md) — Implemented: strict save marker handling, topology reachability validation, and filesystem persistence tests.
-- [QUALITY-003 — Active Save Validation and Status Output](QUALITY-003-code-review-remediation.md) — In Progress.
+- [QUALITY-003 — Active Save Validation and Status Output](QUALITY-003-code-review-remediation.md) — Implemented: persisted active-mission consistency validation and corrected status line endings with regression tests.
 
 ## Handoff rules
 - Start with HT-001. Do not implement all five systems together.
