@@ -8,7 +8,11 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | --- | --- | --- |
 | `help` | None | Print the command list and mission flow |
 | `status` | None | Show player profile, decryptor ownership, active utility, active contract, and detection level/band |
-| `missions` | None | List contracts, difficulty labels, and availability |
+| `missions` | None | List contracts, difficulty labels, and level/Reputation requirements |
+| `contacts` | None | Show both fictional contacts and their unlock status |
+| `contact <id>` | `broker` or `fixer` | Inspect a contact, its role, and relevant offers |
+| `offers` | None | List currently actionable contact offers |
+| `deal <id>` | Offer ID | Purchase intelligence, use a Fixer service, or accept the exclusive contract offer |
 | `briefing` | None | Show target, difficulty, clues, and objective checklist for the active contract |
 | `objectives` | None | Show completion status for every objective in the active contract |
 | `map` | None | Show the active mission graph, operation locations, and current node |
@@ -23,7 +27,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 
 | Command | Arguments | Prerequisites | Effect |
 | --- | --- | --- | --- |
-| `prepare <id>` | Contract ID | No active or already prepared contract; contract is available and unlocked | Opens a pre-mission intelligence briefing without launching the contract |
+| `prepare <id>` | Contract ID | No active or already prepared contract; both required level and Reputation are met and the contract is incomplete | Opens a pre-mission intelligence briefing without launching the contract |
 | `loadout <utility|none>` | Owned utility or `none` | Contract is being prepared; selected utility must be owned | Selects the utility for this run without changing persistent equipment |
 | `accept <id>` | Prepared contract ID | Matching contract is prepared; no active contract | Launches the prepared contract and snapshots its selected utility and upgrade level |
 | `cancel` | None | Contract is being prepared | Cancels preparation for free; cannot abandon an active contract |
@@ -39,6 +43,16 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 Preparation shows known contract intelligence, target, difficulty, rewards, objective outline, and topology overview. Puzzle clues and answers remain undiscovered until the contract is launched. Preparation is temporary and is not saved.
 
 Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful topology movement adds 5 Detection per traversal, including revisits, unless equipped Silent Boots reduce the cost to 4/3/2. An incorrect password adds 15 Detection unless equipped Signal Scrubber reduces the cost to 12/9/6. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect decryption-key attempts also add exposure. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
+
+## Contact offer commands
+
+| Command | Arguments | Prerequisites | Effect |
+| --- | --- | --- | --- |
+| deal intel-<mission-id> | e.g. intel-job-02 | Information Broker unlocked at Reputation 1; target contract is unlocked and incomplete; at least $50 | Charges $50 and reveals that contract's password and decryption clues, not the answers |
+| deal scrub-detection | Fixed offer ID | Fixer unlocked at Reputation 3; active contract; Detection above zero; service unused this contract; enough funds | Reduces Detection by up to 10; costs $100 at Reputation 3–4 or $75 at Reputation 5+ |
+| deal ghost-signal | Fixed offer ID | Fixer unlocked; no active/prepared contract; level 3 and Reputation 3; job-04 incomplete | Opens preparation for the exclusive Ghost Signal contract without a fee |
+
+Contact unlocks are derived from Reputation and are not separately saved. The Fixer service can be used once per active contract; its usage flag is temporary and resets when the contract starts or ends. Broker intelligence purchases are repeatable transactions and deduct $50 each time.
 
 ## Economy commands
 
