@@ -236,3 +236,12 @@ Use `shop` to inspect equipment and upgrade prices, `buy <item>` to purchase, `e
 The game automatically attempts to load `saves/player.sav` at startup. Use `save` to write the current player and contract progress.
 
 The active contract can be restored, but preparation, the run-specific loadout, and temporary session stages are not saved. After restarting, repeat the scan and connection stages and solve the challenges again as needed. See [Save Format](save-format.md) for the exact fields and compatibility behavior.
+
+
+## Hidden optional objectives
+
+Some contracts contain optional objectives that are not listed during preparation or in the initial briefing. They are revealed only by their authored fictional discovery condition: reaching a particular topology node, inspecting a named evidence file with `inspect <filename>`, or completing a specified in-game action. Discovery is deterministic and idempotent. The `objectives` command shows only objectives already discovered in the current run.
+
+Hidden objectives never block contract completion. Once discovered, they are completed by the same authored gameplay event kind as other objectives. Their cash rewards are paid only on successful contract completion and only when the objective was completed. An undiscovered objective that can no longer be revealed in the run becomes unavailable; it grants no cash and prevents the all-optional Reputation bonus. As before, the additional Reputation is granted only when every authored optional objective, visible or hidden, is completed.
+
+Objective identity is a stable mission-local ID, separate from its event kind. This allows multiple objectives to react independently to the same event. A run tracks at most 32 objectives using fixed-capacity runtime state. Objective discovery and progress reset on a fresh run, retry, compromise, or session reset and are not saved. Save V3 and older save readers are unchanged.
