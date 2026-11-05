@@ -18,12 +18,15 @@ pub const MissionObjectiveKind = enum {
     authenticate,
     decrypt_file,
     extract_file,
+    analyze_metadata,
 };
 
 /// Static objective data shown to the player.
 pub const MissionObjective = struct {
     kind: MissionObjectiveKind,
     description: []const u8,
+    optional: bool = false,
+    bonus_reward: u32 = 0,
 };
 
 pub const Mission = struct {
