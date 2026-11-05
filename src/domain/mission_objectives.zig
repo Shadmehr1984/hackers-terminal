@@ -56,8 +56,12 @@ pub const Tracker = struct {
                 if (!objective.optional) return false;
                 const trigger = objective.discovery_trigger orelse return false;
                 switch (trigger) {
-                    .node => |node_id| if (node_id.len == 0) return false,
-                    .file => |file_id| if (file_id.len == 0) return false,
+                    .node => |node_id| {
+                        if (node_id.len == 0) return false;
+                    },
+                    .file => |file_id| {
+                        if (file_id.len == 0) return false;
+                    },
                     .action => {},
                 }
             }
