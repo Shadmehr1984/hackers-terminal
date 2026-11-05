@@ -41,7 +41,7 @@ Production modules are grouped by responsibility under `src/domain/`, `src/appli
 - `src/domain/mission_state.zig`: runtime-only mission preparation choice (including bounded OperationState), active-mission progress, connection state, objective completion tracking, detection exposure (0–100), topology position, traversal count, per-run loadout snapshot, and one-use Fixer service state.
 - `src/application/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
 - The `board` command is a separate full Contract Board; preserve the existing `missions` command behavior.
-- `src/presentation/terminal.zig`: terminal presentation, including mission list, briefing-related output, and topology maps.
+- `src/presentation/terminal.zig`: terminal presentation, including mission list, operation list/details/status, briefing-related output, and topology maps.
 - `src/persistence/save.zig`: V3 persistence and compatibility with V2, V1, and legacy save formats.
 - `src/application/shop.zig`: equipment catalog, inventory, purchases, equipping, and utility upgrades.
 - `tests/`: unit tests, separate from production source.
