@@ -229,6 +229,20 @@ pub fn runCommand(
     session: *MissionSession,
     preparation: *MissionPreparation,
 ) !bool {
+    return runCommandWithSaveDirectory(writer, line, player, missions, active, session, preparation, std.fs.cwd());
+}
+
+/// Dispatches a command while allowing tests to isolate save-file writes.
+pub fn runCommandWithSaveDirectory(
+    writer: anytype,
+    line: []const u8,
+    player: *Player,
+    missions: []Mission,
+    active: *?usize,
+    session: *MissionSession,
+    preparation: *MissionPreparation,
+    save_directory: std.fs.Dir,
+) !bool {
     const parsed = commands.parse(line) orelse return true;
     const command = parsed.name;
     const arg = parsed.argument;
@@ -600,9 +614,19 @@ pub fn runCommand(
                 } else {
                     session.markUncompletedOptionalObjectivesUnavailable();
                     const reward_eligible = !preparation.operation_state.active or preparation.operation_state.current_stage_reward_eligible;
-                    missions[index].completed = true;
                     try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
-                    if (reward_eligible) try progression.completeMission(writer, player, mission, session) else try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\n");
+                    if (reward_eligible) {
+                        progression.completeMission(writer, player, mission, session) catch |err| switch (err) {
+                            error.RewardOverflow => {
+                                try writer.writeAll("[REWARD ERROR] Reward totals exceed the supported player limits. The contract remains active and no payout was applied.\n");
+                                return true;
+                            },
+                            else => return err,
+                        };
+                    } else {
+                        try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\n");
+                    }
+                    missions[index].completed = true;
                     if (preparation.operation_state.active) {
                         const op = operation_data.find(preparation.operation_state.operation_id).?;
                         const stage = preparation.operation_state.currentStage(op).?;
@@ -648,7 +672,7 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "history")) {
         try terminal.printHistory(writer, missions);
     } else if (std.mem.eql(u8, command, "save")) {
-        save.saveGame(player.*, missions, if (preparation.operation_state.active) null else active.*) catch {
+        save.saveGameToDirectory(save_directory, player.*, missions, if (preparation.operation_state.active) null else active.*) catch {
             try writer.writeAll("Save failed. Check filesystem permissions.\n");
             return true;
         };
