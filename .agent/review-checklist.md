@@ -131,15 +131,22 @@ Target toolchain: **Zig 0.13.0**. Verify APIs and language semantics against thi
 
 These patterns must always be investigated and flagged when present unless the exact use is demonstrably safe and the justification is documented in the finding:
 
-- [ ] `@intCast` without a proven range/bounds guarantee at the cast site.
-- [ ] Optional unwrap `.?` without a dominating proof/guard that the value is non-null.
-- [ ] `catch unreachable` on allocation or any operation that can fail under valid runtime conditions.
+- [ ] `@intCast`, `@truncate`, `@enumFromInt`, `@floatFromInt`, `@intFromFloat`, and other narrowing/conversion casts without a proven range/type guarantee at the cast site.
+- [ ] Optional unwrap `.?`, `orelse unreachable`, or optional pointer/value assumptions without a dominating proof/guard that the value is non-null.
+- [ ] `catch unreachable` on allocation or any operation that can fail under valid runtime conditions; `unreachable`, `@panic`, or `std.debug.panic` reachable from user-controlled data.
 - [ ] `@panic("OOM")` or equivalent panic-based allocation failure handling.
 - [ ] Use of `undefined` before every field/element is definitely initialized on every path.
-- [ ] Discarding a fallible result (for example, `_ = fallibleFunction()`) without a deliberate, documented reason and safe recovery policy.
-- [ ] Unjustified `@ptrCast`, `@alignCast`, pointer reinterpretation, or assumptions about layout/alignment.
-- [ ] Memory/resource leaks or ownership transfer that is unclear or incomplete.
+- [ ] Discarding a fallible result (for example, `_ = fallibleFunction()`) or ignoring I/O errors from write/flush/close without a deliberate, documented reason and safe recovery policy.
+- [ ] Unjustified `@ptrCast`, `@alignCast`, pointer reinterpretation, packed-struct field address, or assumptions about layout/alignment.
+- [ ] Returning/storing pointers or slices to locals, temporaries, expired lifetimes, or buffers invalidated by container growth/reallocation.
+- [ ] Unsafe `getOrPut`/map insertion usage, retaining pointers/references across mutation or reallocation, or stale references after `ArrayList`/unmanaged container growth.
+- [ ] Incorrect `@memcpy`, `@memmove`, `@memset`, slice, sentinel, byte-length, or capacity assumptions.
+- [ ] Memory/resource leaks or ownership transfer that is unclear or incomplete; allocator lifetime/deinit mismatch.
 - [ ] Mutex/lock acquisition without guaranteed release (normally `defer unlock()`) on every exit path.
+- [ ] `std.heap.DebugAllocator` / testing allocator setup, teardown, or leak-check assumptions that invalidate the claimed verification.
+- [ ] Build target/CPU/ABI/optimization-mode assumptions that differ from what the build configuration and CI actually exercise.
+- [ ] Container literals, inferred array/slice types, sentinel termination, fixed-array capacity, and index/count type assumptions that may be invalid or overflow.
+- [ ] Flush/write/close ordering or temporary-file/rename assumptions that can lose data on failure.
 - [ ] Any other construct that turns a recoverable runtime condition into an unchecked assumption, silent success, or process crash.
 
 For every occurrence, trace the proof and all relevant control-flow paths. Do not mechanically flag a safe construct when its invariant is explicit and locally demonstrable; document why it is safe.
