@@ -1,7 +1,7 @@
 # Phase 1 — Contract and Mission Content
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implemented on `main` (ADR 0010; CI #679 passed); HT-009 implementation in progress on `main` (ADR 0011; Runtime-only; owner authorized)  
+**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implemented on `main` (ADR 0010; CI #679 passed); HT-009 implemented on `main` (ADR 0011; Runtime-only; CI #733 passed)  
 **Goal:** Increase contract variety and replayability before expanding the wider world.
 
 ## Shared baseline and constraints
@@ -112,7 +112,7 @@ Design approved and implementation explicitly authorized by the owner on 2026-11
 
 ## HT-009 — Multi-stage Operations
 
-**Status:** In Progress (2026-11-06); Runtime-only persistence approved; implementation explicitly authorized. See [task brief](../tasks/HT-009-multi-stage-operations.md) and [ADR 0011](../decisions/0011-multi-stage-operations.md).
+**Status:** Implemented (2026-11-06); Runtime-only persistence approved; owner-authorized implementation complete; CI #733 passed. See [task brief](../tasks/HT-009-multi-stage-operations.md) and [ADR 0011](../decisions/0011-multi-stage-operations.md).
 
 ### Goal
 Create longer linear operations made of sequential existing contracts. Successful stage results may transfer narrowly defined mechanical facts that reveal optional objectives in later stages.
@@ -131,18 +131,18 @@ Create longer linear operations made of sequential existing contracts. Successfu
 - Commands: `operations`, `operation <id>`, `operation-start <id>`, and `operation-status`. Existing parser accepts only one argument, so do not introduce `operation start <id>`.
 
 ### Acceptance criteria
-- [ ] Player can list/inspect operations, stage count/order, and prerequisites.
-- [ ] Start validates all stage prerequisites atomically; invalid starts do not mutate state.
-- [ ] Only the current stage can be accepted; transitions are deterministic and cannot skip.
-- [ ] Success advances exactly one stage; final success reports operation completion.
-- [ ] Failure retries the same stage, preserving prior facts but clearing failed-stage state.
-- [ ] Only successful completion of the authored source optional objective grants its typed fact.
-- [ ] Incoming facts reveal only the specified hidden optional objective, idempotently.
-- [ ] Existing per-stage rewards are paid once across standalone play, operation play, and restart replay; no operation bonus.
-- [ ] Runtime operation state/facts reset on restart; saving during an operation does not restore a stage as a standalone contract.
-- [ ] Save V3 layout and V2/V1/legacy readers remain unchanged.
-- [ ] Existing standalone mission behavior and command compatibility remain intact.
-- [ ] Focused tests, docs, review, and verified main CI pass before status becomes Implemented.
+- [x] Player can list/inspect operations, stage count/order, and prerequisites.
+- [x] Start validates all stage prerequisites atomically; invalid starts do not mutate state.
+- [x] Only the current stage can be accepted; transitions are deterministic and cannot skip.
+- [x] Success advances exactly one stage; final success reports operation completion.
+- [x] Failure retries the same stage, preserving prior facts but clearing failed-stage state.
+- [x] Only successful completion of the authored source optional objective grants its typed fact.
+- [x] Incoming facts reveal only the specified hidden optional objective, idempotently.
+- [x] Existing per-stage rewards are paid once across standalone play, operation play, and restart replay; no operation bonus.
+- [x] Runtime operation state/facts reset on restart; saving during an operation does not restore a stage as a standalone contract.
+- [x] Save V3 layout and V2/V1/legacy readers remain unchanged.
+- [x] Existing standalone mission behavior and command compatibility remain intact.
+- [x] Focused tests, docs, review, and verified main CI pass before status becomes Implemented.
 
 ### Likely ownership
 - `src/domain/operation.zig`, `src/domain/operation_state.zig`, `src/catalog/operation_data.zig`
