@@ -121,6 +121,14 @@ test "Fixer Detection service is gated, costs by tier, and can be used once per 
 
     session.start();
     try std.testing.expect(!session.fixer_service_used);
+
+    player.reputation = 5;
+    player.balance = 75;
+    session.detection_level = 5;
+    try run(&capture, "deal scrub-detection", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u32, 0), player.balance);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(session.fixer_service_used);
 }
 
 test "Fixer Ghost Signal offer requires level and reputation and prepares appended contract" {
