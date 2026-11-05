@@ -56,20 +56,21 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
     , .{ player.handle, player.balance, player.reputation, level, player.xp, next_level_xp, if (player.has_decryptor) "installed" else "not installed" });
 
     if (active) |index| {
-        try writer.print("  Active job:  {s} ({s})\n", .{ missions[index].name, missions[index].id });
+        try writer.print("  Active job:  {s} ({s})\\n", .{ missions[index].name, missions[index].id });
     } else {
-        try writer.writeAll("  Active job:  none\n");
+        try writer.writeAll("  Active job:  none\\n");
     }
 }
 
 pub fn printMissions(writer: anytype, missions: []const Mission, level: u32) !void {
-    try writer.writeAll("AVAILABLE CONTRACTS\n");
+    try writer.writeAll("AVAILABLE CONTRACTS\\n");
     for (missions) |mission| {
         const state = if (mission.completed) "COMPLETED" else if (level < mission.required_level) "LOCKED" else "AVAILABLE";
-        try writer.print("  [{s}] {s} | target: {s} | reward: ${d} + {d} XP | {s}", .{
+        try writer.print("  [{s}] {s} | target: {s} | difficulty: {s} | reward: ${d} + {d} XP | {s}", .{
             mission.id,
             mission.name,
             mission.target,
+            mission.difficulty.label(),
             mission.reward,
             mission.xp_reward,
             state,
@@ -77,22 +78,21 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32) !vo
         if (!mission.completed and level < mission.required_level) {
             try writer.print(" (requires level {d})", .{mission.required_level});
         }
-        try writer.writeAll("\n");
+        try writer.writeAll("\\n");
     }
-    try writer.writeAll("\nUse: accept <id>\n");
+    try writer.writeAll("\\nUse: accept <id>\\n");
 }
 
 pub fn printHistory(writer: anytype, missions: []const Mission) !void {
-    try writer.writeAll("CONTRACT HISTORY\n");
+    try writer.writeAll("CONTRACT HISTORY\\n");
     var found = false;
     for (missions) |mission| {
         if (mission.completed) {
             found = true;
-            try writer.print("  [COMPLETED] {s} ({s}) | reward: ${d}\n", .{
+            try writer.print("  [COMPLETED] {s} ({s}) | reward: ${d}\\n", .{
                 mission.name, mission.id, mission.reward,
             });
         }
     }
-    if (!found) try writer.writeAll("  No completed contracts yet.\n");
+    if (!found) try writer.writeAll("  No completed contracts yet.\\n");
 }
-
