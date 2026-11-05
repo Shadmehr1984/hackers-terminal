@@ -4,6 +4,7 @@ const objective_runtime = @import("mission_objectives.zig");
 const UtilityEquipment = @import("player.zig").UtilityEquipment;
 const Mission = @import("mission.zig").Mission;
 const ModifierId = @import("mission_modifier.zig").ModifierId;
+const OperationState = @import("operation_state.zig").OperationState;
 
 /// A temporary, per-contract equipment snapshot. It never changes player inventory.
 pub const MissionLoadout = struct {
@@ -28,6 +29,7 @@ pub const MissionPreparation = struct {
     mission_index: ?usize = null,
     selected_utility: ?UtilityEquipment = null,
     selected_modifier: ?ModifierId = null,
+    operation_state: OperationState = .{},
 
     /// Selects a modifier only when the prepared contract explicitly allows it.
     /// A rejected selection leaves the current choice unchanged.
