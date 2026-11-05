@@ -46,7 +46,7 @@ Preserve existing behavior unless a task explicitly requests a gameplay change. 
 ## Manual smoke test
 
 1. Run `help` and `missions`; verify each contract shows its difficulty.
-2. Accept `job-01` and run `briefing`; verify the briefing shows Easy, four required objectives, and one optional objective.
+2. Run `prepare job-01`, then `accept job-01` and `briefing`; verify the briefing shows Easy, four required objectives, and one optional objective.
 3. Run `map`; verify the mission-specific nodes, links, operation locations, and current entry node are shown. Try an invalid/non-adjacent `move` and verify neither location nor Detection changes.
 4. Run `move service`; verify Detection increases by 5. Run `objectives`; verify all five objectives are initially unchecked and the optional one displays its bonus.
 5. Verify scanning is rejected away from the assigned node; scan the target at `service` and confirm the survey objective is checked.
