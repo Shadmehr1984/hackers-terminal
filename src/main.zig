@@ -38,7 +38,8 @@ pub fn main() !void {
             session.reset();
         } else if (missions[index].topology) |topology| {
             session.current_node = topology.entry_node;
-            _ = session.discoverNode(topology.entry_node, missions[index].objectives);
+            const discovered = session.discoverNode(topology.entry_node, missions[index].objectives);
+            if (discovered > 0) try stdout.print("[HIDDEN OBJECTIVE DISCOVERED] {d} optional objective(s) revealed. Use 'objectives' to inspect them.\n", .{discovered});
         }
     }
 
