@@ -235,6 +235,9 @@ test "accept snapshots the selected modifier and clears preparation; retry start
     try std.testing.expectEqual(@as(?ModifierId, .heightened_monitoring), session.modifier);
     try std.testing.expect(preparation.selected_modifier == null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Contract launched") != null);
+    capture.clear();
+    try run(&capture, "briefing", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Mission modifier: Heightened Monitoring") != null);
 
     session.reset();
     try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
