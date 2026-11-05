@@ -62,7 +62,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
     }
 }
 
-pub fn printMissions(writer: anytype, player: Player, missions: []const Mission, level: u32) !void {
+pub fn printMissions(writer: anytype, missions: []const Mission, level: u32) !void {
     try writer.writeAll("AVAILABLE CONTRACTS\n");
     for (missions) |mission| {
         const state = if (mission.completed) "COMPLETED" else if (level < mission.required_level) "LOCKED" else "AVAILABLE";
