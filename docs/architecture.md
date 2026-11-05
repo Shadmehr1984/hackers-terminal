@@ -23,7 +23,8 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/game.zig` | Coordinates the shared preparation-aware command dispatcher, Contact commands, offer transactions, and game-state transitions |
 | `src/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
 | `src/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
-| `src/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |\n| `tests/` | Unit tests for command parsing, mission state, mission data, Reputation, Contacts, and offers |
+| `src/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
+| `tests/` | Unit tests for command parsing, mission state, mission data, Reputation, Contacts, and offers |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
@@ -40,7 +41,8 @@ A mission stores its static contract definition and completion state:
 - `password` and `password_hint` define the authentication puzzle.
 - `encrypted_file`, `decryption_hint`, and `decryption_key` define the decryption puzzle and required extraction filename.
 - `reward`, `xp_reward`, and `required_level` configure progression.
-- `required_level` and `required_reputation` define the minimum progression requirements.\n- `completed` records whether the contract has been completed.
+- `required_level` and `required_reputation` define the minimum progression requirements.
+- `completed` records whether the contract has been completed.
 
 Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives may be required or optional. Required objectives gate contract completion; optional objectives never block it and can grant configured bonus cash. Successful scan, authentication, decryption, extraction, and metadata-analysis commands complete their matching objective.
 
@@ -67,7 +69,8 @@ The session tracks six related pieces of temporary state:
 - `detection_level`: simulated exposure from 0 to 100, with Quiet, Noticed, Traced, Critical, and Compromised bands.
 - `current_node`: the current node ID in the active mission topology, or null for missions without topology.
 - `traversal_count`: number of successful node-to-node movements in this session.
-- `loadout`: the selected utility and upgrade level snapshotted at launch; Detection modifiers read this snapshot rather than the player inventory.\n- `fixer_service_used`: whether the one-use Fixer Detection service has been consumed during this mission.
+- `loadout`: the selected utility and upgrade level snapshotted at launch; Detection modifiers read this snapshot rather than the player inventory.
+- `fixer_service_used`: whether the one-use Fixer Detection service has been consumed during this mission.
 
 Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
 
