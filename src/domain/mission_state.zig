@@ -85,6 +85,7 @@ pub const MissionSession = struct {
     traversal_count: u32 = 0,
     loadout: MissionLoadout = .{},
     modifier: ?ModifierId = null,
+    completion_reward_paid: bool = false,
     fixer_service_used: bool = false,
 
     /// Starts a fresh accepted mission and clears transient run state.
@@ -97,6 +98,7 @@ pub const MissionSession = struct {
         self.traversal_count = 0;
         self.loadout = .{};
         self.modifier = null;
+        self.completion_reward_paid = false;
         self.fixer_service_used = false;
     }
 
