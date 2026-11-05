@@ -34,11 +34,11 @@ The project owner approved these five feature areas on 2026-11-05. Implement the
 
 ## Gameplay Expansion Program — EXPANSION-001
 
-The owner approved planning for the next 20 gameplay ideas on 2026-11-05. HT-006 is implemented and merged. HT-007 is implemented and merged to `main` via PR #11; CI has passed. HT-008 was implemented directly on `main` on 2026-11-05 after explicit owner authorization; final implementation CI run #679 passed. HT-009 design and Runtime-only persistence decision were approved on 2026-11-06 and recorded in ADR 0011; implementation authorization is still pending.
+The owner approved planning for the next 20 gameplay ideas on 2026-11-05. HT-006 is implemented and merged. HT-007 is implemented and merged to `main` via PR #11; CI has passed. HT-008 was implemented directly on `main` on 2026-11-05 after explicit owner authorization; final implementation CI run #679 passed. HT-009 design and Runtime-only persistence were approved in ADR 0011; implementation was explicitly authorized on 2026-11-06 and is in progress on `main`.
 
 | Phase | Scope | Plan | Status |
 |---|---|---|---|
-| 1 | Contract Board, Mission Modifiers, Hidden Objectives, Multi-stage Operations (HT-006–HT-009) | [Phase 1](plans/PHASE-1-MISSION-CONTENT.md) | HT-006 Implemented; HT-007 Implemented and Merged (PR #11); HT-008 Implemented on `main` (CI #679 passed); HT-009 Design Approved (Runtime-only); implementation not authorized |
+| 1 | Contract Board, Mission Modifiers, Hidden Objectives, Multi-stage Operations (HT-006–HT-009) | [Phase 1](plans/PHASE-1-MISSION-CONTENT.md) | HT-006 Implemented; HT-007 Implemented and Merged (PR #11); HT-008 Implemented on `main` (CI #679 passed); HT-009 In Progress (Runtime-only; owner authorized) |
 | 2 | Factions, Rival Hackers, Information Market, Contact Development, Data Archive (HT-010–HT-012, HT-022, HT-025) | [Phase 2](plans/PHASE-2-WORLD-AND-RELATIONSHIPS.md) | Planned |
 | 3 | Security Profiles, Countermeasures, Security Agent Behaviors and Memory (HT-016–HT-017, HT-023–HT-024) | [Phase 3](plans/PHASE-3-SECURITY-SYSTEMS.md) | Planned |
 | 4 | Specializations, Level/Unlocks, Tool Collection, Operational Costs, Recurring Contracts, Achievements, Challenges (HT-013–HT-015, HT-018–HT-021) | [Phase 4](plans/PHASE-4-PROGRESSION-AND-REPLAYABILITY.md) | Planned |
