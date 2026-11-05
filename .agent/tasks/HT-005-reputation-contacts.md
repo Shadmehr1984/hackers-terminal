@@ -1,48 +1,109 @@
 # HT-005 — Reputation & Contacts
 
-**Status:** Planned  
+**Status:** In Progress  
 **Priority:** 5  
 **Approved:** 2026-11-05  
-**Depends on:** Existing mission outcomes and progression; benefits from HT-004 preparation flow.
+**ADR:** 0007 — Reputation Tiers, Derived Contact Unlocks, and Offers  
+**Depends on:** Existing mission outcomes, progression, topology, and HT-004 preparation.
 
 ## Goal
-Turn the existing reputation value into a meaningful progression system and introduce fictional contacts who can offer contracts, information, or services based on the player's history.
 
-## Design direction
-- Inspect current reputation changes in mission completion and existing mission catalog/unlock behavior.
-- Define a small number of understandable reputation tiers and how mission outcomes affect them.
-- Contacts should be static, fictional game characters with clear roles and unlock conditions.
-- Use existing command/terminal patterns; avoid a complex dialogue engine.
-- Keep contact offers and unlock state deterministic and testable.
-- Decide persistence explicitly. Existing reputation is already part of player progression; new contact/unlock state may require save migration.
+Turn the existing persisted Reputation value into a meaningful progression system and introduce two fictional contacts with role-specific offers. All interactions remain local, offline, and entirely simulated.
 
-## Likely scope (verify before implementation)
-- Player progression data in `src/player.zig` or a focused progression/contact module.
-- Mission reward/outcome coordination in `src/game.zig`.
-- Fictional contact catalog in a focused data module.
-- Terminal presentation and command parsing/dispatch only where needed.
-- Save compatibility, tests, and progression/gameplay/command/architecture docs.
+## Accepted design
+
+### Reputation tiers
+
+| Reputation | Tier |
+|---:|---|
+| 0 | Unknown |
+| 1–2 | Recognized |
+| 3–4 | Trusted |
+| 5+ | Elite |
+
+- Successful contract completion: +1 Reputation.
+- Completing every optional objective in that contract: +1 additional Reputation.
+- Partial optional completion: existing cash bonus only; no Reputation bonus.
+- Failed/compromised contract: no Reputation gain and no Reputation loss.
+
+### Contacts and offers
+
+**Information Broker** — unlock at Reputation 1.
+- deal intel-<mission-id> buys authored password and decryption clues for an unlocked, incomplete contract.
+- Price: $50 per purchase.
+- Clues are revealed; actual password and decryption answers remain hidden.
+
+**Fixer** — unlock at Reputation 3.
+- deal scrub-detection requires an active contract and Detection above zero.
+- Reduces Detection by up to 10, once per contract.
+- Price: $100 at Trusted (Reputation 3–4), $75 at Elite (Reputation 5+).
+- deal ghost-signal prepares the exclusive contract when player level and Reputation are both at least 3.
+
+**Ghost Signal**
+- ID: job-04; append after the original three contracts to preserve indices.
+- Requires level 3 and Reputation 3.
+- Has its own fictional topology, required objectives, optional metadata objective, clues, reward, and XP.
+- No Save V4 is needed.
+
+### Persistence
+
+- Reputation remains the existing persisted numeric value.
+- Tiers, Contact unlocks, and available offers are derived from Reputation, level, and mission completion state.
+- Fixer service usage is stored only in MissionSession and resets at the start/end of a contract.
+- Save V3 serialization and field order remain unchanged. The current writer emits four mission flags; old saves with three flags leave job-04 incomplete.
+
+## Architecture
+
+- src/progression.zig: Reputation tier mapping and outcome-based Reputation rewards.
+- src/contacts.zig: Contact identity, unlock thresholds, and service pricing.
+- src/mission.zig: optional static required_reputation.
+- src/mission_data.zig: appended job-04 catalog entry and topology.
+- src/mission_state.zig: runtime-only fixer_service_used.
+- src/game.zig: contacts, contact, offers, and deal dispatch and transaction validation.
+- src/terminal.zig: Contact, offer, and tier presentation.
+- src/save.zig: unchanged.
 
 ## Acceptance criteria
-- [ ] Reputation has documented, testable thresholds or tiers with clear player-facing meaning.
-- [ ] Mission outcomes update reputation according to explicit rules.
-- [ ] At least two fictional contacts have distinct roles and unlock/availability conditions.
-- [ ] The player can inspect available contacts and their current offers.
-- [ ] Unlock conditions and invalid/unavailable interactions are tested.
-- [ ] Existing balance, XP, level, and mission completion behavior remain coherent.
-- [ ] Any new persistent state has an explicit migration preserving V2, V1, and legacy saves.
-- [ ] No external messaging, online services, real identities, or real-world interactions are introduced.
+
+- [ ] Reputation tiers map correctly at 0, 1, 2, 3, 4, and 5+.
+- [ ] Every successful contract grants +1 Reputation.
+- [ ] Completing every optional objective grants +1 additional Reputation; partial completion does not.
+- [ ] Failed/compromised contracts do not change Reputation.
+- [ ] Broker unlocks at Reputation 1; Fixer unlocks at Reputation 3.
+- [ ] Locked contacts and unavailable offers cannot be used.
+- [ ] Broker purchases cost $50 and reveal clues but not puzzle answers.
+- [ ] Unaffordable or invalid Broker purchases do not change balance.
+- [ ] Fixer service requires an active contract and positive Detection, reduces up to 10, and costs $100/$75 at the defined tiers.
+- [ ] Fixer service can be used only once per active contract and resets for the next contract.
+- [ ] Ghost Signal requires level 3 and Reputation 3 and is appended at index 3.
+- [ ] Existing mission indices and original mission progression remain unchanged.
+- [ ] Existing V3/V2/V1/legacy saves load; older three-mission completion lists leave Ghost Signal incomplete.
+- [ ] All new behavior and important invalid/failure paths have automated tests.
+- [ ] README, gameplay, command, architecture, save-format, development, AGENTS, module conventions, roadmap, ADR, and task index are accurate.
+- [ ] Zig 0.13.0 formatting, build, full tests, agent-doc check, and CI pass.
+- [ ] Independent review or documented self-review is complete.
 
 ## Non-goals
-- No branching narrative or complex dialogue framework.
-- No multiplayer/social network features.
-- No real-world contact discovery.
 
-## Verification
-- [ ] Tests for reputation thresholds, outcome updates, contact availability, and persistence if changed.
-- [ ] Zig 0.13.0 formatting, build, and full tests.
-- [ ] Agent docs check and independent review/self-review.
-- [ ] Inspect CI before marking Implemented.
+- No dialogue trees or branching narrative.
+- No multiplayer/social networking or real-world contact discovery.
+- No external messaging, online services, real networking, shell execution, or credential collection.
+- No Save V4 or persistence for contact unlocks/service usage.
+
+## Verification plan
+
+- Run zig fmt --check test_root.zig build.zig src tests.
+- Run zig build.
+- Run zig test test_root.zig.
+- Run sh scripts/check-agent-docs.sh.
+- Inspect the actual GitHub Actions run for the final implementation commit.
+- Local build/gameplay testing is not claimed unless actually performed.
 
 ## Agent progress notes
-- Initial handoff: scope and acceptance criteria recorded; implementation has not started.
+
+- [x] Owner approved the tier, two-contact, mixed-offer, and derived-persistence design.
+- [x] ADR 0007 recorded.
+- [x] Reputation tiers, Contact rules, mission requirement metadata, and appended Ghost Signal added.
+- [x] Contact commands, offer transactions, and focused automated tests added.
+- [ ] Documentation and agent handoff updates complete.
+- [ ] Full CI verification and final review complete.
