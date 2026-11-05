@@ -1,48 +1,66 @@
 # HT-002 — Fictional Network Topology
 
-**Status:** Planned  
+**Status:** In Progress  
 **Priority:** 2  
 **Approved:** 2026-11-05  
-**Depends on:** HT-001 design baseline for risk-aware traversal.
+**Owner decision:** All three built-in missions must receive distinct, mission-specific topologies.  
+**Depends on:** HT-001 Detection & Risk System (implemented and CI-verified).
 
 ## Goal
-Replace the idea of a single flat mission target with a small, fictional graph of connected nodes. Players should be able to inspect the simulated topology and navigate between nodes to reach mission resources.
+Give each contract a small, navigable fictional network graph. The topology should create meaningful route choices, put mission resources at explicit locations, and make movement consume the existing detection budget.
 
-## Design direction
-- Represent nodes and directed/undirected links as static mission data where practical.
-- Keep current mission stages and objective system understandable; define how node traversal relates to scan/connect/authenticate/decrypt/extract before coding.
-- Make topology small and terminal-friendly; do not build a real network stack.
-- Provide meaningful route choices, including risk-aware trade-offs that can use HT-001.
-- Keep mission catalog definitions separate from traversal/session state.
+## Accepted design direction
+- All three built-in missions receive their own authored node-and-link graph; no generic shared map or clone maps.
+- Keep graph definitions static alongside mission catalog data. Keep the player's current node and traversal history runtime-only in MissionSession.
+- Add `map` to show the active mission's graph and current location, and `move <node-id>` to traverse one directly connected edge.
+- Start each accepted contract at its own entry node. Movement is allowed only across a declared link; unknown nodes and non-adjacent destinations are rejected without changing state or detection.
+- Every successful traversal adds +5 detection, including traversing an edge already used before. This prevents repeated backtracking from becoming a free action. Reaching 100 uses HT-001's existing failure and penalty behavior.
+- Scan, connect/authenticate, decrypt/analyze, and extract must be performed at the appropriate mission node(s). Their exact node assignments are part of each authored topology and must be shown in map/briefing documentation.
+- Existing mission objective kinds, rewards, clues, and save formats remain unchanged. Current node and traversal are transient and reset on mission start, completion, and failure.
+- All names, nodes, links, and actions remain fictional and local/offline.
 
-## Likely scope (verify before implementation)
-- Focused data definitions in `src/mission.zig` or a new topology module.
-- Built-in topology definitions alongside `src/mission_data.zig`.
-- Traversal state in `src/mission_state.zig` or a focused state module.
-- Dispatch and validation in `src/game.zig`; display in `src/terminal.zig`.
-- Tests, command docs, gameplay docs, architecture docs, and agent module contracts as needed.
+## Mission-specific topology concepts
+These are distinct authored layouts, not a shared template:
+- **job-01 — Cold Storage:** a compact facility perimeter with a short, exposed service corridor and a longer maintenance detour to the vault.
+- **job-02 — Paper Trail:** an archive network organized around an indexing hub, with separate mail-processing and records-access branches.
+- **job-03 — Quiet Exit:** a relay chain with a decoy branch and a controlled exit route; its layout should require more navigation than the earlier contracts.
+
+The implementation should keep each graph small enough to understand from terminal output. Route lengths and link costs should create clear trade-offs without making a mission impossible to finish under the detection cap.
+
+## Architecture plan
+- Introduce a focused, foundational topology domain module for node/link/topology types and graph lookup/adjacency helpers; it must not depend on game or terminal modules.
+- Attach an optional topology reference to Mission so missions without a graph retain current behavior.
+- Store the current node in MissionSession; do not add it to Player or save serialization.
+- Keep traversal validation and detection application in game coordination, and keep map formatting in terminal presentation.
+- Keep node IDs stable, concise, and distinct within a mission. Validate built-in graphs in tests.
 
 ## Acceptance criteria
-- [ ] A typed graph model represents fictional nodes and their connections.
-- [ ] At least one built-in mission uses a small topology with more than one meaningful route or node.
-- [ ] The player can inspect the topology and current node from the terminal.
-- [ ] Navigation is restricted to valid adjacent nodes; invalid or unreachable destinations are rejected and tested.
-- [ ] Mission actions are constrained to appropriate node/resource locations and this is covered by tests.
-- [ ] Risk-aware route differences are explicit and tested against the HT-001 model.
-- [ ] Existing mission objectives and completion rules remain coherent.
-- [ ] No real networking or external host interaction is introduced.
-- [ ] Save compatibility is preserved or any necessary migration is explicitly designed, documented, and tested.
+- [ ] Typed graph model represents nodes, links, and mission-specific topology.
+- [ ] Each of the three built-in missions has a distinct graph with meaningful route choices.
+- [ ] `map` displays nodes, connections, relevant locations, and current position.
+- [ ] `move <node-id>` permits only adjacent movement and handles invalid destinations safely.
+- [ ] Successful movement adds +5 detection per traversal, including revisits; reaching 100 triggers HT-001 failure behavior.
+- [ ] Scan/connect/authentication/decryption/analysis/extraction are location-aware and tested.
+- [ ] Current node resets correctly on accept, completion, and detection failure.
+- [ ] Missions without topology remain backward-compatible.
+- [ ] Save V2, V1, and legacy formats remain unchanged.
+- [ ] Focused tests, docs, AGENTS/module contracts, and CI are updated.
 
 ## Non-goals
-- No real IP addresses, sockets, DNS, packet handling, or network discovery.
-- No branching story outcomes.
+- No real IP addresses, sockets, DNS, packet handling, network discovery, external host interaction, or shell execution.
 - No equipment-specific route modifiers; those belong to HT-003.
+- No branching story outcomes.
+- No persistence of current node or traversal state.
 
 ## Verification
-- [ ] Tests for graph validity, adjacency, traversal, resource access, and invalid routes.
+- [ ] Tests for graph validity, adjacency, node lookup, traversal, resource access, and invalid routes.
 - [ ] Zig 0.13.0 formatting, build, and complete test suite.
-- [ ] Agent documentation check and independent review/self-review.
+- [ ] Agent documentation structure check.
+- [ ] Independent review (or explicitly labelled self-review).
 - [ ] Inspect CI before marking Implemented.
 
 ## Agent progress notes
-- Initial handoff: scope and acceptance criteria recorded; implementation has not started.
+- Repository review confirmed that mission definitions are static in `mission_data.zig`, runtime state is owned by `MissionSession`, and `game.zig` coordinates command behavior.
+- HT-001 is now CI-verified (run 42001487382 succeeded); HT-002 is the active implementation task.
+- Owner confirmed that all three missions need unique, purpose-built topologies.
+- Initial topology concepts and the +5-per-traversal risk rule are recorded above. Next step: implement the graph model and mission-specific data, then integrate movement and location-gated actions with focused tests.
