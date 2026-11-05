@@ -3,14 +3,20 @@ const Mission = @import("mission.zig").Mission;
 const Player = @import("player.zig").Player;
 
 pub fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
+    try saveGameToDirectory(std.fs.cwd(), player, missions, active);
+}
+
+/// Writes through a temporary file and renames it into place.
+/// The directory parameter also allows filesystem behavior to be tested in isolation.
+pub fn saveGameToDirectory(dir: std.fs.Dir, player: Player, missions: []const Mission, active: ?usize) !void {
     const save_path = "saves/player.sav";
     const temporary_path = "saves/player.sav.tmp";
 
-    try std.fs.cwd().makePath("saves");
-    errdefer std.fs.cwd().deleteFile(temporary_path) catch {};
+    try dir.makePath("saves");
+    errdefer dir.deleteFile(temporary_path) catch {};
 
     {
-        const file = try std.fs.cwd().createFile(temporary_path, .{ .truncate = true });
+        const file = try dir.createFile(temporary_path, .{ .truncate = true });
         defer file.close();
         var writer = file.writer();
         const equipped: u8 = if (player.equipment.equipped_utility) |utility| @intFromEnum(utility) + 1 else 0;
@@ -25,7 +31,7 @@ pub fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void
 
     // Rename only after the complete new save has been written and closed.
     // A failed write therefore leaves the previous player.sav untouched.
-    try std.fs.cwd().rename(temporary_path, save_path);
+    try dir.rename(temporary_path, save_path);
 }
 
 fn readActive(lines: anytype, missions: []Mission) ?usize {
@@ -43,16 +49,26 @@ fn readLevel(value: []const u8) u2 {
 }
 
 pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
+    var lines = std.mem.tokenizeScalar(u8, data, '\n');
+    const first_line = lines.next() orelse return null;
+    const is_v3 = std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V3");
+    const is_v2 = std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V2");
+    const is_v1 = std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V1");
+    // Only an actual numeric first line qualifies as the unversioned legacy format.
+    // Reject unknown markers before mutating any caller-owned state.
+    const legacy_balance: ?u32 = if (is_v3 or is_v2 or is_v1)
+        null
+    else
+        std.fmt.parseInt(u32, first_line, 10) catch return null;
+
     player.equipment.owned_utilities = 0;
     player.equipment.equipped_utility = null;
     player.equipment.silent_boots_level = 0;
     player.equipment.signal_scrubber_level = 0;
-    var lines = std.mem.tokenizeScalar(u8, data, '\n');
-    const first_line = lines.next() orelse return null;
     var active: ?usize = null;
     var migrate_v1_xp = false;
 
-    if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V3")) {
+    if (is_v3) {
         if (lines.next()) |v| player.balance = std.fmt.parseInt(u32, v, 10) catch player.balance;
         if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
         if (lines.next()) |v| player.xp = std.fmt.parseInt(u32, v, 10) catch player.xp;
@@ -73,20 +89,20 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
         if (!player.equipment.owns(.silent_boots)) player.equipment.silent_boots_level = 0;
         if (!player.equipment.owns(.signal_scrubber)) player.equipment.signal_scrubber_level = 0;
         active = readActive(&lines, missions);
-    } else if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V2")) {
+    } else if (is_v2) {
         if (lines.next()) |v| player.balance = std.fmt.parseInt(u32, v, 10) catch player.balance;
         if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
         if (lines.next()) |v| player.xp = std.fmt.parseInt(u32, v, 10) catch player.xp;
         if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
         active = readActive(&lines, missions);
-    } else if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V1")) {
+    } else if (is_v1) {
         migrate_v1_xp = true;
         if (lines.next()) |v| player.balance = std.fmt.parseInt(u32, v, 10) catch player.balance;
         if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
         if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
         active = readActive(&lines, missions);
     } else {
-        player.balance = std.fmt.parseInt(u32, first_line, 10) catch player.balance;
+        player.balance = legacy_balance.?;
         if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
         if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
     }
