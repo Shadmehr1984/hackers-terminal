@@ -10,6 +10,8 @@ const save = @import("save.zig");
 const terminal = @import("terminal.zig");
 const shop = @import("shop.zig");
 const commands = @import("commands.zig");
+const progression = @import("progression.zig");
+const detection = @import("detection.zig");
 
 pub const detection_failure_penalty: u32 = 50;
 
@@ -30,58 +32,6 @@ fn atMissionNode(mission: Mission, session: MissionSession, expected: []const u8
     return std.mem.eql(u8, session.current_node orelse "", expected);
 }
 
-pub fn playerLevel(player: Player) u32 {
-    var level: u32 = 1;
-    var next_level_xp: u32 = 100;
-    while (level < 99 and player.xp >= next_level_xp) : (level += 1) next_level_xp += 150;
-    return level;
-}
-
-pub fn xpForNextLevel(level: u32) u32 {
-    return 100 + (level - 1) * 150;
-}
-
-fn completeMission(writer: anytype, player: *Player, mission: Mission, session: MissionSession) !void {
-    const old_level = playerLevel(player.*);
-    const bonus_reward = session.optionalReward(mission.objectives);
-    player.balance += mission.reward + bonus_reward;
-    player.reputation += 1;
-    player.xp += mission.xp_reward;
-    const new_level = playerLevel(player.*);
-    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}", .{ mission.name, mission.reward });
-    if (bonus_reward > 0) try writer.print("\nOptional objective bonus: +${d}", .{bonus_reward});
-    try writer.print("\nXP gained: {d}\nReputation increased.\n", .{mission.xp_reward});
-    if (new_level > old_level) try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
-}
-
-fn applyDetection(
-    writer: anytype,
-    player: *Player,
-    active: *?usize,
-    session: *MissionSession,
-    amount: u8,
-) !bool {
-    const previous_band = session.detectionBand();
-    session.addDetection(amount);
-    const current_band = session.detectionBand();
-    if (current_band != previous_band and current_band != .compromised) {
-        try writer.print("[DETECTION WARNING] Exposure is now {d}/100 ({s}).\n", .{
-            session.detection_level, current_band.label(),
-        });
-    }
-    if (session.detection_level >= 100) {
-        const penalty = @min(player.balance, detection_failure_penalty);
-        player.balance -= penalty;
-        try writer.print(
-            "[CONTRACT FAILED] Detection reached 100/100. The operation was compromised. ${d} penalty applied; remaining balance: {d}. You may accept this contract again.\n",
-            .{ penalty, player.balance },
-        );
-        active.* = null;
-        session.reset();
-        return true;
-    }
-    return false;
-}
 
 pub fn runCommand(
     writer: anytype,
@@ -99,10 +49,10 @@ pub fn runCommand(
     if (std.mem.eql(u8, command, "help")) {
         try terminal.printHelp(writer);
     } else if (std.mem.eql(u8, command, "status")) {
-        const level = playerLevel(player.*);
-        try terminal.printStatus(writer, player.*, active.*, missions, level, xpForNextLevel(level), session.*);
+        const level = progression.playerLevel(player.*);
+        try terminal.printStatus(writer, player.*, active.*, missions, level, progression.xpForNextLevel(level), session.*);
     } else if (std.mem.eql(u8, command, "missions")) {
-        try terminal.printMissions(writer, missions, playerLevel(player.*));
+        try terminal.printMissions(writer, missions, progression.playerLevel(player.*));
     } else if (std.mem.eql(u8, command, "prepare")) {
         if (active.* != null) {
             try writer.writeAll("A contract is already active. Finish or fail it before preparing another.\n");
@@ -115,7 +65,7 @@ pub fn runCommand(
                 found = true;
                 if (mission.completed) {
                     try writer.writeAll("This contract is already completed.\n");
-                } else if (playerLevel(player.*) < mission.required_level) {
+                } else if (progression.playerLevel(player.*) < mission.required_level) {
                     try writer.print("Contract locked. Reach level {d} first.\n", .{mission.required_level});
                 } else {
                     preparation.mission_index = index;
@@ -165,7 +115,7 @@ pub fn runCommand(
                         session.current_node = node.id;
                         session.traversal_count += 1;
                         try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
-                        _ = try applyDetection(writer, player, active, session, session.loadout.movementDetectionCost());
+                        _ = try detection.apply(writer, player, active, session, session.loadout.movementDetectionCost());
                     }
                 } else try writer.writeAll("Current location is unavailable. Restart the contract.\n");
             } else try writer.writeAll("This contract has no network map.\n");
@@ -191,7 +141,7 @@ pub fn runCommand(
             const mission = missions[index];
             if (!std.mem.eql(u8, mission.id, arg)) {
                 try writer.print("Prepared contract is {s}. Use accept {s} to launch it, or cancel to choose another.\n", .{ mission.id, mission.id });
-            } else if (mission.completed or playerLevel(player.*) < mission.required_level) {
+            } else if (mission.completed or progression.playerLevel(player.*) < mission.required_level) {
                 preparation.clear();
                 try writer.writeAll("The prepared contract is no longer available. Preparation cleared.\n");
             } else if (preparation.selected_utility) |utility| {
@@ -228,7 +178,7 @@ pub fn runCommand(
                     session.completeObjective(.scan_target);
                     try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                     try writer.writeAll("A password challenge was identified.\n");
-                    if (!already_scanned) _ = try applyDetection(writer, player, active, session, 10);
+                    if (!already_scanned) _ = try detection.apply(writer, player, active, session, 10);
                 }
             } else {
                 const already_scanned = session.isObjectiveComplete(.scan_target);
@@ -236,7 +186,7 @@ pub fn runCommand(
                 session.completeObjective(.scan_target);
                 try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                 try writer.writeAll("A password challenge was identified.\n");
-                if (!already_scanned) _ = try applyDetection(writer, player, active, session, 10);
+                if (!already_scanned) _ = try detection.apply(writer, player, active, session, 10);
             }
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "connect")) {
@@ -271,10 +221,10 @@ pub fn runCommand(
                 session.markAuthenticated();
                 session.completeObjective(.authenticate);
                 try writer.writeAll("[ACCESS GRANTED] Authentication challenge solved.\n");
-                if (!already_authenticated) _ = try applyDetection(writer, player, active, session, 5);
+                if (!already_authenticated) _ = try detection.apply(writer, player, active, session, 5);
             } else {
                 try writer.writeAll("[ACCESS DENIED] Incorrect password. Check the mission briefing.\n");
-                _ = try applyDetection(writer, player, active, session, session.loadout.incorrectAuthenticationDetectionCost());
+                _ = try detection.apply(writer, player, active, session, session.loadout.incorrectAuthenticationDetectionCost());
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "decrypt")) {
@@ -291,10 +241,10 @@ pub fn runCommand(
                 session.markDecrypted();
                 session.completeObjective(.decrypt_file);
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
-                if (!already_decrypted) _ = try applyDetection(writer, player, active, session, 10);
+                if (!already_decrypted) _ = try detection.apply(writer, player, active, session, 10);
             } else {
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
-                _ = try applyDetection(writer, player, active, session, 10);
+                _ = try detection.apply(writer, player, active, session, 10);
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "analyze")) {
@@ -319,7 +269,7 @@ pub fn runCommand(
                 } else {
                     session.completeObjective(.analyze_metadata);
                     try writer.writeAll("[ANALYSIS COMPLETE] Hidden metadata reference recovered. Optional objective completed.\n");
-                    _ = try applyDetection(writer, player, active, session, 5);
+                    _ = try detection.apply(writer, player, active, session, 5);
                 }
             }
         } else try writer.writeAll("No active contract.\n");
@@ -333,13 +283,13 @@ pub fn runCommand(
             } else {
                 const already_extracted = session.isObjectiveComplete(.extract_file);
                 session.completeObjective(.extract_file);
-                if (!already_extracted and try applyDetection(writer, player, active, session, 5)) return true;
+                if (!already_extracted and try detection.apply(writer, player, active, session, 5)) return true;
                 if (!session.allObjectivesComplete(mission.objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
                     missions[index].completed = true;
                     try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
-                    try completeMission(writer, player, mission, session.*);
+                    try progression.completeMission(writer, player, mission, session.*);
                     active.* = null;
                     session.reset();
                 }
