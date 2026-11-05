@@ -13,7 +13,7 @@ const commands = @import("commands.zig");
 const progression = @import("progression.zig");
 const detection = @import("detection.zig");
 
-pub const detection_failure_penalty: u32 = 50;
+pub const detection_failure_penalty: u32 = detection.failure_penalty;
 
 fn parseUtility(name: []const u8) ?UtilityEquipment {
     if (std.mem.eql(u8, name, "silent-boots")) return .silent_boots;
