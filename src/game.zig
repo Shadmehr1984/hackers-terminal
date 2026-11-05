@@ -178,6 +178,8 @@ pub fn runCommand(
                     try writer.writeAll("This contract is already completed.\n");
                 } else if (!isMissionUnlocked(mission, player.*)) {
                     try printMissionLock(writer, mission, player.*);
+                } else if (mission.requires_contact_offer) {
+                    try writer.writeAll("This contract is an exclusive contact offer. Use contact fixer, then deal ghost-signal.\\n");
                 } else {
                     preparation.mission_index = index;
                     preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
