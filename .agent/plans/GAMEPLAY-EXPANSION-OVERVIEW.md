@@ -3,13 +3,13 @@
 **Program ID:** EXPANSION-001  
 **Owner direction:** Approved for planning on 2026-11-05  
 **Implementation authorization:** HT-007 specifically authorized and completed; HT-008 design approved and implementation completed on `main` on 2026-11-05 (CI run #679 passed); all other features require explicit owner authorization  
-**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation is complete; HT-009 implementation is authorized and in progress on `main` (Runtime-only); all other features remain subject to explicit authorization
+**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation is complete; HT-009 implementation is complete on `main` (Runtime-only; CI #733 passed); all other features remain subject to explicit authorization
 
 ## Purpose
 
 Expand the length, variety, replayability, and sense of a living fictional cyber-world while preserving Hacker's Terminal's identity: a single-player, command-driven, text-terminal hacking simulation. This document is the persistent handoff contract for future agents. It replaces reliance on the originating chat: an agent must be able to understand the intended work, dependencies, constraints, and verification expectations from repository files.
 
-This is primarily a planning artifact, not blanket implementation authorization. HT-007 is implemented and merged to `main` via PR #11. HT-008 implementation was explicitly authorized on 2026-11-05 and is complete on `main` under its task brief. HT-009 implementation was explicitly authorized on 2026-11-06 and is in progress on `main`. Its approved Runtime-only operation design is being implemented without adding save fields or balance changes.
+This is primarily a planning artifact, not blanket implementation authorization. HT-007 is implemented and merged to `main` via PR #11. HT-008 implementation was explicitly authorized on 2026-11-05 and is complete on `main` under its task brief. HT-009 implementation was explicitly authorized and completed on `main` on 2026-11-06. Its approved Runtime-only operation design added no save fields or balance changes; CI run #733 passed.
 
 ## Current baseline verified during planning
 
@@ -47,7 +47,7 @@ Each feature has a stable ID. The matching phase document contains its goal, des
 | HT-006 | Contract Board | Phase 1 | Existing mission catalog, unlock rules, Contacts offers |
 | HT-007 | Mission Modifiers | Phase 1 | Contract metadata, Detection model |
 | HT-008 | Hidden Objectives | Phase 1 | Implemented: bounded 32-entry objective tracker; stable IDs; Node/File/Action discovery |
-| HT-009 | Multi-stage Operations | Phase 1 | In progress: linear 3-stage operation, typed objective carry-over, per-stage rewards, Runtime-only state; owner authorized |
+| HT-009 | Multi-stage Operations | Phase 1 | Implemented: linear 3-stage operation, typed objective carry-over, per-stage rewards, Runtime-only state; CI #733 passed |
 | HT-010 | Factions | Phase 2 | Reputation, Contracts, Contacts |
 | HT-011 | Rival Hackers | Phase 2 | Factions, contract availability/results |
 | HT-012 | Information Market | Phase 2 | Contacts, mission intelligence, economy |
