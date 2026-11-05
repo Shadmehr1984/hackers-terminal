@@ -60,7 +60,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
         \\  XP:          {d}/{d}
         \\  Decryptor:   {s}
         \\
-    , .{ player.handle, player.balance, player.reputation, level, player.xp, next_level_xp, if (player.has_decryptor) "installed" else "not installed" });
+    , .{ player.handle, player.balance, player.reputation, level, player.xp, next_level_xp, if (player.equipment.has_decryptor) "installed" else "not installed" });
 
     if (active) |index| {
         try writer.print("  Active job:  {s} ({s})\n  Detection:   {d}/100 ({s})\n", .{ missions[index].name, missions[index].id, session.detection_level, session.detectionBand().label() });
