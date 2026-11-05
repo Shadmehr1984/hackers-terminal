@@ -1,6 +1,6 @@
 # QUALITY-003 — Active Save Validation and Status Output
 
-- Status: In Progress
+- Status: Implemented
 - Origin: Follow-up project-wide code review on 2026-11-05
 - Owner approval: Both findings approved for remediation.
 
@@ -20,7 +20,7 @@ Validate restored active missions against completion flags loaded from the same 
 - [x] Tests cover active status output, including location, and inactive status output; assert line breaks rather than literal `\\n`.
 - [x] Save V3 layout, V1/V2/legacy compatibility, gameplay behavior, and command semantics remain unchanged.
 - [x] Update this brief and task index; correct the stale QUALITY-002 status in the task index.
-- [ ] Zig 0.13.0 formatting, build, full tests, and agent-doc check pass in GitHub Actions.
+- [x] Zig 0.13.0 formatting, build, full tests, and agent-doc check pass in GitHub Actions.
 - [x] Complete a self-review against `.agent/review-checklist.md`; no independent reviewer was available.
 
 ## Scope
@@ -57,11 +57,11 @@ Validate restored active missions against completion flags loaded from the same 
 Reviewed the changed save loader, terminal output, regression tests, and task index against `.agent/review-checklist.md`. The loader still reads the same V3/V2/V1/legacy fields in the same order; only the timing of active-index validation changed. The active index is now checked against the completion flags from the same save. Status text content is otherwise unchanged. The new tests are included in the aggregate suite. No independent second reviewer was available; this is a self-review only.
 
 ## Verification
-- [ ] Focused save validation regression tests.
-- [ ] Focused terminal status formatting tests.
-- [ ] `zig fmt --check test_root.zig build.zig src tests`
-- [ ] `zig build`
-- [ ] `zig test test_root.zig`
-- [ ] `sh scripts/check-agent-docs.sh`
-- [ ] Inspect actual GitHub Actions result for the final commit.
+- [x] Focused save validation regression tests.
+- [x] Focused terminal status formatting tests.
+- [x] `zig fmt --check test_root.zig build.zig src tests`
+- [x] `zig build`
+- [x] `zig test test_root.zig`
+- [x] `sh scripts/check-agent-docs.sh`
+- [x] Inspect actual GitHub Actions result: run [42033803399](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42033803399) completed with `success` for commit `3069926975760a92b801f8070c13494eabf6a4aa`; all workflow steps passed.
 - [x] Self-review recorded; independent reviewer availability stated accurately.
