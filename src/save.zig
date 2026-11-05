@@ -34,12 +34,15 @@ pub fn saveGameToDirectory(dir: std.fs.Dir, player: Player, missions: []const Mi
     try dir.rename(temporary_path, save_path);
 }
 
-fn readActive(lines: anytype, missions: []Mission) ?usize {
+fn readActiveCandidate(lines: anytype) ?usize {
     const value = lines.next() orelse return null;
-    const parsed = std.fmt.parseInt(i64, value, 10) catch -1;
-    if (parsed < 0) return null;
-    const index: usize = @intCast(parsed);
-    if (index < missions.len and !missions[index].completed) return index;
+    return std.fmt.parseInt(usize, value, 10) catch null;
+}
+
+fn validateActiveCandidate(candidate: ?usize, missions: []const Mission) ?usize {
+    if (candidate) |index| {
+        if (index < missions.len and !missions[index].completed) return index;
+    }
     return null;
 }
 
@@ -65,7 +68,7 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
     player.equipment.equipped_utility = null;
     player.equipment.silent_boots_level = 0;
     player.equipment.signal_scrubber_level = 0;
-    var active: ?usize = null;
+    var active_candidate: ?usize = null;
     var migrate_v1_xp = false;
 
     if (is_v3) {
@@ -88,19 +91,19 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
         }
         if (!player.equipment.owns(.silent_boots)) player.equipment.silent_boots_level = 0;
         if (!player.equipment.owns(.signal_scrubber)) player.equipment.signal_scrubber_level = 0;
-        active = readActive(&lines, missions);
+        active_candidate = readActiveCandidate(&lines);
     } else if (is_v2) {
         if (lines.next()) |v| player.balance = std.fmt.parseInt(u32, v, 10) catch player.balance;
         if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
         if (lines.next()) |v| player.xp = std.fmt.parseInt(u32, v, 10) catch player.xp;
         if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
-        active = readActive(&lines, missions);
+        active_candidate = readActiveCandidate(&lines);
     } else if (is_v1) {
         migrate_v1_xp = true;
         if (lines.next()) |v| player.balance = std.fmt.parseInt(u32, v, 10) catch player.balance;
         if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
         if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
-        active = readActive(&lines, missions);
+        active_candidate = readActiveCandidate(&lines);
     } else {
         player.balance = legacy_balance.?;
         if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
@@ -109,6 +112,7 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
     for (missions) |*mission| {
         if (lines.next()) |value| mission.completed = std.mem.eql(u8, value, "1");
     }
+    const active = validateActiveCandidate(active_candidate, missions);
     if (migrate_v1_xp) {
         for (missions) |mission| {
             if (mission.completed) player.xp += mission.xp_reward;
