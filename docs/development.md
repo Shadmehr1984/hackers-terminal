@@ -2,102 +2,33 @@
 
 ## Toolchain
 
-The project is written for **Zig 0.13.0**. Install that version before building or running the checks. The CI workflow also installs Zig 0.13.0, so local development should use the same version to avoid version-related differences.
+The project targets Zig 0.13.0. Use the same version locally and in CI.
 
-## Build
-
-From the repository root:
+## Build, run, formatting, and tests
 
 ```sh
 zig build
-```
-
-The executable is installed under `zig-out/bin/`.
-
-## Run
-
-```sh
 zig build run
-```
-
-The build script also supports passing arguments to the executable after the run step, although the game currently uses an interactive stdin command loop.
-
-## Formatting
-
-Check formatting without modifying files:
-
-```sh
 zig fmt --check build.zig src
-```
-
-Apply the formatter when needed:
-
-```sh
-zig fmt build.zig src
-```
-
-Review the resulting diff before committing.
-
-## Tests
-
-The CI workflow runs:
-
-```sh
 zig test src/main.zig
 ```
 
-This compiles and runs Zig tests declared in the source file. The current repository does not define a dedicated test suite yet. As modules are extracted, add focused tests for independently testable data and game logic. Persistence currently remains behavior-compatible with V2, V1, and the original legacy save layouts. `main.zig` imports the extracted modules, including `save.zig`, `terminal.zig`, `game.zig`, and `mission_data.zig`; `game.zig` coordinates `commands.zig`, `shop.zig`, and the other game modules, while `mission_data.zig` supplies the built-in mission catalog. This command also checks the module dependency graph.
+CI runs formatting, build, and tests on pushes and pull requests targeting main.
 
-## Continuous integration
+## Architecture workflow
 
-The workflow is defined in `.github/workflows/ci.yml`. It runs for pushes and pull requests targeting `main`.
+Keep modules focused and dependencies one-way. main.zig owns application setup and the input loop; game.zig coordinates command handling; mission_state.zig owns temporary mission-session progress. Persistence, display, shop operations, parsing, and mission data remain in dedicated modules.
 
-The job performs these steps:
+Preserve existing behavior unless a task explicitly requests a gameplay change. Update docs/architecture.md when module responsibilities or runtime state change. Update docs/save-format.md whenever serialized save layout changes. Temporary mission state is not persisted, so a loaded active mission starts at the accepted stage.
 
-1. Checks out the repository.
-2. Installs Zig 0.13.0.
-3. Checks formatting with `zig fmt --check build.zig src`.
-4. Compiles the project with `zig build`.
-5. Runs `zig test src/main.zig`.
+## Manual smoke test
 
-The workflow requests read-only repository contents permission and cancels an older run when a newer run for the same ref is queued.
+1. Run help and missions.
+2. Accept job-01.
+3. Verify connect is rejected before scanning.
+4. Scan and connect to the target, then authenticate using the mission briefing password.
+5. Disconnect and verify decryption remains possible after successful authentication.
+6. Buy the decryptor, decrypt with the briefing key, and extract ledger.enc.
+7. Save and restart; persistent progress should be restored while temporary session steps restart.
 
-## Suggested manual smoke test
-
-After building, start the game and verify the following:
-
-1. `help` lists the supported commands.
-2. `missions` lists the three contracts and locks contracts above the player's level.
-3. `accept job-01` succeeds for a new level-1 profile.
-4. `connect vault-01.local` is rejected before scanning.
-5. `brute orion42` is rejected before connecting and succeeds after connecting.
-6. `decrypt midnight` is rejected until authentication is granted and the decryptor is owned.
-7. `extract ledger.enc` completes the first contract only after decryption.
-8. `status` reflects the reward, reputation, XP, and level-up.
-9. `save`, followed by restarting the program, restores persistent progress.
-10. A restored active contract requires its temporary session steps to be repeated.
-
-Use a fresh working directory or back up `saves/player.sav` before testing save migration or progression from a clean profile.
-
-## Contribution guidelines
-
-When changing the project:
-
-- Keep the fictional, offline-only nature of the simulator explicit in user-facing documentation.
-- Update the command reference whenever command syntax or prerequisites change.
-- Update the gameplay guide when missions, clues, rewards, or progression rules change.
-- Update the architecture document when responsibilities or runtime state change.
-- Update the save-format document whenever the serialized layout changes.
-- Keep save migration compatibility in mind when changing persisted fields.
-- Run formatting, build, and test commands before opening a pull request.
-
-## Known opportunities for future work
-
-The current code is deliberately small. Potential improvements include:
-
-- Consider moving the built-in mission catalog from `mission_data.zig` into external data files if mission content grows substantially.
-- Consider replacing independent session booleans with an explicit mission-stage enum after adding tests for the current behavior.
-- Add unit tests for progression, command validation, and save migration.
-- Improve input parsing to support robust argument handling and clear errors.
-- Make save writes safer with temporary files and atomic replacement.
-- Move mission definitions into data files once the mission model stabilizes.
+Back up saves/player.sav before testing save migration or clean-profile progression.
