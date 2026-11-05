@@ -63,7 +63,7 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "objectives")) {
         if (active.*) |index| {
             try terminal.printObjectives(writer, missions[index], session.*);
-        } else try writer.writeAll("No active contract. Accept a mission first.\\n");
+        } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "accept")) {
         if (active.* != null) {
             try writer.writeAll("A contract is already active. Complete it first.\n");
@@ -144,12 +144,17 @@ pub fn runCommand(
             if (!session.isDecrypted() or !std.mem.eql(u8, arg, missions[index].encrypted_file)) {
                 try writer.writeAll("The requested file is unavailable or still encrypted.\n");
             } else {
-                const finished = missions[index];
-                missions[index].completed = true;
-                active.* = null;
-                session.reset();
-                try writer.print("[EXTRACTED] {s}\n", .{finished.encrypted_file});
-                try completeMission(writer, player, finished);
+                session.completeObjective(.extract_file);
+                if (!session.allObjectivesComplete(missions[index].objectives)) {
+                    try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
+                } else {
+                    const finished = missions[index];
+                    missions[index].completed = true;
+                    active.* = null;
+                    session.reset();
+                    try writer.print("[EXTRACTED] {s}\n", .{finished.encrypted_file});
+                    try completeMission(writer, player, finished);
+                }
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "inventory")) {
