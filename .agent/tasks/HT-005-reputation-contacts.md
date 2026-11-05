@@ -105,5 +105,5 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 - [x] ADR 0007 recorded.
 - [x] Reputation tiers, Contact rules, mission requirement metadata, and appended Ghost Signal added.
 - [x] Contact commands, offer transactions, and focused automated tests added.
-- [ ] Documentation and agent handoff updates complete.
+- [x] Documentation and agent handoff updates complete.
 - [ ] Full CI verification and final review complete.
