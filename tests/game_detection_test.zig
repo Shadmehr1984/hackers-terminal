@@ -99,7 +99,6 @@ test "compromise penalty never makes player balance negative" {
     try std.testing.expectEqual(@as(u32, 0), player.balance);
 }
 
-
 test "extraction can trigger compromise before contract payout" {
     var player = Player{ .balance = 75 };
     var missions = mission_data.defaultMissions();
