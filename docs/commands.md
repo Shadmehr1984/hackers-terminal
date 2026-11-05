@@ -29,7 +29,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `connect <target>` | Exact target hostname | Active contract has been scanned; at its authentication node when topology is present | Establishes the simulated session |
 | `disconnect` | None | None | Closes the simulated session |
 | `brute <password>` | Password answer | Active contract, connected session, and authentication node | Grants simulated authentication when the answer matches |
-| `decrypt <key>` | Decryption answer | Active contract, authentication granted, decryptor owned | Marks the mission file as decrypted when the key matches |
+| `decrypt <key>` | Decryption answer | Active contract, authentication granted, decryptor owned, and decryption node | Marks the mission file as decrypted when the key matches |
 | `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes the optional metadata objective and earns its bonus at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract, successful decryption, and extraction node | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
