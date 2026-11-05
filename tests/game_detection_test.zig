@@ -73,6 +73,8 @@ test "detection compromise fails contract, applies bounded penalty, and allows r
     try std.testing.expect(active == null);
     try std.testing.expect(!missions[0].completed);
     try std.testing.expectEqual(@as(u32, 200), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
 
     try run(writer, "accept job-01", &player, &missions, &active, &session);
@@ -85,6 +87,7 @@ test "compromise penalty never makes player balance negative" {
     var missions = mission_data.defaultMissions();
     var active: ?usize = null;
     var session = MissionSession{};
+    const writer = TestWriter{};
 
     try run(writer, "accept job-01", &player, &missions, &active, &session);
     try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
