@@ -169,3 +169,74 @@ test "board command is separate and leaves legacy missions command intact" {
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "AVAILABLE CONTRACTS") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "CONTRACT BOARD") == null);
 }
+
+test "modifier command lists choices, selects one, rejects unknown IDs, and clears selection" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "modifier", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "prepare <id> first") != null);
+
+    capture.clear();
+    try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "heightened-monitoring") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "security-sweep") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "hardened-encryption") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "+$50, +25 XP") != null);
+
+    capture.clear();
+    try run(&capture, "modifier security-sweep", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?@import("../src/domain/mission_modifier.zig").ModifierId, .security_sweep), preparation.selected_modifier);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[SELECTED] security-sweep") != null);
+
+    capture.clear();
+    try run(&capture, "modifier unknown-id", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?@import("../src/domain/mission_modifier.zig").ModifierId, .security_sweep), preparation.selected_modifier);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Unknown modifier") != null);
+
+    capture.clear();
+    try run(&capture, "modifier none", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(preparation.selected_modifier == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "cleared") != null);
+}
+
+test "modifier selection rejects unavailable choices without changing current selection" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    missions[0].allowed_modifiers = &.{.security_sweep};
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "modifier security-sweep", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "modifier hardened-encryption", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?@import("../src/domain/mission_modifier.zig").ModifierId, .security_sweep), preparation.selected_modifier);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "not available") != null);
+}
+
+test "accept snapshots the selected modifier and clears preparation; retry starts without it" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "modifier heightened-monitoring", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?@import("../src/domain/mission_modifier.zig").ModifierId, .heightened_monitoring), session.modifier);
+    try std.testing.expect(preparation.selected_modifier == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Contract launched") != null);
+
+    session.reset();
+    try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(session.modifier == null);
+}
