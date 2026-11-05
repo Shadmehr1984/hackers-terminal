@@ -1,6 +1,6 @@
 # HT-002 — Fictional Network Topology
 
-**Status:** In Progress  
+**Status:** Implemented  
 **Priority:** 2  
 **Approved:** 2026-11-05  
 **Owner decision:** All three built-in missions must receive distinct, mission-specific topologies.  
@@ -44,7 +44,7 @@ The implementation should keep each graph small enough to understand from termin
 - [x] Current node initializes on accept, resets on completion/failure, and restores at entry for loaded active contracts.
 - [x] Missions without topology remain backward-compatible through optional topology checks.
 - [x] Save V2, V1, and legacy formats remain unchanged; topology and current node are not serialized.
-- [ ] Focused tests, docs, AGENTS/module contracts, and CI are updated.
+- [x] Focused tests, docs, AGENTS/module contracts, and CI are updated.
 
 ## Non-goals
 - No real IP addresses, sockets, DNS, packet handling, network discovery, external host interaction, or shell execution.
@@ -53,17 +53,25 @@ The implementation should keep each graph small enough to understand from termin
 - No persistence of current node or traversal state.
 
 ## Verification
-- [ ] Tests for graph validity, adjacency, node lookup, traversal, resource access, and invalid routes.
-- [ ] Zig 0.13.0 formatting, build, and complete test suite.
-- [ ] Agent documentation structure check.
-- [ ] Independent review (or explicitly labelled self-review).
-- [ ] Inspect CI before marking Implemented.
+- [x] Tests for graph validity, adjacency, node lookup, traversal, resource access, and invalid routes.
+- [x] Zig 0.13.0 formatting, build, and complete test suite.
+- [x] Agent documentation structure check.
+- [x] Self-review recorded; no independent second reviewer was available.
+- [x] Inspect CI before marking Implemented.
 
 ## Agent progress notes
 - Implemented the graph domain in `src/topology.zig`, attached optional topology data to `Mission`, and authored three distinct static graphs in `mission_data.zig`.
 - Added `map` and `move`; location-gated scan, connection/authentication, decryption, analysis, and extraction; +5 detection per successful traversal; and transient current-node/traversal-count initialization/reset.
-- Added graph/data/session/game integration tests. Formatting, build, full tests, independent review, and CI verification remain pending.
+- Added graph/data/session/game integration tests. Formatting, build, full tests, and agent-documentation checks passed in CI run [42005306937](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42005306937).
 - Repository review confirmed that mission definitions are static in `mission_data.zig`, runtime state is owned by `MissionSession`, and `game.zig` coordinates command behavior.
 - HT-001 is now CI-verified (run 42001487382 succeeded); HT-002 is the active implementation task.
 - Owner confirmed that all three missions need unique, purpose-built topologies.
-- Initial topology concepts and the +5-per-traversal risk rule are recorded above. The graph model, three mission maps, movement, location-gated operations, tests, and documentation are now implemented; verification and review remain before marking the task complete.
+- Initial topology concepts and the +5-per-traversal risk rule are recorded above. The graph model, three mission maps, movement, location-gated operations, tests, and documentation are now implemented; verification and review completed; this task is implemented.
+
+## Verification and review record
+
+- CI run: [42005306937](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42005306937) — success on Zig 0.13.0.
+- Verified steps: `zig fmt --check test_root.zig build.zig src tests`, `zig build`, `zig test test_root.zig`, and `sh scripts/check-agent-docs.sh`.
+- Self-review: inspected the implementation against the accepted topology scope, one-way module boundaries, transient/persistent state boundary, movement failure paths, operation-node gates, and save compatibility. No save serialization files or versions were changed.
+- No independent second reviewer or interactive manual playtest was available. The CI build and automated tests are the verification evidence; they are not represented as a manual playthrough.
+- Verified final implementation branch: `main`; CI-tested commit: `0b66667b83a58c96f7abcadb69b7831603d71559`.
