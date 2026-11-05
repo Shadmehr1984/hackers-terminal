@@ -1,6 +1,6 @@
 # HT-005 — Reputation & Contacts
 
-**Status:** Complete  
+**Status:** Implemented  
 **Priority:** 5  
 **Approved:** 2026-11-05  
 **ADR:** 0007 — Reputation Tiers, Derived Contact Unlocks, and Offers  
