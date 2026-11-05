@@ -1,3 +1,4 @@
+const std = @import("std");
 const progression = @import("progression.zig");
 
 pub const ContactId = enum {
@@ -5,7 +6,6 @@ pub const ContactId = enum {
     fixer,
 
     pub fn parse(value: []const u8) ?ContactId {
-        const std = @import("std");
         if (std.mem.eql(u8, value, "broker")) return .broker;
         if (std.mem.eql(u8, value, "fixer")) return .fixer;
         return null;
