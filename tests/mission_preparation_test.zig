@@ -33,7 +33,7 @@ const Capture = struct {
 };
 
 fn run(capture: *Capture, line: []const u8, player: *Player, missions: []Mission, active: *?usize, session: *MissionSession, preparation: *MissionPreparation) !void {
-    _ = try game.runCommandWithPreparation(capture, line, player, missions, active, session, preparation);
+    _ = try game.runCommand(capture, line, player, missions, active, session, preparation);
 }
 
 test "preparation reveals contract intel but keeps puzzle clues and answers hidden" {
