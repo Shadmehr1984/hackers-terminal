@@ -13,7 +13,7 @@ pub fn xpForNextLevel(level: u32) u32 {
     return 100 + (level - 1) * 150;
 }
 
-fn completeMission(writer: anytype, player: *Player, mission: Mission, session: MissionSession) !void {
+pub fn completeMission(writer: anytype, player: *Player, mission: Mission, session: MissionSession) !void {
     const old_level = playerLevel(player.*);
     const bonus_reward = session.optionalReward(mission.objectives);
     player.balance += mission.reward + bonus_reward;
