@@ -4,6 +4,7 @@ const Player = @import("player.zig").Player;
 const save = @import("save.zig");
 const terminal = @import("terminal.zig");
 const shop = @import("shop.zig");
+const commands = @import("commands.zig");
 
 fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
     const old_level = playerLevel(player.*);
@@ -28,9 +29,9 @@ fn runCommand(
     access_granted: *bool,
     decrypted: *bool,
 ) !bool {
-    var tokens = std.mem.tokenizeScalar(u8, line, ' ');
-    const command = tokens.next() orelse return true;
-    const arg = tokens.next() orelse "";
+    const parsed = commands.parse(line) orelse return true;
+    const command = parsed.name;
+    const arg = parsed.argument;
 
     if (std.mem.eql(u8, command, "help")) {
         try terminal.printHelp(writer);
