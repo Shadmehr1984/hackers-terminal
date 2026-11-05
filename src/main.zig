@@ -1,9 +1,9 @@
 const std = @import("std");
-const Mission = @import("mission.zig").Mission;
 const Player = @import("player.zig").Player;
 const save = @import("save.zig");
 const game = @import("game.zig");
 const terminal = @import("terminal.zig");
+const mission_data = @import("mission_data.zig");
 
 pub fn main() !void {
     var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
@@ -14,47 +14,7 @@ pub fn main() !void {
     var stdin = std.io.getStdIn().reader();
 
     var player = Player{};
-    var missions = [_]Mission{
-        .{
-            .id = "job-01",
-            .name = "Cold Storage",
-            .target = "vault-01.local",
-            .password = "orion42",
-            .password_hint = "A hunter constellation, followed by the number 42.",
-            .encrypted_file = "ledger.enc",
-            .decryption_hint = "The middle of the night.",
-            .decryption_key = "midnight",
-            .reward = 300,
-            .xp_reward = 100,
-            .required_level = 1,
-        },
-        .{
-            .id = "job-02",
-            .name = "Paper Trail",
-            .target = "archive-02.local",
-            .password = "copper17",
-            .password_hint = "A reddish metal, followed by the number 17.",
-            .encrypted_file = "mailbox.enc",
-            .decryption_hint = "A small songbird often associated with a clear blue color.",
-            .decryption_key = "bluebird",
-            .reward = 500,
-            .xp_reward = 150,
-            .required_level = 2,
-        },
-        .{
-            .id = "job-03",
-            .name = "Quiet Exit",
-            .target = "relay-03.local",
-            .password = "northstar",
-            .password_hint = "A fixed point used for navigation in the northern sky.",
-            .encrypted_file = "manifest.enc",
-            .decryption_hint = "The time after normal business hours.",
-            .decryption_key = "afterhours",
-            .reward = 800,
-            .xp_reward = 200,
-            .required_level = 3,
-        },
-    };
+    var missions = mission_data.defaultMissions();
 
     const active_from_save = save.loadGame(allocator, &player, &missions);
 
