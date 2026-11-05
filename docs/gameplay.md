@@ -57,6 +57,17 @@ A contract is available only when the player's level meets its required level an
 
 Difficulty is currently a descriptive rating shown by `missions` and `briefing`. It does not yet change mission mechanics, rewards, or detection risk. Future mission-system work may give these ratings mechanical meaning, but that should be introduced as a separately designed and tested change.
 
+### Mission objectives
+
+Every contract defines an ordered checklist of objectives. `briefing` displays the checklist, and `objectives` shows its current completion state at any point during the active contract. The current objective types are:
+
+1. **Survey target** — completed by a successful `scan <target>`.
+2. **Authenticate** — completed by solving the password challenge with `brute <password>`.
+3. **Decrypt evidence** — completed by a successful `decrypt <key>` after purchasing the decryptor.
+4. **Recover evidence** — completed by extracting the exact filename with `extract <filename>`.
+
+The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded only after every objective in its definition is complete. Objective progress is temporary and is reset when a contract starts or ends; it is not written to the save file.
+
 ### Contract clues
 
 Use `briefing` after accepting a contract. The briefing displays the target, difficulty, password clue, encrypted filename, and decryption clue.
@@ -83,13 +94,13 @@ Use `briefing` after accepting a contract. The briefing displays the target, dif
 The first contract is a guided introduction to the complete game loop.
 
 1. Run `missions` and accept `job-01`.
-2. Run `briefing` and note the target `vault-01.local`.
-3. Run `scan vault-01.local`.
+2. Run `briefing` to read the clues and objective checklist.
+3. Run `scan vault-01.local`, then `objectives` to see the first objective completed.
 4. Run `connect vault-01.local`.
 5. Solve the clue with `brute orion42`.
 6. Buy the file decryptor with `buy decryptor`. It costs $150.
 7. Solve the decryption clue with `decrypt midnight`.
-8. Retrieve the specified file with `extract ledger.enc`.
+8. Run `objectives` to review the checklist, then retrieve the file with `extract ledger.enc`.
 9. Run `status` to see the updated balance, XP, reputation, and level.
 10. Run `save` to persist your progress.
 
