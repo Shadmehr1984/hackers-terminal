@@ -181,6 +181,29 @@ test "save writes and replaces a V3 file in an isolated directory" {
     try std.testing.expectError(error.FileNotFound, tmp.dir.openFile("saves/player.sav.tmp", .{}));
 }
 
+test "failed save staging leaves the previous save untouched" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    var player = Player{};
+    player.balance = 123;
+    const missions = mission_data.defaultMissions();
+    try save.saveGameToDirectory(tmp.dir, player, &missions, null);
+
+    try tmp.dir.makePath("saves/player.sav.tmp");
+    player.balance = 999;
+    if (save.saveGameToDirectory(tmp.dir, player, &missions, null)) |_| {
+        return error.ExpectedSaveWriteFailure;
+    } else |_| {}
+
+    const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
+    defer std.testing.allocator.free(data);
+    var restored_player = Player{};
+    var restored_missions = mission_data.defaultMissions();
+    _ = save.loadGameFromBytes(data, &restored_player, &restored_missions);
+    try std.testing.expectEqual(@as(u32, 123), restored_player.balance);
+}
+
 test "invalid V3 equipment references are normalized" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
