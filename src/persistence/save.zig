@@ -48,7 +48,7 @@ fn parseFlag(value: []const u8) ?bool {
 
 fn parseActiveCandidate(value: []const u8) ?usize {
     const parsed = std.fmt.parseInt(i64, value, 10) catch return null;
-    if (parsed < -1 or parsed == -1) return null;
+    if (parsed < 0) return null;
     return std.fmt.parseInt(usize, value, 10) catch null;
 }
 
