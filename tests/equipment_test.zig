@@ -81,7 +81,7 @@ test "Silent Boots reduce movement Detection and Signal Scrubber reduces failed 
     try run("scan vault-01.local", &player, &missions, &active, &session);
     try run("connect vault-01.local", &player, &missions, &active, &session);
     try run("brute incorrect", &player, &missions, &active, &session);
-    try std.testing.expectEqual(@as(u8, 26), session.detection_level);
+    try std.testing.expectEqual(@as(u8, 29), session.detection_level);
 }
 
 test "V3 save restores utilities while V2 V1 and legacy saves migrate without utilities" {
