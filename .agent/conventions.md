@@ -50,3 +50,8 @@ Derived from the current source tree; re-check source before relying on this map
 - Player progression and mission completion are persisted. Reputation tiers and Contact unlocks are derived from Reputation; Fixer service usage is transient.
 - Save format is positional and writes V3 and reads V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
 - Objective completion currently uses an eight-bit mask; adding a ninth kind requires redesign and tests.
+
+## Git workflow
+- Work directly on `main` by default, as requested by the owner on 2026-11-05.
+- Do not create feature/phase branches or pull requests unless the owner explicitly asks for them.
+- Keep each change focused; inspect the diff and verify GitHub Actions on the resulting `main` commit before reporting completion.
