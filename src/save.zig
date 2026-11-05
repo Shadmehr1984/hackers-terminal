@@ -27,11 +27,7 @@ fn readActive(lines: *std.mem.TokenIterator(u8, .scalar), missions: []Mission) ?
     return null;
 }
 
-pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
-    const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch return null;
-    defer file.close();
-    const data = file.readToEndAlloc(allocator, 4096) catch return null;
-    defer allocator.free(data);
+pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
     const first_line = lines.next() orelse return null;
     var active: ?usize = null;
@@ -79,7 +75,17 @@ pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Missi
         if (lines.next()) |value| mission.completed = std.mem.eql(u8, value, "1");
     }
     if (migrate_v1_xp) {
-        for (missions) |mission| if (mission.completed) { player.xp += mission.xp_reward; };
+        for (missions) |mission| {
+            if (mission.completed) player.xp += mission.xp_reward;
+        }
     }
     return active;
+}
+
+pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
+    const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch return null;
+    defer file.close();
+    const data = file.readToEndAlloc(allocator, 4096) catch return null;
+    defer allocator.free(data);
+    return loadGameFromBytes(data, player, missions);
 }
