@@ -31,11 +31,11 @@ Production modules are grouped by responsibility under `src/domain/`, `src/appli
 - `src/domain/progression.zig`: XP thresholds, player levels, Reputation tiers, and mission reward progression.
 - `src/domain/contacts.zig`: fictional Contact identities, unlock thresholds, and Fixer service pricing.
 - `src/domain/player.zig`: player profile, typed equipment ownership, utility slot, upgrade levels, and pure risk modifier calculations.
-- `src/domain/mission.zig`: mission/contract data types, optional topology reference, level/Reputation requirements, difficulty classification, and typed objective definitions.
+- `src/domain/mission.zig`: mission/contract data types, categories, optional topology reference, level/Reputation requirements, difficulty classification, and typed objective definitions.\n- `src/domain/contract_board.zig`: pure derived Contract Board availability and reward-range calculations; no persistence or terminal I/O.
 - `src/domain/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and validation that required operation nodes are reachable from the entry node.
 - `src/catalog/mission_data.zig`: built-in mission catalog.
 - `src/domain/mission_state.zig`: runtime-only mission preparation choice, active-mission progress, connection state, objective completion tracking, detection exposure (0–100), topology position, traversal count, per-run loadout snapshot, and one-use Fixer service state.
-- `src/application/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
+- `src/application/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.\n- The `board` command is a separate full Contract Board; preserve the existing `missions` command behavior.
 - `src/presentation/terminal.zig`: terminal presentation, including mission list, briefing-related output, and topology maps.
 - `src/persistence/save.zig`: V3 persistence and compatibility with V2, V1, and legacy save formats.
 - `src/application/shop.zig`: equipment catalog, inventory, purchases, equipping, and utility upgrades.
@@ -101,7 +101,7 @@ zig test test_root.zig
 
 ## Working with future feature ideas
 
-The completed foundational gameplay program HT-001 through HT-005 is recorded in `.agent/roadmap.md` and `.agent/tasks/`. The next 20-feature expansion program (HT-006 through HT-025) is planned in `.agent/plans/GAMEPLAY-EXPANSION-OVERVIEW.md` and its four phase handoff documents. The owner has approved planning only; implementation is not authorized until the owner explicitly starts it. Before any future implementation, read the master plan and matching phase document, inspect current source/docs/tests/save behavior, create a feature-specific task brief and progress notes, and work in dependency order one small reviewable milestone at a time. Do not interpret inclusion in the plan as permission to code. Branching narrative and dialogue trees remain out of scope; multi-stage operations are mechanical sequences only.
+The completed foundational gameplay program HT-001 through HT-005 is recorded in `.agent/roadmap.md` and `.agent/tasks/`. The next 20-feature expansion program (HT-006 through HT-025) is planned in `.agent/plans/GAMEPLAY-EXPANSION-OVERVIEW.md` and its four phase handoff documents. The owner has explicitly authorized HT-006 implementation; later expansion features remain planning-only until individually authorized. Before any future implementation, read the master plan and matching phase document, inspect current source/docs/tests/save behavior, create a feature-specific task brief and progress notes, and work in dependency order one small reviewable milestone at a time. Do not interpret inclusion in the plan as permission to code. Branching narrative and dialogue trees remain out of scope; multi-stage operations are mechanical sequences only.
 
 All new systems must remain entirely fictional, local, and offline. Never implement real networking, external host interaction, shell execution, or credential collection.
 
