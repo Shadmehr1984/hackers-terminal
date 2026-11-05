@@ -72,7 +72,7 @@ test "disconnecting does not erase mission progress" {
 }
 
 test "reset returns session to inactive" {
-    var session = MissionSession{ .progress = .decrypted, .connected = true, .current_node = "vault" };
+    var session = MissionSession{ .progress = .decrypted, .connected = true, .current_node = "vault", .traversal_count = 8 };
     session.reset();
     try std.testing.expectEqual(MissionProgress.inactive, session.progress);
     try std.testing.expect(!session.connected);
@@ -80,6 +80,7 @@ test "reset returns session to inactive" {
     try std.testing.expect(!session.isAuthenticated());
     try std.testing.expect(!session.isDecrypted());
     try std.testing.expect(session.current_node == null);
+    try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
 }
 
 test "detection starts quiet, changes bands at thresholds, and caps at 100" {
