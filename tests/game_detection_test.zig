@@ -6,6 +6,7 @@ const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
 const Player = @import("../src/player.zig").Player;
 const Mission = @import("../src/mission.zig").Mission;
+const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 
 const TestWriter = struct {
     pub fn writeAll(_: @This(), _: []const u8) error{}!void {}
@@ -372,4 +373,47 @@ test "hardened encryption increases only incorrect decryption-key exposure" {
     try std.testing.expectEqual(@as(u8, 55), session.detection_level);
     try run(writer, "decrypt wrong-key", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(@as(u8, 55), session.detection_level);
+}
+
+test "modified contract compromise applies only the existing penalty and no modifier reward" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{
+        .progress = .accepted,
+        .detection_level = 95,
+        .current_node = "service",
+        .modifier = .hardened_encryption,
+    };
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "move corridor", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(active == null);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(@as(u32, 200), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
+    try std.testing.expect(session.modifier == null);
+}
+
+test "modified extraction with incomplete required objectives does not pay rewards" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{
+        .progress = .decrypted,
+        .current_node = "vault",
+        .modifier = .security_sweep,
+    };
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(active != null);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(@as(u32, 250), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
+    try std.testing.expectEqual(@as(?ModifierId, .security_sweep), session.modifier);
 }
