@@ -65,6 +65,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
     if (active) |index| {
         try writer.print("  Active job:  {s} ({s})\n  Detection:   {d}/100 ({s})\n", .{ missions[index].name, missions[index].id, session.detection_level, session.detectionBand().label() });
         if (session.current_node) |node| try writer.print("  Location:    {s}\n", .{node});
+        try writer.print("  Traversals:  {d}\n", .{session.traversal_count});
     } else {
         try writer.writeAll("  Active job:  none\n  Detection:   inactive\n");
     }
@@ -120,8 +121,8 @@ pub fn printHistory(writer: anytype, missions: []const Mission) !void {
 
 pub fn printMap(writer: anytype, mission: Mission, session: MissionSession) !void {
     if (mission.topology) |topology| {
-        try writer.print("NETWORK MAP: {s}\nCurrent node: {s}\n\nNODES\n", .{
-            mission.name, session.current_node orelse "unknown",
+        try writer.print("NETWORK MAP: {s}\nCurrent node: {s}\nSuccessful traversals: {d}\n\nNODES\n", .{
+            mission.name, session.current_node orelse "unknown", session.traversal_count,
         });
         for (topology.nodes) |node| {
             const current = if (session.current_node) |id| std.mem.eql(u8, id, node.id) else false;
