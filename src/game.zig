@@ -205,7 +205,7 @@ pub fn runCommand(
                 if (!already_authenticated) _ = try applyDetection(writer, player, active, session, 5);
             } else {
                 try writer.writeAll("[ACCESS DENIED] Incorrect password. Check the mission briefing.\n");
-                _ = try applyDetection(writer, player, active, session, 15);
+                _ = try applyDetection(writer, player, active, session, player.equipment.incorrectAuthenticationDetectionCost());
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "decrypt")) {
@@ -215,7 +215,7 @@ pub fn runCommand(
                 try writer.writeAll("Authentication is required before decryption.\n");
             } else if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.decrypt_node)) {
                 try writer.print("Move to node '{s}' before decryption.\n", .{mission.topology.?.decrypt_node});
-            } else if (!player.has_decryptor) {
+            } else if (!player.equipment.has_decryptor) {
                 try writer.writeAll("Missing tool: decryptor. Visit the shop.\n");
             } else if (std.mem.eql(u8, arg, mission.decryption_key)) {
                 const already_decrypted = session.isDecrypted();
@@ -282,7 +282,7 @@ pub fn runCommand(
         try shop.printShop(writer);
     } else if (std.mem.eql(u8, command, "buy")) {
         try shop.buyItem(writer, player, arg);
-    } else if (std.mem.eql(u8, command, "history")) {
+    } else if (std.mem.eql(u8, command, "equip")) {\n        try shop.equipItem(writer, player, arg);\n    } else if (std.mem.eql(u8, command, "upgrade")) {\n        try shop.upgradeItem(writer, player, arg);\n    } else if (std.mem.eql(u8, command, "history")) {
         try terminal.printHistory(writer, missions);
     } else if (std.mem.eql(u8, command, "save")) {
         save.saveGame(player.*, missions, active.*) catch {
