@@ -57,7 +57,7 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 
 - src/progression.zig: Reputation tier mapping and outcome-based Reputation rewards.
 - src/contacts.zig: Contact identity, unlock thresholds, and service pricing.
-- src/mission.zig: optional static required_reputation.
+- src/mission.zig: optional static required_reputation and requires_contact_offer.
 - src/mission_data.zig: appended job-04 catalog entry and topology.
 - src/mission_state.zig: runtime-only fixer_service_used.
 - src/game.zig: contacts, contact, offers, and deal dispatch and transaction validation.
