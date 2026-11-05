@@ -329,6 +329,11 @@ pub fn runCommand(
                     try writer.writeAll("Selected utility is no longer owned. Choose another loadout.\n");
                 } else {
                     session.startWithModifier(.{ .utility = utility, .level = player.equipment.level(utility) }, preparation.selected_modifier);
+                    if (!session.initializeObjectives(mission.objectives)) {
+                        session.reset();
+                        try writer.writeAll("Contract catalog contains invalid objective definitions; launch rejected.\n");
+                        return true;
+                    }
                     active.* = index;
                     preparation.clear();
                     if (mission.topology) |topology| session.current_node = topology.entry_node;
@@ -337,6 +342,11 @@ pub fn runCommand(
                 }
             } else {
                 session.startWithModifier(.{}, preparation.selected_modifier);
+                if (!session.initializeObjectives(mission.objectives)) {
+                    session.reset();
+                    try writer.writeAll("Contract catalog contains invalid objective definitions; launch rejected.\n");
+                    return true;
+                }
                 active.* = index;
                 preparation.clear();
                 if (mission.topology) |topology| session.current_node = topology.entry_node;
