@@ -78,3 +78,33 @@ test "reset returns session to inactive" {
     try std.testing.expect(!session.isAuthenticated());
     try std.testing.expect(!session.isDecrypted());
 }
+
+
+test "detection starts quiet, changes bands at thresholds, and caps at 100" {
+    var session = MissionSession{};
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expectEqual(mission_state.DetectionBand.quiet, session.detectionBand());
+
+    session.addDetection(25);
+    try std.testing.expectEqual(mission_state.DetectionBand.noticed, session.detectionBand());
+    session.addDetection(25);
+    try std.testing.expectEqual(mission_state.DetectionBand.traced, session.detectionBand());
+    session.addDetection(25);
+    try std.testing.expectEqual(mission_state.DetectionBand.critical, session.detectionBand());
+    session.addDetection(100);
+    try std.testing.expectEqual(@as(u8, 100), session.detection_level);
+    try std.testing.expectEqual(mission_state.DetectionBand.compromised, session.detectionBand());
+    session.addDetection(10);
+    try std.testing.expectEqual(@as(u8, 100), session.detection_level);
+}
+
+test "starting and resetting a mission clear detection exposure" {
+    var session = MissionSession{};
+    session.addDetection(80);
+    session.start();
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    session.addDetection(40);
+    session.reset();
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expectEqual(mission_state.DetectionBand.quiet, session.detectionBand());
+}
