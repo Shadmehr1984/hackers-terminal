@@ -47,7 +47,7 @@ pub fn xpForNextLevel(level: u32) u32 {
 pub fn completeMission(writer: anytype, player: *Player, mission: Mission, session: MissionSession) !void {
     const old_level = playerLevel(player.*);
     const bonus_reward = session.optionalReward(mission.objectives);
-    const modifier_bonus = if (session.modifier) |modifier| modifier.completionBonus() else .{ .cash = 0, .xp = 0 };
+    const modifier_bonus = if (session.modifier) |modifier| modifier.completionBonus() else @import("mission_modifier.zig").CompletionBonus{ .cash = 0, .xp = 0 };
     const reputation_bonus: u32 = if (session.allOptionalObjectivesComplete(mission.objectives)) 1 else 0;
     const reputation_gain: u32 = 1 + reputation_bonus;
     player.balance += mission.reward + bonus_reward + modifier_bonus.cash;
