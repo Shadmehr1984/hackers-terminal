@@ -33,7 +33,13 @@ pub fn main() !void {
     var preparation = MissionPreparation{};
     if (active) |index| {
         session.startWithLoadout(game.currentLoadout(player));
-        if (missions[index].topology) |topology| session.current_node = topology.entry_node;
+        if (!session.initializeObjectives(missions[index].objectives)) {
+            active = null;
+            session.reset();
+        } else if (missions[index].topology) |topology| {
+            session.current_node = topology.entry_node;
+            _ = session.discoverNode(topology.entry_node, missions[index].objectives);
+        }
     }
 
     while (true) {
