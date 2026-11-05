@@ -31,7 +31,8 @@ Production modules are grouped by responsibility under `src/domain/`, `src/appli
 - `src/domain/progression.zig`: XP thresholds, player levels, Reputation tiers, and mission reward progression.
 - `src/domain/contacts.zig`: fictional Contact identities, unlock thresholds, and Fixer service pricing.
 - `src/domain/player.zig`: player profile, typed equipment ownership, utility slot, upgrade levels, and pure risk modifier calculations.
-- `src/domain/mission.zig`: mission/contract data types, categories, optional topology reference, level/Reputation requirements, difficulty classification, and typed objective definitions.\n- `src/domain/mission_objectives.zig`: fixed-capacity per-objective state tracker, typed discovery triggers, and allocation-free objective lifecycle rules.
+- `src/domain/mission.zig`: mission/contract data types, categories, optional topology reference, level/Reputation requirements, difficulty classification, and typed objective definitions.
+- `src/domain/mission_objectives.zig`: fixed-capacity per-objective state tracker, typed discovery triggers, and allocation-free objective lifecycle rules.
 - `src/domain/contract_board.zig`: pure derived Contract Board availability and reward-range calculations; no persistence or terminal I/O.
 - `src/domain/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and validation that required operation nodes are reachable from the entry node.
 - `src/catalog/mission_data.zig`: built-in mission catalog.
