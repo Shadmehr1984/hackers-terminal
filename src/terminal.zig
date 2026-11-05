@@ -1,5 +1,7 @@
 const Mission = @import("mission.zig").Mission;
-const MissionSession = @import("mission_state.zig").MissionSession;
+const MissionState = @import("mission_state.zig");
+const MissionSession = MissionState.MissionSession;
+const MissionPreparation = MissionState.MissionPreparation;
 const Player = @import("player.zig").Player;
 const UtilityEquipment = @import("player.zig").UtilityEquipment;
 const std = @import("std");
@@ -149,6 +151,7 @@ pub fn printContact(
     missions: []const Mission,
     active: ?usize,
     session: MissionSession,
+    preparation: MissionPreparation,
 ) !void {
     try writer.print("{s}\nRole: {s}\n", .{ contact.label(), contact.role() });
     if (!contacts.isUnlocked(contact, player.reputation)) {
@@ -178,7 +181,8 @@ pub fn printContact(
                 }
             }
             for (missions) |mission| {
-                if (std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
+                if (active == null and preparation.mission_index == null and
+                    std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
                     progression.playerLevel(player) >= mission.required_level and player.reputation >= mission.required_reputation)
                 {
                     try writer.writeAll("  deal ghost-signal — prepare the exclusive contract\n");
@@ -195,6 +199,7 @@ pub fn printOffers(
     missions: []const Mission,
     active: ?usize,
     session: MissionSession,
+    preparation: MissionPreparation,
 ) !void {
     try writer.writeAll("AVAILABLE CONTACT OFFERS\n");
     var found = false;
