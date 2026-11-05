@@ -331,9 +331,31 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
             try writer.print("{d} Detection (Signal Scrubber).\n", .{cost});
         } else try writer.writeAll("15 Detection.\n");
     } else try writer.writeAll("15 Detection.\n");
-    try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility, then 'accept <id>' to launch or 'cancel' to leave preparation.\n");
+    try writer.writeAll("\n");
+    try printModifierOptions(writer, mission, selected_modifier);
+    try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility; use 'modifier <id|none>' to choose one modifier. Then 'accept <id>' to launch or 'cancel' to leave preparation.\n");
 }
 
+/// Writes the modifiers allowed by a prepared contract and the current selection.
+pub fn printModifierOptions(writer: anytype, mission: Mission, selected: ?ModifierId) !void {
+    try writer.writeAll("MISSION MODIFIERS (choose at most one)\n");
+    if (mission.allowed_modifiers.len == 0) {
+        try writer.writeAll("  No modifiers are available for this contract.\n");
+        return;
+    }
+    for (mission.allowed_modifiers) |modifier| {
+        const bonus = modifier.completionBonus();
+        try writer.print("  {s}{s} — {s}\n    Effect: {s}\n    Successful completion bonus: +${d}, +{d} XP\n", .{
+            if (selected != null and selected.? == modifier) "[SELECTED] " else "",
+            modifier.commandId(),
+            modifier.label(),
+            modifier.description(),
+            bonus.cash,
+            bonus.xp,
+        });
+    }
+    try writer.print("  Current selection: {s}\n", .{if (selected) |modifier| modifier.commandId() else "none"});
+}
 /// Writes the completion history for the supplied contracts.
 pub fn printHistory(writer: anytype, missions: []const Mission) !void {
     try writer.writeAll("CONTRACT HISTORY\n");
