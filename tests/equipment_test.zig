@@ -5,7 +5,9 @@ const shop = @import("../src/shop.zig");
 const save = @import("../src/save.zig");
 const game = @import("../src/game.zig");
 const mission_data = @import("../src/mission_data.zig");
-const MissionSession = @import("../src/mission_state.zig").MissionSession;
+const MissionState = @import("../src/mission_state.zig");
+const MissionSession = MissionState.MissionSession;
+const MissionPreparation = MissionState.MissionPreparation;
 const Mission = @import("../src/mission.zig").Mission;
 
 const TestWriter = struct {
@@ -13,8 +15,8 @@ const TestWriter = struct {
     pub fn print(_: @This(), comptime _: []const u8, _: anytype) error{}!void {}
 };
 
-fn run(line: []const u8, player: *Player, missions: []Mission, active: *?usize, session: *MissionSession) !void {
-    _ = try game.runCommand(TestWriter{}, line, player, missions, active, session);
+fn run(line: []const u8, player: *Player, missions: []Mission, active: *?usize, session: *MissionSession, preparation: *MissionPreparation) !void {
+    _ = try game.runCommand(TestWriter{}, line, player, missions, active, session, preparation);
 }
 
 test "utility purchase equip and upgrades enforce ownership and funds" {
@@ -69,18 +71,20 @@ test "Silent Boots reduce movement Detection and Signal Scrubber reduces failed 
     var missions = mission_data.defaultMissions();
     var active: ?usize = null;
     var session = MissionSession{};
-    try run("buy silent-boots", &player, &missions, &active, &session);
-    try run("equip silent-boots", &player, &missions, &active, &session);
-    try run("accept job-01", &player, &missions, &active, &session);
-    try run("move service", &player, &missions, &active, &session);
+    var preparation = MissionPreparation{};
+    try run("buy silent-boots", &player, &missions, &active, &session, &preparation);
+    try run("equip silent-boots", &player, &missions, &active, &session, &preparation);
+    try run("prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run("accept job-01", &player, &missions, &active, &session, &preparation);
+    try run("move service", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(@as(u8, 4), session.detection_level);
 
     player.balance = 100;
-    try run("buy signal-scrubber", &player, &missions, &active, &session);
-    try run("equip signal-scrubber", &player, &missions, &active, &session);
-    try run("scan vault-01.local", &player, &missions, &active, &session);
-    try run("connect vault-01.local", &player, &missions, &active, &session);
-    try run("brute incorrect", &player, &missions, &active, &session);
+    try run("buy signal-scrubber", &player, &missions, &active, &session, &preparation);
+    try run("equip signal-scrubber", &player, &missions, &active, &session, &preparation);
+    try run("scan vault-01.local", &player, &missions, &active, &session, &preparation);
+    try run("connect vault-01.local", &player, &missions, &active, &session, &preparation);
+    try run("brute incorrect", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(@as(u8, 29), session.detection_level);
 }
 
