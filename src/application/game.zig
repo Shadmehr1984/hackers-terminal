@@ -632,8 +632,7 @@ pub fn runCommand(
                     const reward_eligible = !preparation.operation_state.active or preparation.operation_state.current_stage_reward_eligible;
                     missions[index].completed = true;
                     try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
-                    if (reward_eligible) try progression.completeMission(writer, player, mission, session)
-                    else try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\n");
+                    if (reward_eligible) try progression.completeMission(writer, player, mission, session) else try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\n");
                     if (preparation.operation_state.active) {
                         const op = operation_data.find(preparation.operation_state.operation_id).?;
                         const stage = preparation.operation_state.currentStage(op).?;
@@ -652,8 +651,7 @@ pub fn runCommand(
                         active.* = null;
                         preparation.clear();
                         session.reset();
-                        if (finished) try writer.print("[OPERATION COMPLETE] {s}.\n", .{op.name})
-                        else {
+                        if (finished) try writer.print("[OPERATION COMPLETE] {s}.\n", .{op.name}) else {
                             const next_stage = op.stages[preparation.operation_state.stage_index];
                             const next_idx = findMissionIndex(missions, next_stage.mission_id).?;
                             prepareOperationStage(preparation, player.*, next_idx);
