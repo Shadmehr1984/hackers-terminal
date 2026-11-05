@@ -34,6 +34,7 @@ This file is the persistent source of project-specific instructions for AI codin
 - \`src/save.zig\`: persistence and compatibility with V2, V1, and legacy save formats.
 - \`src/shop.zig\`: inventory and shop behavior.
 - \`tests/\`: unit tests, separate from production source.
+- \`test_root.zig\`: repository-root test module that imports the aggregate test suite, allowing test modules to import source files under \`src/\` without escaping their module root.
 - \`docs/\`: user and developer documentation.
 
 Read \`docs/architecture.md\` for the detailed module map and runtime flow, \`docs/gameplay.md\` and \`docs/commands.md\` before changing gameplay or command behavior, and \`docs/save-format.md\` before touching persistence.
@@ -60,13 +61,14 @@ Read \`docs/architecture.md\` for the detailed module map and runtime flow, \`do
 Use Zig **0.13.0** and the repository's documented commands:
 
 \`\`\`sh
-zig fmt --check build.zig src tests
+zig fmt --check test_root.zig build.zig src tests
 zig build
-zig test tests/test_all.zig
+zig test test_root.zig
 \`\`\`
 
 - Add tests under \`tests/\`; do not put test modules back into \`src/\`.
-- Keep \`tests/test_all.zig\` as the aggregate test entry point and include new test modules there.
+- Keep \`tests/test_all.zig\` as the aggregate test list and include new test modules there.
+- Use \`test_root.zig\` as the test command's root module. It exists so test imports such as \`../src/commands.zig\` remain within the repository-root module path.
 - Add tests for state transitions, parsing edge cases, progression rules, and save compatibility when those areas change.
 - If local build execution is unavailable, perform static inspection and say clearly that build/tests were not run. Never describe static inspection as a passing build or test.
 - When CI is available, inspect the actual workflow run and report its conclusion; do not infer success from a commit being pushed.
