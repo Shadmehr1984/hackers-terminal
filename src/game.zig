@@ -325,7 +325,9 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "brute")) {
         if (active.*) |index| {
             const mission = missions[index];
-            if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.auth_node)) {
+            if (session.isAuthenticated()) {
+                try writer.writeAll("Authentication already completed.\n");
+            } else if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.auth_node)) {
                 try writer.print("Move to node '{s}' before authentication.\n", .{mission.topology.?.auth_node});
             } else if (!session.connected) {
                 try writer.writeAll("No session. Connect to the target first.\n");
@@ -343,7 +345,9 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "decrypt")) {
         if (active.*) |index| {
             const mission = missions[index];
-            if (!session.isAuthenticated()) {
+            if (session.isDecrypted()) {
+                try writer.writeAll("File already decrypted.\n");
+            } else if (!session.isAuthenticated()) {
                 try writer.writeAll("Authentication is required before decryption.\n");
             } else if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.decrypt_node)) {
                 try writer.print("Move to node '{s}' before decryption.\n", .{mission.topology.?.decrypt_node});
