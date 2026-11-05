@@ -46,7 +46,7 @@ The CI workflow runs:
 zig test src/main.zig
 ```
 
-This compiles and runs Zig tests declared in the source file. The current repository does not define a dedicated test suite yet. As modules are extracted, add focused tests for independently testable data and game logic. Persistence currently remains behavior-compatible with V2, V1, and the original legacy save layouts. `main.zig` imports the extracted modules, including `save.zig`, `terminal.zig`, `shop.zig`, and `commands.zig`, so this command also checks that those module imports compile.
+This compiles and runs Zig tests declared in the source file. The current repository does not define a dedicated test suite yet. As modules are extracted, add focused tests for independently testable data and game logic. Persistence currently remains behavior-compatible with V2, V1, and the original legacy save layouts. `main.zig` imports the extracted modules, including `save.zig`, `terminal.zig`, and `game.zig`; `game.zig` coordinates `commands.zig`, `shop.zig`, and the other game modules, so this command also checks the module dependency graph.
 
 ## Continuous integration
 
@@ -95,8 +95,8 @@ When changing the project:
 
 The current code is deliberately small. Potential improvements include:
 
-- Split command parsing, mission data, progression, and persistence into separate modules.
-- Replace independent session booleans with an explicit mission-stage enum.
+- Continue separating mission content/configuration from application startup once the game flow is stable.
+- Consider replacing independent session booleans with an explicit mission-stage enum after adding tests for the current behavior.
 - Add unit tests for progression, command validation, and save migration.
 - Improve input parsing to support robust argument handling and clear errors.
 - Make save writes safer with temporary files and atomic replacement.
