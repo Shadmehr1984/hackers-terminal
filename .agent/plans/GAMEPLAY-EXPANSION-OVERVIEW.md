@@ -16,7 +16,7 @@ This is primarily a planning artifact, not blanket implementation authorization.
 - Zig 0.13.0; fictional, local, offline, single-player terminal game.
 - Four built-in contracts: `job-01` through `job-04`; Ghost Signal is Reputation-gated and appended to preserve existing mission indices.
 - Static `Mission` definitions live in `src/domain/mission.zig`; authored contracts/topologies/objectives live in `src/catalog/mission_data.zig`.
-- `MissionSession` and `MissionPreparation` are runtime-only in `src/domain/mission_state.zig`; HT-007 adds the modifier snapshot and one-time completion-payout guard. The current objective completion representation is an eight-bit mask.
+- `MissionSession` and `MissionPreparation` are runtime-only in `src/domain/mission_state.zig`; HT-007 adds the modifier snapshot and one-time completion-payout guard. At the planning baseline, objective completion used an eight-bit mask; HT-008 replaces it with a fixed-capacity 32-entry tracker keyed by stable mission-local IDs.
 - `src/domain/mission_modifier.zig` defines the three approved typed modifiers; each current mission authors a static allowlist.
 - `src/application/game.zig` coordinates commands and state transitions; `src/application/commands.zig` currently parses a command plus its first argument; `src/presentation/terminal.zig` owns terminal output.
 - `src/domain/player.zig` owns player/equipment state; `src/application/shop.zig` owns shop transactions; `src/domain/progression.zig` owns XP/level/mission rewards and Reputation tiers; `src/domain/contacts.zig` owns the two current Contact definitions and unlock/service pricing.
