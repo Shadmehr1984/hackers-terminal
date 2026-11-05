@@ -13,10 +13,10 @@ Derived from the current source tree; re-check source before relying on this map
 | src/domain/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and the single source of truth for pure utility Detection-cost profiles | Persistence and terminal I/O |
 | src/domain/contacts.zig | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing | Game command dispatch, terminal output, or persistence |
 | src/domain/contract_board.zig | Pure derived contract availability and reward-range query; no I/O or persistence |
-| src/domain/mission.zig | Mission, category, optional topology reference, level/Reputation requirements, difficulty, objective types | Built-in catalog or runtime mutation |
+| src/domain/mission.zig | Mission, category, optional topology reference, level/Reputation requirements, difficulty, objective types, and static allowed-modifier metadata | Built-in catalog or runtime mutation |
 | src/domain/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/catalog/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
-| src/domain/mission_state.zig | Runtime session progress, connection, objective completion, detection, current node, traversal count, and the per-run loadout snapshot that delegates Detection costs to UtilityEquipment | Serialization or user-facing output |
+| src/domain/mission_state.zig | Runtime preparation selection (utility and optional modifier), session progress, connection, objective completion, detection, current node, traversal count, and the per-run loadout snapshot | Serialization or user-facing output |
 | src/application/commands.zig | Allocation-free command/first-argument parsing | Gameplay validation and dispatch |
 | src/presentation/terminal.zig | Reusable terminal presentation | Mutating game state or deciding rewards |
 | src/persistence/save.zig | Save/load serialization and legacy compatibility | Gameplay command handling |
@@ -43,7 +43,8 @@ Derived from the current source tree; re-check source before relying on this map
 - Run the suite with `zig build test` (or directly with `zig test test_root.zig`).
 
 ## State and persistence
-- Mission preparation selection, per-run loadout snapshot, mission-session progress, connection state, objective completion, detection, current topology node, and successful traversal count are transient.
+- Mission preparation selection (including the optional modifier), per-run loadout snapshot, mission-session progress, connection state, objective completion, detection, current topology node, and successful traversal count are transient.
+- Mission modifier eligibility is static catalog metadata; preparation rejects modifiers not explicitly allowed by the selected mission. The selected modifier is not persisted.
 - The active mission loadout is snapshotted at launch; Detection modifiers read the session snapshot, never live player equipment. Preparation does not reveal puzzle clues or answers.
 - Player progression and mission completion are persisted. Reputation tiers and Contact unlocks are derived from Reputation; Fixer service usage is transient.
 - Save format is positional and writes V3 and reads V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
