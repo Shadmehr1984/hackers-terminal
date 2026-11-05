@@ -87,6 +87,7 @@ pub const Equipment = struct {
         }
     }
 
+    /// Returns the movement exposure cost from the currently equipped utility.
     pub fn movementDetectionCost(self: Equipment) u8 {
         if (self.equipped_utility) |utility| {
             return utility.movementDetectionCost(self.level(utility));
@@ -94,6 +95,7 @@ pub const Equipment = struct {
         return 5;
     }
 
+    /// Returns the authentication exposure cost from the currently equipped utility.
     pub fn incorrectAuthenticationDetectionCost(self: Equipment) u8 {
         if (self.equipped_utility) |utility| {
             return utility.incorrectAuthenticationDetectionCost(self.level(utility));
