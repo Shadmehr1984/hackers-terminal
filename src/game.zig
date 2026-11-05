@@ -83,7 +83,7 @@ fn applyDetection(
     return false;
 }
 
-pub fn runCommandWithPreparation(
+pub fn runCommand(
     writer: anytype,
     line: []const u8,
     player: *Player,
@@ -374,28 +374,3 @@ pub fn runCommandWithPreparation(
     return true;
 }
 
-pub fn runCommand(
-    writer: anytype,
-    line: []const u8,
-    player: *Player,
-    missions: []Mission,
-    active: *?usize,
-    session: *MissionSession,
-) !bool {
-    var preparation = MissionPreparation{};
-    if (commands.parse(line)) |parsed| {
-        if (std.mem.eql(u8, parsed.name, "accept") and active.* == null) {
-            for (missions, 0..) |mission, index| {
-                if (std.mem.eql(u8, mission.id, parsed.argument) and !mission.completed and playerLevel(player.*) >= mission.required_level) {
-                    preparation.mission_index = index;
-                    preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
-                        (if (player.equipment.owns(utility)) utility else null)
-                    else
-                        null;
-                    break;
-                }
-            }
-        }
-    }
-    return runCommandWithPreparation(writer, line, player, missions, active, session, &preparation);
-}
