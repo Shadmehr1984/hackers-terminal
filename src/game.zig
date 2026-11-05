@@ -165,7 +165,7 @@ pub fn runCommandWithPreparation(
                         session.current_node = node.id;
                         session.traversal_count += 1;
                         try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
-                        _ = try applyDetection(writer, player, active, session, player.equipment.movementDetectionCost());
+                        _ = try applyDetection(writer, player, active, session, session.loadout.movementDetectionCost());
                     }
                 } else try writer.writeAll("Current location is unavailable. Restart the contract.\n");
             } else try writer.writeAll("This contract has no network map.\n");
@@ -184,29 +184,34 @@ pub fn runCommandWithPreparation(
     } else if (std.mem.eql(u8, command, "accept")) {
         if (active.* != null) {
             try writer.writeAll("A contract is already active. Complete it first.\n");
+        } else if (preparation.mission_index == null) {
+            try writer.writeAll("Prepare a contract before launching it: prepare <id>.\n");
         } else {
-            var found = false;
-            for (missions, 0..) |mission, index| {
-                if (std.mem.eql(u8, mission.id, arg) and !mission.completed and playerLevel(player.*) >= mission.required_level) {
+            const index = preparation.mission_index.?;
+            const mission = missions[index];
+            if (!std.mem.eql(u8, mission.id, arg)) {
+                try writer.print("Prepared contract is {s}. Use accept {s} to launch it, or cancel to choose another.\n", .{ mission.id, mission.id });
+            } else if (mission.completed or playerLevel(player.*) < mission.required_level) {
+                preparation.clear();
+                try writer.writeAll("The prepared contract is no longer available. Preparation cleared.\n");
+            } else if (preparation.selected_utility) |utility| {
+                if (!player.equipment.owns(utility)) {
+                    try writer.writeAll("Selected utility is no longer owned. Choose another loadout.\n");
+                } else {
+                    session.startWithLoadout(.{ .utility = utility, .level = player.equipment.level(utility) });
                     active.* = index;
-                    session.start();
+                    preparation.clear();
                     if (mission.topology) |topology| session.current_node = topology.entry_node;
-                    found = true;
-                    try writer.print("Contract accepted: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
+                    try writer.print("Contract launched: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
                     if (session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
-                    break;
                 }
-            }
-            if (!found) {
-                var locked = false;
-                for (missions) |mission| {
-                    if (std.mem.eql(u8, mission.id, arg) and !mission.completed) {
-                        locked = true;
-                        try writer.print("Contract locked. Reach level {d} first.\n", .{mission.required_level});
-                        break;
-                    }
-                }
-                if (!locked) try writer.writeAll("Unknown or already completed contract. Use 'missions'.\n");
+            } else {
+                session.startWithLoadout(.{});
+                active.* = index;
+                preparation.clear();
+                if (mission.topology) |topology| session.current_node = topology.entry_node;
+                try writer.print("Contract launched: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
+                if (session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
             }
         }
     } else if (std.mem.eql(u8, command, "scan")) {
@@ -269,7 +274,7 @@ pub fn runCommandWithPreparation(
                 if (!already_authenticated) _ = try applyDetection(writer, player, active, session, 5);
             } else {
                 try writer.writeAll("[ACCESS DENIED] Incorrect password. Check the mission briefing.\n");
-                _ = try applyDetection(writer, player, active, session, player.equipment.incorrectAuthenticationDetectionCost());
+                _ = try applyDetection(writer, player, active, session, session.loadout.incorrectAuthenticationDetectionCost());
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "decrypt")) {
@@ -367,4 +372,17 @@ pub fn runCommandWithPreparation(
         try writer.writeAll("Unknown command. Type 'help' for available commands.\n");
     }
     return true;
+}
+
+
+pub fn runCommand(
+    writer: anytype,
+    line: []const u8,
+    player: *Player,
+    missions: []Mission,
+    active: *?usize,
+    session: *MissionSession,
+) !bool {
+    var preparation = MissionPreparation{};
+    return runCommandWithPreparation(writer, line, player, missions, active, session, &preparation);
 }
