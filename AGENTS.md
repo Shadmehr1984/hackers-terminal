@@ -49,8 +49,9 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 - Keep mission definitions, rewards, clues, puzzle answers, and their ordering consistent with the existing catalog unless explicitly changed.
 - Temporary mission-session state is runtime-only and is not currently persisted. A restored active mission starts again at the accepted stage.
 - Mission difficulty and objective definitions are static catalog data and are not serialized. Do not change the save format merely to persist them.
-- Each built-in mission defines objectives using `MissionObjectiveKind`; successful scan, authentication, decryption, and extraction actions complete the corresponding objective.
-- Objective completion is runtime-only session state. `extract` may complete a contract only when every objective defined for that mission is complete. Keep the objective-kind bit positions within the current eight-bit session mask; redesign the storage before adding more than eight kinds.
+- Each built-in mission defines objectives using `MissionObjectiveKind`; successful scan, authentication, decryption, extraction, and optional metadata analysis actions complete their corresponding objectives.
+- `MissionObjective.optional` marks work that does not block contract completion. Completed optional objectives grant their configured `bonus_reward` when the contract is completed.
+- Objective completion is runtime-only session state. `extract` may complete a contract only when every required objective is complete. Keep the objective-kind bit positions within the current eight-bit session mask; redesign the storage before adding more than eight kinds.
 
 ## Persistence safety
 
