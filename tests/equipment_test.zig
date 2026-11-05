@@ -6,6 +6,7 @@ const save = @import("../src/save.zig");
 const game = @import("../src/game.zig");
 const mission_data = @import("../src/mission_data.zig");
 const MissionSession = @import("../src/mission_state.zig").MissionSession;
+const Mission = @import("../src/mission.zig").Mission;
 
 const TestWriter = struct {
     pub fn writeAll(_: @This(), _: []const u8) error{}!void {}
