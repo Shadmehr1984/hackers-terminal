@@ -151,3 +151,21 @@ test "accept without preparation is rejected by the shared command dispatcher" {
     try std.testing.expectEqual(MissionState.MissionProgress.inactive, session.progress);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Prepare a contract before launching it") != null);
 }
+
+test "board command is separate and leaves legacy missions command intact" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "board", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "CONTRACT BOARD") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Data Recovery") != null);
+
+    capture.clear();
+    try run(&capture, "missions", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "AVAILABLE CONTRACTS") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "CONTRACT BOARD") == null);
+}
