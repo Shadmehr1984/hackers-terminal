@@ -2,7 +2,7 @@
 
 ## Overview
 
-The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types, save/load persistence, reusable terminal display functions, shop/inventory operations, and basic command-line parsing are now extracted; command dispatch and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
+The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types, save/load persistence, reusable terminal display functions, shop/inventory operations, command-line parsing, and game command execution are extracted into focused modules. `main.zig` now owns application setup, mission definitions, and the interactive input loop. `build.zig` configures the executable and its run step.
 
 There is no client/server split, networking layer, database, plugin system, or external game service. The game is local and self-contained.
 
@@ -10,13 +10,13 @@ There is no client/server split, networking layer, database, plugin system, or e
 
 | Path | Responsibility |
 | --- | --- |
-| `src/main.zig` | Mission definitions, terminal output, save/load, command handling, and application entry point (remaining responsibilities during the incremental refactor) |
+| `src/main.zig` | Application entry point, allocator and standard I/O setup, mission definitions, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Public `Player` profile data type and its defaults |
 | `src/mission.zig` | Public `Mission` contract data type and its completion default |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
 | `src/shop.zig` | Inventory display, fictional shop display, and item purchase logic |
-| `src/commands.zig` | Parses an input line into a command name and its first argument |
+| `src/commands.zig` | Parses an input line into a command name and its first argument |\n| `src/game.zig` | Coordinates command dispatch, mission state transitions, mission completion rewards, and player progression calculations |
 | `build.zig` | Executable configuration, install artifact, and `run` build step |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
 | `docs/` | User and developer documentation |
@@ -57,7 +57,7 @@ The active mission index is represented as an optional `usize`. The current miss
 | `access_granted` | The password challenge has been solved |
 | `decrypted` | The mission file has been decrypted |
 
-These flags live in `main` and are passed by pointer to `runCommand`. They are reset when a new contract is accepted, when a contract is completed, and at process startup.
+These flags are initialized in `main` and passed by pointer to `game.runCommand`. They are reset when a new contract is accepted, when a contract is completed, and at process startup.
 
 ## Runtime flow
 
@@ -122,7 +122,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Incremental modularization
 
-The refactoring has extracted the foundational data types, persistence, terminal display helpers, and shop operations. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns the save/load functions. `terminal.zig` imports the data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player` and owns inventory output, shop output, and purchases. `commands.zig` owns the allocation-free parsing of the command name and first argument; command dispatch and game-state transitions still live in `main.zig`. `main.zig` delegates to these modules. This keeps dependencies one-way and avoids circular imports. Interactive input and broader game coordination remain to be extracted.
+The refactoring has extracted the foundational data types, persistence, terminal display helpers, shop operations, command parsing, and game coordination. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns save/load. `terminal.zig` imports the data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player` and owns inventory output, shop output, and purchases. `commands.zig` owns allocation-free parsing of the command name and first argument. `game.zig` coordinates command dispatch, mission state transitions, completion rewards, and progression calculations; it delegates parsing, persistence, display, and shop operations to their respective modules. `main.zig` now initializes the application and owns the interactive input loop, delegating each command to `game.runCommand`. Dependencies remain one-way and avoid circular imports.
 
 ## Current design constraints
 
