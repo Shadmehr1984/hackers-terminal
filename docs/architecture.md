@@ -29,7 +29,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/domain/contract_board.zig` | Pure derived availability and reward-range calculations for the separate `board` command; no persistence or I/O |
 | `src/domain/mission.zig` | Public `Mission` contract data type, static allowed-modifier metadata, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, `MissionCategory`, and typed `MissionObjective` definitions |
 | `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
-| `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
+| `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, per-objective runtime tracker, detection exposure, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
 | `src/catalog/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
 | `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, Contacts, offers, history, and topology map |
@@ -52,7 +52,7 @@ A mission stores its static contract definition and completion state:
 
 - `id`, `name`, and `target` identify the contract.
 - `difficulty` classifies the contract as `easy`, `medium`, or `hard`. Its `label()` method provides the player-facing title-case label.
-- `objectives` contains the static, ordered list of `MissionObjective` records. Each record has a `MissionObjectiveKind` and player-facing description.
+- `objectives` contains the static, ordered list of `MissionObjective` records. Each record has a stable mission-local `id`, a completion `MissionObjectiveKind`, player-facing description, optional reward metadata, and (for hidden objectives) a typed Node/File/Action discovery trigger.
 - `password` and `password_hint` define the authentication puzzle.
 - `encrypted_file`, `decryption_hint`, and `decryption_key` define the decryption puzzle and required extraction filename.
 - `reward` and `xp_reward` configure contract payouts.
@@ -80,7 +80,7 @@ The player profile type is defined in `src/domain/player.zig` and imported by `m
 The session tracks the following related pieces of temporary state:
 - `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
 - `connected`: whether the simulated connection is currently open.
-- `completed_objectives`: an eight-bit mask keyed by `MissionObjectiveKind`.
+- `objective_tracker`: a fixed-capacity (32 entries), allocation-free tracker keyed by stable objective ID, with `undiscovered`, `discovered`, `completed`, and `unavailable` states.
 - `detection_level`: simulated exposure from 0 to 100, with Quiet, Noticed, Traced, Critical, and Compromised bands.
 - `current_node`: the current node ID in the active mission topology, or null for missions without topology.
 - `traversal_count`: number of successful node-to-node movements in this session.
@@ -89,7 +89,7 @@ The session tracks the following related pieces of temporary state:
 - `completion_reward_paid`: runtime guard that prevents the same active session from applying completion rewards more than once; reset with the session and never serialized.
 - `fixer_service_used`: whether the one-use Fixer Detection service has been consumed during this mission.
 
-Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
+Each `MissionObjective` carries a stable ID, event kind, visibility/discovery metadata, optional flag, and bonus reward. Visible objectives begin discovered; hidden objectives begin undiscovered. The tracker rejects catalogs with duplicate/empty IDs, invalid hidden-objective definitions, or more than 32 entries. Required completion, optional rewards, and all-optional Reputation checks operate on per-objective state, not enum ordinals.
 
 Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`. Objective completion, detection exposure, the utility loadout snapshot, and the modifier snapshot are runtime-only and are cleared when a mission starts or resets. `heightened-monitoring` adds 2 after the adjusted successful movement cost; `security-sweep` adds 8 after every third successful traversal; `hardened-encryption` changes incorrect decryption exposure from 10 to 15. All modifier Detection events use `detection.apply` and its compromise path. Detection reaching 100 fails the active contract and applies a $50 penalty, capped at the player's current balance.
 
@@ -128,7 +128,7 @@ inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
 - Crossing a detection band prints a warning. At 100, the contract is failed, a $50 penalty (capped by available balance) is applied, and the contract remains retryable.
 - `map` displays the active graph, node purposes, links, and current location. `move <node-id>` accepts only directly adjacent nodes; every successful traversal adds 5 detection, including revisits. Invalid destinations do not alter state.
 - Each topology assigns scan, authentication, decryption, optional analysis, and extraction to specific nodes. The corresponding commands are rejected away from those locations.
-- `briefing` displays the objective list and points players to `map`; `objectives` displays the live checklist at any time.
+- `briefing` displays only currently discovered objectives and points players to `map`; `objectives` displays the live discovered checklist. `inspect <filename>` can reveal authored fictional file-triggered objectives.
 
 ## Progression calculations
 
@@ -140,7 +140,7 @@ inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
 
 Persistent state includes balance, reputation, XP, decryptor ownership, utility ownership, equipped utility, both utility upgrade levels, active mission index, and mission completion flags. Save V3 is current; `src/persistence/save.zig` continues to read V2, V1, and the original legacy layout. Older saves migrate with no utility equipment owned or equipped.
 
-Mission difficulty, objective definitions, and Reputation requirements are static catalog metadata and are not serialized. Contact unlocks and tiers are derived from the persisted Reputation value. Fixer service use is runtime-only. Temporary `MissionPreparation`, the run-specific loadout and modifier snapshots, the per-session completion payout guard, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
+Mission difficulty, objective definitions, and Reputation requirements are static catalog metadata and are not serialized. Contact unlocks and tiers are derived from the persisted Reputation value. Fixer service use is runtime-only. Temporary `MissionPreparation`, the run-specific loadout and modifier snapshots, the per-session completion payout guard, `MissionSession` progress, connection state, objective discovery/completion/unavailability, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
 ## Error handling style
 
@@ -154,7 +154,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 - The built-in mission catalog is hard-coded in `mission_data.zig` and contains four missions; `job-04` is appended after the original three.
 - Mission difficulty is currently descriptive metadata; no mechanics are tied to it yet.
-- The current objective kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds. Optional objective rewards are calculated at contract completion and are not separately persisted.
+- The current objective event kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Per-objective progress is stored in a runtime-only fixed-capacity tracker of 32 entries, keyed by stable mission-local IDs. Hidden optional objectives use deterministic Node/File/Action discovery triggers; their definitions and progress are not serialized.
 - Detection is a runtime-only 0–100 meter. Its thresholds, action costs, failure penalty, and reset behavior are defined in the gameplay guide and implemented through `MissionSession` and `detection.zig`.
 - The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
 - The save parser is line-oriented and has no checksum or full corruption-recovery layer. It recognizes V3, V2, V1, and numeric legacy data; unknown non-numeric markers are rejected without mutating loaded state. Save writes are staged to a temporary file and renamed into place after the complete payload is written.
