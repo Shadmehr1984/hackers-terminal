@@ -242,6 +242,7 @@ test "equipment enum catalog remains stable" {
 test "older three-contract save completion flags leave appended Ghost Signal incomplete" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
+    missions[3].completed = true;
     const old_v3 =
         "HACKERS_TERMINAL_SAVE_V3\n" ++
         "900\n3\n250\n1\n0\n0\n0\n0\n-1\n1\n0\n1\n";
