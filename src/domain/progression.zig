@@ -46,24 +46,36 @@ pub fn xpForNextLevel(level: u32) u32 {
 /// Applies a completed contract's cash, XP, and Reputation rewards and writes the result.
 pub fn completeMission(writer: anytype, player: *Player, mission: Mission, session: *MissionSession) !void {
     if (session.completion_reward_paid) return;
-    session.completion_reward_paid = true;
     const run = session.*;
     const old_level = playerLevel(player.*);
     const bonus_reward = run.optionalReward(mission.objectives);
     const modifier_bonus = if (run.modifier) |modifier| modifier.completionBonus() else @import("mission_modifier.zig").CompletionBonus{ .cash = 0, .xp = 0 };
     const reputation_bonus: u32 = if (run.allOptionalObjectivesComplete(mission.objectives)) 1 else 0;
     const reputation_gain: u32 = 1 + reputation_bonus;
-    player.balance += mission.reward + bonus_reward + modifier_bonus.cash;
-    player.reputation += reputation_gain;
-    player.xp += mission.xp_reward + modifier_bonus.xp;
-    const new_level = playerLevel(player.*);
+
+    // Preflight every accumulated value before writing output or mutating live state.
+    const cash_reward = std.math.add(u32, mission.reward, bonus_reward) catch return error.RewardOverflow;
+    const total_cash_reward = std.math.add(u32, cash_reward, modifier_bonus.cash) catch return error.RewardOverflow;
+    const new_balance = std.math.add(u32, player.balance, total_cash_reward) catch return error.RewardOverflow;
+    const new_reputation = std.math.add(u32, player.reputation, reputation_gain) catch return error.RewardOverflow;
+    const xp_reward = std.math.add(u32, mission.xp_reward, modifier_bonus.xp) catch return error.RewardOverflow;
+    const new_xp = std.math.add(u32, player.xp, xp_reward) catch return error.RewardOverflow;
+    var updated_player = player.*;
+    updated_player.balance = new_balance;
+    updated_player.reputation = new_reputation;
+    updated_player.xp = new_xp;
+    const new_level = playerLevel(updated_player);
     try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}", .{ mission.name, mission.reward });
     if (bonus_reward > 0) try writer.print("\nOptional objective bonus: +${d}", .{bonus_reward});
     if (modifier_bonus.cash > 0 or modifier_bonus.xp > 0) try writer.print("\nMission modifier bonus: +${d}, +{d} XP", .{ modifier_bonus.cash, modifier_bonus.xp });
     try writer.print("\nXP gained: {d}\nReputation increased by {d} ({s}).\n", .{
         mission.xp_reward,
         reputation_gain,
-        reputationTier(player.reputation).label(),
+        reputationTier(new_reputation).label(),
     });
     if (new_level > old_level) try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
+
+    // Commit only after all calculations and output operations have succeeded.
+    player.* = updated_player;
+    session.completion_reward_paid = true;
 }
