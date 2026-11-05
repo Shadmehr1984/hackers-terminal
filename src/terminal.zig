@@ -61,15 +61,30 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
         \\  Level:       {d}
         \\  XP:          {d}/{d}
         \\  Decryptor:   {s}
+        \\  Utility:     {s}
         \\
-    , .{ player.handle, player.balance, player.reputation, level, player.xp, next_level_xp, if (player.equipment.has_decryptor) "installed" else "not installed" });
+    , .{
+        player.handle,
+        player.balance,
+        player.reputation,
+        level,
+        player.xp,
+        next_level_xp,
+        if (player.equipment.has_decryptor) "installed" else "not installed",
+        if (player.equipment.equipped_utility) |utility| utility.label() else "none",
+    });
 
     if (active) |index| {
-        try writer.print("  Active job:  {s} ({s})\n  Detection:   {d}/100 ({s})\n", .{ missions[index].name, missions[index].id, session.detection_level, session.detectionBand().label() });
-        if (session.current_node) |node| try writer.print("  Location:    {s}\n", .{node});
-        try writer.print("  Traversals:  {d}\n", .{session.traversal_count});
+        try writer.print("  Active job:  {s} ({s})\\n  Detection:   {d}/100 ({s})\\n", .{
+            missions[index].name,
+            missions[index].id,
+            session.detection_level,
+            session.detectionBand().label(),
+        });
+        if (session.current_node) |node| try writer.print("  Location:    {s}\\n", .{node});
+        try writer.print("  Traversals:  {d}\\n", .{session.traversal_count});
     } else {
-        try writer.writeAll("  Active job:  none\n  Detection:   inactive\n");
+        try writer.writeAll("  Active job:  none\\n  Detection:   inactive\\n");
     }
 }
 
