@@ -70,7 +70,7 @@ Reads balance, reputation, XP, decryptor ownership, active mission index, and mi
 
 ### V1
 
-The marker is `HACKERS_TERMINAL_SAVE_V1`. V1 did not store XP. The loader reconstructs XP by adding the configured XP reward for each completed mission. The layout stores balance, reputation, decryptor ownership, active mission index, and completion flags. Utility state migrates to no utilities owned/equipped and level 0.
+The marker is `HACKERS_TERMINAL_SAVE_V1`. V1 did not store XP. The loader reconstructs XP by summing the configured XP rewards for completed missions. The layout stores balance, reputation, decryptor ownership, active mission index, and completion flags. Utility state migrates to no utilities owned/equipped and level 0.
 
 ### Original unversioned format
 
