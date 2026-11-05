@@ -9,6 +9,10 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `help` | None | Print the command list and mission flow |
 | `status` | None | Show player profile, decryptor ownership, active utility, active contract, and detection level/band |
 | `missions` | None | Legacy compact list of contracts, difficulty labels, and level/Reputation requirements; behavior is unchanged |
+| `operations` | None | List authored multi-stage operations, stage counts, and derived availability/current status |
+| `operation <id>` | Operation ID | Inspect ordered contract stages and their level/Reputation requirements |
+| `operation-start <id>` | Operation ID | Start an operation and prepare its first stage |
+| `operation-status` | None | Show the current operation stage and earned carry-over facts |
 | `board` | None | Open the Contract Board with categories, reward ranges, availability states, and reasons |
 | `contacts` | None | Show both fictional contacts and their unlock status |
 | `contact <id>` | `broker` or `fixer` | Inspect a contact, its role, and relevant offers |
@@ -29,6 +33,16 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 Use `board` to inspect every catalog contract without changing the existing `missions` command. Entries remain in catalog order and show category, difficulty, base-to-maximum cash reward, XP, and one derived state: `AVAILABLE`, `LOCKED`, `COMPLETED`, `EXCLUSIVE`, or `UNAVAILABLE`. Locked entries explain each unmet level/Reputation requirement. Exclusive entries must be obtained through their Contact offer. While another contract is active or being prepared, other incomplete entries remain visible as unavailable; completed entries remain completed. The Board does not reveal puzzle clues or answers and does not save any additional state.
 
 Use `board` for the full catalog overview; `missions` remains the original compact list.
+
+## Multi-stage Operations
+
+The first authored operation is `blackout-protocol`, a linear sequence of Cold Storage (`job-01`), Paper Trail (`job-02`), and Quiet Exit (`job-03`). Use `operations` to list operations and derived availability, `operation blackout-protocol` to inspect the ordered stages and prerequisites, then `operation-start blackout-protocol` to open preparation for stage one.
+
+Accept each stage with the existing `accept <mission-id>` command. After a successful stage, the next stage is prepared automatically but still requires explicit acceptance. Use `operation-status` to inspect the current stage and earned mechanical facts. `prepare` and `cancel` cannot replace or abandon an active operation. A compromised stage is prepared again for retry; facts from earlier successful stages remain available.
+
+Completing hidden optional objective `maintenance-telemetry` in stage one grants the `maintenance_telemetry` fact, which reveals `routing-header` in stage two. Completing `routing-header` grants `routing_header`, which reveals `relay-trace` in stage three. These objectives remain optional and still require their normal completion event. If the source objective is not completed, the later objective keeps its ordinary HT-008 discovery trigger.
+
+Each stage pays its existing contract rewards only if that contract was not already completed before the operation run. Replaying a previously completed stage pays no contract, optional-objective, Reputation, XP, or modifier rewards. There is no operation-completion bonus. Operation state and facts are runtime-only; saving during an operation writes no active mission index, and after restart the operation begins again at stage one with facts cleared. Save V3 is unchanged.
 
 ## Mission commands
 
