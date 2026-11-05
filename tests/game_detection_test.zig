@@ -62,6 +62,7 @@ test "detection compromise fails contract, applies bounded penalty, and allows r
 
     const writer = TestWriter{};
     try run(writer, "accept job-01", &player, &missions, &active, &session);
+    try run(writer, "move service", &player, &missions, &active, &session);
     try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
     try run(writer, "connect vault-01.local", &player, &missions, &active, &session);
 
@@ -103,7 +104,7 @@ test "extraction can trigger compromise before contract payout" {
     var player = Player{ .balance = 75 };
     var missions = mission_data.defaultMissions();
     var active: ?usize = 0;
-    var session = MissionSession{ .progress = .decrypted, .detection_level = 95 };
+    var session = MissionSession{ .progress = .decrypted, .detection_level = 95, .current_node = "vault" };
     session.completeObjective(.scan_target);
     session.completeObjective(.authenticate);
     session.completeObjective(.decrypt_file);
@@ -117,4 +118,40 @@ test "extraction can trigger compromise before contract payout" {
     try std.testing.expectEqual(@as(u32, 0), player.xp);
     try std.testing.expectEqual(@as(u32, 0), player.reputation);
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+}
+
+
+test "topology rejects invalid movement without detection and charges every valid traversal" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    const writer = TestWriter{};
+
+    try run(writer, "accept job-01", &player, &missions, &active, &session);
+    try std.testing.expectEqualStrings("entry", session.current_node.?);
+    try run(writer, "move vault", &player, &missions, &active, &session);
+    try std.testing.expectEqualStrings("entry", session.current_node.?);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try run(writer, "move service", &player, &missions, &active, &session);
+    try std.testing.expectEqualStrings("service", session.current_node.?);
+    try std.testing.expectEqual(@as(u8, 5), session.detection_level);
+    try run(writer, "move entry", &player, &missions, &active, &session);
+    try run(writer, "move service", &player, &missions, &active, &session);
+    try std.testing.expectEqual(@as(u8, 15), session.detection_level);
+}
+
+test "mission actions require their assigned topology locations" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    const writer = TestWriter{};
+
+    try run(writer, "accept job-01", &player, &missions, &active, &session);
+    try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try run(writer, "move service", &player, &missions, &active, &session);
+    try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
+    try std.testing.expectEqual(@as(u8, 15), session.detection_level);
 }
