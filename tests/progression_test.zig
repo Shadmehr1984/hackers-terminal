@@ -1,7 +1,10 @@
 const std = @import("std");
 const Player = @import("../src/player.zig").Player;
 const progression = @import("../src/progression.zig");
-const MissionSession = @import("../src/domain/mission_state.zig").MissionSession;
+const MissionState = @import("../src/domain/mission_state.zig");
+const MissionSession = MissionState.MissionSession;
+const MissionPreparation = MissionState.MissionPreparation;
+const game = @import("../src/game.zig");
 const MissionObjective = @import("../src/domain/mission.zig").MissionObjective;
 const mission_data = @import("../src/catalog/mission_data.zig");
 
@@ -108,4 +111,28 @@ test "reward overflow leaves player and completion guard unchanged" {
     try std.testing.expectEqual(@as(u32, 100), xp_player.balance);
     try std.testing.expectEqual(@as(u32, 0), xp_player.reputation);
     try std.testing.expect(!xp_session.completion_reward_paid);
+}
+
+
+test "mission remains active and incomplete when payout overflows" {
+    var player = Player{ .balance = std.math.maxInt(u32) };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    _ = try game.runCommand(writer, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    _ = try game.runCommand(writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    session.progress = .decrypted;
+    session.current_node = "vault";
+    for (missions[0].objectives) |objective| {
+        if (!objective.optional and objective.kind != .extract_file) session.completeObjective(objective.kind);
+    }
+
+    _ = try game.runCommand(writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(std.math.maxInt(u32), player.balance);
+    try std.testing.expect(!session.completion_reward_paid);
 }
