@@ -2,7 +2,7 @@
 
 ## Overview
 
-The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types, save/load persistence, reusable terminal display functions, and shop/inventory operations are now extracted; command handling and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
+The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types, save/load persistence, reusable terminal display functions, shop/inventory operations, and basic command-line parsing are now extracted; command dispatch and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
 
 There is no client/server split, networking layer, database, plugin system, or external game service. The game is local and self-contained.
 
@@ -16,6 +16,7 @@ There is no client/server split, networking layer, database, plugin system, or e
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
 | `src/shop.zig` | Inventory display, fictional shop display, and item purchase logic |
+| `src/commands.zig` | Parses an input line into a command name and its first argument |
 | `build.zig` | Executable configuration, install artifact, and `run` build step |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
 | `docs/` | User and developer documentation |
@@ -65,8 +66,9 @@ These flags live in `main` and are passed by pointer to `runCommand`. They are r
 3. `terminal.printBanner` and the welcome/status text are written to standard output.
 4. The application repeatedly prints the prompt and reads a line from standard input.
 5. Input is trimmed and passed to `runCommand`.
-6. `runCommand` tokenizes the line, checks the command name, validates the current game state, and performs the requested state transition.
-7. The loop ends on `exit`, end-of-input, or an input/output error propagated by the relevant function.
+6. `commands.parse` separates the command name and first argument without allocating memory.
+7. `runCommand` dispatches the parsed command, validates the current game state, and performs the requested state transition.
+8. The loop ends on `exit`, end-of-input, or an input/output error propagated by the relevant function.
 
 ## Mission state transitions
 
@@ -120,12 +122,12 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Incremental modularization
 
-The refactoring has extracted the foundational data types, persistence, terminal display helpers, and shop operations. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns the save/load functions. `terminal.zig` imports the data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player` and owns inventory output, shop output, and purchases. `main.zig` delegates to these modules. This keeps dependencies one-way and avoids circular imports. Command handling, interactive input, and game coordination remain to be extracted.
+The refactoring has extracted the foundational data types, persistence, terminal display helpers, and shop operations. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns the save/load functions. `terminal.zig` imports the data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player` and owns inventory output, shop output, and purchases. `commands.zig` owns the allocation-free parsing of the command name and first argument; command dispatch and game-state transitions still live in `main.zig`. `main.zig` delegates to these modules. This keeps dependencies one-way and avoids circular imports. Interactive input and broader game coordination remain to be extracted.
 
 ## Current design constraints
 
 - Mission content is hard-coded in `main.zig`.
-- The command parser accepts one argument token only.
+- The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
 - There is no automated unit-test suite beyond compiling/running Zig tests in the CI command; tests can be added in the source file.
 - The save parser is line-oriented and has no checksum or schema validation layer.
 - Command-specific output is still written directly by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output is centralized in `shop.zig`.
