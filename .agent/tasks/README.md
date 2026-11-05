@@ -7,7 +7,7 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 1 | HT-001 | Detection & Risk System | Implemented | [Read task](HT-001-detection-risk.md) |
 | 2 | HT-002 | Fictional Network Topology | Implemented | [Read task](HT-002-network-topology.md) |
 | 3 | HT-003 | Equipment & Upgrade System | Implemented | [Read task](HT-003-equipment-upgrades.md) |
-| 4 | HT-004 | Mission Preparation | In Progress | [Read task](HT-004-mission-preparation.md) |
+| 4 | HT-004 | Mission Preparation | Implemented | [Read task](HT-004-mission-preparation.md) |
 | 5 | HT-005 | Reputation & Contacts | Planned | [Read task](HT-005-reputation-contacts.md) |
 
 ## Handoff rules
