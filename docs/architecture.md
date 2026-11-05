@@ -12,11 +12,13 @@ There is no client/server split, networking layer, database, plugin system, or e
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Public `Player` profile data type and its defaults |
-| `src/mission.zig` | Public `Mission` contract data type and its completion default |\n| `src/mission_data.zig` | Built-in mission definitions and their default ordering |
+| `src/mission.zig` | Public `Mission` contract data type and its completion default |
+| `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
 | `src/shop.zig` | Inventory display, fictional shop display, and item purchase logic |
-| `src/commands.zig` | Parses an input line into a command name and its first argument |\n| `src/game.zig` | Coordinates command dispatch, mission state transitions, mission completion rewards, and player progression calculations |
+| `src/commands.zig` | Parses an input line into a command name and its first argument |
+| `src/game.zig` | Coordinates command dispatch, mission state transitions, mission completion rewards, and player progression calculations |
 | `build.zig` | Executable configuration, install artifact, and `run` build step |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
 | `docs/` | User and developer documentation |
@@ -61,14 +63,15 @@ These flags are initialized in `main` and passed by pointer to `game.runCommand`
 
 ## Runtime flow
 
-1. `main` creates the general-purpose allocator, standard input/output writers, a default `Player`, and the mission array.
-2. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
-3. `terminal.printBanner` and the welcome/status text are written to standard output.
-4. The application repeatedly prints the prompt and reads a line from standard input.
-5. Input is trimmed and passed to `runCommand`.
-6. `commands.parse` separates the command name and first argument without allocating memory.
-7. `runCommand` dispatches the parsed command, validates the current game state, and performs the requested state transition.
-8. The loop ends on `exit`, end-of-input, or an input/output error propagated by the relevant function.
+1. `main` creates the general-purpose allocator, standard input/output writers, and a default `Player`.
+2. `mission_data.defaultMissions()` supplies the built-in mission array.
+3. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
+4. `terminal.printBanner` and the welcome/status text are written to standard output.
+5. The application repeatedly prints the prompt and reads a line from standard input.
+6. Input is trimmed and passed to `game.runCommand`.
+7. `commands.parse` separates the command name and first argument without allocating memory.
+8. `game.runCommand` dispatches the parsed command, validates the current game state, and performs the requested state transition.
+9. The loop ends on `exit`, end-of-input, or an input/output error propagated by the relevant function.
 
 ## Mission state transitions
 
@@ -106,9 +109,9 @@ The implementation uses booleans rather than a dedicated enum/state-machine type
 
 ## Progression calculations
 
-`playerLevel` calculates the level from total XP. The first threshold is 100 XP and each subsequent threshold increases by 150 XP. `xpForNextLevel` returns the threshold associated with the next level for display in the status output.
+`game.playerLevel` calculates the level from total XP. The first threshold is 100 XP and each subsequent threshold increases by 150 XP. `game.xpForNextLevel` returns the cumulative threshold associated with a level for display in the status output.
 
-`completeMission` adds the mission's cash reward, increments reputation by one, adds the XP reward, and prints a level-up message if the level increased.
+`game.completeMission` (an internal helper) adds the mission's cash reward, increments reputation by one, adds the XP reward, and prints a level-up message if the level increased.
 
 ## Persistence boundary
 
