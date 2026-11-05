@@ -15,7 +15,7 @@ pub fn printInventory(writer: anytype, player: Player) !void {
     inline for (.{ UtilityEquipment.silent_boots, UtilityEquipment.signal_scrubber }) |utility| {
         if (player.equipment.owns(utility)) try writer.print("  {s} (level {d}){s}\n", .{
             utility.label(), player.equipment.level(utility),
-            if (player.equipment.equipped_utility == utility) " [EQUIPPED]" else "",
+            if (player.equipment.isEquipped(utility)) " [EQUIPPED]" else "",
         });
     }
     if (player.equipment.equipped_utility == null) try writer.writeAll("  Active utility: none\n");
