@@ -296,8 +296,8 @@ test "hidden objective content and rewards stay absent until discovery" {
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Correlate the recovered routing header") == null);
     capture.clear();
     try run(&capture, "board", &player, &missions, &active, &session, &preparation);
-    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "$500-$600") == null);
-    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "$500-$600") == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "$500-$600") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "$500-$660") == null);
 }
 
 test "inspect command reveals only the matching hidden fictional file objective" {
@@ -311,7 +311,7 @@ test "inspect command reveals only the matching hidden fictional file objective"
     try run(&capture, "prepare job-02", &player, &missions, &active, &session, &preparation);
     try run(&capture, "accept job-02", &player, &missions, &active, &session, &preparation);
     try run(&capture, "inspect wrong.log", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(@as(u8, 0), session.objective_tracker.entries[5].state == .discovered);
+    try std.testing.expect(session.objective_tracker.entries[5].state != .discovered);
     try run(&capture, "inspect routing-header.log", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(@import("../src/domain/mission_objectives.zig").ObjectiveState.discovered, session.objective_tracker.stateOf("routing-header").?);
     capture.clear();
