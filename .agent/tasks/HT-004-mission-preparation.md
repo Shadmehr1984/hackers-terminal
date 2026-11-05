@@ -1,6 +1,6 @@
 # HT-004 — Mission Preparation
 
-**Status:** In Progress  
+**Status:** Implemented  
 **Priority:** 4  
 **Approved:** 2026-11-05  
 **Depends on:** HT-001 risk model, HT-002 topology, and HT-003 equipment/inventory.
@@ -23,15 +23,15 @@ Add a pre-mission planning phase where the player reviews available intelligence
 - Tests and updates to command, gameplay, architecture, and save docs.
 
 ## Acceptance criteria
-- [ ] The player can inspect a preparation briefing before committing to a mission.
-- [ ] The briefing distinguishes known intelligence from undiscovered information.
-- [ ] The player can select a valid loadout using owned equipment from HT-003.
-- [ ] Preparation validates unavailable equipment and invalid mission choices.
-- [ ] Starting the mission transfers the selected preparation state into runtime mission state predictably.
-- [ ] Preparation does not bypass existing objective, authentication, decryption, or extraction requirements.
-- [ ] Reset/abandon/restart behavior is explicit and tested.
-- [ ] Save compatibility is preserved or a deliberate migration is documented and tested.
-- [ ] The feature remains fictional, local, and offline.
+- [x] The player can inspect a preparation briefing before committing to a mission.
+- [x] The briefing distinguishes known intelligence from undiscovered information.
+- [x] The player can select a valid loadout using owned equipment from HT-003.
+- [x] Preparation validates unavailable equipment and invalid mission choices.
+- [x] Starting the mission transfers the selected preparation state into runtime mission state predictably.
+- [x] Preparation does not bypass existing objective, authentication, decryption, or extraction requirements.
+- [x] Reset/abandon/restart behavior is explicit and tested.
+- [x] Save compatibility is preserved or a deliberate migration is documented and tested.
+- [x] The feature remains fictional, local, and offline.
 
 ## Non-goals
 - No branching story or dialogue trees.
@@ -82,5 +82,5 @@ Add a pre-mission planning phase where the player reviews available intelligence
 - [x] Wired preparation state into the interactive main loop.
 - [x] Added focused mission-preparation tests and registered them in the aggregate suite.
 - [x] Updated command, gameplay, architecture, and agent documentation.
-- [ ] Run formatter/build/full tests and inspect CI.
-- [ ] Complete review checklist and final self-review.
+- [x] Run formatter/build/full tests and inspect CI.
+- [x] Complete review checklist and final self-review.\n\n### Verification and review result\n- GitHub Actions run [42016151317](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42016151317) passed on commit `27ded54cd7f70b9237ba55be4488e8d7d729b040`: Zig 0.13.0 format check, `zig build`, all 44 tests, and agent-doc structure check.\n- No independent second reviewer was available; completed a self-review against `.agent/review-checklist.md`.\n- Save V3 code and serialized field layout were not changed. No real networking, shell execution, or external-system interaction was introduced.
