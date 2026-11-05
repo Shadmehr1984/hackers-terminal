@@ -79,16 +79,16 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
     });
 
     if (active) |index| {
-        try writer.print("  Active job:  {s} ({s})\\n  Detection:   {d}/100 ({s})\\n", .{
+        try writer.print("  Active job:  {s} ({s})\n  Detection:   {d}/100 ({s})\n", .{
             missions[index].name,
             missions[index].id,
             session.detection_level,
             session.detectionBand().label(),
         });
-        if (session.current_node) |node| try writer.print("  Location:    {s}\\n", .{node});
-        try writer.print("  Traversals:  {d}\\n", .{session.traversal_count});
+        if (session.current_node) |node| try writer.print("  Location:    {s}\n", .{node});
+        try writer.print("  Traversals:  {d}\n", .{session.traversal_count});
     } else {
-        try writer.writeAll("  Active job:  none\\n  Detection:   inactive\\n");
+        try writer.writeAll("  Active job:  none\n  Detection:   inactive\n");
     }
 }
 
