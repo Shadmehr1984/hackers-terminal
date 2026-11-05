@@ -1,6 +1,6 @@
 # HT-001 — Detection & Risk System
 
-**Status:** In Progress  
+**Status:** Implemented  
 **Priority:** 1 (first feature in the approved gameplay program)  
 **Approved:** 2026-11-05  
 **Depends on:** Existing mission/session model; no other new feature.
@@ -48,11 +48,11 @@ Introduce a readable, testable, entirely fictional detection/risk mechanic that 
 - No network-node traversal; that belongs to HT-002.
 
 ## Verification
-- [ ] Unit tests for action risk changes, thresholds, resets, and edge cases.
-- [ ] Zig 0.13.0 formatting, build, and complete test suite.
-- [ ] Agent documentation structure check.
+- [x] Unit tests for action risk changes, thresholds, resets, and edge cases.
+- [x] Zig 0.13.0 formatting, build, and complete test suite (GitHub Actions run 42001487382 succeeded).
+- [x] Agent documentation structure check (included in successful CI run).
 - [ ] Independent review (or explicitly labelled self-review).
-- [ ] Inspect CI result before marking Implemented.
+- [x] Inspect CI result before marking Implemented.
 
 ## Agent progress notes
-- Implementation pass: detection state, action costs, threshold warnings, compromise failure, bounded cash penalty, retry behavior, status output, tests, and gameplay/architecture documentation added. Zig/CI verification and review remain pending.
+- Implementation complete: detection state, action costs, threshold warnings, compromise failure, bounded cash penalty, retry behavior, status output, tests, and gameplay/architecture documentation are in place. Formatting, build, full tests, and agent-docs check passed in CI run [42001487382](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42001487382). Review was performed against the acceptance criteria; no separate reviewer agent was available, so this was a self-review.
