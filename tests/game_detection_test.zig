@@ -81,6 +81,8 @@ test "detection compromise fails contract, applies bounded penalty, and allows r
     try std.testing.expectEqual(@as(u32, 0), player.xp);
     try std.testing.expectEqual(@as(u32, 0), player.reputation);
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(session.current_node == null);
+    try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
 
     try run(writer, "accept job-01", &player, &missions, &active, &session);
     try std.testing.expectEqual(@as(?usize, 0), active);
