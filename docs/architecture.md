@@ -2,7 +2,7 @@
 
 ## Overview
 
-The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types and save/load persistence are now extracted; command handling and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
+The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types, save/load persistence, and reusable terminal display functions are now extracted; command handling and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
 
 There is no client/server split, networking layer, database, plugin system, or external game service. The game is local and self-contained.
 
@@ -14,6 +14,7 @@ There is no client/server split, networking layer, database, plugin system, or e
 | `src/player.zig` | Public `Player` profile data type and its defaults |
 | `src/mission.zig` | Public `Mission` contract data type and its completion default |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
+| `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
 | `build.zig` | Executable configuration, install artifact, and `run` build step |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
 | `docs/` | User and developer documentation |
@@ -60,7 +61,7 @@ These flags live in `main` and are passed by pointer to `runCommand`. They are r
 
 1. `main` creates the general-purpose allocator, standard input/output writers, a default `Player`, and the mission array.
 2. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
-3. `printBanner` and the welcome/status text are written to standard output.
+3. `terminal.printBanner` and the welcome/status text are written to standard output.
 4. The application repeatedly prints the prompt and reads a line from standard input.
 5. Input is trimmed and passed to `runCommand`.
 6. `runCommand` tokenizes the line, checks the command name, validates the current game state, and performs the requested state transition.
@@ -118,7 +119,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Incremental modularization
 
-The refactoring has extracted the foundational data types and persistence. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns the save/load functions; `main.zig` calls the persistence API without owning its implementation. This keeps dependencies one-way and avoids circular imports while preserving the existing save formats. Further responsibilities (terminal I/O, command handling, and game coordination) will be extracted in later steps.
+The refactoring has extracted the foundational data types, persistence, and terminal display helpers. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns the save/load functions. `terminal.zig` imports the data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `main.zig` delegates to these modules. This keeps dependencies one-way and avoids circular imports. Command handling, interactive input, and game coordination remain to be extracted.
 
 ## Current design constraints
 
@@ -126,4 +127,4 @@ The refactoring has extracted the foundational data types and persistence. `play
 - The command parser accepts one argument token only.
 - There is no automated unit-test suite beyond compiling/running Zig tests in the CI command; tests can be added in the source file.
 - The save parser is line-oriented and has no checksum or schema validation layer.
-- Game output is directly coupled to the writer passed into command functions.
+- Command-specific output is still written directly by command handling; reusable display sections are centralized in `terminal.zig`.
