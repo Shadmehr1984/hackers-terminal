@@ -10,6 +10,10 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 4 | HT-004 | Mission Preparation | Implemented | [Read task](HT-004-mission-preparation.md) |
 | 5 | HT-005 | Reputation & Contacts | Planned | [Read task](HT-005-reputation-contacts.md) |
 
+## Quality and maintenance tasks
+
+- [QUALITY-001 — Code Review Remediation](QUALITY-001-code-review-remediation.md): documentation consistency, command-path unification, atomic save writes, and focused module boundaries.
+
 ## Handoff rules
 - Start with HT-001. Do not implement all five systems together.
 - Before coding, inspect current source, tests, docs, CI, and save behavior; then add a concrete milestone plan and progress notes to the relevant brief.
