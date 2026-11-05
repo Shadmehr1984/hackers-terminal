@@ -19,7 +19,7 @@ This file is the implementation handoff contract. Before coding, an agent must r
 4. Selection is disclosed with exact effects and reward before accept; after launch it is immutable.
 5. Preparation defaults to no selection. Cancel, failed launch, mission completion/failure, and a new preparation must not leak a prior selection.
 6. Accept copies the selection into a runtime-only MissionSession snapshot. Never mutate static Mission definitions.
-7. Proposed eligibility default (confirm before implementation): author all three modifiers as available for all four current built-in contracts (job-01 through job-04). Eligibility remains static catalog metadata; future contracts may declare a subset.
+7. Confirmed by owner on 2026-11-05: all three modifiers are available for all four current built-in contracts (job-01 through job-04). Eligibility remains static catalog metadata; future contracts may declare a subset.
 8. Any successful contract completed with a modifier grants a separate +$50 and +25 XP exactly once. It stacks with existing base rewards and earned optional-objective cash bonuses. No bonus on failure, compromise, cancellation, or incomplete runs.
 9. Every modifier Detection event must use the existing central Detection application/failure path. Do not duplicate compromise logic or bypass the existing $50 failure penalty.
 10. Modifier selection, session snapshot, and Security Sweep cadence are runtime-only. Do not change Save V3 serialization or V2/V1/legacy readers.
