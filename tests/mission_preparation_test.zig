@@ -282,3 +282,39 @@ test "successful modified contract pays the modifier bonus once alongside option
     try std.testing.expectEqual(@as(u32, 575), player.balance);
     try std.testing.expectEqual(@as(u32, 125), player.xp);
 }
+
+test "hidden objective content and rewards stay absent until discovery" {
+    var player = Player{ .xp = 100 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "prepare job-02", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "routing-header") == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Correlate the recovered routing header") == null);
+    capture.clear();
+    try run(&capture, "board", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "$500-$600") == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "$500-$600") == null);
+}
+
+test "inspect command reveals only the matching hidden fictional file objective" {
+    var player = Player{ .xp = 100 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "prepare job-02", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "accept job-02", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "inspect wrong.log", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u8, 0), session.objective_tracker.entries[5].state == .discovered);
+    try run(&capture, "inspect routing-header.log", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@import("../src/domain/mission_objectives.zig").ObjectiveState.discovered, session.objective_tracker.stateOf("routing-header").?);
+    capture.clear();
+    try run(&capture, "objectives", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Correlate the recovered routing header") != null);
+}
