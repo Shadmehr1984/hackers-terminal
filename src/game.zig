@@ -28,7 +28,7 @@ fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
     player.reputation += 1;
     player.xp += mission.xp_reward;
     const new_level = playerLevel(player.*);
-    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: $\{d}\nXP gained: {d}\nReputation increased.\n", .{ mission.name, mission.reward, mission.xp_reward });
+    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}\nXP gained: {d}\nReputation increased.\n", .{ mission.name, mission.reward, mission.xp_reward });
     if (new_level > old_level) {
         try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
     }
