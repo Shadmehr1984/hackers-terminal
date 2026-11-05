@@ -35,7 +35,7 @@ Legacy top-level `src/*.zig` files are compatibility facades. New code and curre
 - tasks/HT-001 through HT-005: goals, scope, constraints, dependencies, and acceptance criteria for the completed foundational gameplay systems.
 - tasks/HT-006-contract-board.md: completed implementation contract for the separate Contract Board.
 - tasks/HT-007-mission-modifiers.md: approved design and implementation handoff; implementation is complete and merged to `main` via PR #11; CI passed.
-- tasks/HT-008-hidden-objectives.md: owner-approved design and implementation handoff; implementation is not yet authorized.
+- tasks/HT-008-hidden-objectives.md: owner-approved design and active implementation handoff; implementation authorized 2026-11-05 and in progress.
 - decisions/0010-hidden-objectives.md: accepted HT-008 objective identity, state, discovery, reward, and lifecycle decisions.
 - plans/GAMEPLAY-EXPANSION-OVERVIEW.md and PHASE-1 through PHASE-4: the owner-approved planning baseline and handoff specifications for 20 gameplay features (HT-006 through HT-025). HT-006 is implemented; HT-007 implementation is merged to `main` (PR #11); all later features require individual design approval and implementation authorization.
 - tasks/TEMPLATE.md: concise task specification.
