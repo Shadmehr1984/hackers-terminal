@@ -282,7 +282,11 @@ pub fn runCommand(
         try shop.printShop(writer);
     } else if (std.mem.eql(u8, command, "buy")) {
         try shop.buyItem(writer, player, arg);
-    } else if (std.mem.eql(u8, command, "equip")) {\n        try shop.equipItem(writer, player, arg);\n    } else if (std.mem.eql(u8, command, "upgrade")) {\n        try shop.upgradeItem(writer, player, arg);\n    } else if (std.mem.eql(u8, command, "history")) {
+    } else if (std.mem.eql(u8, command, "equip")) {
+        try shop.equipItem(writer, player, arg);
+    } else if (std.mem.eql(u8, command, "upgrade")) {
+        try shop.upgradeItem(writer, player, arg);
+    } else if (std.mem.eql(u8, command, "history")) {
         try terminal.printHistory(writer, missions);
     } else if (std.mem.eql(u8, command, "save")) {
         save.saveGame(player.*, missions, active.*) catch {
