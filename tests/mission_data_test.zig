@@ -20,7 +20,7 @@ test "each built-in mission has a valid distinct topology" {
     const missions = mission_data.defaultMissions();
     for (missions) |mission| {
         try std.testing.expect(mission.topology != null);
-        try std.testing.expect(mission.topology.?.isValid());
+        try std.testing.expect(mission.topology.?.isValid(std.testing.allocator));
     }
     try std.testing.expect(missions[0].topology.?.containsNode("maintenance"));
     try std.testing.expect(missions[1].topology.?.containsNode("records"));
