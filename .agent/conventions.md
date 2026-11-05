@@ -12,6 +12,7 @@ Derived from the current source tree; re-check source before relying on this map
 | src/domain/progression.zig | XP thresholds, player levels, Reputation tiers, and mission reward application | Command dispatch or terminal I/O policy |
 | src/domain/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and the single source of truth for pure utility Detection-cost profiles | Persistence and terminal I/O |
 | src/domain/contacts.zig | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing | Game command dispatch, terminal output, or persistence |
+| src/domain/contract_board.zig | Pure derived contract availability and reward-range query; no I/O or persistence |
 | src/domain/mission.zig | Mission, optional topology reference, level/Reputation requirements, difficulty, objective types | Built-in catalog or runtime mutation |
 | src/domain/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/catalog/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
