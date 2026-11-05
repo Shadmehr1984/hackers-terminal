@@ -466,14 +466,16 @@ pub fn runCommand(
                 }
                 if (!available) {
                     try writer.writeAll("No optional metadata analysis is available for this contract.\n");
-                } else if (!session.hasIncompleteObjective(.analyze_metadata)) {
-                    try writer.writeAll("Metadata has already been analyzed.\n");
                 } else {
                     const already_analyzed = session.isObjectiveComplete(.analyze_metadata);
                     try reportObjectiveDiscoveries(writer, session.discoverAction(.analyze_metadata, mission.objectives));
-                    session.completeObjective(.analyze_metadata);
-                    try writer.writeAll("[ANALYSIS COMPLETE] Hidden metadata reference recovered. Optional objective completed.\n");
-                    if (!already_analyzed) _ = try detection.apply(writer, player, active, session, 5);
+                    if (!session.hasIncompleteObjective(.analyze_metadata)) {
+                        try writer.writeAll("Metadata has already been analyzed.\n");
+                    } else {
+                        session.completeObjective(.analyze_metadata);
+                        try writer.writeAll("[ANALYSIS COMPLETE] Hidden metadata reference recovered. Optional objective completed.\n");
+                        if (!already_analyzed) _ = try detection.apply(writer, player, active, session, 5);
+                    }
                 }
             }
         } else try writer.writeAll("No active contract.\n");
