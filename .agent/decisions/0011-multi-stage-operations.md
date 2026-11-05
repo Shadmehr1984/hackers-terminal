@@ -1,6 +1,6 @@
 # ADR 0011 — Multi-stage Operations
 
-- **Status:** Accepted; implementation explicitly authorized 2026-11-06 and in progress on `main`
+- **Status:** Accepted; implementation completed on `main` 2026-11-06 (CI #733 passed)
 - **Date:** 2026-11-06
 - **Feature:** HT-009 — Multi-stage Operations
 - **Decision owner:** Project owner
