@@ -1,6 +1,6 @@
 # Task: HT-006 — Contract Board
 
-**Status:** In Progress  
+**Status:** Implemented and Merged  
 **Program:** EXPANSION-001 / Phase 1  
 **Owner decisions:** Keep `missions` unchanged; add a separate `board` command. Add static contract categories. Keep Faction data out until HT-010. While any contract is active or prepared, all non-completed catalog entries remain visible as unavailable.
 
@@ -59,11 +59,11 @@ Add a terminal-first Contract Board that presents every catalog contract with a 
 - [x] `zig build test` (GitHub Actions)
 - [x] `sh scripts/check-agent-docs.sh` (GitHub Actions)
 - [x] Self-review completed against `.agent/review-checklist.md`; independent reviewer unavailable.
-- [x] GitHub Actions run 42088153597 completed successfully.
+- [x] GitHub Actions run 42088374052 completed successfully.
 
 ## Progress
 
-- Implementation is complete on `feature/ht-006-contract-board`.
-- Pull request: https://github.com/Shadmehr1984/hackers-terminal/pull/8 (open; awaiting owner review/merge).
-- GitHub Actions run 42088153597: formatting, project compile, Zig tests, and agent documentation structure all succeeded.
+- Implementation is complete and merged into `main`.
+- Pull request: https://github.com/Shadmehr1984/hackers-terminal/pull/8 (merged into `main`).
+- GitHub Actions run 42088374052: formatting, project compile, Zig tests, and agent documentation structure all succeeded.
 - No save files or serialization code changed. No manual interactive playtest was performed.
