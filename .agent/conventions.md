@@ -37,6 +37,8 @@ Derived from the current source tree; re-check source before relying on this map
 - Prefer explicit small functions and concrete structures over speculative abstractions.
 - Keep parsing allocation-free where practical; current parser accepts a command and first argument only.
 - Add tests under tests/ and register modules in tests/test_all.zig.
+- Add Zig doc comments to exported public types, constants, and functions; describe observable behavior and compatibility constraints rather than restating names.
+- For allocator-backed algorithms, cover allocation failure where the public contract defines the failure result; use testing allocators and keep ownership/leak checks explicit.
 - Run the suite with `zig build test` (or directly with `zig test test_root.zig`).
 
 ## State and persistence
