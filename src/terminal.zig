@@ -90,7 +90,10 @@ pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSessio
     try writer.print("OBJECTIVES: {s}\n", .{mission.name});
     for (mission.objectives) |objective| {
         const state = if (session.isObjectiveComplete(objective.kind)) "[x]" else "[ ]";
-        try writer.print("  {s} {s}\n", .{ state, objective.description });
+        const category = if (objective.optional) "[OPTIONAL] " else "";
+        try writer.print("  {s} {s}{s}", .{ state, category, objective.description });
+        if (objective.optional) try writer.print(" (+${d})", .{objective.bonus_reward});
+        try writer.writeAll("\n");
     }
     try writer.writeAll("\n");
 }
