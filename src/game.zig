@@ -97,8 +97,8 @@ pub fn runCommand(
                     } else if (!topology.areAdjacent(current, arg)) {
                         try writer.writeAll("That node is not directly connected to your current location.\n");
                     } else {
-                        session.current_node = arg;
                         const node = topology.findNode(arg).?;
+                        session.current_node = node.id;
                         try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
                         _ = try applyDetection(writer, player, active, session, 5);
                     }
