@@ -13,7 +13,7 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Public `Player` profile data type and its defaults |
 | `src/mission.zig` | Public `Mission` contract data type, `MissionDifficulty`, and typed `MissionObjective` definitions |
-| `src/mission_state.zig` | Runtime-only mission progress, connection state, and objective completion bitset |
+| `src/mission_state.zig` | Runtime-only mission progress, connection state, objective completion bitset, and detection exposure |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
@@ -55,16 +55,17 @@ The player profile type is defined in `src/player.zig` and imported by `main.zig
 
 ### Temporary mission session
 
-The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than four independent booleans.
+The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than independent booleans.
 
-The session tracks three related pieces of temporary state:
+The session tracks four related pieces of temporary state:
 - `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
 - `connected`: whether the simulated connection is currently open.
 - `completed_objectives`: an eight-bit mask keyed by `MissionObjectiveKind`.
+- `detection_level`: simulated exposure from 0 to 100, with Quiet, Noticed, Traced, Critical, and Compromised bands.
 
 Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
 
-Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`. Objective completion is runtime-only and is cleared when a mission starts or resets.
+Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`. Objective completion and detection exposure are runtime-only and are cleared when a mission starts or resets. Detection reaching 100 fails the active contract and applies a $50 penalty, capped at the player's current balance.
 
 ## Runtime flow
 
@@ -92,7 +93,9 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 - `disconnect` closes only the connection; it does not revoke authentication or decryption.
 - `decrypt` requires authentication and an owned decryptor.
 - `analyze <filename>` requires decrypted progress and the exact mission filename. It completes the optional metadata-analysis objective.
-- `extract` requires decrypted progress and the exact mission filename. It completes the extraction objective and awards the contract when every required objective is complete; completed optional objectives add their configured cash bonus.
+- `extract` requires decrypted progress and the exact mission filename. It adds 5 detection on the first successful extraction; if the meter reaches 100 the contract fails instead of paying out. Otherwise it completes the extraction objective and awards the contract when every required objective is complete; completed optional objectives add their configured cash bonus.
+- Successful scan (+10), authentication (+5), decryption (+10), optional analysis (+5), and extraction (+5) actions add detection once per objective. Incorrect password attempts add 15; incorrect decryption keys add 10. Connect/disconnect, invalid commands, rejected prerequisites, and repeated successful actions add no exposure.
+- Crossing a detection band prints a warning. At 100, the contract is failed, a $50 penalty (capped by available balance) is applied, and the contract remains retryable.
 - `briefing` displays the objective list and current status; `objectives` displays the live checklist at any time.
 
 ## Progression calculations
@@ -105,7 +108,7 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 
 Persistent state includes balance, reputation, XP (in V2), decryptor ownership, active mission index, and each mission's completion flag. The implementation lives in `src/save.zig` and continues to read V2, V1, and the original legacy layout.
 
-Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionSession` progress, connection state, and objective completion are also not persisted. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
+Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionSession` progress, connection state, objective completion, and detection exposure are also not persisted. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
 ## Error handling style
 
@@ -120,6 +123,7 @@ Most user input errors are handled by printing a message and returning to the pr
 - The built-in mission catalog is hard-coded in `mission_data.zig` and contains three missions.
 - Mission difficulty is currently descriptive metadata; no mechanics are tied to it yet.
 - The current objective kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds. Optional objective rewards are calculated at contract completion and are not separately persisted.
+- Detection is a runtime-only 0–100 meter. Its thresholds, action costs, failure penalty, and reset behavior are defined in the gameplay guide and implemented through `MissionSession` and `game.zig`.
 - The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
 - The save parser is line-oriented and has no checksum or schema validation layer.
 - Command-specific output is written by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output in `shop.zig`.
