@@ -40,7 +40,8 @@ Mission difficulty is currently descriptive metadata. Mission objectives are def
 | Command | Arguments | Description |
 | --- | --- | --- |
 | `buy <item>` | Item name | Purchase an item if it exists, is not already owned, and the player can afford it |
-| `equip <utility>` | Utility name | Equip an owned utility, replacing the active utility |\n| `upgrade <utility>` | Utility name | Buy the next upgrade tier for an owned utility |
+| `equip <utility>` | Utility name | Equip an owned utility, replacing the active utility |
+| `upgrade <utility>` | Utility name | Buy the next upgrade tier for an owned utility |
 
 The decryptor costs $150. Optional utilities `silent-boots` and `signal-scrubber` each cost $100. Use `equip <utility>` to activate one owned utility in the single utility slot, and `upgrade <utility>` to purchase its next tier ($150 for level 1, $250 for level 2). Silent Boots reduce successful movement Detection from 5 to 4/3/2; Signal Scrubber reduces incorrect-password Detection from 15 to 12/9/6. These effects apply only while the matching utility is equipped.
 
