@@ -7,7 +7,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | Command | Arguments | Description |
 | --- | --- | --- |
 | `help` | None | Print the command list and mission flow |
-| `status` | None | Show handle, balance, reputation, level, XP, decryptor ownership, and active contract |
+| `status` | None | Show handle, balance, reputation, level, XP, decryptor ownership, active contract, and detection level/band |
 | `missions` | None | List contracts, difficulty labels, and availability |
 | `briefing` | None | Show target, difficulty, clues, and objective checklist for the active contract |
 | `objectives` | None | Show completion status for every objective in the active contract |
@@ -31,7 +31,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `analyze <filename>` | Exact encrypted filename | Active contract and successful decryption | Completes the optional metadata objective and earns its bonus at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract and successful decryption | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
-Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state.
+Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect password and decryption-key attempts also add exposure. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
 
 ## Economy commands
 
@@ -73,3 +73,8 @@ The parser tokenizes input on spaces and reads only the first argument token. Th
 - The command loop reads one line at a time into a 512-byte input buffer.
 
 If a command appears not to match, check its spelling, capitalization, argument, and the active mission stage.
+
+
+## Detection risk values
+
+Detection is temporary per-contract state, ranges from 0 to 100, and is displayed by `status`. Bands are Quiet (0–24), Noticed (25–49), Traced (50–74), Critical (75–99), and Compromised (100). See the [Gameplay Guide](gameplay.md#detection-and-operational-risk) for the action-cost table and failure rules.
