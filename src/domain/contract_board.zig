@@ -40,7 +40,7 @@ pub const Entry = struct {
 pub fn maximumReward(mission: Mission) u32 {
     var result = mission.reward;
     for (mission.objectives) |objective| {
-        if (objective.optional) result += objective.bonus_reward;
+        if (objective.optional and !objective.hidden) result += objective.bonus_reward;
     }
     return result;
 }
