@@ -43,7 +43,7 @@ A new player starts with:
 | Level | 1 |
 | Decryptor | Not owned |
 
-The decryptor costs $150. It is a persistent tool: once purchased, it remains owned in subsequent sessions when the save is loaded.
+The decryptor costs $150. It is a persistent tool: once purchased, it remains owned in subsequent sessions when the save is loaded. Utility equipment is separate from the decryptor and uses one mutually exclusive active slot.
 
 ## Contracts
 
@@ -102,9 +102,9 @@ Risk costs are deterministic:
 | Action | Detection change |
 | --- | ---: |
 | Successful scan (first time only) | +10 |
-| Every successful topology traversal (including revisits) | +5 |
+| Every successful topology traversal (including revisits) | +5 normally; Silent Boots reduce this to +4/+3/+2 |
 | Successful authentication (first time only) | +5 |
-| Incorrect password attempt | +15 |
+| Incorrect password attempt | +15 normally; Signal Scrubber reduces this to +12/+9/+6 |
 | Successful decryption (first time only) | +10 |
 | Incorrect decryption key | +10 |
 | Successful optional metadata analysis (first time only) | +5 |
