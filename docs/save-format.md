@@ -2,7 +2,7 @@
 
 ## Location and lifecycle
 
-The game uses one local save file: `saves/player.sav`. The directory is created by `saveGame` when the player runs `save`. The loader starts with defaults when the file is missing or unreadable. The `saves/` directory is ignored by Git.
+The game uses one local save file: `saves/player.sav`. The directory is created by `saveGame` when the player runs `save`. New data is written to `saves/player.sav.tmp`; only after the complete payload is written and the file is closed is it renamed to `saves/player.sav`. This prevents a failed write from truncating the previous save. The loader starts with defaults when the file is missing or unreadable. The `saves/` directory is ignored by Git.
 
 ## V3 format (current)
 
@@ -76,7 +76,7 @@ The first line is interpreted as balance, followed by reputation and decryptor o
 - Invalid numeric values generally leave the corresponding default/current value unchanged.
 - The loader reads at most 4096 bytes.
 - The format is positional: line order matters.
-- The format has no checksum, backup rotation, atomic write, or explicit corruption recovery.
+- The format has no checksum, backup rotation, or explicit corruption recovery. Writes use a temporary file and rename to avoid truncating the previous save on a write failure.
 - Save files are local game data and should not be treated as trusted external input.
 
 When changing the player or mission schema, update both `saveGame` and `loadGame`, preserve older-format migration paths, and add compatibility tests.
