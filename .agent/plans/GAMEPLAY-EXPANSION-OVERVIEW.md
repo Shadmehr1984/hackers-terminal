@@ -3,13 +3,13 @@
 **Program ID:** EXPANSION-001  
 **Owner direction:** Approved for planning on 2026-11-05  
 **Implementation authorization:** HT-007 specifically authorized and completed; HT-008 design approved and implementation completed on `main` on 2026-11-05 (CI run #679 passed); all other features require explicit owner authorization  
-**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation is complete; HT-009 design is approved (Runtime-only) but implementation is not authorized; all other features remain subject to explicit authorization
+**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation is complete; HT-009 implementation is authorized and in progress on `main` (Runtime-only); all other features remain subject to explicit authorization
 
 ## Purpose
 
 Expand the length, variety, replayability, and sense of a living fictional cyber-world while preserving Hacker's Terminal's identity: a single-player, command-driven, text-terminal hacking simulation. This document is the persistent handoff contract for future agents. It replaces reliance on the originating chat: an agent must be able to understand the intended work, dependencies, constraints, and verification expectations from repository files.
 
-This is primarily a planning artifact, not blanket implementation authorization. HT-007 is implemented and merged to `main` via PR #11. HT-008 implementation was explicitly authorized on 2026-11-05 and is complete on `main` under its task brief. HT-009 design was approved on 2026-11-06, including Runtime-only operation state, but implementation is not authorized. Do not add gameplay code, commands, save fields, balance values, or user-facing behavior for HT-009 until the owner explicitly authorizes implementation.
+This is primarily a planning artifact, not blanket implementation authorization. HT-007 is implemented and merged to `main` via PR #11. HT-008 implementation was explicitly authorized on 2026-11-05 and is complete on `main` under its task brief. HT-009 implementation was explicitly authorized on 2026-11-06 and is in progress on `main`. Its approved Runtime-only operation design is being implemented without adding save fields or balance changes.
 
 ## Current baseline verified during planning
 
