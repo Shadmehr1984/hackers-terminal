@@ -59,6 +59,7 @@ test "mission completion grants one reputation and one extra for all optional ob
     var player = Player{};
     var session = MissionSession{};
     session.start();
+    try std.testing.expect(session.initializeObjectives(mission.objectives));
     session.completeObjective(.scan_target);
     session.completeObjective(.authenticate);
     session.completeObjective(.decrypt_file);
@@ -71,6 +72,7 @@ test "mission completion grants one reputation and one extra for all optional ob
     player = Player{};
     session.reset();
     session.start();
+    try std.testing.expect(session.initializeObjectives(mission.objectives));
     session.completeObjective(.scan_target);
     session.completeObjective(.authenticate);
     session.completeObjective(.decrypt_file);
