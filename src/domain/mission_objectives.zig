@@ -51,7 +51,15 @@ pub const Tracker = struct {
             for (objectives[0..index]) |previous| {
                 if (std.mem.eql(u8, previous.id, objective.id)) return false;
             }
-            if (objective.hidden and (!objective.optional or objective.discovery_trigger == null)) return false;
+            if (objective.hidden) {
+                if (!objective.optional) return false;
+                const trigger = objective.discovery_trigger orelse return false;
+                switch (trigger) {
+                    .node => |node_id| if (node_id.len == 0) return false,
+                    .file => |file_id| if (file_id.len == 0) return false,
+                    .action => {},
+                }
+            }
 
             next.entries[index] = .{
                 .id = objective.id,
@@ -83,6 +91,9 @@ pub const Tracker = struct {
 
     fn discover(self: *Tracker, event: DiscoveryTrigger, objectives: anytype) usize {
         if (objectives.len != self.count) return 0;
+        for (objectives, 0..) |objective, index| {
+            if (!std.mem.eql(u8, self.entries[index].id, objective.id)) return 0;
+        }
         var discovered: usize = 0;
         for (0..self.count) |index| {
             if (self.entries[index].state != .undiscovered) continue;
