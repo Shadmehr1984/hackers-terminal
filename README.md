@@ -120,6 +120,7 @@ hackers-terminal/
 │   ├── mission_objectives_test.zig
 │   ├── game_detection_test.zig
 │   ├── topology_test.zig
+│   ├── equipment_test.zig
 │   └── test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
