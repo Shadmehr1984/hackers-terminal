@@ -16,6 +16,7 @@ test "each built-in mission defines required and optional objectives" {
         try std.testing.expectEqual(expected.len + 1, mission.objectives.len);
         for (expected, 0..) |kind, index| {
             try std.testing.expectEqual(kind, mission.objectives[index].kind);
+            try std.testing.expect(!mission.objectives[index].optional);
         }
     }
 }
