@@ -18,6 +18,7 @@ Harden save-format detection, reject mission topologies whose required locations
 - [x] A topology is invalid if any required operation node (scan, auth, decrypt, analyze, extract) is unreachable from entry; valid connected graphs remain valid.
 - [x] Tests cover disconnected required nodes and connected topology.
 - [x] Tests exercise real save write/read round-trip using an isolated temporary directory, including replacement of an existing save.
+- [x] A staging failure leaves the previous save file intact and readable.
 - [x] Save V3 marker, field order, save path, and V1/V2/legacy compatibility remain unchanged.
 - [x] Focused tests are included in the existing aggregate suite; no real networking or external-system behavior is introduced.
 - [x] Relevant docs, this brief, task index, and review records are updated.
