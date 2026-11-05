@@ -11,6 +11,20 @@ Read the root AGENTS.md first; it is the mandatory project contract.
 6. For substantial work, update the feature brief's progress notes and follow tasks/TEMPLATE.md.
 7. Follow workflow.md and finish with review-checklist.md.
 
+## Current source layout
+
+The implementation is grouped by responsibility; consult `../docs/architecture.md` and `conventions.md` for the maintained module map:
+
+- `../src/domain/`: player, mission, mission session, topology, progression, and Contacts rules.
+- `../src/application/`: game orchestration, command parsing, Detection handling, and shop operations.
+- `../src/catalog/`: built-in mission definitions.
+- `../src/presentation/`: terminal output.
+- `../src/persistence/`: save/load and compatibility.
+- `../src/main.zig`: composition root and interactive loop.
+- `../tests/`: unit and integration tests; the aggregate remains `../tests/test_all.zig`.
+
+Legacy top-level `src/*.zig` files are compatibility facades. New code and current architecture notes should use the grouped implementation paths. Historical task notes may describe the paths that existed when the task was implemented; distinguish those snapshots from current module ownership.
+
 ## Contents
 - workflow.md: Explore, Understand, Plan, Implement, Verify, Document, Review, Commit.
 - conventions.md: current module contracts and dependency direction.
