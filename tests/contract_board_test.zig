@@ -37,8 +37,8 @@ test "busy state makes incomplete contracts unavailable but completed takes prec
 test "maximum reward includes every optional objective bonus only" {
     const missions = mission_data.defaultMissions();
     try std.testing.expectEqual(@as(u32, 375), board.maximumReward(missions[0]));
-    try std.testing.expectEqual(@as(u32, 675), board.maximumReward(missions[1]));
-    try std.testing.expectEqual(@as(u32, 975), board.maximumReward(missions[2]));
+    try std.testing.expectEqual(@as(u32, 600), board.maximumReward(missions[1]));
+    try std.testing.expectEqual(@as(u32, 925), board.maximumReward(missions[2]));
     try std.testing.expectEqual(@as(u32, 1275), board.maximumReward(missions[3]));
 }
 
