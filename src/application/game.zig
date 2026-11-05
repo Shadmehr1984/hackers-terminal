@@ -216,7 +216,7 @@ pub fn runCommand(
                         (if (player.equipment.owns(utility)) utility else null)
                     else
                         null;
-                    try terminal.printPreparation(writer, mission, player.*, preparation.selected_utility);
+                    try terminal.printPreparation(writer, mission, player.*, preparation.selected_utility, preparation.selected_modifier);
                 }
                 break;
             }
@@ -412,7 +412,8 @@ pub fn runCommand(
                 if (!already_decrypted) _ = try detection.apply(writer, player, active, session, 10);
             } else {
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
-                _ = try detection.apply(writer, player, active, session, 10);
+                const failure_cost: u8 = if (session.modifier) |modifier| (if (modifier == .hardened_encryption) 15 else 10) else 10;
+                _ = try detection.apply(writer, player, active, session, failure_cost);
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "analyze")) {
