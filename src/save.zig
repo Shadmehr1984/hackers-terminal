@@ -3,18 +3,29 @@ const Mission = @import("mission.zig").Mission;
 const Player = @import("player.zig").Player;
 
 pub fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
+    const save_path = "saves/player.sav";
+    const temporary_path = "saves/player.sav.tmp";
+
     try std.fs.cwd().makePath("saves");
-    const file = try std.fs.cwd().createFile("saves/player.sav", .{ .truncate = true });
-    defer file.close();
-    var writer = file.writer();
-    const equipped: u8 = if (player.equipment.equipped_utility) |utility| @intFromEnum(utility) + 1 else 0;
-    try writer.print("HACKERS_TERMINAL_SAVE_V3\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n", .{
-        player.balance,                                        player.reputation,                      player.xp,
-        @as(u8, if (player.equipment.has_decryptor) 1 else 0), player.equipment.owned_utilities,       equipped,
-        player.equipment.silent_boots_level,                   player.equipment.signal_scrubber_level,
-    });
-    if (active) |index| try writer.print("{d}\n", .{index}) else try writer.writeAll("-1\n");
-    for (missions) |mission| try writer.print("{d}\n", .{@as(u8, if (mission.completed) 1 else 0)});
+    errdefer std.fs.cwd().deleteFile(temporary_path) catch {};
+
+    {
+        const file = try std.fs.cwd().createFile(temporary_path, .{ .truncate = true });
+        defer file.close();
+        var writer = file.writer();
+        const equipped: u8 = if (player.equipment.equipped_utility) |utility| @intFromEnum(utility) + 1 else 0;
+        try writer.print("HACKERS_TERMINAL_SAVE_V3\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n", .{
+            player.balance,                                        player.reputation,                      player.xp,
+            @as(u8, if (player.equipment.has_decryptor) 1 else 0), player.equipment.owned_utilities,       equipped,
+            player.equipment.silent_boots_level,                   player.equipment.signal_scrubber_level,
+        });
+        if (active) |index| try writer.print("{d}\n", .{index}) else try writer.writeAll("-1\n");
+        for (missions) |mission| try writer.print("{d}\n", .{@as(u8, if (mission.completed) 1 else 0)});
+    }
+
+    // Rename only after the complete new save has been written and closed.
+    // A failed write therefore leaves the previous player.sav untouched.
+    try std.fs.cwd().rename(temporary_path, save_path);
 }
 
 fn readActive(lines: anytype, missions: []Mission) ?usize {
