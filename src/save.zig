@@ -33,6 +33,10 @@ fn readLevel(value: []const u8) u2 {
 }
 
 pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
+    player.equipment.owned_utilities = 0;
+    player.equipment.equipped_utility = null;
+    player.equipment.silent_boots_level = 0;
+    player.equipment.signal_scrubber_level = 0;
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
     const first_line = lines.next() orelse return null;
     var active: ?usize = null;
