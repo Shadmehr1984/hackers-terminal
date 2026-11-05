@@ -216,3 +216,19 @@ test "missions without topology preserve the original command flow" {
     try std.testing.expect(session.isAuthenticated());
     try std.testing.expectEqual(@as(u8, 15), session.detection_level);
 }
+
+
+test "topology movement reaching full detection triggers HT-001 failure and penalty" {
+    var player = Player{ .balance = 90 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{ .detection_level = 95, .current_node = "service" };
+    const writer = TestWriter{};
+
+    try run(writer, "move corridor", &player, &missions, &active, &session);
+    try std.testing.expect(active == null);
+    try std.testing.expectEqual(@as(u32, 40), player.balance);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expect(session.current_node == null);
+    try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
+}
