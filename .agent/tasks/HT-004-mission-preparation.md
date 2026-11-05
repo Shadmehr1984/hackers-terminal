@@ -17,9 +17,9 @@ Add a pre-mission planning phase where the player reviews available intelligence
 - Define what happens when a player accepts, abandons, or restarts a prepared mission.
 
 ## Likely scope (verify before implementation)
-- Mission briefing/catalog data in `src/mission.zig` and `src/mission_data.zig`.
+- Mission briefing/catalog data in `src/domain/mission.zig` and `src/catalog/mission_data.zig`.
 - Preparation/loadout state in player or mission state modules.
-- Coordination in `src/game.zig`; display in `src/terminal.zig`.
+- Coordination in `src/application/game.zig`; display in `src/presentation/terminal.zig`.
 - Tests and updates to command, gameplay, architecture, and save docs.
 
 ## Acceptance criteria
@@ -39,12 +39,12 @@ Add a pre-mission planning phase where the player reviews available intelligence
 - No real network reconnaissance.
 
 ## Verification
-- [ ] Tests for preparation state, intel visibility, loadout validation, and transition into mission play.
-- [ ] Zig 0.13.0 formatting, build, and full tests.
-- [ ] Agent docs check and independent review/self-review.
-- [ ] Inspect CI before marking Implemented.
+- [x] Tests for preparation state, intel visibility, loadout validation, and transition into mission play.
+- [x] Zig 0.13.0 formatting, build, and full tests (GitHub Actions run 42016491969 passed).
+- [x] Agent docs check and documented self-review; no independent second reviewer was available.
+- [x] Inspect CI before marking Implemented.
 
-## Source audit and proposed milestone plan
+## Source audit and proposed milestone plan (historical pre-implementation snapshot)
 
 ### Confirmed current behavior
 - `accept <id>` immediately activates a mission and resets `MissionSession`.
