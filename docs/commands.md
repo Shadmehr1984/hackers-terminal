@@ -28,9 +28,10 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `disconnect` | None | None | Closes the simulated session |
 | `brute <password>` | Password answer | Active contract and connected session | Grants simulated authentication when the answer matches |
 | `decrypt <key>` | Decryption answer | Active contract, authentication granted, decryptor owned | Marks the mission file as decrypted when the key matches |
+| `analyze <filename>` | Exact encrypted filename | Active contract and successful decryption | Completes the optional metadata objective and earns its bonus at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract and successful decryption | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
-Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state.
+Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state.
 
 ## Economy commands
 
@@ -53,6 +54,7 @@ connect vault-01.local
 brute orion42
 buy decryptor
 decrypt midnight
+analyze ledger.enc   (optional: +$75)
 extract ledger.enc
 status
 save
