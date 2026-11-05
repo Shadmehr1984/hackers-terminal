@@ -27,7 +27,12 @@ fn readActive(lines: anytype, missions: []Mission) ?usize {
     return null;
 }
 
-fn readLevel(value: []const u8) u2 {\n    const parsed = std.fmt.parseInt(u8, value, 10) catch 0;\n    return @intCast(@min(parsed, 2));\n}\n\npub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
+fn readLevel(value: []const u8) u2 {
+    const parsed = std.fmt.parseInt(u8, value, 10) catch 0;
+    return @intCast(@min(parsed, 2));
+}
+
+pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
     const first_line = lines.next() orelse return null;
     var active: ?usize = null;
