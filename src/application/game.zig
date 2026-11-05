@@ -251,6 +251,37 @@ pub fn runCommand(
         } else try writer.writeAll("Unknown operation. Use operations.\n");
     } else if (std.mem.eql(u8, command, "operation-status")) {
         try terminal.printOperationStatus(writer, preparation.*, missions);
+    } else if (std.mem.eql(u8, command, "operation-start")) {
+        if (active.* != null or preparation.mission_index != null or preparation.operation_state.active) {
+            try writer.writeAll("Finish the current contract/preparation/operation first.\n");
+        } else if (operation_data.find(arg)) |operation| {
+            if (!operation.validate(missions)) {
+                try writer.writeAll("Operation catalog validation failed; start rejected.\n");
+            } else {
+                var unlocked = true;
+                for (operation.stages) |stage| {
+                    const mission = @import("../domain/operation.zig").findMission(missions, stage.mission_id).?;
+                    if (!isMissionUnlocked(mission, player.*)) {
+                        try printMissionLock(writer, mission, player.*);
+                        unlocked = false;
+                    }
+                }
+                if (unlocked) {
+                    const first_index = findMissionIndex(missions, operation.stages[0].mission_id).?;
+                    if (preparation.operation_state.start(operation, !missions[first_index].completed)) {
+                        prepareOperationStage(preparation, player.*, first_index);
+                        try writer.print("[OPERATION STARTED] {s}; first stage prepared: {s}.\n", .{
+                            operation.name, missions[first_index].name,
+                        });
+                        try terminal.printPreparation(writer, missions[first_index], player.*, preparation.selected_utility, null);
+                    }
+                } else {
+                    try writer.writeAll("Operation requirements are not met; no state changed.\n");
+                }
+            }
+        } else {
+            try writer.writeAll("Unknown operation. Use operations.\n");
+        }
     } else if (std.mem.eql(u8, command, "contacts")) {
         try terminal.printContacts(writer, player.*);
     } else if (std.mem.eql(u8, command, "contact")) {
