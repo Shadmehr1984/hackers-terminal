@@ -12,14 +12,14 @@ Validate restored active missions against completion flags loaded from the same 
 2. In `src/terminal.zig`, `printStatus` uses escaped backslash-n sequences in its active and inactive mission output. Zig interprets `\\n` as a literal backslash followed by `n`, not as a line break.
 
 ## Acceptance criteria
-- [ ] Parse the active mission index as a candidate without validating it against stale mission completion state.
-- [ ] Read persisted mission completion flags before validating the candidate.
-- [ ] Restore an active mission only when its index is in range and its loaded completion flag is false.
-- [ ] Tests cover an inconsistent save whose active index points to a mission marked completed, and a valid active incomplete mission.
-- [ ] Replace literal backslash-n output in `printStatus` with actual newline escapes.
-- [ ] Tests cover active status output, including location, and inactive status output; assert line breaks rather than literal `\\n`.
+- [x] Parse the active mission index as a candidate without validating it against stale mission completion state.
+- [x] Read persisted mission completion flags before validating the candidate.
+- [x] Restore an active mission only when its index is in range and its loaded completion flag is false.
+- [x] Tests cover an inconsistent save whose active index points to a mission marked completed, and a valid active incomplete mission.
+- [x] Replace literal backslash-n output in `printStatus` with actual newline escapes.
+- [x] Tests cover active status output, including location, and inactive status output; assert line breaks rather than literal `\\n`.
 - [ ] Save V3 layout, V1/V2/legacy compatibility, gameplay behavior, and command semantics remain unchanged.
-- [ ] Update this brief and task index; correct the stale QUALITY-002 status in the task index.
+- [x] Update this brief and task index; correct the stale QUALITY-002 status in the task index.
 - [ ] Zig 0.13.0 formatting, build, full tests, and agent-doc check pass in GitHub Actions.
 - [ ] Complete a self-review against `.agent/review-checklist.md`; do not claim an independent reviewer unless one is actually available.
 
@@ -43,6 +43,18 @@ Validate restored active missions against completion flags loaded from the same 
 3. Add save regression tests for completed and incomplete active candidates.
 4. Correct status output escapes and add focused active/inactive output tests.
 5. Run formatting/build/tests/agent-doc checks in CI, inspect the final workflow run, and record the result here.
+
+## Implementation notes
+
+- `readActiveCandidate` parses the persisted index without consulting mission state. After all completion flags are loaded, `validateActiveCandidate` accepts only an in-range mission that remains incomplete. Save field order and version formats are unchanged.
+- Added a regression test for a persisted active index pointing to a mission marked completed, plus a valid active/incomplete case.
+- `printStatus` now uses Zig newline escapes in active, location, traversal, and inactive output.
+- Added `tests/terminal_test.zig` to cover active status output (including location) and inactive status output, and registered it in `tests/test_all.zig`.
+- Corrected the stale QUALITY-002 status in the task index and indexed this task.
+
+### Self-review record
+
+Reviewed the changed save loader, terminal output, regression tests, and task index against `.agent/review-checklist.md`. The loader still reads the same V3/V2/V1/legacy fields in the same order; only the timing of active-index validation changed. The active index is now checked against the completion flags from the same save. Status text content is otherwise unchanged. The new tests are included in the aggregate suite. No independent second reviewer was available; this is a self-review only.
 
 ## Verification
 - [ ] Focused save validation regression tests.
