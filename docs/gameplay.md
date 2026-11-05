@@ -182,7 +182,7 @@ The threshold for reaching level `L` (where `L >= 2`) is:
 100 + (L - 2) * 150
 ```
 
-Completing a contract adds its configured XP reward. The game announces a level-up when the player's level increases. Since the second contract requires level 2 and awards 150 XP, completing the first contract unlocks it. Completing the second contract brings the player to 250 XP and level 3, unlocking the final contract.
+Completing a contract adds its configured XP reward. The game announces a level-up when the player's level increases. Since the second contract requires level 2 and awards 150 XP, completing the first contract unlocks it. Completing the second contract brings the player to 250 XP and level 3, unlocking the original final contract, Quiet Exit. Ghost Signal is an additional exclusive contract and also requires Reputation 3.
 
 Each completed contract grants 1 Reputation. If every optional objective in that contract was also completed, the player gains 1 additional Reputation (2 total).
 
