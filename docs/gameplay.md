@@ -11,6 +11,8 @@ accept <id>
    |
 briefing
    |
+map / move <node-id>
+   |
 scan <target>
    |
 connect <target>
@@ -69,6 +71,20 @@ Every contract defines an ordered checklist of required and optional objectives.
 
 The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded after every required objective is complete. Optional objectives do not block completion; completed ones add their bonus cash to the contract payout. Objective progress and detection exposure are temporary and reset when a contract starts or ends; neither is written to the save file.
 
+### Fictional network navigation
+
+Each contract has a purpose-built, entirely fictional network graph. Accepting a contract places the operator at its entry node. Use `map` to inspect nodes, links, current position, and the node assigned to each operation; use `move <node-id>` to traverse one adjacent link.
+
+Every successful traversal adds **5 Detection**, including revisiting a previously used link. Unknown and non-adjacent destinations are rejected without changing location or Detection. Movement can therefore make a route choice safer or riskier, and reaching 100 still invokes the HT-001 failure and penalty rules.
+
+| Contract | Graph layout | Operation locations |
+| --- | --- | --- |
+| Cold Storage | Compact perimeter; a short exposed service corridor and a longer maintenance/utility detour both lead to the vault | Scan and authentication: `service`; decrypt, analyze, extract: `vault` |
+| Paper Trail | Indexing hub with separate mail-processing and records-access branches | Scan: `index`; authentication: `mail-gw`; decrypt/extract: `mail-store`; optional analysis: `records` |
+| Quiet Exit | Relay chain with a decoy branch and a controlled exit route | Scan: `relay-a`; authentication: `relay-core`; decrypt/analyze: `transfer`; extract: `exit` |
+
+The relevant commands must be issued at their assigned nodes. For example, scanning Cold Storage from `entry` is rejected; first move to `service`. All topology and position data are local static game content. Current location is session-only and is not written to any save version.
+
 ### Detection and operational risk
 
 Detection is a fictional exposure meter for the active contract. It starts at 0 and is capped at 100. The current band is shown by `status`:
@@ -125,7 +141,7 @@ The first contract is a guided introduction to the complete game loop.
 
 1. Run `missions` and accept `job-01`.
 2. Run `briefing` to read the clues and objective checklist.
-3. Run `scan vault-01.local`, then `objectives` to see the first objective completed.
+3. Run `map`, move from `entry` to `service` with `move service`, then run `scan vault-01.local` and `objectives` to see the first objective completed.
 4. Run `connect vault-01.local`.
 5. Solve the clue with `brute orion42`.
 6. Buy the file decryptor with `buy decryptor`. It costs $150.
