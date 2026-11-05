@@ -222,3 +222,29 @@ test "operation save uses the unchanged V3 layout with no active mission index" 
     inline for (0..8) |_| _ = lines.next().?;
     try std.testing.expectEqualStrings("-1", lines.next().?);
 }
+
+test "compromise on extraction also re-prepares the current operation stage" {
+    var player = Player{ .xp = 250 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var writer = TestWriter{};
+
+    try run(&writer, "operation-start blackout-protocol", &player, &missions, &active, &session, &preparation);
+    try run(&writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    session.progress = .decrypted;
+    session.current_node = "vault";
+    session.detection_level = 95;
+    for (missions[0].objectives) |objective| {
+        if (!objective.optional and objective.kind != .extract_file) session.completeObjective(objective.kind);
+    }
+
+    try run(&writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(active == null);
+    try std.testing.expect(preparation.operation_state.active);
+    try std.testing.expectEqual(@as(u8, 0), preparation.operation_state.stage_index);
+    try std.testing.expectEqual(@as(?usize, 0), preparation.mission_index);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(!missions[0].completed);
+}
