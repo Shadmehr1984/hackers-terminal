@@ -7,6 +7,7 @@ const MissionState = @import("../src/mission_state.zig");
 const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
 const mission_data = @import("../src/mission_data.zig");
+const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 
 const Capture = struct {
     buffer: [8192]u8 = undefined,
@@ -190,12 +191,12 @@ test "modifier command lists choices, selects one, rejects unknown IDs, and clea
 
     capture.clear();
     try run(&capture, "modifier security-sweep", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(@as(?@import("../src/domain/mission_modifier.zig").ModifierId, .security_sweep), preparation.selected_modifier);
+    try std.testing.expectEqual(@as(?ModifierId, .security_sweep), preparation.selected_modifier);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[SELECTED] security-sweep") != null);
 
     capture.clear();
     try run(&capture, "modifier unknown-id", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(@as(?@import("../src/domain/mission_modifier.zig").ModifierId, .security_sweep), preparation.selected_modifier);
+    try std.testing.expectEqual(@as(?ModifierId, .security_sweep), preparation.selected_modifier);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Unknown modifier") != null);
 
     capture.clear();
@@ -216,7 +217,7 @@ test "modifier selection rejects unavailable choices without changing current se
     try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
     try run(&capture, "modifier security-sweep", &player, &missions, &active, &session, &preparation);
     try run(&capture, "modifier hardened-encryption", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(@as(?@import("../src/domain/mission_modifier.zig").ModifierId, .security_sweep), preparation.selected_modifier);
+    try std.testing.expectEqual(@as(?ModifierId, .security_sweep), preparation.selected_modifier);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "not available") != null);
 }
 
@@ -231,7 +232,7 @@ test "accept snapshots the selected modifier and clears preparation; retry start
     try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
     try run(&capture, "modifier heightened-monitoring", &player, &missions, &active, &session, &preparation);
     try run(&capture, "accept job-01", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(@as(?@import("../src/domain/mission_modifier.zig").ModifierId, .heightened_monitoring), session.modifier);
+    try std.testing.expectEqual(@as(?ModifierId, .heightened_monitoring), session.modifier);
     try std.testing.expect(preparation.selected_modifier == null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Contract launched") != null);
 
@@ -239,4 +240,39 @@ test "accept snapshots the selected modifier and clears preparation; retry start
     try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
     try run(&capture, "accept job-01", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(session.modifier == null);
+}
+
+test "successful modified contract pays the modifier bonus once alongside optional rewards" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "modifier hardened-encryption", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "move service", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "scan vault-01.local", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "connect vault-01.local", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "brute orion42", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "move corridor", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "move vault", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "buy decryptor", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "decrypt midnight", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "analyze ledger.enc", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+
+    try std.testing.expect(missions[0].completed);
+    try std.testing.expect(active == null);
+    try std.testing.expectEqual(@as(u32, 525), player.balance);
+    try std.testing.expectEqual(@as(u32, 125), player.xp);
+    try std.testing.expectEqual(@as(u32, 2), player.reputation);
+    try std.testing.expect(session.modifier == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Mission modifier bonus: +$50, +25 XP") != null);
+
+    try run(&capture, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u32, 525), player.balance);
+    try std.testing.expectEqual(@as(u32, 125), player.xp);
 }
