@@ -6,7 +6,7 @@
 
 ## Shared baseline and constraints
 
-Current contract data is defined by `Mission` in `src/domain/mission.zig` and authored in `src/catalog/mission_data.zig`. Runtime progress lives in `src/domain/mission_state.zig`; command coordination is in `src/application/game.zig`; terminal output is in `src/presentation/terminal.zig`. Current objective progress uses an eight-bit mask. Current command parsing accepts only a command and first argument. Re-audit before implementation.
+Current contract data is defined by `Mission` in `src/domain/mission.zig` and authored in `src/catalog/mission_data.zig`. Runtime progress lives in `src/domain/mission_state.zig`; command coordination is in `src/application/game.zig`; terminal output is in `src/presentation/terminal.zig`. At the planning baseline, objective progress used an eight-bit mask; HT-008 implementation replaces it with a bounded 32-entry per-objective tracker. Current command parsing accepts only a command and first argument. Re-audit before implementation.
 
 Do not alter existing four mission IDs/order, rewards, puzzle answers, Detection costs, or save format incidentally. No branching story or dialogue trees.
 
