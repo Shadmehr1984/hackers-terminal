@@ -47,6 +47,11 @@ pub const Operation = struct {
                 if (std.mem.eql(u8, previous.mission_id, stage.mission_id)) return false;
             }
 
+            if (stage.incoming) |incoming| {
+                if (index == 0) return false;
+                const previous_outgoing = self.stages[index - 1].outgoing orelse return false;
+                if (previous_outgoing.fact != incoming.fact) return false;
+            }
             const mission = findMission(missions, stage.mission_id) orelse return false;
             if (stage.incoming) |incoming| {
                 if (!hasHiddenOptionalObjective(mission, incoming.objective_id)) return false;
