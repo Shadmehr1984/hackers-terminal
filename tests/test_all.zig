@@ -3,4 +3,5 @@ test {
     _ = @import("mission_state_test.zig");
     _ = @import("mission_data_test.zig");
     _ = @import("mission_objectives_test.zig");
+    _ = @import("game_detection_test.zig");
 }
