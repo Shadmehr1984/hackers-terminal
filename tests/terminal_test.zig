@@ -31,6 +31,7 @@ test "active status output uses line breaks and includes location" {
     session.detection_level = 25;
     session.current_node = "relay";
     session.traversal_count = 2;
+    session.modifier = .security_sweep;
     var capture = Capture{};
 
     try terminal.printStatus(&capture, player, 0, &missions, 1, 100, session);
