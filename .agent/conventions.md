@@ -34,7 +34,7 @@ Derived from the current source tree; re-check source before relying on this map
 - Run the suite with zig test test_root.zig.
 
 ## State and persistence
-- Mission-session progress, connection state, objective completion, detection, and current topology node are transient.
+- Mission-session progress, connection state, objective completion, detection, current topology node, and successful traversal count are transient.
 - Player progression and mission completion are persisted.
 - Save format is positional and supports V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
 - Objective completion currently uses an eight-bit mask; adding a ninth kind requires redesign and tests.
