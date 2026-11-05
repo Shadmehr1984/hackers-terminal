@@ -8,7 +8,7 @@ This document defines the required review method for the entire repository and f
 
 - **Full repository review:** inspect the complete current codebase, tests, build configuration, CI workflows, and relevant documentation. A diff-only review is not sufficient.
 - **Change review:** inspect the complete diff and trace every changed behavior through its callers, dependencies, tests, persistence effects, and relevant invariants. Inspect adjacent code where needed to establish correctness.
-- Read `AGENTS.md`, `.agent/README.md`, `.agent/conventions.md`, `.agent/known-issues.md`, this checklist, relevant ADRs/task handoffs, `docs/architecture.md`, and `docs/save-format.md` before reviewing. Read gameplay/command/development documentation when relevant.
+- Read `AGENTS.md`, `.agent/README.md`, `.agent/workflow.md`, `.agent/conventions.md`, `.agent/known-issues.md`, this checklist, relevant ADRs/task handoffs, `docs/architecture.md`, and `docs/save-format.md` before reviewing. Read `docs/gameplay.md`, `docs/commands.md`, `docs/development.md`, and other relevant user/developer documentation when applicable. Explicitly record each document read and each unavailable document.
 - Verify the current branch, commit, source tree, and toolchain. Do not rely on old review reports or stale summaries as evidence of current state.
 - Review is read-only unless the owner separately authorizes fixes. A request to review is not permission to edit, refactor, commit, or merge.
 - Never guess. If source, test output, or environment evidence is unavailable or ambiguous, state **"نمی‌دانم"** / unknown and classify the item as `[NEEDS-VERIFICATION]` where appropriate.
@@ -22,7 +22,7 @@ This document defines the required review method for the entire repository and f
 Follow this sequence. Do not silently omit or reorder the focused review passes.
 
 1. **Preparation:** establish repository, branch, commit SHA, toolchain, scope, and review mode; read the mandatory project documents; identify known issues and accepted design decisions.
-2. **Top-down repository understanding:** inspect the repository tree, build configuration, entry point, imports/dependency direction, module boundaries, tests and test aggregator, persistence, terminal I/O, and CI. Build a source-to-test/ownership map before drawing architectural conclusions.
+2. **Top-down repository understanding:** inventory every relevant source, test, build/configuration, workflow, script, and documentation file; explicitly list exclusions/unreadable files. Inspect the repository tree, build configuration, entry point, imports/dependency direction, module boundaries, tests and test aggregator, persistence, terminal I/O, and CI. Start at `src/main.zig`, trace command paths through parsing/validation/domain state/persistence/output, trace save bytes through validation/migration/state mutation/write replacement, and map source ownership to callers and tests before drawing architectural conclusions.
 3. **Focused review passes, in this order and with these weights:**
    - Correctness — **40%**
    - Security (OWASP Top 10:2025) — **20%**
@@ -148,6 +148,12 @@ These patterns must always be investigated and flagged when present unless the e
 - [ ] Container literals, inferred array/slice types, sentinel termination, fixed-array capacity, and index/count type assumptions that may be invalid or overflow.
 - [ ] Flush/write/close ordering or temporary-file/rename assumptions that can lose data on failure.
 - [ ] Any other construct that turns a recoverable runtime condition into an unchecked assumption, silent success, or process crash.
+- [ ] `getOrPut` and related map insertion APIs: inspect insertion failure, value initialization, and pointer/reference validity after insertion or map growth.
+- [ ] `std.heap.DebugAllocator` and testing allocator use: inspect allocator lifetime, deinit, leak checking, and whether debug-only behavior is being mistaken for release guarantees.
+- [ ] `root_source_file`, build API calls, target/CPU/ABI options, and optimize-mode configuration. For Zig 0.13.0, `root_source_file` is valid; do not report it as obsolete based on newer Zig releases.
+- [ ] Container literals, inferred array/slice types, sentinel termination, alignment, and compile-time versus runtime type assumptions.
+- [ ] Flush/write/close operations and ignored I/O errors, including terminal output ordering and save-file durability assumptions.
+- [ ] Integer arithmetic operators on externally influenced or cumulative values, including reward/payout accumulation and long-running counters.
 
 For every occurrence, trace the proof and all relevant control-flow paths. Do not mechanically flag a safe construct when its invariant is explicit and locally demonstrable; document why it is safe.
 
@@ -166,6 +172,11 @@ For every occurrence, trace the proof and all relevant control-flow paths. Do no
 - [ ] Concurrency safety if concurrency exists: synchronization protects shared state; lock ordering is consistent; no data races; locks are always released. If no concurrency exists, state that it is not applicable.
 - [ ] FFI/extern safety if present: ABI, pointer lifetime, alignment, ownership, and error translation are verified. If absent, state not applicable.
 - [ ] Runtime safety is not disabled to hide a defect; inspect `@setRuntimeSafety(false)` and equivalent unsafe optimizations.
+- [ ] Fixed buffers are checked before every write/append; detect overflow, truncation, missing terminators, and incorrect length tracking.
+- [ ] Arena reset/deinit does not invalidate pointers/slices that remain reachable; allocator and object lifetimes are correctly nested.
+- [ ] `defer`, `errdefer`, and `try` cleanup order is correct on every early return and failure path.
+- [ ] User-controlled or save-controlled values cannot reach `unreachable`, panic, unchecked indexing, or unchecked casts.
+- [ ] Compare Debug, ReleaseSafe, and ReleaseFast behavior; do not rely on Debug-only runtime checks to establish release safety.
 
 ### 7.4 Context-dependent
 
