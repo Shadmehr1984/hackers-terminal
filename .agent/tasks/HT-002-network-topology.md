@@ -35,15 +35,15 @@ The implementation should keep each graph small enough to understand from termin
 - Keep node IDs stable, concise, and distinct within a mission. Validate built-in graphs in tests.
 
 ## Acceptance criteria
-- [ ] Typed graph model represents nodes, links, and mission-specific topology.
-- [ ] Each of the three built-in missions has a distinct graph with meaningful route choices.
-- [ ] `map` displays nodes, connections, relevant locations, and current position.
-- [ ] `move <node-id>` permits only adjacent movement and handles invalid destinations safely.
-- [ ] Successful movement adds +5 detection per traversal, including revisits; reaching 100 triggers HT-001 failure behavior.
-- [ ] Scan/connect/authentication/decryption/analysis/extraction are location-aware and tested.
-- [ ] Current node resets correctly on accept, completion, and detection failure.
-- [ ] Missions without topology remain backward-compatible.
-- [ ] Save V2, V1, and legacy formats remain unchanged.
+- [x] Typed graph model represents nodes, links, and mission-specific topology.
+- [x] Each of the three built-in missions has a distinct graph with meaningful route choices.
+- [x] `map` displays nodes, connections, relevant locations, and current position.
+- [x] `move <node-id>` permits only adjacent movement and handles invalid destinations safely.
+- [x] Successful movement adds +5 detection per traversal, including revisits; reaching 100 triggers HT-001 failure behavior.
+- [x] Scan/connect/authentication/decryption/analysis/extraction are location-aware and covered by integration tests.
+- [x] Current node initializes on accept, resets on completion/failure, and restores at entry for loaded active contracts.
+- [x] Missions without topology remain backward-compatible through optional topology checks.
+- [x] Save V2, V1, and legacy formats remain unchanged; topology and current node are not serialized.
 - [ ] Focused tests, docs, AGENTS/module contracts, and CI are updated.
 
 ## Non-goals
@@ -60,6 +60,9 @@ The implementation should keep each graph small enough to understand from termin
 - [ ] Inspect CI before marking Implemented.
 
 ## Agent progress notes
+- Implemented the graph domain in `src/topology.zig`, attached optional topology data to `Mission`, and authored three distinct static graphs in `mission_data.zig`.
+- Added `map` and `move`; location-gated scan, connection/authentication, decryption, analysis, and extraction; movement detection costs; and transient current-node initialization/reset.
+- Added graph/data/session/game integration tests. Formatting, build, full tests, independent review, and CI verification remain pending.
 - Repository review confirmed that mission definitions are static in `mission_data.zig`, runtime state is owned by `MissionSession`, and `game.zig` coordinates command behavior.
 - HT-001 is now CI-verified (run 42001487382 succeeded); HT-002 is the active implementation task.
 - Owner confirmed that all three missions need unique, purpose-built topologies.
