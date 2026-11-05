@@ -86,6 +86,7 @@ The session tracks the following related pieces of temporary state:
 - `traversal_count`: number of successful node-to-node movements in this session.
 - `loadout`: the selected utility and upgrade level snapshotted at launch; equipment Detection costs read this snapshot rather than the player inventory.
 - `modifier`: the optional typed mission modifier snapshotted at launch; modifier effects never read the preparation state or live player equipment.
+- `completion_reward_paid`: runtime guard that prevents the same active session from applying completion rewards more than once; reset with the session and never serialized.
 - `fixer_service_used`: whether the one-use Fixer Detection service has been consumed during this mission.
 
 Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
@@ -139,7 +140,7 @@ inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
 
 Persistent state includes balance, reputation, XP, decryptor ownership, utility ownership, equipped utility, both utility upgrade levels, active mission index, and mission completion flags. Save V3 is current; `src/persistence/save.zig` continues to read V2, V1, and the original legacy layout. Older saves migrate with no utility equipment owned or equipped.
 
-Mission difficulty, objective definitions, and Reputation requirements are static catalog metadata and are not serialized. Contact unlocks and tiers are derived from the persisted Reputation value. Fixer service use is runtime-only. Temporary `MissionPreparation`, the run-specific loadout and modifier snapshots, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
+Mission difficulty, objective definitions, and Reputation requirements are static catalog metadata and are not serialized. Contact unlocks and tiers are derived from the persisted Reputation value. Fixer service use is runtime-only. Temporary `MissionPreparation`, the run-specific loadout and modifier snapshots, the per-session completion payout guard, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
 ## Error handling style
 
