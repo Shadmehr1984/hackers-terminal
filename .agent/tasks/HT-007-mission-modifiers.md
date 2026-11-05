@@ -2,7 +2,7 @@
 
 **Feature:** Mission Modifiers  
 **Program:** EXPANSION-001 / Phase 1  
-**Status:** Implementation complete; PR #11 open and unmerged; CI passed; awaiting owner merge approval  
+**Status:** Implemented and merged to `main` via PR #11; CI passed  
 **Design approval:** 2026-11-05
 
 ## Goal
@@ -142,7 +142,7 @@ Keep dependencies one-way. Domain rules must be testable without terminal I/O. T
 8. Run Zig 0.13.0 fmt/build/full tests and agent-doc check; inspect actual CI.
 9. Complete independent review when available (otherwise label self-review honestly) and record commit/PR/CI evidence.
 
-**Progress note:** On 2026-11-05 the owner approved manual selection, one modifier maximum, the three exact effects, all-four-contract eligibility, and the common +$50/+25 XP successful-completion bonus. Implementation authorization was granted by the owner on 2026-11-05. Domain and preparation eligibility were added first; this implementation now wires the `modifier` command, preparation/active-run disclosure, immutable session snapshot, all three Detection effects, and one-time completion payout. Focused tests cover invalid selections, retry/reset, Silent Boots interaction, sweep cadence and compromise order, hardened-key idempotency, successful payout uniqueness, and failure/incomplete no-payout paths. User docs, architecture, root agent instructions, and module conventions were updated. The Save V3 writer and all readers are untouched. Implementation commit `e637bb8ea07aa1b5251cec42136f333306ae57d8` passed GitHub Actions run #573 (`42100086644`). The later agent-handoff status updates were also checked on PR head `6d950e63a748bbd02d714b7c705d0d3cb00fcbf3` by run #574 (`42100242545`): Zig 0.13.0 format, build, full tests, and agent documentation check all succeeded. The full diff was self-reviewed against `.agent/review-checklist.md`; no independent second reviewer was available. PR #11 remains open and unmerged pending owner approval.
+**Progress note:** On 2026-11-05 the owner approved manual selection, one modifier maximum, the three exact effects, all-four-contract eligibility, and the common +$50/+25 XP successful-completion bonus. Implementation authorization was granted by the owner on 2026-11-05. Domain and preparation eligibility were added first; this implementation now wires the `modifier` command, preparation/active-run disclosure, immutable session snapshot, all three Detection effects, and one-time completion payout. Focused tests cover invalid selections, retry/reset, Silent Boots interaction, sweep cadence and compromise order, hardened-key idempotency, successful payout uniqueness, and failure/incomplete no-payout paths. User docs, architecture, root agent instructions, and module conventions were updated. The Save V3 writer and all readers are untouched. Implementation commit `e637bb8ea07aa1b5251cec42136f333306ae57d8` passed GitHub Actions run #573 (`42100086644`). The later agent-handoff status updates were also checked on PR head `6d950e63a748bbd02d714b7c705d0d3cb00fcbf3` by run #574 (`42100242545`): Zig 0.13.0 format, build, full tests, and agent documentation check all succeeded. The full diff was self-reviewed against `.agent/review-checklist.md`; no independent second reviewer was available. PR #11 was squash-merged to `main` as commit `c17d19b93c18af286e97d6f00d2b9892017a784c` on 2026-11-05.
 
 ## Final self-review
 
@@ -151,4 +151,4 @@ Keep dependencies one-way. Domain rules must be testable without terminal I/O. T
 - Confirmed command rejection paths preserve selection, modifier state is copied to the session and cleared on reset, Detection events use `detection.apply`, and the completion guard prevents duplicate payouts.
 - Confirmed the latest PR head and successful CI run #573. No manual interactive playtest was performed because the owner relies on GitHub Actions for build/test verification.
 - No independent second reviewer/agent was available; this is an explicitly identified self-review, not an independent review.
-- PR #11 remains open and unmerged. Do not merge until the owner explicitly approves.
+- PR #11 is merged and closed. Squash merge commit: `c17d19b93c18af286e97d6f00d2b9892017a784c`.
