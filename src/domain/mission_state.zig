@@ -36,7 +36,7 @@ pub const MissionPreparation = struct {
         return true;
     }
 
-    /// Clears the prepared contract and selected utility.
+    /// Clears the prepared contract, selected utility, and selected modifier.
     pub fn clear(self: *MissionPreparation) void {
         self.mission_index = null;
         self.selected_utility = null;
