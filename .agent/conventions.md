@@ -7,7 +7,8 @@ Derived from the current source tree; re-check source before relying on this map
 | src/main.zig | Entry point, allocator/I/O setup, save loading, welcome, input loop | Mission rules or command-specific logic |
 | src/game.zig | Dispatch, validation, state transitions, rewards, progression | Low-level parsing or reusable presentation |
 | src/player.zig | Player profile data/defaults | Persistence and terminal I/O |
-| src/mission.zig | Mission, difficulty, objective types | Built-in catalog or runtime mutation |
+| src/mission.zig | Mission, optional topology reference, difficulty, objective types | Built-in catalog or runtime mutation |
+| src/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
 | src/mission_state.zig | Runtime session progress, connection, objective completion | Serialization or user-facing output |
 | src/commands.zig | Allocation-free command/first-argument parsing | Gameplay validation and dispatch |
@@ -19,7 +20,8 @@ Derived from the current source tree; re-check source before relying on this map
 
 ## Dependency direction
 - player.zig and mission.zig are foundational and independent of high-level orchestration.
-- mission_data.zig depends on mission types.
+- topology.zig is foundational and independent; mission.zig references its topology type.
+- mission_data.zig depends on mission and topology types.
 - mission_state.zig models transient state and should not depend on terminal output or persistence.
 - game.zig coordinates lower-level modules; avoid reverse imports into game.zig.
 - main.zig is the composition root. Avoid circular imports.
@@ -32,7 +34,7 @@ Derived from the current source tree; re-check source before relying on this map
 - Run the suite with zig test test_root.zig.
 
 ## State and persistence
-- Mission-session progress, connection state, and objective completion are transient.
+- Mission-session progress, connection state, objective completion, detection, and current topology node are transient.
 - Player progression and mission completion are persisted.
 - Save format is positional and supports V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
 - Objective completion currently uses an eight-bit mask; adding a ninth kind requires redesign and tests.
