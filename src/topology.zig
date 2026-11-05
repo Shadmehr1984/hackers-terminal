@@ -48,7 +48,7 @@ pub const Topology = struct {
         return null;
     }
 
-    pub fn isValid(self: *const Topology) bool {
+    pub fn isValid(self: *const Topology, allocator: std.mem.Allocator) bool {
         if (!self.containsNode(self.entry_node) or
             !self.containsNode(self.scan_node) or
             !self.containsNode(self.auth_node) or
@@ -67,7 +67,6 @@ pub const Topology = struct {
         }
 
         // Traverse from the entry node and require every operation location to be reachable.
-        const allocator = std.heap.page_allocator;
         const reached = allocator.alloc(bool, self.nodes.len) catch return false;
         defer allocator.free(reached);
         const queue = allocator.alloc(usize, self.nodes.len) catch return false;
