@@ -13,6 +13,7 @@ There is no client/server split, networking layer, database, plugin system, or e
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Public `Player` profile data type and its defaults |
 | `src/mission.zig` | Public `Mission` contract data type and its completion default |
+| `src/mission_state.zig` | Runtime-only mission progress and connection state |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
@@ -48,18 +49,16 @@ The player profile type is defined in `src/player.zig` and imported by `main.zig
 - `xp`: starts at 0.
 - `has_decryptor`: whether the decryptor tool has been purchased.
 
-### Temporary mission state
+### Temporary mission session
 
-The active mission index is represented as an optional `usize`. The current mission session is represented by four booleans:
+The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than four independent booleans.
 
-| State | Meaning |
-| --- | --- |
-| `scanned` | The active target has been scanned |
-| `connected` | A simulated session has been established |
-| `access_granted` | The password challenge has been solved |
-| `decrypted` | The mission file has been decrypted |
+The session has two dimensions:
+- `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
+- `connected`: whether the simulated connection is currently open.
 
-These flags are initialized in `main` and passed by pointer to `game.runCommand`. They are reset when a new contract is accepted, when a contract is completed, and at process startup.
+Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`.
+
 
 ## Runtime flow
 
@@ -75,37 +74,18 @@ These flags are initialized in `main` and passed by pointer to `game.runCommand`
 
 ## Mission state transitions
 
-The intended progression is linear:
-
 ```text
-No active mission
-      |
-   accept
-      v
-Mission active
-      |
-     scan
-      v
-Target scanned
-      |
-   connect
-      v
-Session connected
-      |
-     brute
-      v
-Authentication granted
-      |
-    decrypt
-      v
-File decrypted
-      |
-    extract
-      v
-Mission completed
+inactive -> accepted -> scanned -> authenticated -> decrypted
+                         |
+                         +---- connected (independent, temporary)
 ```
 
-The implementation uses booleans rather than a dedicated enum/state-machine type. Each command checks the flags it requires. For example, `connect` requires `scanned`; `brute` requires `connected`; `decrypt` requires `access_granted` and the decryptor; and `extract` requires `decrypted` and the exact mission filename.
+- `scan` advances progress to `scanned`.
+- `connect` requires a scanned target and opens the connection.
+- `brute` requires an open connection and advances progress on a correct password.
+- `disconnect` closes only the connection; it does not revoke authentication or decryption.
+- `decrypt` requires authentication and an owned decryptor.
+- `extract` requires decrypted progress and the exact mission filename, then resets the session.
 
 ## Progression calculations
 
@@ -117,7 +97,7 @@ The implementation uses booleans rather than a dedicated enum/state-machine type
 
 Persistent state includes balance, reputation, XP (in V2), decryptor ownership, active mission index, and each mission's completion flag. The implementation lives in `src/save.zig` and continues to read V2, V1, and the original legacy layout.
 
-Temporary state is not persisted: scanned, connected, access granted, and decrypted. This is why a restored active contract must be played through its session stages again. See [Save Format](save-format.md).
+Temporary MissionSession progress and connection state are not persisted. A restored active contract therefore starts at the accepted stage and its temporary steps must be repeated. See [Save Format](save-format.md).
 
 ## Error handling style
 
