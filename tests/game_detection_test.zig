@@ -151,7 +151,7 @@ test "topology rejects invalid movement without detection and charges every vali
     try std.testing.expectEqual(@as(u32, 3), session.traversal_count);
 }
 
-test "mission actions require their assigned topology locations" {
+test "all mission operations require their assigned topology locations" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
     var active: ?usize = null;
@@ -161,7 +161,58 @@ test "mission actions require their assigned topology locations" {
     try run(writer, "accept job-01", &player, &missions, &active, &session);
     try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+
     try run(writer, "move service", &player, &missions, &active, &session);
     try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
+    try run(writer, "move corridor", &player, &missions, &active, &session);
+    try run(writer, "connect vault-01.local", &player, &missions, &active, &session);
+    try run(writer, "brute orion42", &player, &missions, &active, &session);
+    try std.testing.expect(!session.connected);
+    try std.testing.expect(!session.isAuthenticated());
+
+    try run(writer, "move service", &player, &missions, &active, &session);
+    try run(writer, "connect vault-01.local", &player, &missions, &active, &session);
+    try run(writer, "brute orion42", &player, &missions, &active, &session);
+    try std.testing.expect(session.isAuthenticated());
+
+    try run(writer, "buy decryptor", &player, &missions, &active, &session);
+    try run(writer, "move corridor", &player, &missions, &active, &session);
+    try run(writer, "decrypt midnight", &player, &missions, &active, &session);
+    try std.testing.expect(!session.isDecrypted());
+    try run(writer, "move vault", &player, &missions, &active, &session);
+    try run(writer, "decrypt midnight", &player, &missions, &active, &session);
+    try std.testing.expect(session.isDecrypted());
+
+    try run(writer, "move corridor", &player, &missions, &active, &session);
+    try run(writer, "analyze ledger.enc", &player, &missions, &active, &session);
+    try std.testing.expect(!session.isObjectiveComplete(.analyze_metadata));
+    try run(writer, "move vault", &player, &missions, &active, &session);
+    try run(writer, "analyze ledger.enc", &player, &missions, &active, &session);
+    try std.testing.expect(session.isObjectiveComplete(.analyze_metadata));
+
+    try run(writer, "move corridor", &player, &missions, &active, &session);
+    try run(writer, "extract ledger.enc", &player, &missions, &active, &session);
+    try std.testing.expect(active != null);
+    try run(writer, "move vault", &player, &missions, &active, &session);
+    try run(writer, "extract ledger.enc", &player, &missions, &active, &session);
+    try std.testing.expect(missions[0].completed);
+    try std.testing.expect(active == null);
+    try std.testing.expect(session.current_node == null);
+}
+
+test "missions without topology preserve the original command flow" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    missions[0].topology = null;
+    var active: ?usize = null;
+    var session = MissionSession{};
+    const writer = TestWriter{};
+
+    try run(writer, "accept job-01", &player, &missions, &active, &session);
+    try std.testing.expect(session.current_node == null);
+    try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
+    try run(writer, "connect vault-01.local", &player, &missions, &active, &session);
+    try run(writer, "brute orion42", &player, &missions, &active, &session);
+    try std.testing.expect(session.isAuthenticated());
     try std.testing.expectEqual(@as(u8, 15), session.detection_level);
 }
