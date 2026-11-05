@@ -22,6 +22,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/commands_test.zig` covers command parsing.
 - `tests/mission_state_test.zig` covers mission-session state transitions.
 - `tests/mission_data_test.zig` covers built-in mission difficulty assignments, player-facing labels, and mission-specific topology definitions.
+- `tests/topology_test.zig` covers graph lookup, bidirectional adjacency, and graph validation.
 - `src/topology.zig` contains focused graph lookup, adjacency, and graph-validation tests.
 - `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, optional rewards, and session reset behavior.
 - `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, and location-gated operations.
