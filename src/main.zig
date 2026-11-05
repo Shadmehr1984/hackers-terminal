@@ -10,6 +10,8 @@ const Mission = struct {
     decryption_hint: []const u8,
     decryption_key: []const u8,
     reward: u32,
+    xp_reward: u32,
+    required_level: u32,
     completed: bool = false,
 };
 
@@ -17,6 +19,7 @@ const Player = struct {
     handle: []const u8 = "ghost",
     balance: u32 = 250,
     reputation: u32 = 0,
+    xp: u32 = 0,
     has_decryptor: bool = false,
 };
 
@@ -62,15 +65,31 @@ fn printHelp(writer: anytype) !void {
     );
 }
 
+fn playerLevel(player: Player) u32 {
+    var level: u32 = 1;
+    var next_level_xp: u32 = 100;
+    while (level < 99 and player.xp >= next_level_xp) : (level += 1) {
+        next_level_xp += 150;
+    }
+    return level;
+}
+
+fn xpForNextLevel(level: u32) u32 {
+    return 100 + (level - 1) * 150;
+}
+
 fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []const Mission) !void {
+    const level = playerLevel(player);
     try writer.print(
         \\OPERATOR
         \\  Handle:      {s}
         \\  Balance:     ${d}
         \\  Reputation:  {d}
+        \\  Level:       {d}
+        \\  XP:          {d}/{d}
         \\  Decryptor:   {s}
         \\
-    , .{ player.handle, player.balance, player.reputation, if (player.has_decryptor) "installed" else "not installed" });
+    , .{ player.handle, player.balance, player.reputation, level, player.xp, xpForNextLevel(level), if (player.has_decryptor) "installed" else "not installed" });
 
     if (active) |index| {
         try writer.print("  Active job:  {s} ({s})\n", .{ missions[index].name, missions[index].id });
@@ -79,16 +98,23 @@ fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []cons
     }
 }
 
-fn printMissions(writer: anytype, missions: []const Mission) !void {
+fn printMissions(writer: anytype, player: Player, missions: []const Mission) !void {
+    const level = playerLevel(player);
     try writer.writeAll("AVAILABLE CONTRACTS\n");
     for (missions) |mission| {
-        try writer.print("  [{s}] {s} | target: {s} | reward: ${d} | {s}\n", .{
+        const state = if (mission.completed) "COMPLETED" else if (level < mission.required_level) "LOCKED" else "AVAILABLE";
+        try writer.print("  [{s}] {s} | target: {s} | reward: ${d} + {d} XP | {s}", .{
             mission.id,
             mission.name,
             mission.target,
             mission.reward,
-            if (mission.completed) "COMPLETED" else "OPEN",
+            mission.xp_reward,
+            state,
         });
+        if (!mission.completed and level < mission.required_level) {
+            try writer.print(" (requires level {d})", .{mission.required_level});
+        }
+        try writer.writeAll("\n");
     }
     try writer.writeAll("\nUse: accept <id>\n");
 }
@@ -99,9 +125,10 @@ fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
     defer file.close();
 
     var writer = file.writer();
-    try writer.print("HACKERS_TERMINAL_SAVE_V1\n{d}\n{d}\n{d}\n", .{
+    try writer.print("HACKERS_TERMINAL_SAVE_V2\n{d}\n{d}\n{d}\n{d}\n", .{
         player.balance,
         player.reputation,
+        player.xp,
         @as(u8, if (player.has_decryptor) 1 else 0),
     });
     if (active) |index| {
@@ -125,7 +152,20 @@ fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) 
     const first_line = lines.next() orelse return null;
     var active: ?usize = null;
 
-    if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V1")) {
+    if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V2")) {
+        if (lines.next()) |value| player.balance = std.fmt.parseInt(u32, value, 10) catch player.balance;
+        if (lines.next()) |value| player.reputation = std.fmt.parseInt(u32, value, 10) catch player.reputation;
+        if (lines.next()) |value| player.xp = std.fmt.parseInt(u32, value, 10) catch player.xp;
+        if (lines.next()) |value| player.has_decryptor = std.mem.eql(u8, value, "1");
+        if (lines.next()) |value| {
+            const parsed = std.fmt.parseInt(i64, value, 10) catch -1;
+            if (parsed >= 0) {
+                const index: usize = @intCast(parsed);
+                if (index < missions.len and !missions[index].completed) active = index;
+            }
+        }
+    } else if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V1")) {
+        // V1 saves did not store XP; keep them at level 1.
         if (lines.next()) |value| player.balance = std.fmt.parseInt(u32, value, 10) catch player.balance;
         if (lines.next()) |value| player.reputation = std.fmt.parseInt(u32, value, 10) catch player.reputation;
         if (lines.next()) |value| player.has_decryptor = std.mem.eql(u8, value, "1");
@@ -166,9 +206,15 @@ fn printHistory(writer: anytype, missions: []const Mission) !void {
 }
 
 fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
+    const old_level = playerLevel(player.*);
     player.balance += mission.reward;
     player.reputation += 1;
-    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}\nReputation increased.\n", .{ mission.name, mission.reward });
+    player.xp += mission.xp_reward;
+    const new_level = playerLevel(player.*);
+    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}\nXP gained: {d}\nReputation increased.\n", .{ mission.name, mission.reward, mission.xp_reward });
+    if (new_level > old_level) {
+        try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
+    }
 }
 
 fn runCommand(
@@ -191,7 +237,7 @@ fn runCommand(
     } else if (std.mem.eql(u8, command, "status")) {
         try printStatus(writer, player.*, active.*, missions);
     } else if (std.mem.eql(u8, command, "missions")) {
-        try printMissions(writer, missions);
+        try printMissions(writer, player.*, missions);
     } else if (std.mem.eql(u8, command, "briefing")) {
         if (active.*) |index| {
             const mission = missions[index];
@@ -205,7 +251,7 @@ fn runCommand(
         } else {
             var found = false;
             for (missions, 0..) |mission, index| {
-                if (std.mem.eql(u8, mission.id, arg) and !mission.completed) {
+                if (std.mem.eql(u8, mission.id, arg) and !mission.completed and playerLevel(player.*) >= mission.required_level) {
                     active.* = index;
                     scanned.* = false;
                     connected.* = false;
@@ -216,7 +262,17 @@ fn runCommand(
                     break;
                 }
             }
-            if (!found) try writer.writeAll("Unknown or already completed contract. Use 'missions'.\n");
+            if (!found) {
+                var locked = false;
+                for (missions) |mission| {
+                    if (std.mem.eql(u8, mission.id, arg) and !mission.completed) {
+                        locked = true;
+                        try writer.print("Contract locked. Reach level {d} first.\n", .{mission.required_level});
+                        break;
+                    }
+                }
+                if (!locked) try writer.writeAll("Unknown or already completed contract. Use 'missions'.\n");
+            }
         }
     } else if (std.mem.eql(u8, command, "scan")) {
         if (active.*) |index| {
@@ -336,6 +392,8 @@ pub fn main() !void {
             .decryption_hint = "The middle of the night.",
             .decryption_key = "midnight",
             .reward = 300,
+            .xp_reward = 100,
+            .required_level = 1,
         },
         .{
             .id = "job-02",
@@ -347,6 +405,8 @@ pub fn main() !void {
             .decryption_hint = "A small songbird often associated with a clear blue color.",
             .decryption_key = "bluebird",
             .reward = 500,
+            .xp_reward = 150,
+            .required_level = 2,
         },
         .{
             .id = "job-03",
@@ -358,16 +418,20 @@ pub fn main() !void {
             .decryption_hint = "The time after normal business hours.",
             .decryption_key = "afterhours",
             .reward = 800,
+            .xp_reward = 200,
+            .required_level = 3,
         },
     };
 
     const active_from_save = loadGame(allocator, &player, &missions);
 
     try printBanner(stdout);
-    try stdout.print("Welcome back, {s}.\nBalance: ${d} | Reputation: {d}\n", .{
+    try stdout.print("Welcome back, {s}.\nBalance: ${d} | Reputation: {d} | Level: {d} | XP: {d}\n", .{
         player.handle,
         player.balance,
         player.reputation,
+        playerLevel(player),
+        player.xp,
     });
     try stdout.writeAll("Type 'help' to see commands.\n");
 
