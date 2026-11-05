@@ -148,7 +148,8 @@ fn fixedFieldCount(format: SaveFormat) usize {
 /// Loads V3, V2, V1, or legacy save data without partially mutating live state.
 pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
     const format = validateSave(data, missions.len) orelse return null;
-    var lines = std.mem.tokenizeScalar(u8, data, '\n');
+    const payload = if (std.mem.endsWith(u8, data, "\n")) data[0 .. data.len - 1] else data;
+    var lines = std.mem.splitScalar(u8, payload, '\n');
     const first_line = lines.next() orelse return null;
 
     var loaded_player = player.*;
