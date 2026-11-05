@@ -19,7 +19,7 @@ pub fn apply(
         });
     }
     if (session.detection_level >= 100) {
-        const penalty = @min(player.balance, detection_failure_penalty);
+        const penalty = @min(player.balance, failure_penalty);
         player.balance -= penalty;
         try writer.print(
             "[CONTRACT FAILED] Detection reached 100/100. The operation was compromised. ${d} penalty applied; remaining balance: {d}. You may accept this contract again.\n",
