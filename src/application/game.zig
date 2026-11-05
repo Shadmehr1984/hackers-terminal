@@ -417,6 +417,7 @@ pub fn runCommand(
                 session.markAuthenticated();
                 try reportObjectiveDiscoveries(writer, session.discoverAction(.authenticate, mission.objectives));
                 session.completeObjective(.authenticate);
+                session.markOptionalObjectivesUnavailableForEvent(.authenticate);
                 try writer.writeAll("[ACCESS GRANTED] Authentication challenge solved.\n");
                 if (!already_authenticated) _ = try detection.apply(writer, player, active, session, 5);
             } else {
@@ -440,6 +441,7 @@ pub fn runCommand(
                 session.markDecrypted();
                 try reportObjectiveDiscoveries(writer, session.discoverAction(.decrypt_file, mission.objectives));
                 session.completeObjective(.decrypt_file);
+                session.markOptionalObjectivesUnavailableForEvent(.decrypt_file);
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
                 if (!already_decrypted) _ = try detection.apply(writer, player, active, session, 10);
             } else {
