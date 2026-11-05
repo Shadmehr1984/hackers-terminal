@@ -50,7 +50,7 @@ Mission difficulty is currently descriptive metadata. Mission objectives are def
 | --- | --- | --- | --- |
 | `deal intel-<mission-id>` | e.g. intel-job-02 | Information Broker unlocked at Reputation 1; target contract is unlocked and incomplete; at least $50 | Charges $50 and reveals that contract's password and decryption clues, not the answers |
 | `deal scrub-detection` | Fixed offer ID | Fixer unlocked at Reputation 3; active contract; Detection above zero; service unused this contract; enough funds | Reduces Detection by up to 10; costs $100 at Reputation 3–4 or $75 at Reputation 5+ |
-| `deal ghost-signal` | Fixed offer ID | Fixer unlocked; no active/prepared contract; level 3 and Reputation 3; job-04 incomplete | Opens preparation for the exclusive Ghost Signal contract without a fee |
+| `deal ghost-signal` | Fixed offer ID | Fixer unlocked; no active/prepared contract; level 3 and Reputation 3; job-04 incomplete | Opens preparation for the exclusive Ghost Signal contract without a fee; direct prepare is rejected |
 
 Contact unlocks are derived from Reputation and are not separately saved. The Fixer service can be used once per active contract; its usage flag is temporary and resets when the contract starts or ends. Broker intelligence purchases are repeatable transactions and deduct $50 each time.
 
