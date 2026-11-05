@@ -50,7 +50,7 @@ Preserve existing behavior unless a task explicitly requests a gameplay change. 
 4. Run `move service`; verify Detection increases by 5. Run `objectives`; verify all five objectives are initially unchecked and the optional one displays its bonus.
 5. Verify scanning is rejected away from the assigned node; scan the target at `service` and confirm the survey objective is checked.
 6. Connect and authenticate at the assigned authentication node using the mission briefing password; confirm the authentication objective is checked.
-7. Disconnect and verify authentication remains complete. Move to `vault` and verify decryption is only accepted there.
+7. Disconnect and verify authentication remains complete. Move through `corridor` to `vault` and verify decryption is only accepted there.
 8. Buy the decryptor, decrypt with the briefing key, and confirm the decryption objective is checked.
 9. Optionally run `analyze ledger.enc` at `vault`; verify the optional objective is checked.
 10. Extract `ledger.enc` at `vault`; verify the required objectives permit completion and the optional bonus is included only if analysis was completed.
