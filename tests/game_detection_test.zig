@@ -24,10 +24,11 @@ test "risky actions increase exposure once while safe and invalid actions do not
     try run(writer, "accept job-01", &player, &missions, &active, &session);
     try run(writer, "scan wrong-target", &player, &missions, &active, &session);
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try run(writer, "move service", &player, &missions, &active, &session);
 
     try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
     try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
-    try std.testing.expectEqual(@as(u8, 10), session.detection_level);
+    try std.testing.expectEqual(@as(u8, 20), session.detection_level);
 
     try run(writer, "connect vault-01.local", &player, &missions, &active, &session);
     try run(writer, "disconnect", &player, &missions, &active, &session);
@@ -40,10 +41,10 @@ test "risky actions increase exposure once while safe and invalid actions do not
 
     try run(writer, "buy decryptor", &player, &missions, &active, &session);
     try run(writer, "decrypt wrong-key", &player, &missions, &active, &session);
-    try std.testing.expectEqual(@as(u8, 25), session.detection_level);
+    try std.testing.expectEqual(@as(u8, 30), session.detection_level);
     try run(writer, "decrypt midnight", &player, &missions, &active, &session);
     try run(writer, "decrypt midnight", &player, &missions, &active, &session);
-    try std.testing.expectEqual(@as(u8, 35), session.detection_level);
+    try std.testing.expectEqual(@as(u8, 45), session.detection_level);
 
     try run(writer, "analyze ledger.enc", &player, &missions, &active, &session);
     try run(writer, "analyze ledger.enc", &player, &missions, &active, &session);
@@ -91,6 +92,7 @@ test "compromise penalty never makes player balance negative" {
     const writer = TestWriter{};
 
     try run(writer, "accept job-01", &player, &missions, &active, &session);
+    try run(writer, "move service", &player, &missions, &active, &session);
     try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
     try run(writer, "connect vault-01.local", &player, &missions, &active, &session);
     var attempt: u8 = 0;
