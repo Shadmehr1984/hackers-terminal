@@ -41,7 +41,7 @@ A mission stores its static contract definition and completion state:
 - `password` and `password_hint` define the authentication puzzle.
 - `encrypted_file`, `decryption_hint`, and `decryption_key` define the decryption puzzle and required extraction filename.
 - `reward` and `xp_reward` configure contract payouts.
-- `required_level` and `required_reputation` define the minimum progression requirements.
+- `required_level` and `required_reputation` define the minimum progression requirements; `requires_contact_offer` marks contracts that must be prepared through a contact offer.
 - `completed` records whether the contract has been completed.
 
 Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives may be required or optional. Required objectives gate contract completion; optional objectives never block it and can grant configured bonus cash. Successful scan, authentication, decryption, extraction, and metadata-analysis commands complete their matching objective.
