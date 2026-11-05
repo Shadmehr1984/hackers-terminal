@@ -47,7 +47,7 @@ Use `board` for the full catalog overview; `missions` remains the original compa
 | `disconnect` | None | None | Closes the simulated session |
 | `brute <password>` | Password answer | Active contract, connected session, and authentication node | Grants simulated authentication when the answer matches |
 | `decrypt <key>` | Decryption answer | Active contract, authentication granted, decryptor owned, and decryption node | Marks the mission file as decrypted when the key matches |
-| `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes the optional metadata objective and earns its bonus at contract completion |
+| `inspect <filename>` | Authored fictional evidence filename | Active contract | Inspects matching fictional evidence and may reveal a hidden optional objective; unrelated names reveal nothing |\n| `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes discovered metadata objectives and earns their bonuses at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract, successful decryption, and extraction node | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
 Preparation shows known contract intelligence, target, difficulty, rewards, objective outline, topology overview, and every allowed modifier with its exact effect and successful-completion bonus. Puzzle clues and answers remain undiscovered until the contract is launched. Preparation and its selected modifier are temporary and are not saved.
@@ -122,3 +122,8 @@ If a command appears not to match, check its spelling, capitalization, argument,
 ## Detection risk values
 
 Detection is temporary per-contract state, ranges from 0 to 100, and is displayed by `status`. Bands are Quiet (0–24), Noticed (25–49), Traced (50–74), Critical (75–99), and Compromised (100). See the [Gameplay Guide](gameplay.md#detection-and-operational-risk) for the action-cost table and failure rules.
+
+
+### Hidden optional objectives
+
+Some optional objectives are hidden until a deterministic discovery trigger occurs. Reach the authored node with `move`, inspect the authored fictional evidence name with `inspect <filename>`, or perform the specified successful in-game action. Hidden descriptions and rewards are omitted from preparation, the initial briefing, and the Contract Board until discovery. Use `objectives` after discovery to see the objective and its current state. Hidden objectives never block extraction; completing all authored optional objectives, including hidden ones, is still required for the extra Reputation point.
