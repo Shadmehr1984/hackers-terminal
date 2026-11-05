@@ -11,4 +11,5 @@ test {
     _ = @import("terminal_test.zig");
     _ = @import("contacts_test.zig");
     _ = @import("contract_board_test.zig");
+    _ = @import("mission_modifier_test.zig");
 }
