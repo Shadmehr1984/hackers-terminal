@@ -229,10 +229,10 @@ pub const MissionSession = struct {
         return false;
     }
 
-    /// Marks every still-hidden objective unavailable when its run can no longer reveal it.
-    pub fn markUndiscoveredObjectivesUnavailable(self: *MissionSession) void {
+    /// Marks incomplete optional objectives unavailable when the contract is ending.
+    pub fn markUncompletedOptionalObjectivesUnavailable(self: *MissionSession) void {
         for (self.objective_tracker.entries[0..self.objective_tracker.count]) |*entry| {
-            if (entry.state == .undiscovered) entry.state = .unavailable;
+            if (entry.optional and entry.state != .completed) entry.state = .unavailable;
         }
     }
 
