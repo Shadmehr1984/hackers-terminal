@@ -34,7 +34,6 @@ This file is the persistent source of project-specific instructions for AI codin
 - `src/save.zig`: persistence and compatibility with V2, V1, and legacy save formats.
 - `src/shop.zig`: inventory and shop behavior.
 - `tests/`: unit tests, separate from production source.
-- `test_root.zig`: repository-root test module that imports the aggregate test suite, allowing test modules to import source files under `src/` without escaping their module root.
 - `docs/`: user and developer documentation.
 
 Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/gameplay.md` and `docs/commands.md` before changing gameplay or command behavior, and `docs/save-format.md` before touching persistence.
@@ -71,7 +70,7 @@ zig test test_root.zig
 
 - Add tests under `tests/`; do not put test modules back into `src/`.
 - Keep `tests/test_all.zig` as the aggregate test list and include new test modules there.
-- Use `test_root.zig` as the test command's root module. It exists so test imports such as `../src/commands.zig` remain within the repository-root module path.
+- Use `test_root.zig` as the test command's root module.
 - Add tests for state transitions, objective definitions and completion tracking, parsing edge cases, progression rules, and save compatibility when those areas change.
 - If local build execution is unavailable, perform static inspection and say clearly that build/tests were not run. Never describe static inspection as a passing build or test.
 - When CI is available, inspect the actual workflow run and report its conclusion; do not infer success from a commit being pushed.
@@ -87,24 +86,26 @@ zig test test_root.zig
 
 ## Working with future feature ideas
 
-Build new systems incrementally. The current broad direction may include richer mission design, simulated network topology, equipment/inventory, detection/risk, and reputation/contacts, but these are ideas—not implemented requirements.
+The approved five-feature gameplay program is recorded in `.agent/roadmap.md`. Its task briefs in `.agent/tasks/` are the execution contracts. Before implementing one, read its brief, inspect current source and docs, create/update progress notes, and work in the approved order. Approval of the program does not mean all five systems should be implemented in one change; implement one small, reviewable milestone at a time. Branching objectives/story consequences remain deferred.
 
-Before implementing a new system:
-1. Inspect the current source and relevant docs; do not assume the architecture snapshot above is still exact.
-2. Explain the smallest useful design and how it fits existing modules.
-3. Identify gameplay and save-compatibility implications.
+All new systems must remain entirely fictional, local, and offline. Never implement real networking, external host interaction, shell execution, or credential collection.
+
+Before implementation:
+1. Confirm current behavior from source; do not assume this architecture snapshot is exact.
+2. Identify the owning module, dependencies, affected tests, docs, and persistence implications.
+3. Explain the smallest useful design and acceptance criteria.
 4. Add focused tests and update docs as part of the same coherent change.
-5. Avoid implementing future roadmap items pre-emptively.
-6. Whenever an agreed feature changes project architecture, gameplay rules, data contracts, or development conventions, update this `AGENTS.md` in the same implementation step. Do not edit it mechanically for a change that introduces no lasting project rule or design decision.
-
+5. Avoid implementing later roadmap items pre-emptively.
+6. Whenever an agreed feature changes architecture, gameplay rules, data contracts, or development conventions, update this `AGENTS.md` in the same implementation step.
 
 ## Agent infrastructure and required work cycle
 
 The `.agent/` directory is the project memory for coding agents. Read `.agent/README.md` after this file; it links the workflow, module contracts, roadmap, known constraints, ADRs, task template, and independent review checklist.
 
-For every code change, follow `.agent/workflow.md`: Explore → Understand → Plan → Implement → Verify → Document → Review → Commit. For non-trivial work, create a task brief from `.agent/tasks/TEMPLATE.md`. Before implementation, confirm current behavior from source and identify the owning module, affected tests, documentation, and persistence implications.
+For every code change, follow `.agent/workflow.md`: Explore → Understand → Plan → Implement → Verify → Document → Review → Commit. For non-trivial work, create/update a task brief from `.agent/tasks/TEMPLATE.md`. Before implementation, confirm current behavior from source and identify the owning module, affected tests, documentation, and persistence implications.
 
 ### Definition of Done
+
 A change is complete only when all applicable items are satisfied:
 - [ ] Acceptance criteria are met and unrelated behavior is preserved.
 - [ ] Focused tests cover new behavior and important rejection/edge cases.
@@ -116,10 +117,13 @@ A change is complete only when all applicable items are satisfied:
 - [ ] The actual CI result for that commit is inspected and reported; manual gameplay testing is never implied unless performed.
 
 ### Review expectations
+
 For substantial changes, use a second, independent reviewer/agent where available. The reviewer should inspect the diff against the task acceptance criteria and checklist, not merely approve the implementer's summary. If no independent reviewer is available, state that limitation and perform a clearly identified self-review; do not claim a second-agent review occurred.
 
 ### Documentation maintenance
-Keep `.agent/roadmap.md` for candidate work, not commitments. Keep `.agent/known-issues.md` factual and distinguish verified constraints from open questions. Add ADRs only for decisions actually accepted by the project owner. Update module contracts when source responsibilities change. Do not mechanically edit every agent file for trivial changes.
+
+Keep `.agent/roadmap.md` as the authoritative feature sequence and status tracker. Keep `.agent/known-issues.md` factual and distinguish verified constraints from open questions. Add ADRs only for decisions actually accepted by the project owner. Update module contracts when source responsibilities change. Do not mechanically edit every agent file for trivial changes.
 
 ### CI documentation check
+
 The CI workflow also runs `sh scripts/check-agent-docs.sh` to ensure the required agent guidance and core docs remain present. This structural check does not replace code review, Zig compilation, unit tests, or manual playtesting.
