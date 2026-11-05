@@ -31,6 +31,16 @@ const TestWriter = struct {
     pub fn print(_: @This(), comptime _: []const u8, _: anytype) error{}!void {}
 };
 
+const FailingWriter = struct {
+    pub fn writeAll(_: @This(), _: []const u8) error{OutputFailure}!void {
+        return error.OutputFailure;
+    }
+
+    pub fn print(_: @This(), comptime _: []const u8, _: anytype) error{OutputFailure}!void {
+        return error.OutputFailure;
+    }
+};
+
 test "modified completion bonus is paid once even if completion is re-entered" {
     var player = Player{};
     const missions = mission_data.defaultMissions();
@@ -134,5 +144,18 @@ test "mission remains active and incomplete when payout overflows" {
     try std.testing.expectEqual(@as(?usize, 0), active);
     try std.testing.expect(!missions[0].completed);
     try std.testing.expectEqual(std.math.maxInt(u32), player.balance);
+    try std.testing.expect(!session.completion_reward_paid);
+}
+
+
+test "writer failure does not commit mission payout or completion guard" {
+    const missions = mission_data.defaultMissions();
+    var player = Player{ .balance = 100 };
+    var session = MissionSession{};
+
+    try std.testing.expectError(error.OutputFailure, progression.completeMission(FailingWriter{}, &player, missions[0], &session));
+    try std.testing.expectEqual(@as(u32, 100), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
     try std.testing.expect(!session.completion_reward_paid);
 }
