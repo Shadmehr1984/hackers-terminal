@@ -1,11 +1,11 @@
 # HT-009 — Multi-stage Operations
 
-- **Status:** Design Approved (2026-11-06); implementation is not authorized.
+- **Status:** In Progress (2026-11-06); owner explicitly authorized implementation on `main`.
 - **Decision:** Runtime-only operation progress, approved by the owner on 2026-11-06.
 - **ADR:** [0011 — Multi-stage Operations](../decisions/0011-multi-stage-operations.md)
 - **Phase:** 1 — Contract and Mission Content
 - **Implementation branch:** `main` only, per repository workflow. Do not create a feature branch or PR unless the owner explicitly asks.
-- **Authorization boundary:** Approval of this design and handoff is not permission to implement. Wait for a separate explicit owner instruction such as “شروع کن”.
+- **Implementation authorization:** Owner explicitly authorized implementation with “شروع کن” on 2026-11-06. Work only within the approved scope; no later feature is authorized by this instruction.
 
 ## Goal
 
@@ -60,17 +60,17 @@ While an operation is active, ordinary `prepare` and `cancel` cannot replace or 
 - **Failure:** do not advance stage or discard facts earned by prior stages. Reset only the failed stage's MissionSession and reopen preparation for the same stage.
 - **Success:** mark the stage contract completed; pay its existing reward once if it was incomplete before this stage run; derive outgoing facts from completed authored optional objective IDs; advance by exactly one stage.
 
-## Architecture ownership (re-audit source before implementation)
+## Implemented architecture ownership (verified against current source)
 
 - `src/domain/operation.zig`: static Operation, OperationStage, typed OperationFact, and catalog validation contracts.
 - `src/domain/operation_state.zig`: bounded allocation-free runtime lifecycle, stage transition, fact storage, retry/reset, and reward-eligibility snapshot.
 - `src/catalog/operation_data.zig`: `blackout-protocol` and its three stage definitions.
 - `src/domain/mission_objectives.zig`: add a narrow safe operation-facing reveal-by-stable-objective-ID transition; it may reveal only an authored hidden optional objective and must remain idempotent.
 - `src/application/game.zig`: coordinate operation commands, current stage preparation/acceptance, success/failure transitions, and save behavior. Keep domain modules free of terminal I/O and persistence imports.
-- `src/presentation/terminal.zig`: operation list, details, status, stage-transition and briefing context. Never reveal a hidden objective before its normal trigger or an approved incoming operation fact.
+- `src/presentation/terminal.zig`: shared help output documents the operation commands; operation list/details/status output is currently emitted by the command coordinator. Hidden objectives remain undisclosed until their normal trigger or an approved incoming operation fact.
 - `src/persistence/save.zig`: no schema changes; existing writer receives a null active index while an operation is active.
 - `tests/`: domain, catalog validation, command, transition, retry, carry-over, reward idempotency, restart, and save-compatibility tests.
-- Update `docs/architecture.md`, `docs/gameplay.md`, `docs/commands.md`, `docs/save-format.md` (document unchanged format plus operation reset behavior), `AGENTS.md`, and agent handoff records when implementation is authorized and completed.
+- Updated `docs/architecture.md`, `docs/gameplay.md`, `docs/commands.md`, `docs/save-format.md`, `AGENTS.md`, and agent handoff records as part of implementation.
 
 ## Explicitly out of scope
 
@@ -111,4 +111,7 @@ While an operation is active, ordinary `prepare` and `cancel` cannot replace or 
 ## Progress log
 
 - 2026-11-06: Owner approved Runtime-only operation progress and requested final design plus agent handoff documentation.
-- 2026-11-06: Design finalized and recorded in ADR 0011. Implementation has **not** been authorized and must not begin until a separate owner instruction.
+- 2026-11-06: Design finalized and recorded in ADR 0011.
+- 2026-11-06: Owner explicitly authorized implementation with “شروع کن”. Re-audited the current main branch and implemented the bounded domain model, catalog, runtime state, command orchestration, stage transitions, fact carry-over, retry, completed-stage reward suppression, and runtime-only save behavior.
+- 2026-11-06: Added domain and integration tests covering catalog validation, atomic start rejection, stage ownership, stage-one-to-three fact carry-over, compromise retry, completed-stage replay, and V3 active-index behavior. Final standard CI verification is pending after the last source/documentation changes.
+- 2026-11-06: No independent second reviewer or manual interactive playtest was available; both limitations must be stated in the final handoff.
