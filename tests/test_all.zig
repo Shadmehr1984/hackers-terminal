@@ -12,4 +12,5 @@ test {
     _ = @import("contacts_test.zig");
     _ = @import("contract_board_test.zig");
     _ = @import("mission_modifier_test.zig");
+    _ = @import("mission_objective_tracker_test.zig");
 }
