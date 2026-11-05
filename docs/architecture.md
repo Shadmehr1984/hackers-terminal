@@ -20,7 +20,9 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, history, and topology map |
 | `src/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/commands.zig` | Parses an input line into a command name and its first argument |
-| `src/game.zig` | Coordinates command dispatch, mission state transitions, mission completion rewards, and player progression calculations |
+| `src/game.zig` | Coordinates the shared preparation-aware command dispatcher and game-state transitions |
+| `src/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
+| `src/progression.zig` | Player level thresholds, XP display thresholds, and mission reward progression |
 | `tests/` | Unit tests for command parsing, mission state, and built-in mission data |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
@@ -122,14 +124,14 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Dependency direction
 
-`player.zig`, `mission.zig`, and `topology.zig` are foundational data modules. `mission.zig` references the topology type; `mission_data.zig` imports mission and topology types and owns the built-in catalog. `save.zig` imports the data types and owns save/load. `terminal.zig` imports data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player`. `commands.zig` owns allocation-free parsing. `game.zig` coordinates command dispatch, preparation/launch transitions, and session rules; it delegates parsing, persistence, display, and shop operations. `main.zig` initializes the application and owns the interactive input loop. Keep dependencies one-way and avoid circular imports.
+`player.zig`, `mission.zig`, and `topology.zig` are foundational data modules. `mission.zig` references the topology type; `mission_data.zig` imports mission and topology types and owns the built-in catalog. `save.zig` imports the data types and owns save/load. `terminal.zig` imports data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player`. `commands.zig` owns allocation-free parsing. `game.zig` coordinates command dispatch and mission transitions; `detection.zig` owns exposure and compromise handling; `progression.zig` owns XP, levels, and mission rewards. These modules depend on foundational player/mission/session types and do not import the command coordinator. `main.zig` initializes the application and owns the interactive input loop. Keep dependencies one-way and avoid circular imports.
 
 ## Current design constraints
 
 - The built-in mission catalog is hard-coded in `mission_data.zig` and contains three missions.
 - Mission difficulty is currently descriptive metadata; no mechanics are tied to it yet.
 - The current objective kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds. Optional objective rewards are calculated at contract completion and are not separately persisted.
-- Detection is a runtime-only 0–100 meter. Its thresholds, action costs, failure penalty, and reset behavior are defined in the gameplay guide and implemented through `MissionSession` and `game.zig`.
+- Detection is a runtime-only 0–100 meter. Its thresholds, action costs, failure penalty, and reset behavior are defined in the gameplay guide and implemented through `MissionSession` and `detection.zig`.
 - The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
 - The save parser is line-oriented and has no checksum or schema validation layer. Save writes are staged to a temporary file and renamed into place after the complete payload is written.
 - Command-specific output is written by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output in `shop.zig`.
