@@ -136,27 +136,3 @@ test "mission remains active and incomplete when payout overflows" {
     try std.testing.expectEqual(std.math.maxInt(u32), player.balance);
     try std.testing.expect(!session.completion_reward_paid);
 }
-
-
-test "mission remains active and incomplete when payout overflows" {
-    var player = Player{ .balance = std.math.maxInt(u32) };
-    var missions = mission_data.defaultMissions();
-    var active: ?usize = null;
-    var session = MissionSession{};
-    var preparation = MissionPreparation{};
-    const writer = TestWriter{};
-
-    _ = try game.runCommand(writer, "prepare job-01", &player, &missions, &active, &session, &preparation);
-    _ = try game.runCommand(writer, "accept job-01", &player, &missions, &active, &session, &preparation);
-    session.progress = .decrypted;
-    session.current_node = "vault";
-    for (missions[0].objectives) |objective| {
-        if (!objective.optional and objective.kind != .extract_file) session.completeObjective(objective.kind);
-    }
-
-    _ = try game.runCommand(writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(@as(?usize, 0), active);
-    try std.testing.expect(!missions[0].completed);
-    try std.testing.expectEqual(std.math.maxInt(u32), player.balance);
-    try std.testing.expect(!session.completion_reward_paid);
-}
