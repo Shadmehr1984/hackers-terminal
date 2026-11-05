@@ -147,25 +147,27 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
     if (selected_utility) |utility| {
         try writer.print("\nSelected loadout: {s} (level {d})\n", .{ utility.label(), player.equipment.level(utility) });
     } else try writer.writeAll("\nSelected loadout: none\n");
-    try writer.writeAll("Risk indicators: scan +10, successful authentication +5, decryption +10, extraction +5.\n");
+    try writer.writeAll("Risk indicators: scan +10, successful authentication +5, decryption +10, wrong key +10, optional analysis +5, extraction +5.\n");
     try writer.writeAll("Movement cost: ");
     if (selected_utility) |utility| {
         if (utility == .silent_boots) {
-            try writer.print("{d} Detection per traversal (Silent Boots).\n", .{switch (player.equipment.level(utility)) {
+            const cost: u8 = switch (player.equipment.level(utility)) {
                 0 => 4,
                 1 => 3,
                 else => 2,
-            }});
+            };
+            try writer.print("{d} Detection per traversal (Silent Boots).\n", .{cost});
         } else try writer.writeAll("5 Detection per traversal.\n");
     } else try writer.writeAll("5 Detection per traversal.\n");
     try writer.writeAll("Incorrect password cost: ");
     if (selected_utility) |utility| {
         if (utility == .signal_scrubber) {
-            try writer.print("{d} Detection (Signal Scrubber).\n", .{switch (player.equipment.level(utility)) {
+            const cost: u8 = switch (player.equipment.level(utility)) {
                 0 => 12,
                 1 => 9,
                 else => 6,
-            }});
+            };
+            try writer.print("{d} Detection (Signal Scrubber).\n", .{cost});
         } else try writer.writeAll("15 Detection.\n");
     } else try writer.writeAll("15 Detection.\n");
     try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility, then 'accept <id>' to launch or 'cancel' to leave preparation.\n");
