@@ -34,3 +34,6 @@ jobs:
 
       - name: Compile and run Zig tests
         run: zig test test_root.zig
+
+      - name: Check agent documentation structure
+        run: sh scripts/check-agent-docs.sh
