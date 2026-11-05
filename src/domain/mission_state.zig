@@ -119,7 +119,7 @@ pub const MissionSession = struct {
     pub fn reset(self: *MissionSession) void {
         self.progress = .inactive;
         self.connected = false;
-        self.completed_objectives = 0;
+        self.objective_tracker.reset();
         self.detection_level = 0;
         self.current_node = null;
         self.traversal_count = 0;
