@@ -124,3 +124,10 @@ Most user input errors are handled by printing a message and returning to the pr
 - The save parser is line-oriented and has no checksum or schema validation layer.
 - Command-specific output is written by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output in `shop.zig`.
 - Automated tests live under `tests/` and are aggregated by `tests/test_all.zig`, with `test_root.zig` providing the repository-root module path.
+
+
+## Agent knowledge and decision records
+
+The root `AGENTS.md` is the mandatory instruction entry point for contributors and coding agents. The `.agent/` directory contains the workflow, module contracts, roadmap, known constraints, task template, review checklist, and accepted Architecture Decision Records. These documents describe development constraints; they do not replace source code as the authority for current runtime behavior.
+
+The accepted records capture the current Zig 0.13.0 toolchain, focused one-way module boundaries, runtime-only mission sessions, and preservation of V2/V1/legacy save compatibility. Future proposals remain candidates in the roadmap until explicitly agreed and implemented.
