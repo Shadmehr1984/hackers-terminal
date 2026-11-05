@@ -10,7 +10,7 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 4 | HT-004 | Mission Preparation | Implemented | [Read task](HT-004-mission-preparation.md) |
 | 5 | HT-005 | Reputation & Contacts | Implemented | [Read task](HT-005-reputation-contacts.md) |
 | 6 | HT-006 | Contract Board | Implemented & Merged | [Read task](HT-006-contract-board.md) |
-| 7 | HT-007 | Mission Modifiers | Implementation complete; final CI/review pending | [Read task](HT-007-mission-modifiers.md) |
+| 7 | HT-007 | Mission Modifiers | Implementation complete; CI passed; PR #11 open/unmerged | [Read task](HT-007-mission-modifiers.md) |
 
 ## Gameplay Expansion Program — EXPANSION-001
 
