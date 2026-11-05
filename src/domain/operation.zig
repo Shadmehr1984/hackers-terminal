@@ -57,7 +57,7 @@ pub const Operation = struct {
                 if (!hasHiddenOptionalObjective(mission, incoming.objective_id)) return false;
             }
             if (stage.outgoing) |outgoing| {
-                if (!hasOptionalObjective(mission, outgoing.objective_id)) return false;
+                if (!hasHiddenOptionalObjective(mission, outgoing.objective_id)) return false;
             }
         }
         return true;
