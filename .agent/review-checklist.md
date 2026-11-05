@@ -187,6 +187,8 @@ Investigate these in context; do not automatically label every occurrence a defe
 - [ ] Comments explain invariants and non-obvious reasoning, not merely restate code.
 - [ ] Error names/messages are precise and consistent.
 - [ ] Avoid unnecessary wrappers, one-use abstractions, excessive nesting, and duplicated logic.
+- [ ] Prefer static dispatch and compile-time specialization when they keep the design simpler; do not introduce runtime polymorphism or generic machinery without a concrete need.
+- [ ] Use an Options Struct for functions with multiple related optional/configuration parameters when it materially improves call-site clarity; do not force it for trivial functions.
 - [ ] Keep formatting idiomatic and avoid clever code that obscures safety.
 - [ ] Keep imports organized and dependency direction obvious.
 
@@ -220,6 +222,7 @@ This is a mandatory cross-cutting pass.
 - [ ] State changes and reward/persistence outcomes can be verified through tests or deterministic output.
 - [ ] Tests are focused, deterministic, isolated, and do not depend on real external services.
 - [ ] Test names describe behavior; assertions verify outcomes rather than merely executing code.
+- [ ] Use `std.testing.allocator` for tests that exercise owned allocations where appropriate, so leaks are detected; use `std.testing.expectError` to assert expected error paths rather than checking only that an error occurred indirectly.
 - [ ] Failure injection covers allocator and I/O failure paths where relevant.
 - [ ] CI output is actionable; workflow steps and documentation checks are not redundant or misleading.
 - [ ] Update `.agent/known-issues.md`, module contracts, task handoffs, ADRs, or user docs only when evidence and scope justify it. Never turn an unaccepted proposal into an accepted decision.
