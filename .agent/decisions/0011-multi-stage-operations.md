@@ -1,6 +1,6 @@
 # ADR 0011 — Multi-stage Operations
 
-- **Status:** Accepted — design only
+- **Status:** Accepted; implementation explicitly authorized 2026-11-06 and in progress on `main`
 - **Date:** 2026-11-06
 - **Feature:** HT-009 — Multi-stage Operations
 - **Decision owner:** Project owner
@@ -62,4 +62,4 @@ Reuse `accept <mission-id>`, `modifier`, and `loadout` for stage execution. Do n
 
 ## Scope boundary
 
-This ADR approves the HT-009 design only. It does **not** authorize implementation. A separate explicit owner instruction is required before code changes begin.
+The HT-009 design remains the accepted contract for implementation. The owner explicitly authorized implementation with “شروع کن” on 2026-11-06. This authorization applies only to HT-009 and does not authorize later expansion features.
