@@ -47,7 +47,8 @@ Use `board` for the full catalog overview; `missions` remains the original compa
 | `disconnect` | None | None | Closes the simulated session |
 | `brute <password>` | Password answer | Active contract, connected session, and authentication node | Grants simulated authentication when the answer matches |
 | `decrypt <key>` | Decryption answer | Active contract, authentication granted, decryptor owned, and decryption node | Marks the mission file as decrypted when the key matches |
-| `inspect <filename>` | Authored fictional evidence filename | Active contract | Inspects matching fictional evidence and may reveal a hidden optional objective; unrelated names reveal nothing |\n| `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes discovered metadata objectives and earns their bonuses at contract completion |
+| `inspect <filename>` | Authored fictional evidence filename | Active contract | Inspects matching fictional evidence and may reveal a hidden optional objective; unrelated names reveal nothing |
+| `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes discovered metadata objectives and earns their bonuses at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract, successful decryption, and extraction node | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
 Preparation shows known contract intelligence, target, difficulty, rewards, objective outline, topology overview, and every allowed modifier with its exact effect and successful-completion bonus. Puzzle clues and answers remain undiscovered until the contract is launched. Preparation and its selected modifier are temporary and are not saved.
