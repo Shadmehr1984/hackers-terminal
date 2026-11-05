@@ -13,6 +13,7 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 ## Quality and maintenance tasks
 
 - [QUALITY-001 — Code Review Remediation](QUALITY-001-code-review-remediation.md) — Implemented: documentation consistency, command-path unification, atomic save writes, and focused module boundaries.
+- [QUALITY-002 — Save, Topology, and Persistence Test Hardening](QUALITY-002-code-review-remediation.md) — In Progress.
 
 ## Handoff rules
 - Start with HT-001. Do not implement all five systems together.
