@@ -121,6 +121,7 @@ pub const MissionSession = struct {
         self.current_node = null;
         self.traversal_count = 0;
         self.loadout = .{};
+        self.modifier = null;
         self.fixer_service_used = false;
     }
 
