@@ -115,6 +115,7 @@ hackers-terminal/
 │   ├── mission_state_test.zig
 │   ├── mission_data_test.zig
 │   ├── mission_objectives_test.zig
+│   ├── game_detection_test.zig
 │   └── test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
