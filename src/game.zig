@@ -12,8 +12,19 @@ const shop = @import("shop.zig");
 const commands = @import("commands.zig");
 const progression = @import("progression.zig");
 const detection = @import("detection.zig");
+const contacts = @import("contacts.zig");
 
 pub const detection_failure_penalty: u32 = detection.failure_penalty;
+
+fn isMissionUnlocked(mission: Mission, player: Player) bool {
+    return progression.playerLevel(player) >= mission.required_level and player.reputation >= mission.required_reputation;
+}
+
+fn printMissionLock(writer: anytype, mission: Mission, player: Player) !void {
+    const level = progression.playerLevel(player);
+    if (level < mission.required_level) try writer.print("Contract locked. Reach level {d} first.\n", .{mission.required_level});
+    if (player.reputation < mission.required_reputation) try writer.print("Contract locked. Reach Reputation {d} first.\n", .{mission.required_reputation});
+}
 
 fn parseUtility(name: []const u8) ?UtilityEquipment {
     if (std.mem.eql(u8, name, "silent-boots")) return .silent_boots;
@@ -30,6 +41,97 @@ pub fn currentLoadout(player: Player) MissionLoadout {
 fn atMissionNode(mission: Mission, session: MissionSession, expected: []const u8) bool {
     if (mission.topology == null) return true;
     return std.mem.eql(u8, session.current_node orelse "", expected);
+}
+
+fn handleDeal(
+    writer: anytype,
+    arg: []const u8,
+    player: *Player,
+    missions: []Mission,
+    active: *?usize,
+    session: *MissionSession,
+    preparation: *MissionPreparation,
+) !void {
+    if (std.mem.startsWith(u8, arg, "intel-")) {
+        if (!contacts.isUnlocked(.broker, player.reputation)) {
+            try writer.writeAll("Information Broker is locked. Reach Reputation 1 first.\n");
+            return;
+        }
+        const mission_id = arg["intel-".len..];
+        for (missions) |mission| {
+            if (!std.mem.eql(u8, mission.id, mission_id)) continue;
+            if (mission.completed) {
+                try writer.writeAll("That contract is already completed; no new intelligence is available.\n");
+            } else if (!isMissionUnlocked(mission, player.*)) {
+                try printMissionLock(writer, mission, player.*);
+            } else if (player.balance < contacts.intel_price) {
+                try writer.print("Insufficient funds. Intelligence costs ${d}.\n", .{contacts.intel_price});
+            } else {
+                player.balance -= contacts.intel_price;
+                try writer.print("[INTELLIGENCE PURCHASED] {s}\nPassword clue: {s}\nDecryption clue: {s}\nRemaining balance: ${d}\n", .{
+                    mission.name, mission.password_hint, mission.decryption_hint, player.balance,
+                });
+            }
+            return;
+        }
+        try writer.writeAll("Unknown intelligence offer. Use offers to see available IDs.\n");
+    } else if (std.mem.eql(u8, arg, "scrub-detection")) {
+        if (!contacts.isUnlocked(.fixer, player.reputation)) {
+            try writer.writeAll("Fixer is locked. Reach Reputation 3 first.\n");
+            return;
+        }
+        const cost = contacts.fixerServicePrice(player.reputation).?;
+        if (active.* == null) {
+            try writer.writeAll("Detection service requires an active contract.\n");
+        } else if (session.fixer_service_used) {
+            try writer.writeAll("The Fixer service has already been used in this contract.\n");
+        } else if (session.detection_level == 0) {
+            try writer.writeAll("Detection is already at zero; no service is needed.\n");
+        } else if (player.balance < cost) {
+            try writer.print("Insufficient funds. The service costs ${d}.\n", .{cost});
+        } else {
+            const reduction = @min(contacts.detection_reduction, session.detection_level);
+            player.balance -= cost;
+            session.detection_level -= reduction;
+            session.fixer_service_used = true;
+            try writer.print("[FIXER SERVICE] Detection reduced by {d}. Cost: ${d}. Remaining balance: ${d}.\n", .{
+                reduction, cost, player.balance,
+            });
+        }
+    } else if (std.mem.eql(u8, arg, "ghost-signal")) {
+        if (!contacts.isUnlocked(.fixer, player.reputation)) {
+            try writer.writeAll("Fixer is locked. Reach Reputation 3 first.\n");
+            return;
+        }
+        if (active.* != null) {
+            try writer.writeAll("Finish or fail the active contract before accepting another offer.\n");
+            return;
+        }
+        if (preparation.mission_index != null) {
+            try writer.writeAll("Cancel the current preparation before choosing this offer.\n");
+            return;
+        }
+        for (missions, 0..) |mission, index| {
+            if (!std.mem.eql(u8, mission.id, "job-04")) continue;
+            if (mission.completed) {
+                try writer.writeAll("Ghost Signal has already been completed.\n");
+            } else if (!isMissionUnlocked(mission, player.*)) {
+                try printMissionLock(writer, mission, player.*);
+            } else {
+                preparation.mission_index = index;
+                preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
+                    (if (player.equipment.owns(utility)) utility else null)
+                else
+                    null;
+                try writer.writeAll("[FIXER CONTRACT OFFER ACCEPTED]\n");
+                try terminal.printPreparation(writer, mission, player.*, preparation.selected_utility);
+            }
+            return;
+        }
+        try writer.writeAll("Ghost Signal contract is not present in this catalog.\n");
+    } else {
+        try writer.writeAll("Unknown offer. Use offers to see available IDs.\n");
+    }
 }
 
 pub fn runCommand(
@@ -51,7 +153,17 @@ pub fn runCommand(
         const level = progression.playerLevel(player.*);
         try terminal.printStatus(writer, player.*, active.*, missions, level, progression.xpForNextLevel(level), session.*);
     } else if (std.mem.eql(u8, command, "missions")) {
-        try terminal.printMissions(writer, missions, progression.playerLevel(player.*));
+        try terminal.printMissions(writer, missions, progression.playerLevel(player.*), player.reputation);
+    } else if (std.mem.eql(u8, command, "contacts")) {
+        try terminal.printContacts(writer, player.*);
+    } else if (std.mem.eql(u8, command, "contact")) {
+        if (contacts.ContactId.parse(arg)) |contact_id| {
+            try terminal.printContact(writer, contact_id, player.*, missions, active.*, session.*);
+        } else try writer.writeAll("Unknown contact. Use contact broker or contact fixer.\n");
+    } else if (std.mem.eql(u8, command, "offers")) {
+        try terminal.printOffers(writer, player.*, missions, active.*, session.*);
+    } else if (std.mem.eql(u8, command, "deal")) {
+        try handleDeal(writer, arg, player, missions, active, session, preparation);
     } else if (std.mem.eql(u8, command, "prepare")) {
         if (active.* != null) {
             try writer.writeAll("A contract is already active. Finish or fail it before preparing another.\n");
@@ -64,8 +176,8 @@ pub fn runCommand(
                 found = true;
                 if (mission.completed) {
                     try writer.writeAll("This contract is already completed.\n");
-                } else if (progression.playerLevel(player.*) < mission.required_level) {
-                    try writer.print("Contract locked. Reach level {d} first.\n", .{mission.required_level});
+                } else if (!isMissionUnlocked(mission, player.*)) {
+                    try printMissionLock(writer, mission, player.*);
                 } else {
                     preparation.mission_index = index;
                     preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
@@ -140,7 +252,7 @@ pub fn runCommand(
             const mission = missions[index];
             if (!std.mem.eql(u8, mission.id, arg)) {
                 try writer.print("Prepared contract is {s}. Use accept {s} to launch it, or cancel to choose another.\n", .{ mission.id, mission.id });
-            } else if (mission.completed or progression.playerLevel(player.*) < mission.required_level) {
+            } else if (mission.completed or !isMissionUnlocked(mission, player.*)) {
                 preparation.clear();
                 try writer.writeAll("The prepared contract is no longer available. Preparation cleared.\n");
             } else if (preparation.selected_utility) |utility| {
