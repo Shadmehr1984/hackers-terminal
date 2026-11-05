@@ -49,7 +49,7 @@ An active mission index of `-1` means there is no active contract. A non-negativ
 | Utility ownership, equipped utility, and upgrade levels | Yes (V3) |
 | Active mission index and mission completion flags | Yes |
 | Scan, connection, authentication, and decryption state | No |
-| Objective completion, Detection exposure, and Fixer service-use flag | No |
+| Objective discovery/completion state, Detection exposure, and Fixer service-use flag | No |
 | Reputation tiers, Contact unlocks, and Contact catalog | Derived from persisted Reputation/static catalog |
 | Current topology node and traversal count | No |
 
