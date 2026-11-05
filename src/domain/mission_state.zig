@@ -229,6 +229,11 @@ pub const MissionSession = struct {
         return false;
     }
 
+    /// Marks optional objectives for a completed event kind unavailable if that event cannot recur.
+    pub fn markOptionalObjectivesUnavailableForEvent(self: *MissionSession, kind: MissionObjectiveKind) void {
+        self.objective_tracker.markOptionalUnavailableForKind(@intCast(@intFromEnum(kind)));
+    }
+
     /// Marks incomplete optional objectives unavailable when the contract is ending.
     pub fn markUncompletedOptionalObjectivesUnavailable(self: *MissionSession) void {
         for (self.objective_tracker.entries[0..self.objective_tracker.count]) |*entry| {
