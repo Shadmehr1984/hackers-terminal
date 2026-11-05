@@ -68,6 +68,7 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
     player.equipment.equipped_utility = null;
     player.equipment.silent_boots_level = 0;
     player.equipment.signal_scrubber_level = 0;
+    for (missions) |*mission| mission.completed = false;
     var active_candidate: ?usize = null;
     var migrate_v1_xp = false;
 
