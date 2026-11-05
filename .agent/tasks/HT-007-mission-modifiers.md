@@ -104,8 +104,8 @@ Keep dependencies one-way. Domain rules must be testable without terminal I/O. T
 
 ## Acceptance criteria
 
-- [ ] Typed definitions exist for exactly the three approved modifiers, with stable IDs and clear descriptions.
-- [ ] All four current contracts author all three as allowed.
+- [x] Typed definitions exist for exactly the three approved modifiers, with stable IDs and clear descriptions.
+- [x] All four current contracts author all three as allowed.
 - [ ] modifier, modifier <id>, and modifier none follow the command contract and preserve parser behavior.
 - [ ] Preparation shows exact effects and +$50/+25 XP before acceptance.
 - [ ] Invalid/out-of-phase/unavailable selections are rejected without state mutation.
@@ -117,7 +117,7 @@ Keep dependencies one-way. Domain rules must be testable without terminal I/O. T
 - [ ] Successful completion grants +$50/+25 XP exactly once; failure/incomplete paths grant none.
 - [ ] Retry starts without the previous modifier or sweep count.
 - [ ] Save V3 writer and V2/V1/legacy readers remain unchanged.
-- [ ] Tests cover selection, eligibility, snapshot, equipment interaction, Detection boundaries, sweep cadence, idempotency, payout uniqueness, and reset.
+- [ ] Tests cover selection, eligibility, snapshot, equipment interaction, Detection boundaries, sweep cadence, idempotency, payout uniqueness, and reset (selection/eligibility/reset subset added; remaining cases pending).
 - [ ] User docs, architecture, ADR, and agent handoffs are synchronized.
 - [ ] Zig 0.13.0 formatting, build, tests, agent-doc check, review, and actual CI are verified before marking Implemented.
 
