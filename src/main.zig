@@ -42,7 +42,7 @@ pub fn main() !void {
         const line = std.mem.trim(u8, maybe_line.?, " \r\t");
         if (line.len == 0) continue;
 
-        const keep_running = try game.runCommandWithPreparation(stdout, line, &player, &missions, &active, &session, &preparation);
+        const keep_running = try game.runCommand(stdout, line, &player, &missions, &active, &session, &preparation);
         if (!keep_running) break;
     }
 }
