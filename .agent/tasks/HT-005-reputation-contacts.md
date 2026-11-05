@@ -53,34 +53,33 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 - Fixer service usage is stored only in MissionSession and resets at the start/end of a contract.
 - Save V3 serialization and field order remain unchanged. The current writer emits four mission flags; old saves with three flags leave job-04 incomplete.
 
-## Architecture
+## Current implementation architecture
 
-- src/progression.zig: Reputation tier mapping and outcome-based Reputation rewards.
-- src/contacts.zig: Contact identity, unlock thresholds, and service pricing.
-- src/mission.zig: optional static required_reputation and requires_contact_offer.
-- src/mission_data.zig: appended job-04 catalog entry and topology.
-- src/mission_state.zig: runtime-only fixer_service_used.
-- src/game.zig: contacts, contact, offers, and deal dispatch and transaction validation.
-- src/terminal.zig: Contact, offer, and tier presentation.
-- src/save.zig: unchanged.
-
+- `src/domain/progression.zig`: Reputation tier mapping and outcome-based Reputation rewards.
+- `src/domain/contacts.zig`: Contact identity, unlock thresholds, and service pricing.
+- `src/domain/mission.zig`: optional static `required_reputation` and `requires_contact_offer`.
+- `src/catalog/mission_data.zig`: appended `job-04` catalog entry and topology.
+- `src/domain/mission_state.zig`: runtime-only `fixer_service_used`.
+- `src/application/game.zig`: contacts, offers, and deal dispatch and transaction validation.
+- `src/presentation/terminal.zig`: Contact, offer, and tier presentation.
+- `src/persistence/save.zig`: unchanged Save V3 serialization and legacy readers.
 ## Acceptance criteria
 
-- [ ] Reputation tiers map correctly at 0, 1, 2, 3, 4, and 5+.
-- [ ] Every successful contract grants +1 Reputation.
-- [ ] Completing every optional objective grants +1 additional Reputation; partial completion does not.
-- [ ] Failed/compromised contracts do not change Reputation.
-- [ ] Broker unlocks at Reputation 1; Fixer unlocks at Reputation 3.
-- [ ] Locked contacts and unavailable offers cannot be used.
-- [ ] Broker purchases cost $50 and reveal clues but not puzzle answers.
-- [ ] Unaffordable or invalid Broker purchases do not change balance.
-- [ ] Fixer service requires an active contract and positive Detection, reduces up to 10, and costs $100/$75 at the defined tiers.
-- [ ] Fixer service can be used only once per active contract and resets for the next contract.
-- [ ] Ghost Signal requires level 3 and Reputation 3, is prepared only through the Fixer offer, is hidden while another contract is active/prepared, and is appended at index 3.
-- [ ] Existing mission indices and original mission progression remain unchanged.
-- [ ] Existing V3/V2/V1/legacy saves load; older three-mission completion lists leave Ghost Signal incomplete.
-- [ ] All new behavior and important invalid/failure paths have automated tests.
-- [ ] README, gameplay, command, architecture, save-format, development, AGENTS, module conventions, roadmap, ADR, and task index are accurate.
+- [x] Reputation tiers map correctly at 0, 1, 2, 3, 4, and 5+.
+- [x] Every successful contract grants +1 Reputation.
+- [x] Completing every optional objective grants +1 additional Reputation; partial completion does not.
+- [x] Failed/compromised contracts do not change Reputation.
+- [x] Broker unlocks at Reputation 1; Fixer unlocks at Reputation 3.
+- [x] Locked contacts and unavailable offers cannot be used.
+- [x] Broker purchases cost $50 and reveal clues but not puzzle answers.
+- [x] Unaffordable or invalid Broker purchases do not change balance.
+- [x] Fixer service requires an active contract and positive Detection, reduces up to 10, and costs $100/$75 at the defined tiers.
+- [x] Fixer service can be used only once per active contract and resets for the next contract.
+- [x] Ghost Signal requires level 3 and Reputation 3, is prepared only through the Fixer offer, is hidden while another contract is active/prepared, and is appended at index 3.
+- [x] Existing mission indices and original mission progression remain unchanged.
+- [x] Existing V3/V2/V1/legacy saves load; older three-mission completion lists leave Ghost Signal incomplete.
+- [x] All new behavior and important invalid/failure paths have automated tests.
+- [x] README, gameplay, command, architecture, save-format, development, AGENTS, module conventions, roadmap, ADR, and task index are accurate.
 - [x] Zig 0.13.0 formatting, build, full tests, agent-doc check, and CI pass.
 - [x] Independent review or documented self-review is complete.
 
@@ -115,4 +114,4 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 - Self-review performed against .agent/review-checklist.md after inspecting the changed source, tests, persistence behavior, and documentation. A follow-up review also checked contact-offer visibility against active/prepared state; the corresponding display logic and regression test were added.
 - No independent second reviewer was available; this is recorded as a self-review, not a second-agent review.
 - Zig is not installed in the execution environment and network access to obtain it is unavailable, so formatting/build/tests were not run locally.
-- GitHub Actions run [42042129713](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42042129713) for commit `ef43396a6fbdbdd9ce463de345b1edf704b468b4` completed successfully. Formatting, project compilation, full Zig test suite, and agent documentation structure check all passed. The initial CI failure was a missing enum declaration terminator in `src/progression.zig`; it was fixed in the follow-up commit and the full workflow passed.
+- GitHub Actions run [42042129713](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42042129713) for commit `ef43396a6fbdbdd9ce463de345b1edf704b468b4` completed successfully. Formatting, project compilation, full Zig test suite, and agent documentation structure check all passed. The initial CI failure was a missing enum declaration terminator in `src/domain/progression.zig`; it was fixed in the follow-up commit and the full workflow passed.

@@ -87,48 +87,50 @@ hackers-terminal/
 │   ├── decisions/
 │   ├── tasks/
 │   ├── README.md
-│   ├── workflow.md
 │   ├── conventions.md
-│   ├── roadmap.md
 │   ├── known-issues.md
-│   └── review-checklist.md
-├── scripts/
-│   └── check-agent-docs.sh
-├── .github/
-│   └── workflows/
-│       └── ci.yml
+│   ├── review-checklist.md
+│   ├── roadmap.md
+│   └── workflow.md
+├── .github/workflows/ci.yml
 ├── docs/
 │   ├── architecture.md
 │   ├── commands.md
 │   ├── development.md
 │   ├── gameplay.md
 │   └── save-format.md
+├── scripts/check-agent-docs.sh
 ├── src/
-│   ├── main.zig
-│   ├── game.zig
-│   ├── detection.zig
-│   ├── progression.zig
-│   ├── contacts.zig
-│   ├── player.zig
-│   ├── mission.zig
-│   ├── topology.zig
-│   ├── mission_data.zig
-│   ├── mission_state.zig
-│   ├── commands.zig
-│   ├── terminal.zig
-│   ├── save.zig
-│   └── shop.zig
+│   ├── application/
+│   │   ├── commands.zig
+│   │   ├── detection.zig
+│   │   ├── game.zig
+│   │   └── shop.zig
+│   ├── catalog/
+│   │   └── mission_data.zig
+│   ├── domain/
+│   │   ├── contacts.zig
+│   │   ├── mission.zig
+│   │   ├── mission_state.zig
+│   │   ├── player.zig
+│   │   ├── progression.zig
+│   │   └── topology.zig
+│   ├── persistence/
+│   │   └── save.zig
+│   ├── presentation/
+│   │   └── terminal.zig
+│   └── main.zig
 ├── tests/
 │   ├── commands_test.zig
-│   ├── mission_state_test.zig
+│   ├── contacts_test.zig
+│   ├── equipment_test.zig
+│   ├── game_detection_test.zig
 │   ├── mission_data_test.zig
 │   ├── mission_objectives_test.zig
-│   ├── game_detection_test.zig
-│   ├── topology_test.zig
-│   ├── equipment_test.zig
 │   ├── mission_preparation_test.zig
+│   ├── mission_state_test.zig
 │   ├── progression_test.zig
-│   ├── contacts_test.zig
+│   ├── topology_test.zig
 │   └── test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
