@@ -34,11 +34,11 @@ The project owner approved these five feature areas on 2026-11-05. Implement the
 
 ## Gameplay Expansion Program — EXPANSION-001
 
-The owner approved planning for the next 20 gameplay ideas on 2026-11-05. HT-006 implementation was explicitly authorized on 2026-11-05 and is In Progress. Every later feature still requires its own explicit implementation authorization and detailed design approval.
+The owner approved planning for the next 20 gameplay ideas on 2026-11-05. HT-006 is implemented and merged. HT-007's detailed design and implementation were authorized on 2026-11-05; implementation is in progress. Every later feature still requires its own design approval and implementation authorization.
 
 | Phase | Scope | Plan | Status |
 |---|---|---|---|
-| 1 | Contract Board, Mission Modifiers, Hidden Objectives, Multi-stage Operations (HT-006–HT-009) | [Phase 1](plans/PHASE-1-MISSION-CONTENT.md) | HT-006 In Progress; remaining Planned |
+| 1 | Contract Board, Mission Modifiers, Hidden Objectives, Multi-stage Operations (HT-006–HT-009) | [Phase 1](plans/PHASE-1-MISSION-CONTENT.md) | HT-006 Implemented; HT-007 In Progress; HT-008–009 Planned |
 | 2 | Factions, Rival Hackers, Information Market, Contact Development, Data Archive (HT-010–HT-012, HT-022, HT-025) | [Phase 2](plans/PHASE-2-WORLD-AND-RELATIONSHIPS.md) | Planned |
 | 3 | Security Profiles, Countermeasures, Security Agent Behaviors and Memory (HT-016–HT-017, HT-023–HT-024) | [Phase 3](plans/PHASE-3-SECURITY-SYSTEMS.md) | Planned |
 | 4 | Specializations, Level/Unlocks, Tool Collection, Operational Costs, Recurring Contracts, Achievements, Challenges (HT-013–HT-015, HT-018–HT-021) | [Phase 4](plans/PHASE-4-PROGRESSION-AND-REPLAYABILITY.md) | Planned |
@@ -52,6 +52,6 @@ The existing HT-001 through HT-005 program remains implemented. EXPANSION-001 is
 
 ## Planning and status rules
 - The task brief is the source of scope and acceptance criteria for each feature. Agents must read it before implementation and update its status/progress notes as work advances.
-- Status values: Planned, In Progress, Blocked, Implemented. Use Implemented only after code, tests, documentation, review, and the relevant CI checks are complete.
+- Status values: Planned, Design Approved, In Progress, Blocked, Implemented. Use Implemented only after code, tests, documentation, review, and the relevant CI checks are complete.
 - Discuss substantial scope changes with the project owner before proceeding.
 - Do not begin a later feature while an earlier feature has unresolved foundational decisions, unless the owner explicitly changes the order.
