@@ -205,7 +205,7 @@ Use `contacts` to see both characters and their unlock status, `contact broker` 
 
 - **Information Broker** unlocks at Reputation 1. The Broker sells contract-specific password and decryption clues for $50 using `deal intel-<mission-id>`. Offers appear only for unlocked, incomplete contracts. The purchase reveals clues, never the actual password or decryption key. Each purchase is a separate transaction.
 - **Fixer** unlocks at Reputation 3. The Fixer offers `deal scrub-detection` during an active contract. It reduces Detection by up to 10, can be used once per contract, and costs $100 at Trusted (Reputation 3–4) or $75 at Elite (Reputation 5+). It cannot raise Detection or be used when Detection is already zero.
-- The Fixer also offers `deal ghost-signal`, which opens preparation for `job-04` when the player meets both level 3 and Reputation 3 requirements. The offer has no fee; the contract is appended after the original three missions.
+- The Fixer also offers `deal ghost-signal`, which opens preparation for `job-04` when the player meets both level 3 and Reputation 3 requirements. Direct `prepare job-04` is rejected; the contract must be opened through the Fixer offer. The offer has no fee; the contract is appended after the original three missions.
 
 The Fixer service-use flag is runtime-only and resets when a contract starts or ends. Reputation, tiers, and Contact unlocks use the existing persisted Reputation value, so Save V3 remains unchanged.
 
