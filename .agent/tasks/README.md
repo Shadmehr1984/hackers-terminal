@@ -14,7 +14,7 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 
 ## Gameplay Expansion Program — EXPANSION-001
 
-Planning approved on 2026-11-05. HT-006 is implemented and merged. HT-007 implementation is authorized and in progress. All later features still require their own feature-specific design approval and implementation authorization. These phase documents are persistent agent handoffs and contain the execution scope and acceptance criteria for all 20 ideas.
+Planning approved on 2026-11-05. HT-006 is implemented and merged. HT-007 implementation is complete on PR #11 (open/unmerged); CI run #567 passed. Do not merge without owner approval. All later features still require their own feature-specific design approval and implementation authorization. These phase documents are persistent agent handoffs and contain the execution scope and acceptance criteria for all 20 ideas.
 
 - [Master plan and dependency register](../plans/GAMEPLAY-EXPANSION-OVERVIEW.md)
 - [Phase 1 — Contract and Mission Content](../plans/PHASE-1-MISSION-CONTENT.md): HT-006 Contract Board; HT-007 Mission Modifiers; HT-008 Hidden Objectives; HT-009 Multi-stage Operations.
