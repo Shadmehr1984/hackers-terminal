@@ -42,7 +42,7 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 **Ghost Signal**
 - ID: job-04; append after the original three contracts to preserve indices.
 - Requires level 3 and Reputation 3.
-- Can only be prepared through the Fixer offer; direct prepare is rejected.
+- Can only be prepared through the Fixer offer; direct prepare is rejected. The offer is not displayed while another contract is active or prepared.
 - Has its own fictional topology, required objectives, optional metadata objective, clues, reward, and XP.
 - No Save V4 is needed.
 
