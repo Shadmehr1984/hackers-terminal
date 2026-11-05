@@ -6,7 +6,7 @@ Derived from the current source tree; re-check source before relying on this map
 | --- | --- | --- |
 | src/main.zig | Entry point, allocator/I/O setup, save loading, welcome, input loop | Mission rules or command-specific logic |
 | src/game.zig | Dispatch, validation, state transitions, rewards, progression | Low-level parsing or reusable presentation |
-| src/player.zig | Player profile data/defaults | Persistence and terminal I/O |
+| src/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and pure Detection modifiers | Persistence and terminal I/O |
 | src/mission.zig | Mission, optional topology reference, difficulty, objective types | Built-in catalog or runtime mutation |
 | src/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
@@ -14,7 +14,7 @@ Derived from the current source tree; re-check source before relying on this map
 | src/commands.zig | Allocation-free command/first-argument parsing | Gameplay validation and dispatch |
 | src/terminal.zig | Reusable terminal presentation | Mutating game state or deciding rewards |
 | src/save.zig | Save/load serialization and legacy compatibility | Gameplay command handling |
-| src/shop.zig | Inventory/shop display and purchases | Mission progression |
+| src/shop.zig | Equipment catalog, inventory, purchases, equipping, and upgrades | Mission progression |
 | tests/ | Automated tests grouped by behavior/domain | Production implementation |
 | docs/ | User, architecture, save, and developer documentation | Substitute for executable tests |
 
@@ -36,5 +36,5 @@ Derived from the current source tree; re-check source before relying on this map
 ## State and persistence
 - Mission-session progress, connection state, objective completion, detection, current topology node, and successful traversal count are transient.
 - Player progression and mission completion are persisted.
-- Save format is positional and supports V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
+- Save format is positional and writes V3 and reads V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
 - Objective completion currently uses an eight-bit mask; adding a ninth kind requires redesign and tests.
