@@ -40,9 +40,12 @@ Legacy top-level `src/*.zig` files are compatibility facades. New code and curre
 - decisions/0010-hidden-objectives.md: accepted HT-008 objective identity, state, discovery, reward, and lifecycle decisions.
 - plans/GAMEPLAY-EXPANSION-OVERVIEW.md and PHASE-1 through PHASE-4: the owner-approved planning baseline and handoff specifications for 20 gameplay features (HT-006 through HT-025). HT-006 is implemented; HT-007 implementation is merged to `main` (PR #11); HT-008 implementation is complete on `main` following explicit authorization; HT-009 implementation is complete on `main` (CI #733 passed); all other later features require individual design approval and implementation authorization.
 - tasks/TEMPLATE.md: concise task specification.
-- review-checklist.md: independent review criteria.
+- review-checklist.md: **mandatory comprehensive Code Review Standard** covering full-repository and change reviews, weighted review passes, OWASP Top 10:2025, the ordered Zig scan, project-specific invariants, tests/CI, severity rules, and required reporting. Reviewers must complete every applicable item and record N/A/verification gaps explicitly.
 
 ## Agent expectations
 Task briefs are persistent handoff documents. Agents must read the relevant brief before implementation, keep its status/progress notes current, and update the roadmap when a milestone changes status. Approval of the overall program is not permission to combine all features into one oversized change. Work in order and preserve the fictional/offline-only boundary.
+
+### Mandatory code review expectations
+Whenever an owner requests a code review, every agent must read and follow the complete `review-checklist.md`; it is not a menu or optional sample. The standard's sequence, four weighted passes, all OWASP Top 10:2025 categories, Zig-specific scan order, project-specific checks, severity definitions, evidence rules, and final report sections are mandatory. For a full review, inspect the entire repository rather than only the diff. A review request alone never authorizes code changes. If a check is inapplicable, say why; if evidence is unavailable, mark it `NEEDS-VERIFICATION` and state what is missing. Never guess or claim unperformed verification.
 
 Keep this workspace concise and update it only when lasting decisions, constraints, or agreed plans change.
