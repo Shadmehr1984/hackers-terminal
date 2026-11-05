@@ -158,10 +158,10 @@ pub fn runCommand(
         try terminal.printContacts(writer, player.*);
     } else if (std.mem.eql(u8, command, "contact")) {
         if (contacts.ContactId.parse(arg)) |contact_id| {
-            try terminal.printContact(writer, contact_id, player.*, missions, active.*, session.*);
+            try terminal.printContact(writer, contact_id, player.*, missions, active.*, session.*, preparation.*);
         } else try writer.writeAll("Unknown contact. Use contact broker or contact fixer.\n");
     } else if (std.mem.eql(u8, command, "offers")) {
-        try terminal.printOffers(writer, player.*, missions, active.*, session.*);
+        try terminal.printOffers(writer, player.*, missions, active.*, session.*, preparation.*);
     } else if (std.mem.eql(u8, command, "deal")) {
         try handleDeal(writer, arg, player, missions, active, session, preparation);
     } else if (std.mem.eql(u8, command, "prepare")) {
