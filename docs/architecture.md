@@ -2,7 +2,7 @@
 
 ## Overview
 
-The current implementation is a compact, single-file Zig application. Almost all game logic and content live in `src/main.zig`; `build.zig` configures the executable and its run step.
+The application is being refactored incrementally from a single-file implementation into focused Zig modules. The first extraction moves the core `Player` and `Mission` data types into their own modules; command handling and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
 
 There is no client/server split, networking layer, database, plugin system, or external game service. The game is local and self-contained.
 
@@ -10,7 +10,9 @@ There is no client/server split, networking layer, database, plugin system, or e
 
 | Path | Responsibility |
 | --- | --- |
-| `src/main.zig` | Data types, mission definitions, terminal output, save/load, command handling, and application entry point |
+| `src/main.zig` | Mission definitions, terminal output, save/load, command handling, and application entry point (remaining responsibilities during the incremental refactor) |
+| `src/player.zig` | Public `Player` profile data type and its defaults |
+| `src/mission.zig` | Public `Mission` contract data type and its completion default |
 | `build.zig` | Executable configuration, install artifact, and `run` build step |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
 | `docs/` | User and developer documentation |
@@ -28,11 +30,11 @@ A mission stores its static contract definition and completion state:
 - `reward`, `xp_reward`, and `required_level` configure progression.
 - `completed` records whether the contract has been completed.
 
-The three mission instances are initialized in `main` as a fixed-size array.
+The three mission instances are still initialized in `main` as a fixed-size array. The `Mission` type itself is defined in `src/mission.zig` and imported by `main.zig`.
 
 ### `Player`
 
-The player profile stores:
+The player profile type is defined in `src/player.zig` and imported by `main.zig`. It stores:
 
 - `handle`: terminal identity; defaults to `ghost`.
 - `balance`: in-game currency; defaults to 250.
@@ -112,6 +114,10 @@ Temporary state is not persisted: scanned, connected, access granted, and decryp
 ## Error handling style
 
 Most user input errors are handled by printing a message and returning to the prompt. File creation and writing errors during `save` are caught and reported to the player. Loading is intentionally tolerant: failure to open or read the save file returns no active mission, and individual numeric parse failures generally fall back to the current default value.
+
+## Incremental modularization
+
+The first refactoring step extracts only the foundational data types. `player.zig` and `mission.zig` do not import other game modules. `main.zig` imports both types directly. This keeps the dependency direction simple and avoids circular imports while behavior is preserved. Further responsibilities (persistence, terminal I/O, command handling, and game coordination) will be extracted in later steps.
 
 ## Current design constraints
 
