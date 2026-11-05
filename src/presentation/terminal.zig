@@ -4,6 +4,7 @@ const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
 const Player = @import("../domain/player.zig").Player;
 const UtilityEquipment = @import("../domain/player.zig").UtilityEquipment;
+const ModifierId = @import("../domain/mission_modifier.zig").ModifierId;
 const std = @import("std");
 const progression = @import("../domain/progression.zig");
 const contacts = @import("../domain/contacts.zig");
@@ -42,6 +43,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  Detection is shown by 'status'; risky actions increase exposure.
         \\  prepare <id>         Review a contract and prepare its loadout
         \\  loadout <utility|none> Select this run's utility
+        \\  modifier [id|none] Select or inspect this run's mission modifier
         \\  accept <id>          Launch the prepared contract
         \\  cancel               Cancel mission preparation
         \\  scan <target>        Scan the active fictional target
@@ -101,6 +103,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
         });
         if (session.current_node) |node| try writer.print("  Location:    {s}\n", .{node});
         try writer.print("  Traversals:  {d}\n", .{session.traversal_count});
+        if (session.modifier) |modifier| try writer.print("  Modifier:    {s}\n", .{modifier.label()});
     } else {
         try writer.writeAll("  Active job:  none\n  Detection:   inactive\n");
     }
@@ -283,7 +286,7 @@ pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSessio
 }
 
 /// Writes a pre-launch briefing without revealing undiscovered puzzle clues or answers.
-pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selected_utility: ?UtilityEquipment) !void {
+pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selected_utility: ?UtilityEquipment, selected_modifier: ?ModifierId) !void {
     try writer.print("MISSION PREPARATION: {s} ({s})\nTarget: {s}\nDifficulty: {s}\nReward: ${d} + {d} XP\n", .{
         mission.name, mission.id, mission.target, mission.difficulty.label(), mission.reward, mission.xp_reward,
     });
