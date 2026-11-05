@@ -2,7 +2,7 @@
 
 **Feature:** Mission Modifiers  
 **Program:** EXPANSION-001 / Phase 1  
-**Status:** In Progress — modifier domain and preparation eligibility implemented; command/session effects pending  
+**Status:** Implementation complete; final CI and review verification pending  
 **Design approval:** 2026-11-05
 
 ## Goal
@@ -106,19 +106,19 @@ Keep dependencies one-way. Domain rules must be testable without terminal I/O. T
 
 - [x] Typed definitions exist for exactly the three approved modifiers, with stable IDs and clear descriptions.
 - [x] All four current contracts author all three as allowed.
-- [ ] modifier, modifier <id>, and modifier none follow the command contract and preserve parser behavior.
-- [ ] Preparation shows exact effects and +$50/+25 XP before acceptance.
-- [ ] Invalid/out-of-phase/unavailable selections are rejected without state mutation.
-- [ ] Accept snapshots the selection; active behavior does not read mutable preparation or live equipment.
-- [ ] Heightened Monitoring adds +2 after Silent Boots adjustment; invalid moves remain free.
-- [ ] Security Sweep adds +8 at successful traversal counts 3, 6, 9, etc.; revisits count and rejected moves do not.
-- [ ] Hardened Encryption changes only incorrect decryption attempts to +15; successful and repeated-completed behavior remains correct.
-- [ ] All modifier Detection events use the central path and compromise immediately at 100.
-- [ ] Successful completion grants +$50/+25 XP exactly once; failure/incomplete paths grant none.
-- [ ] Retry starts without the previous modifier or sweep count.
-- [ ] Save V3 writer and V2/V1/legacy readers remain unchanged.
-- [ ] Tests cover selection, eligibility, snapshot, equipment interaction, Detection boundaries, sweep cadence, idempotency, payout uniqueness, and reset (selection/eligibility/reset subset added; remaining cases pending).
-- [ ] User docs, architecture, ADR, and agent handoffs are synchronized.
+- [x] modifier, modifier <id>, and modifier none follow the command contract and preserve parser behavior.
+- [x] Preparation shows exact effects and +$50/+25 XP before acceptance.
+- [x] Invalid/out-of-phase/unavailable selections are rejected without state mutation.
+- [x] Accept snapshots the selection; active behavior does not read mutable preparation or live equipment.
+- [x] Heightened Monitoring adds +2 after Silent Boots adjustment; invalid moves remain free.
+- [x] Security Sweep adds +8 at successful traversal counts 3, 6, 9, etc.; revisits count and rejected moves do not.
+- [x] Hardened Encryption changes only incorrect decryption attempts to +15; successful and repeated-completed behavior remains correct.
+- [x] All modifier Detection events use the central path and compromise immediately at 100.
+- [x] Successful completion grants +$50/+25 XP exactly once; failure/incomplete paths grant none.
+- [x] Retry starts without the previous modifier or sweep count.
+- [x] Save V3 writer and V2/V1/legacy readers remain unchanged.
+- [x] Tests cover selection, eligibility, snapshot, equipment interaction, Detection boundaries, sweep cadence, idempotency, payout uniqueness, and reset.
+- [x] User docs, architecture, ADR, and agent handoffs are synchronized.
 - [ ] Zig 0.13.0 formatting, build, tests, agent-doc check, review, and actual CI are verified before marking Implemented.
 
 ## Explicit non-goals
@@ -142,4 +142,4 @@ Keep dependencies one-way. Domain rules must be testable without terminal I/O. T
 8. Run Zig 0.13.0 fmt/build/full tests and agent-doc check; inspect actual CI.
 9. Complete independent review when available (otherwise label self-review honestly) and record commit/PR/CI evidence.
 
-**Progress note:** On 2026-11-05 the owner approved manual selection, one modifier maximum, the three exact effects, and the common +$50/+25 XP successful-completion bonus. Implementation authorization was granted by the owner on 2026-11-05. Milestone 1 (typed modifier definitions and domain tests) passed CI run 42096680305. Milestone 2 adds static mission allowlists and runtime-only preparation selection/reset; command handling, session snapshot, Detection effects, and rewards remain pending.
+**Progress note:** On 2026-11-05 the owner approved manual selection, one modifier maximum, the three exact effects, all-four-contract eligibility, and the common +$50/+25 XP successful-completion bonus. Implementation authorization was granted by the owner on 2026-11-05. Domain and preparation eligibility were added first; this implementation now wires the `modifier` command, preparation/active-run disclosure, immutable session snapshot, all three Detection effects, and one-time completion payout. Focused tests cover invalid selections, retry/reset, Silent Boots interaction, sweep cadence and compromise order, hardened-key idempotency, successful payout uniqueness, and failure/incomplete no-payout paths. User docs, architecture, root agent instructions, and module conventions were updated. The Save V3 writer and all readers are untouched. Final CI for the latest commit and final PR review remain pending.
