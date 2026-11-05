@@ -248,7 +248,6 @@ test "topology movement reaching full detection triggers HT-001 failure and pena
     try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
 }
 
-
 test "incorrect retries after authentication and decryption do not add detection" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
