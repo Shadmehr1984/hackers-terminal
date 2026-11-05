@@ -459,7 +459,7 @@ pub fn runCommand(
                 } else {
                     missions[index].completed = true;
                     try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
-                    try progression.completeMission(writer, player, mission, session.*);
+                    try progression.completeMission(writer, player, mission, session);
                     active.* = null;
                     session.reset();
                 }
