@@ -43,7 +43,7 @@ pub fn currentLoadout(player: Player) MissionLoadout {
 }
 
 fn reportObjectiveDiscoveries(writer: anytype, count: usize) !void {
-    if (count > 0) try writer.print("[HIDDEN OBJECTIVE DISCOVERED] {d} optional objective(s) revealed. Use 'objectives' to inspect them.\\n", .{count});
+    if (count > 0) try writer.print("[HIDDEN OBJECTIVE DISCOVERED] {d} optional objective(s) revealed. Use 'objectives' to inspect them.\n", .{count});
 }
 
 fn atMissionNode(mission: Mission, session: MissionSession, expected: []const u8) bool {
@@ -284,6 +284,7 @@ pub fn runCommand(
                         session.current_node = node.id;
                         session.traversal_count += 1;
                         try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
+                        try reportObjectiveDiscoveries(writer, session.discoverNode(node.id, missions[index].objectives));
                         _ = try applyTraversalDetection(writer, player, active, session);
                     }
                 } else try writer.writeAll("Current location is unavailable. Restart the contract.\n");
@@ -293,12 +294,12 @@ pub fn runCommand(
         if (active.*) |index| {
             const revealed = session.discoverFile(arg, missions[index].objectives);
             if (revealed == 0) {
-                try writer.writeAll("No undiscovered evidence matching that fictional file is available here.\\n");
+                try writer.writeAll("No undiscovered evidence matching that fictional file is available here.\n");
             } else {
-                try writer.print("[EVIDENCE INSPECTED] {s}\\n", .{arg});
+                try writer.print("[EVIDENCE INSPECTED] {s}\n", .{arg});
                 try reportObjectiveDiscoveries(writer, revealed);
             }
-        } else try writer.writeAll("No active contract.\\n");
+        } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "briefing")) {
         if (active.*) |index| {
             const mission = missions[index];
