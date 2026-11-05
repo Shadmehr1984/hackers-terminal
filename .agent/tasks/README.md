@@ -29,7 +29,7 @@ Planning approved on 2026-11-05. HT-006 implementation is explicitly authorized 
 - [QUALITY-004 — Idempotent Completed Authentication and Decryption](QUALITY-004-idempotent-completed-stages.md) — Implemented: incorrect retries after completed stages no longer increase Detection.
 
 ## Handoff rules
-- Start with HT-001. Do not implement all five systems together.
+- HT-001 through HT-005 are complete. For EXPANSION-001, follow the dependency order and require individual owner authorization for each feature. Do not combine multiple features into one oversized change.
 - Before coding, inspect current source, tests, docs, CI, and save behavior; then add a concrete milestone plan and progress notes to the relevant brief.
 - Update the brief and `.agent/roadmap.md` as milestones move through Planned → In Progress → Blocked/Implemented.
 - Implemented means code, focused tests, documentation, review, and relevant CI are complete.
