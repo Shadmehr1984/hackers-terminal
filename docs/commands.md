@@ -58,6 +58,7 @@ For the first contract:
 
 ```text
 missions
+prepare job-01
 accept job-01
 briefing
 map
