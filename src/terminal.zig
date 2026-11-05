@@ -25,6 +25,10 @@ pub fn printHelp(writer: anytype) !void {
         \\  help                 Show this help
         \\  status               Show operator status
         \\  missions             List available contracts
+        \\  contacts             Show unlocked and locked contacts
+        \\  contact <id>         Inspect a contact and its offers
+        \\  offers               List actionable contact offers
+        \\  deal <id>            Purchase or accept a contact offer
         \\  briefing             Show clues and objectives for the active contract
         \\  objectives           Show active contract objective progress
         \\  map                  Show the active fictional network map
@@ -122,20 +126,20 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32, rep
 }
 
 pub fn printContacts(writer: anytype, player: Player) !void {
-    try writer.print("CONTACT NETWORK\\nReputation: {d} ({s})\\n\\n", .{
+    try writer.print("CONTACT NETWORK\nReputation: {d} ({s})\n\n", .{
         player.reputation, progression.reputationTier(player.reputation).label(),
     });
     const all = [_]contacts.ContactId{ .broker, .fixer };
     for (all) |contact| {
         if (contacts.isUnlocked(contact, player.reputation)) {
-            try writer.print("  [UNLOCKED] {s} — {s}\\n", .{ contact.label(), contact.role() });
+            try writer.print("  [UNLOCKED] {s} — {s}\n", .{ contact.label(), contact.role() });
         } else {
-            try writer.print("  [LOCKED] {s} — requires Reputation {d}\\n", .{
+            try writer.print("  [LOCKED] {s} — requires Reputation {d}\n", .{
                 contact.label(), contact.requiredReputation(),
             });
         }
     }
-    try writer.writeAll("\\nUse contact <id> for details and offers for available deals.\\n");
+    try writer.writeAll("\nUse contact <id> for details and offers for available deals.\n");
 }
 
 pub fn printContact(
@@ -146,43 +150,43 @@ pub fn printContact(
     active: ?usize,
     session: MissionSession,
 ) !void {
-    try writer.print("{s}\\nRole: {s}\\n", .{ contact.label(), contact.role() });
+    try writer.print("{s}\nRole: {s}\n", .{ contact.label(), contact.role() });
     if (!contacts.isUnlocked(contact, player.reputation)) {
-        try writer.print("Status: LOCKED — requires Reputation {d}; current Reputation: {d}.\\n", .{
+        try writer.print("Status: LOCKED — requires Reputation {d}; current Reputation: {d}.\n", .{
             contact.requiredReputation(), player.reputation,
         });
         return;
     }
-    try writer.writeAll("Status: AVAILABLE\\n");
+    try writer.writeAll("Status: AVAILABLE\n");
     switch (contact) {
         .broker => {
-            try writer.writeAll("Contract intelligence costs $50 and reveals clues, never puzzle answers.\\nAvailable intelligence:\\n");
+            try writer.writeAll("Contract intelligence costs $50 and reveals clues, never puzzle answers.\nAvailable intelligence:\n");
             var found = false;
             for (missions) |mission| {
                 if (mission.completed or progression.playerLevel(player) < mission.required_level or player.reputation < mission.required_reputation) continue;
                 found = true;
-                try writer.print("  deal intel-{s} — {s}\\n", .{ mission.id, mission.name });
+                try writer.print("  deal intel-{s} — {s}\n", .{ mission.id, mission.name });
             }
-            if (!found) try writer.writeAll("  No eligible contract intelligence right now.\\n");
+            if (!found) try writer.writeAll("  No eligible contract intelligence right now.\n");
         },
         .fixer => {
             if (contacts.fixerServicePrice(player.reputation)) |price| {
                 if (active != null and session.detection_level > 0 and !session.fixer_service_used) {
-                    try writer.print("  deal scrub-detection — reduce Detection by up to 10 for ${d}\\n", .{price});
+                    try writer.print("  deal scrub-detection — reduce Detection by up to 10 for ${d}\n", .{price});
                 } else {
-                    try writer.writeAll("  Detection service requires an active contract with Detection above zero and no prior service use.\\n");
+                    try writer.writeAll("  Detection service requires an active contract with Detection above zero and no prior service use.\n");
                 }
             }
             for (missions) |mission| {
                 if (std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
                     progression.playerLevel(player) >= mission.required_level and player.reputation >= mission.required_reputation)
                 {
-                    try writer.writeAll("  deal ghost-signal — prepare the exclusive contract\\n");
+                    try writer.writeAll("  deal ghost-signal — prepare the exclusive contract\n");
                 }
             }
         },
     }
-    try writer.writeAll("Use 'offers' to see currently actionable deals.\\n");
+    try writer.writeAll("Use 'offers' to see currently actionable deals.\n");
 }
 
 pub fn printOffers(
@@ -192,31 +196,31 @@ pub fn printOffers(
     active: ?usize,
     session: MissionSession,
 ) !void {
-    try writer.writeAll("AVAILABLE CONTACT OFFERS\\n");
+    try writer.writeAll("AVAILABLE CONTACT OFFERS\n");
     var found = false;
     if (contacts.isUnlocked(.broker, player.reputation)) {
         for (missions) |mission| {
             if (mission.completed or progression.playerLevel(player) < mission.required_level or player.reputation < mission.required_reputation) continue;
             found = true;
-            try writer.print("  intel-{s} — {s} clues ($50)\\n", .{ mission.id, mission.name });
+            try writer.print("  intel-{s} — {s} clues ($50)\n", .{ mission.id, mission.name });
         }
     }
     if (contacts.isUnlocked(.fixer, player.reputation)) {
         if (active != null and session.detection_level > 0 and !session.fixer_service_used) {
             found = true;
-            try writer.print("  scrub-detection — reduce Detection by up to 10 (${d})\\n", .{contacts.fixerServicePrice(player.reputation).?});
+            try writer.print("  scrub-detection — reduce Detection by up to 10 (${d})\n", .{contacts.fixerServicePrice(player.reputation).?});
         }
         for (missions) |mission| {
             if (std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
                 progression.playerLevel(player) >= mission.required_level and player.reputation >= mission.required_reputation)
             {
                 found = true;
-                try writer.writeAll("  ghost-signal — exclusive contract (no fee)\\n");
+                try writer.writeAll("  ghost-signal — exclusive contract (no fee)\n");
             }
         }
     }
-    if (!found) try writer.writeAll("  No offers are currently available. Improve Reputation or progress a contract.\\n");
-    try writer.writeAll("Use deal <id> to purchase or accept an offer.\\n");
+    if (!found) try writer.writeAll("  No offers are currently available. Improve Reputation or progress a contract.\n");
+    try writer.writeAll("Use deal <id> to purchase or accept an offer.\n");
 }
 
 pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSession) !void {
