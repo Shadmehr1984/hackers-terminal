@@ -64,12 +64,22 @@ Expand the existing shop/decryptor flag into a coherent equipment and upgrade sy
 4. Introduce a new save version only if approved persistent equipment requires it; keep V2, V1, and legacy readers compatible.
 5. Add focused catalog/shop/effect/save migration tests, update player-facing and agent documentation, self-review, and verify CI.
 
-### Proposed design — awaiting owner approval
+### Approved design (owner approval: 2026-11-05)
 - Keep the decryptor as a required tool, separate from one mutually exclusive utility slot.
 - Offer two utility choices with distinct risk profiles: Silent Boots reduce Detection per successful topology traversal; Signal Scrubber reduces Detection from incorrect authentication attempts.
 - Each utility has two upgrade tiers after purchase. Only the equipped utility applies its effect; switching is allowed and does not destroy ownership.
 - Persist owned utilities, equipped utility, and upgrade tiers in a new save version. Existing V2/V1/legacy saves migrate with no utility owned/equipped and retain decryptor ownership.
-- Exact prices and modifier values are not approved yet and must be confirmed before implementation.
+- Utility purchase price: $100 each; decryptor remains $150.
+- Upgrade prices: $150 for level 1 and $250 for level 2.
+- Silent Boots: movement Detection is 4 at level 0, 3 at level 1, and 2 at level 2 (base cost 5).
+- Signal Scrubber: incorrect-password Detection is 12 at level 0, 9 at level 1, and 6 at level 2 (base cost 15).
+- Both utilities may be owned; only one utility can be equipped at a time. Equipping another owned utility switches the active effect. The decryptor is separate from the utility slot.
+- Save V3 persists equipment; V2/V1/legacy migrate with no utilities owned/equipped and zero upgrade levels.
 
-### Current milestone
-Source audit complete. No gameplay code changed for HT-003. Awaiting owner approval of the equipment effects and balance values.
+### Implementation progress
+- Owner approved the two-utility design, one-slot behavior, modifier values, and prices on 2026-11-05.
+- Added typed Equipment and UtilityEquipment data to Player; utility ownership is a bit mask, with a typed optional equipped utility and independent 0–2 levels.
+- Added utility purchase, equip, and upgrade operations. The decryptor remains a separate required tool.
+- Wired equipment modifiers into topology movement and incorrect-password attempts.
+- Introduced Save V3 and retained V2, V1, and legacy readers. Added a byte-based parser entry point for migration tests without filesystem coupling.
+- Added focused equipment, shop, risk modifier, and save migration tests. CI verification and review remain pending.
