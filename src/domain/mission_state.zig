@@ -124,6 +124,7 @@ pub const MissionSession = struct {
         self.traversal_count = 0;
         self.loadout = .{};
         self.modifier = null;
+        self.completion_reward_paid = false;
         self.fixer_service_used = false;
     }
 
