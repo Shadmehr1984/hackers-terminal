@@ -76,7 +76,7 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 - [ ] Unaffordable or invalid Broker purchases do not change balance.
 - [ ] Fixer service requires an active contract and positive Detection, reduces up to 10, and costs $100/$75 at the defined tiers.
 - [ ] Fixer service can be used only once per active contract and resets for the next contract.
-- [ ] Ghost Signal requires level 3 and Reputation 3, is prepared only through the Fixer offer, and is appended at index 3.
+- [ ] Ghost Signal requires level 3 and Reputation 3, is prepared only through the Fixer offer, is hidden while another contract is active/prepared, and is appended at index 3.
 - [ ] Existing mission indices and original mission progression remain unchanged.
 - [ ] Existing V3/V2/V1/legacy saves load; older three-mission completion lists leave Ghost Signal incomplete.
 - [ ] All new behavior and important invalid/failure paths have automated tests.
@@ -112,7 +112,7 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 
 ## Review record
 
-- Self-review performed against .agent/review-checklist.md after inspecting the changed source, tests, persistence behavior, and documentation.
+- Self-review performed against .agent/review-checklist.md after inspecting the changed source, tests, persistence behavior, and documentation. A follow-up review also checked contact-offer visibility against active/prepared state; the corresponding display logic and regression test were added.
 - No independent second reviewer was available; this is recorded as a self-review, not a second-agent review.
 - Zig is not installed in the execution environment and network access to obtain it is unavailable, so formatting/build/tests were not run locally.
 - The connected GitHub interface did not expose push-triggered workflow run details or check-run results for the latest commits; no CI success is claimed. Keep the task In Progress until the actual workflow result is verified.
