@@ -20,3 +20,7 @@ This file separates verified constraints from items that need investigation.
 - What representation best fits objective counts beyond the current bitset capacity?
 
 Do not present an open question as a defect or resolve it during unrelated work.
+
+
+## Verified API limitation
+- `Topology.isValid(allocator)` currently returns `false` both for invalid graph data and for allocation failure during reachability traversal. Phase 4 adds regression coverage for both allocation-failure points. The boolean API is retained for source compatibility; a future error-union redesign requires an explicit API-change decision.
