@@ -1,7 +1,7 @@
 # Phase 1 — Contract and Mission Content
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008–009 planned  
+**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 design approved (ADR 0010; implementation not authorized); HT-009 planned  
 **Goal:** Increase contract variety and replayability before expanding the wider world.
 
 ## Shared baseline and constraints
@@ -88,31 +88,27 @@ Depends on HT-006 Contract Board, current Mission Preparation, MissionSession, e
 ## HT-008 — Hidden Objectives
 
 ### Goal
-Reward careful exploration and analysis by allowing a player to discover optional objectives that are not fully disclosed in the initial briefing.
+Reward careful exploration and analysis with optional objectives that are not fully disclosed in the initial briefing. Players discover them through fictional in-game evidence and actions, then choose whether to complete them.
 
-### Design direction
-- Distinguish undiscovered, discovered, completed, and failed/unavailable states.
-- Hidden goals must be hinted through fictional files, node descriptions, Contact intel, or operation events.
-- Do not expose hidden objective details in the preparation screen.
-- Existing objective tracking is an eight-bit mask. Before adding objective kinds or per-objective identities, design a scalable representation (for example, indexed objective state) and migrate all existing tests safely. Do not simply allocate a ninth bit.
-- Define whether discovered/completed hidden goals reset per run or persist as collection/archive facts.
+### Owner-approved design (2026-11-05)
+- Every objective has a stable mission-local ID independent of its event kind. Multiple objectives may share an event kind without sharing progress.
+- Replace the current eight-bit kind mask as the authoritative state representation with bounded, allocation-free per-objective runtime state.
+- Maximum 32 objectives per mission. Catalog data must be validated; definitions exceeding the bound are rejected safely.
+- Objective states: `undiscovered`, `discovered`, `completed`, and `unavailable`.
+- Support typed, deterministic discovery triggers: reaching a configured Node, inspecting a fictional File/evidence item, or performing a configured Action.
+- Hidden objective descriptions and rewards remain absent from Preparation, briefing, Contract Board, and objective output until discovery. Discovery is reported once; the objective list then shows the discovered objective and its state.
+- All hidden objectives are optional and never gate contract completion. A discovered objective completes only through its configured event and only once. An objective that becomes impossible is unavailable and cannot pay a reward.
+- Preserve existing optional cash reward behavior. Hidden rewards are included exactly once in the normal successful completion payout.
+- Preserve the existing all-optional Reputation rule: every authored optional objective, including hidden objectives, must be completed for the additional Reputation. Undiscovered or unavailable hidden objectives therefore prevent that bonus but do not block contract completion.
+- Objective state is runtime-only and per-run. Fresh runs, retries, compromise resets, and restored active saves begin with authored initial states; visible objectives start discovered and hidden objectives start undiscovered.
+- Save V3 writes and V2/V1/legacy reads remain unchanged. Persistent archive/discovery records are deferred to HT-022.
+- No hidden mandatory goals, narrative branching, real system interaction, balance changes, or unrelated command changes.
 
-### Likely scope
-Mission objective definitions, objective state representation in `src/domain/mission_state.zig` or a focused module, catalog data, game transitions, terminal output, tests, docs.
+### Implementation contract
+The complete scope, likely module ownership, acceptance criteria, test requirements, implementation milestones, and progress log are in the [HT-008 task brief](../tasks/HT-008-hidden-objectives.md). The accepted design decision is recorded in [ADR 0010](../decisions/0010-hidden-objectives.md).
 
-### Acceptance criteria
-- [ ] Hidden objectives are not disclosed before their discovery condition is met.
-- [ ] Discovery and completion are distinct, testable states.
-- [ ] Hidden objectives do not block required contract completion unless explicitly authored as required and shown to the player.
-- [ ] Existing five objective kinds and all current mission outcomes remain correct after any storage redesign.
-- [ ] Objective counts beyond eight are supported safely before new kinds are introduced.
-- [ ] Reward/XP/Reputation interactions are explicit and tested; no duplicate reward on repeated completion.
-
-### Dependencies
-HT-006 board for discoverable contract descriptions; HT-007 modifiers may add optional variation. Objective-storage design is a prerequisite.
-
-### Out of scope
-Branching narrative, hidden mandatory requirements, unbounded objective kinds without validation.
+### Status and authorization
+Design approved by the owner on 2026-11-05. Implementation is **not authorized** and must not begin until the owner explicitly says to start HT-008.
 
 ## HT-009 — Multi-stage Operations
 
