@@ -7,7 +7,8 @@ const terminal = @import("terminal.zig");
 const shop = @import("shop.zig");
 const commands = @import("commands.zig");
 
-/// Returns the player's level using the original progression thresholds.
+pub const detection_failure_penalty: u32 = 50;
+
 pub fn playerLevel(player: Player) u32 {
     var level: u32 = 1;
     var next_level_xp: u32 = 100;
@@ -17,7 +18,6 @@ pub fn playerLevel(player: Player) u32 {
     return level;
 }
 
-/// Returns the cumulative XP threshold for the supplied level.
 pub fn xpForNextLevel(level: u32) u32 {
     return 100 + (level - 1) * 150;
 }
@@ -37,6 +37,38 @@ fn completeMission(writer: anytype, player: *Player, mission: Mission, session: 
     }
 }
 
+/// Applies one simulated action cost. Returns true when the contract is failed.
+fn applyDetection(
+    writer: anytype,
+    player: *Player,
+    active: *?usize,
+    session: *MissionSession,
+    amount: u8,
+) !bool {
+    const previous_band = session.detectionBand();
+    session.addDetection(amount);
+    const current_band = session.detectionBand();
+
+    if (current_band != previous_band and current_band != .compromised) {
+        try writer.print("[DETECTION WARNING] Exposure is now {d}/100 ({s}).\n", .{
+            session.detection_level, current_band.label(),
+        });
+    }
+
+    if (session.detection_level >= 100) {
+        const penalty = @min(player.balance, detection_failure_penalty);
+        player.balance -= penalty;
+        try writer.print(
+            "[CONTRACT FAILED] Detection reached 100/100. The operation was compromised. ${d} penalty applied; remaining balance: ${d}. You may accept this contract again.\n",
+            .{ penalty, player.balance },
+        );
+        active.* = null;
+        session.reset();
+        return true;
+    }
+    return false;
+}
+
 pub fn runCommand(
     writer: anytype,
     line: []const u8,
@@ -52,7 +84,7 @@ pub fn runCommand(
     if (std.mem.eql(u8, command, "help")) {
         try terminal.printHelp(writer);
     } else if (std.mem.eql(u8, command, "status")) {
-        try terminal.printStatus(writer, player.*, active.*, missions, playerLevel(player.*), xpForNextLevel(playerLevel(player.*)));
+        try terminal.printStatus(writer, player.*, active.*, missions, playerLevel(player.*), xpForNextLevel(playerLevel(player.*)), session.*);
     } else if (std.mem.eql(u8, command, "missions")) {
         try terminal.printMissions(writer, missions, playerLevel(player.*));
     } else if (std.mem.eql(u8, command, "briefing")) {
@@ -98,10 +130,12 @@ pub fn runCommand(
             if (!std.mem.eql(u8, arg, missions[index].target)) {
                 try writer.writeAll("No active contract matches that target.\n");
             } else {
+                const already_scanned = session.isObjectiveComplete(.scan_target);
                 session.markScanned();
                 session.completeObjective(.scan_target);
                 try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                 try writer.writeAll("A password challenge was identified.\n");
+                if (!already_scanned) _ = try applyDetection(writer, player, active, session, 10);
             }
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "connect")) {
@@ -121,11 +155,14 @@ pub fn runCommand(
             if (!session.connected) {
                 try writer.writeAll("No session. Connect to the target first.\n");
             } else if (std.mem.eql(u8, arg, missions[index].password)) {
+                const already_authenticated = session.isAuthenticated();
                 session.markAuthenticated();
                 session.completeObjective(.authenticate);
                 try writer.writeAll("[ACCESS GRANTED] Authentication challenge solved.\n");
+                if (!already_authenticated) _ = try applyDetection(writer, player, active, session, 5);
             } else {
                 try writer.writeAll("[ACCESS DENIED] Incorrect password. Check the mission briefing.\n");
+                _ = try applyDetection(writer, player, active, session, 15);
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "decrypt")) {
@@ -135,11 +172,14 @@ pub fn runCommand(
             } else if (!player.has_decryptor) {
                 try writer.writeAll("Missing tool: decryptor. Visit the shop.\n");
             } else if (std.mem.eql(u8, arg, missions[index].decryption_key)) {
+                const already_decrypted = session.isDecrypted();
                 session.markDecrypted();
                 session.completeObjective(.decrypt_file);
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
+                if (!already_decrypted) _ = try applyDetection(writer, player, active, session, 10);
             } else {
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
+                _ = try applyDetection(writer, player, active, session, 10);
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "analyze")) {
@@ -162,6 +202,7 @@ pub fn runCommand(
                 } else {
                     session.completeObjective(.analyze_metadata);
                     try writer.writeAll("[ANALYSIS COMPLETE] Hidden metadata reference recovered. Optional objective completed.\n");
+                    _ = try applyDetection(writer, player, active, session, 5);
                 }
             }
         } else try writer.writeAll("No active contract.\n");
@@ -170,7 +211,11 @@ pub fn runCommand(
             if (!session.isDecrypted() or !std.mem.eql(u8, arg, missions[index].encrypted_file)) {
                 try writer.writeAll("The requested file is unavailable or still encrypted.\n");
             } else {
+                const already_extracted = session.isObjectiveComplete(.extract_file);
                 session.completeObjective(.extract_file);
+                if (!already_extracted) {
+                    if (try applyDetection(writer, player, active, session, 5)) return true;
+                }
                 if (!session.allObjectivesComplete(missions[index].objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
