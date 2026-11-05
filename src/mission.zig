@@ -12,11 +12,26 @@ pub const MissionDifficulty = enum {
     }
 };
 
+/// The gameplay event that completes a mission objective.
+pub const MissionObjectiveKind = enum {
+    scan_target,
+    authenticate,
+    decrypt_file,
+    extract_file,
+};
+
+/// Static objective data shown to the player.
+pub const MissionObjective = struct {
+    kind: MissionObjectiveKind,
+    description: []const u8,
+};
+
 pub const Mission = struct {
     id: []const u8,
     name: []const u8,
     target: []const u8,
     difficulty: MissionDifficulty,
+    objectives: []const MissionObjective,
     password: []const u8,
     password_hint: []const u8,
     encrypted_file: []const u8,
