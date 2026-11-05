@@ -1,14 +1,18 @@
 const std = @import("std");
 const Player = @import("../domain/player.zig").Player;
 const UtilityEquipment = @import("../domain/player.zig").UtilityEquipment;
+/// Defines the in-game purchase price of the required decryptor.
 pub const decryptor_price: u32 = 150;
+/// Defines the in-game purchase price of a utility.
 pub const utility_price: u32 = 100;
+/// Defines the in-game prices for utility upgrade tiers.
 pub const upgrade_prices = [_]u32{ 150, 250 };
 fn parseUtility(name: []const u8) ?UtilityEquipment {
     if (std.mem.eql(u8, name, "silent-boots")) return .silent_boots;
     if (std.mem.eql(u8, name, "signal-scrubber")) return .signal_scrubber;
     return null;
 }
+/// Writes the player's current equipment inventory.
 pub fn printInventory(writer: anytype, player: Player) !void {
     try writer.writeAll("INVENTORY\n  Basic terminal kit\n");
     if (player.equipment.has_decryptor) try writer.writeAll("  File decryptor\n") else try writer.writeAll("  File decryptor: not owned\n");
@@ -20,9 +24,11 @@ pub fn printInventory(writer: anytype, player: Player) !void {
     }
     if (player.equipment.equipped_utility == null) try writer.writeAll("  Active utility: none\n");
 }
+/// Writes the available equipment and prices.
 pub fn printShop(writer: anytype) !void {
     try writer.writeAll("BLACK MARKET (fictional)\n  decryptor - $150 - required to decrypt mission files\n  silent-boots - $100 - reduce Detection from topology movement\n  signal-scrubber - $100 - reduce Detection from incorrect authentication\n  upgrade <utility> - level 1: $150, level 2: $250\n  equip <utility> - activate one owned utility (one slot)\n");
 }
+/// Attempts to purchase the named equipment item.
 pub fn buyItem(writer: anytype, player: *Player, item: []const u8) !void {
     if (std.mem.eql(u8, item, "decryptor")) {
         if (player.equipment.has_decryptor) try writer.writeAll("You already own a decryptor.\n") else if (player.balance < decryptor_price) try writer.writeAll("Insufficient funds.\n") else {
@@ -42,6 +48,7 @@ pub fn buyItem(writer: anytype, player: *Player, item: []const u8) !void {
         try writer.print("Purchase complete: {s} acquired at level 0. Use 'equip {s}' to activate it.\n", .{ utility.label(), utility.commandName() });
     }
 }
+/// Attempts to equip an owned utility.
 pub fn equipItem(writer: anytype, player: *Player, item: []const u8) !void {
     const utility = parseUtility(item) orelse {
         try writer.writeAll("Unknown utility. Use 'inventory' to inspect owned equipment.\n");
@@ -52,6 +59,7 @@ pub fn equipItem(writer: anytype, player: *Player, item: []const u8) !void {
         try writer.print("{s} equipped. It is now your active utility.\n", .{utility.label()});
     }
 }
+/// Attempts to purchase the next upgrade tier for a utility.
 pub fn upgradeItem(writer: anytype, player: *Player, item: []const u8) !void {
     const utility = parseUtility(item) orelse {
         try writer.writeAll("Unknown utility. Use 'shop' to inspect upgrade options.\n");
