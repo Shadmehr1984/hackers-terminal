@@ -9,21 +9,27 @@ The project targets Zig 0.13.0. Use the same version locally and in CI.
 ```sh
 zig build
 zig build run
-zig fmt --check build.zig src
-zig test src/tests.zig
+zig fmt --check build.zig src tests
+zig test tests/test_all.zig
 ```
 
 CI runs formatting, build, and tests on pushes and pull requests targeting main.
 
 ## Automated unit tests
 
-Unit tests for the mission-session state model and command parser live beside their implementation modules. The test root imports those modules so Zig discovers their tests:
+Automated unit tests live in the top-level `tests/` directory, separate from production source files:
+
+- `tests/commands_test.zig` covers command parsing.
+- `tests/mission_state_test.zig` covers mission-session state transitions.
+- `tests/test_all.zig` is the test root that imports the test modules.
+
+Run the complete unit-test suite with:
 
 ```sh
-zig test src/tests.zig
+zig test tests/test_all.zig
 ```
 
-The CI workflow runs this command after formatting and build checks.
+The CI workflow checks formatting in both `src/` and `tests/`, then runs this test entry point after the build.
 
 ## Architecture workflow
 
