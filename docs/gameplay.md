@@ -7,6 +7,8 @@ Hacker's Terminal is built around a repeatable contract loop:
 ```text
 missions
    |
+prepare <id>
+   |
 accept <id>
    |
 briefing
