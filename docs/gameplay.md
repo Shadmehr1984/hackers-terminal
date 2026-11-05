@@ -127,7 +127,7 @@ Risk costs are deterministic:
 | Successful extraction (first time only) | +5 |
 | Connect, disconnect, invalid commands, or rejected prerequisites | +0 |
 
-Repeated successful actions do not add exposure again. Crossing a band boundary prints a warning. At 100, the active contract immediately fails: no contract reward, XP, or reputation is granted, and a $50 penalty is deducted. The penalty is capped at the player's available balance, so the balance never becomes negative. The failed contract remains available to accept again. Detection resets when a contract starts, completes, or fails.
+Repeated successful actions do not add exposure again. Once authentication or decryption succeeds, further attempts at that completed stage are acknowledged without evaluating the supplied password/key or adding Detection. Crossing a band boundary prints a warning. At 100, the active contract immediately fails: no contract reward, XP, or reputation is granted, and a $50 penalty is deducted. The penalty is capped at the player's available balance, so the balance never becomes negative. The failed contract remains available to accept again. Detection resets when a contract starts, completes, or fails.
 
 Detection is session-only and is deliberately excluded from all save versions. Restoring an active contract after restarting begins with 0 detection, just as other temporary mission progress is reset.
 
