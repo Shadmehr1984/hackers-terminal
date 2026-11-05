@@ -28,7 +28,7 @@ fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
     player.reputation += 1;
     player.xp += mission.xp_reward;
     const new_level = playerLevel(player.*);
-    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}\nXP gained: {d}\nReputation increased.\n", .{ mission.name, mission.reward, mission.xp_reward });
+    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: $\{d}\nXP gained: {d}\nReputation increased.\n", .{ mission.name, mission.reward, mission.xp_reward });
     if (new_level > old_level) {
         try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
     }
@@ -55,8 +55,8 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "briefing")) {
         if (active.*) |index| {
             const mission = missions[index];
-            try writer.print("CONTRACT BRIEFING: {s}\nTarget: {s}\nPassword clue: {s}\nEncrypted file: {s}\nDecryption clue: {s}\n", .{
-                mission.name, mission.target, mission.password_hint, mission.encrypted_file, mission.decryption_hint,
+            try writer.print("CONTRACT BRIEFING: {s}\nTarget: {s}\nDifficulty: {s}\nPassword clue: {s}\nEncrypted file: {s}\nDecryption clue: {s}\n", .{
+                mission.name, mission.target, mission.difficulty.label(), mission.password_hint, mission.encrypted_file, mission.decryption_hint,
             });
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "accept")) {
@@ -168,4 +168,3 @@ pub fn runCommand(
     }
     return true;
 }
-
