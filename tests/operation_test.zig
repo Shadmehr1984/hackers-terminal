@@ -7,7 +7,6 @@ const MissionSession = @import("../src/mission_state.zig").MissionSession;
 const MissionPreparation = @import("../src/mission_state.zig").MissionPreparation;
 const Player = @import("../src/player.zig").Player;
 const game = @import("../src/game.zig");
-const save = @import("../src/save.zig");
 
 const TestWriter = struct {
     pub fn writeAll(_: *@This(), _: []const u8) !void {}
@@ -24,6 +23,19 @@ fn run(
     preparation: *MissionPreparation,
 ) !void {
     _ = try game.runCommand(writer, command, player, missions, active, session, preparation);
+}
+
+fn runWithSaveDirectory(
+    writer: *TestWriter,
+    command: []const u8,
+    player: *Player,
+    missions: []@import("../src/mission.zig").Mission,
+    active: *?usize,
+    session: *MissionSession,
+    preparation: *MissionPreparation,
+    save_directory: std.fs.Dir,
+) !void {
+    _ = try game.runCommandWithSaveDirectory(writer, command, player, missions, active, session, preparation, save_directory);
 }
 
 test "blackout protocol validates against the built-in contract catalog" {
@@ -209,11 +221,14 @@ test "operation save uses the unchanged V3 layout with no active mission index" 
     var tmp = std.testing.tmpDir(.{});
     defer tmp.cleanup();
 
-    const player = Player{ .xp = 250 };
-    const missions = mission_data.defaultMissions();
+    var player = Player{ .xp = 250 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
     var preparation = MissionPreparation{};
+    var writer = TestWriter{};
     try std.testing.expect(preparation.operation_state.start(operation_data.blackout_protocol, true));
-    try save.saveGameToDirectory(tmp.dir, player, &missions, null);
+    try runWithSaveDirectory(&writer, "save", &player, &missions, &active, &session, &preparation, tmp.dir);
 
     const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
     defer std.testing.allocator.free(data);
