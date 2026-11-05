@@ -21,6 +21,7 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/commands.zig` | Parses an input line into a command name and its first argument |
 | `src/game.zig` | Coordinates command dispatch, mission state transitions, mission completion rewards, and player progression calculations |
 | `tests/` | Unit tests for command parsing, mission state, and built-in mission data |
+| `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
 
@@ -115,4 +116,4 @@ Most user input errors are handled by printing a message and returning to the pr
 - The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
 - The save parser is line-oriented and has no checksum or schema validation layer.
 - Command-specific output is written by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output in `shop.zig`.
-- Automated tests live under `tests/` and are aggregated by `tests/test_all.zig`.
+- Automated tests live under `tests/` and are aggregated by `tests/test_all.zig`, with `test_root.zig` providing the repository-root module path.
