@@ -43,13 +43,14 @@ Preserve existing behavior unless a task explicitly requests a gameplay change. 
 ## Manual smoke test
 
 1. Run `help` and `missions`; verify each contract shows its difficulty.
-2. Accept `job-01` and run `briefing`; verify the briefing shows Easy and four unchecked objectives.
-3. Run `objectives`; verify all four objectives are initially unchecked.
+2. Accept `job-01` and run `briefing`; verify the briefing shows Easy, four required objectives, and one optional objective.
+3. Run `objectives`; verify all five objectives are initially unchecked and the optional one displays its bonus.
 4. Verify connect is rejected before scanning; scan the target and confirm the survey objective is checked.
 5. Connect and authenticate using the mission briefing password; confirm the authentication objective is checked.
 6. Disconnect and verify decryption remains possible after successful authentication.
 7. Buy the decryptor, decrypt with the briefing key, and confirm the decryption objective is checked.
-8. Extract `ledger.enc`; verify the final objective completes and the contract rewards are granted.
-9. Save and restart; persistent progress should be restored while temporary objective state starts unchecked.
+8. Optionally run `analyze ledger.enc`; verify the optional objective is checked.
+9. Extract `ledger.enc`; verify the required objectives permit completion and the optional bonus is included only if analysis was completed.
+10. Save and restart; persistent progress should be restored while temporary objective state starts unchecked.
 
 Back up `saves/player.sav` before testing save migration or clean-profile progression.
