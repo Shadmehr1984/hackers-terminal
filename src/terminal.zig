@@ -104,7 +104,7 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32, rep
     for (missions) |mission| {
         const level_locked = level < mission.required_level;
         const reputation_locked = reputation < mission.required_reputation;
-        const state = if (mission.completed) "COMPLETED" else if (level_locked or reputation_locked) "LOCKED" else "AVAILABLE";
+        const state = if (mission.completed) "COMPLETED" else if (level_locked or reputation_locked) "LOCKED" else if (mission.requires_contact_offer) "CONTACT OFFER" else "AVAILABLE";
         try writer.print("  [{s}] {s} | target: {s} | difficulty: {s} | reward: ${d} + {d} XP | {s}", .{
             mission.id,
             mission.name,
