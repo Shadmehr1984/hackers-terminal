@@ -1,5 +1,33 @@
 const MissionObjective = @import("mission.zig").MissionObjective;
 const MissionObjectiveKind = @import("mission.zig").MissionObjectiveKind;
+const UtilityEquipment = @import("player.zig").UtilityEquipment;
+
+/// A temporary, per-contract equipment snapshot. It never changes player inventory.
+pub const MissionLoadout = struct {
+    utility: ?UtilityEquipment = null,
+    level: u2 = 0,
+
+    pub fn movementDetectionCost(self: MissionLoadout) u8 {
+        if (self.utility != .silent_boots) return 5;
+        return switch (self.level) { 0 => 4, 1 => 3, else => 2 };
+    }
+
+    pub fn incorrectAuthenticationDetectionCost(self: MissionLoadout) u8 {
+        if (self.utility != .signal_scrubber) return 15;
+        return switch (self.level) { 0 => 12, 1 => 9, else => 6 };
+    }
+};
+
+/// Runtime-only preparation state; no part of this is serialized.
+pub const MissionPreparation = struct {
+    mission_index: ?usize = null,
+    selected_utility: ?UtilityEquipment = null,
+
+    pub fn clear(self: *MissionPreparation) void {
+        self.mission_index = null;
+        self.selected_utility = null;
+    }
+};
 
 pub const MissionProgress = enum {
     inactive,
@@ -37,6 +65,7 @@ pub const MissionSession = struct {
     detection_level: u8 = 0,
     current_node: ?[]const u8 = null,
     traversal_count: u32 = 0,
+    loadout: MissionLoadout = .{},
 
     pub fn start(self: *MissionSession) void {
         self.progress = .accepted;
