@@ -30,6 +30,7 @@ test "each built-in mission has a valid distinct topology" {
     try std.testing.expectEqualStrings("Ghost Signal", missions[3].name);
     try std.testing.expectEqual(@as(u32, 3), missions[3].required_level);
     try std.testing.expectEqual(@as(u32, 3), missions[3].required_reputation);
+    try std.testing.expect(missions[3].requires_contact_offer);
     try std.testing.expect(missions[3].topology.?.containsNode("beacon"));
     try std.testing.expect(!std.mem.eql(u8, missions[0].topology.?.nodes[2].id, missions[1].topology.?.nodes[2].id) or
         !std.mem.eql(u8, missions[0].topology.?.nodes[2].label, missions[1].topology.?.nodes[2].label));
