@@ -62,7 +62,7 @@ The other contracts use the same gameplay loop. Contract availability is tied to
 
 ## Save data
 
-Progress is stored locally in `saves/player.sav`. The game loads this file automatically on startup. Use `save` to write the current balance, reputation, XP, purchased tools, completed contracts, and active contract. Save files now use the `HACKERS_TERMINAL_SAVE_V2` format. Existing V1 and original pre-versioned save files are still accepted; V1 saves start with 0 XP (level 1). If an active contract is restored after restarting, its scan and connection session must be started again.
+Progress is stored locally in `saves/player.sav`. The game loads this file automatically on startup. Use `save` to write the current balance, reputation, XP, purchased tools, completed contracts, and active contract. Save files now use the `HACKERS_TERMINAL_SAVE_V2` format. Existing V1 and original pre-versioned save files are still accepted. For V1 saves, XP is reconstructed from completed contracts so existing progression is preserved. If an active contract is restored after restarting, its scan and connection session must be started again.
 
 ## Project layout
 
