@@ -1,3 +1,4 @@
+// Temporary formatting trigger.
 /// Static, fictional mission graph data. This module has no game or I/O dependencies.
 pub const Node = struct {
     id: []const u8,
