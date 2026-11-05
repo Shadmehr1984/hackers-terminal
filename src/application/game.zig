@@ -179,7 +179,7 @@ fn operationFactLabel(fact: @import("../domain/operation.zig").OperationFact) []
         .routing_header => "routing_header",
     };
 }
-fn printOperationStatus(writer: anytype, preparation: MissionPreparation) !void {
+fn printOperationStatus(writer: anytype, preparation: MissionPreparation, missions: []const Mission) !void {
     if (!preparation.operation_state.active) {
         if (preparation.operation_state.last_completed_operation_id.len > 0) {
             try writer.print("Last completed this session: {s}\n", .{preparation.operation_state.last_completed_operation_id});
@@ -190,11 +190,13 @@ fn printOperationStatus(writer: anytype, preparation: MissionPreparation) !void 
     }
     const op = operation_data.find(preparation.operation_state.operation_id) orelse return;
     const stage = op.stages[preparation.operation_state.stage_index];
-    try writer.print("OPERATION: {s}\nStage: {d}/{d} — {s}\nEarned facts:", .{
+    const mission = @import("../domain/operation.zig").findMission(missions, stage.mission_id) orelse return;
+    try writer.print("OPERATION: {s}\nStage: {d}/{d} — {s} ({s})\nEarned facts:", .{
         op.name,
         @as(usize, preparation.operation_state.stage_index) + 1,
         op.stages.len,
         stage.mission_id,
+        mission.name,
     });
     var any = false;
     if (preparation.operation_state.hasFact(.maintenance_telemetry)) {
@@ -275,7 +277,22 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "operations")) {
         try writer.writeAll("OPERATIONS\n");
         for (operation_data.all()) |op| {
-            try writer.print("  [{s}] {s} — {d} stages\n", .{ op.id, op.name, op.stages.len });
+            var available = true;
+            for (op.stages) |stage| {
+                const stage_mission = @import("../domain/operation.zig").findMission(missions, stage.mission_id) orelse {
+                    available = false;
+                    break;
+                };
+                if (!isMissionUnlocked(stage_mission, player.*)) available = false;
+            }
+            const status = if (preparation.operation_state.active and
+                std.mem.eql(u8, preparation.operation_state.operation_id, op.id))
+                "IN PROGRESS"
+            else if (available)
+                "AVAILABLE"
+            else
+                "LOCKED";
+            try writer.print("  [{s}] {s} — {d} stages | {s}\n", .{ op.id, op.name, op.stages.len, status });
         }
         try writer.writeAll("Use operation <id>, then operation-start <id>.\n");
     } else if (std.mem.eql(u8, command, "operation")) {
@@ -287,7 +304,7 @@ pub fn runCommand(
             }
         } else try writer.writeAll("Unknown operation. Use operations.\n");
     } else if (std.mem.eql(u8, command, "operation-status")) {
-        try printOperationStatus(writer, preparation.*);
+        try printOperationStatus(writer, preparation.*, missions);
     } else if (std.mem.eql(u8, command, "operation-start")) {
         if (active.* != null or preparation.mission_index != null or preparation.operation_state.active) {
             try writer.writeAll("Finish the current contract/preparation/operation first.\n");
