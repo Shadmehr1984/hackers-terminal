@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: zig-ci-\${{ github.ref }}
+  group: zig-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
