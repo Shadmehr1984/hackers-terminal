@@ -1,4 +1,5 @@
 const ModifierId = @import("mission_modifier.zig").ModifierId;
+const objective_runtime = @import("mission_objectives.zig");
 
 /// Re-exports the static topology type used by mission definitions.
 pub const Topology = @import("topology.zig").Topology;
@@ -46,12 +47,16 @@ pub const MissionObjectiveKind = enum {
     analyze_metadata,
 };
 
-/// Static objective data shown to the player.
+/// Static objective data shown only after its visibility condition is met.
 pub const MissionObjective = struct {
+    /// Stable mission-local identity, independent of the completion event kind.
+    id: []const u8 = "",
     kind: MissionObjectiveKind,
     description: []const u8,
     optional: bool = false,
     bonus_reward: u32 = 0,
+    hidden: bool = false,
+    discovery_trigger: ?objective_runtime.DiscoveryTrigger = null,
 };
 
 /// Defines static contract data and its mutable completion flag.
@@ -76,6 +81,12 @@ pub const Mission = struct {
     required_reputation: u32 = 0,
     requires_contact_offer: bool = false,
     completed: bool = false,
+
+    /// Validates objective capacity, stable IDs, and hidden-objective constraints.
+    pub fn hasValidObjectives(self: Mission) bool {
+        var tracker = objective_runtime.Tracker{};
+        return tracker.initialize(self.objectives);
+    }
 
     /// Reports whether this contract explicitly allows the supplied modifier.
     pub fn allowsModifier(self: Mission, modifier: ModifierId) bool {
