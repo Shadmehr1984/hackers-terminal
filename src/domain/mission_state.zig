@@ -1,5 +1,6 @@
 const MissionObjective = @import("mission.zig").MissionObjective;
 const MissionObjectiveKind = @import("mission.zig").MissionObjectiveKind;
+const objective_runtime = @import("mission_objectives.zig");
 const UtilityEquipment = @import("player.zig").UtilityEquipment;
 const Mission = @import("mission.zig").Mission;
 const ModifierId = @import("mission_modifier.zig").ModifierId;
@@ -79,7 +80,7 @@ pub const DetectionBand = enum {
 pub const MissionSession = struct {
     progress: MissionProgress = .inactive,
     connected: bool = false,
-    completed_objectives: u8 = 0,
+    objective_tracker: objective_runtime.Tracker = .{},
     detection_level: u8 = 0,
     current_node: ?[]const u8 = null,
     traversal_count: u32 = 0,
@@ -92,7 +93,7 @@ pub const MissionSession = struct {
     pub fn start(self: *MissionSession) void {
         self.progress = .accepted;
         self.connected = false;
-        self.completed_objectives = 0;
+        self.objective_tracker.reset();
         self.detection_level = 0;
         self.current_node = null;
         self.traversal_count = 0;
@@ -183,46 +184,63 @@ pub const MissionSession = struct {
         if (self.isAuthenticated()) self.progress = .decrypted;
     }
 
-    /// Marks the specified objective kind complete for this run.
-    pub fn completeObjective(self: *MissionSession, kind: MissionObjectiveKind) void {
-        const bit = @as(u8, 1) << @intCast(@intFromEnum(kind));
-        self.completed_objectives |= bit;
+    /// Initializes the bounded objective state from the active mission catalog.
+    pub fn initializeObjectives(self: *MissionSession, objectives: []const MissionObjective) bool {
+        return self.objective_tracker.initialize(objectives);
     }
 
-    /// Reports whether the specified objective kind is complete.
+    /// Starts a run with its immutable loadout/modifier snapshots and authored objectives.
+    pub fn startWithMission(
+        self: *MissionSession,
+        loadout: MissionLoadout,
+        modifier: ?ModifierId,
+        objectives: []const MissionObjective,
+    ) bool {
+        self.startWithModifier(loadout, modifier);
+        return self.initializeObjectives(objectives);
+    }
+
+    /// Reveals hidden objectives triggered by reaching a fictional topology node.
+    pub fn discoverNode(self: *MissionSession, node_id: []const u8, objectives: []const MissionObjective) usize {
+        return self.objective_tracker.discoverNode(node_id, objectives);
+    }
+
+    /// Reveals hidden objectives triggered by inspecting a fictional evidence file.
+    pub fn discoverFile(self: *MissionSession, file_id: []const u8, objectives: []const MissionObjective) usize {
+        return self.objective_tracker.discoverFile(file_id, objectives);
+    }
+
+    /// Reveals hidden objectives triggered by a successful in-game action.
+    pub fn discoverAction(self: *MissionSession, action: objective_runtime.DiscoveryAction, objectives: []const MissionObjective) usize {
+        return self.objective_tracker.discoverAction(action, objectives);
+    }
+
+    /// Marks every currently discovered objective for the supplied event kind complete.
+    pub fn completeObjective(self: *MissionSession, kind: MissionObjectiveKind) void {
+        _ = self.objective_tracker.complete(@intCast(@intFromEnum(kind)));
+    }
+
+    /// Reports whether at least one objective of this event kind is complete.
     pub fn isObjectiveComplete(self: MissionSession, kind: MissionObjectiveKind) bool {
-        const bit = @as(u8, 1) << @intCast(@intFromEnum(kind));
-        return (self.completed_objectives & bit) != 0;
+        const value: u8 = @intCast(@intFromEnum(kind));
+        for (self.objective_tracker.entries[0..self.objective_tracker.count]) |entry| {
+            if (entry.kind == value and entry.state == .completed) return true;
+        }
+        return false;
     }
 
     /// Reports whether every required objective in the supplied contract is complete.
-    pub fn allObjectivesComplete(self: MissionSession, objectives: []const MissionObjective) bool {
-        for (objectives) |objective| {
-            if (!objective.optional and !self.isObjectiveComplete(objective.kind)) return false;
-        }
-        return true;
+    pub fn allObjectivesComplete(self: MissionSession, _: []const MissionObjective) bool {
+        return self.objective_tracker.allRequiredComplete();
     }
 
-    /// Returns true only when the mission has at least one optional objective
-    /// and every optional objective has been completed.
-    pub fn allOptionalObjectivesComplete(self: MissionSession, objectives: []const MissionObjective) bool {
-        var found_optional = false;
-        for (objectives) |objective| {
-            if (!objective.optional) continue;
-            found_optional = true;
-            if (!self.isObjectiveComplete(objective.kind)) return false;
-        }
-        return found_optional;
+    /// Returns true only when at least one optional objective exists and all are complete.
+    pub fn allOptionalObjectivesComplete(self: MissionSession, _: []const MissionObjective) bool {
+        return self.objective_tracker.allOptionalComplete();
     }
 
-    /// Sums the bonus cash for completed optional objectives.
-    pub fn optionalReward(self: MissionSession, objectives: []const MissionObjective) u32 {
-        var reward: u32 = 0;
-        for (objectives) |objective| {
-            if (objective.optional and self.isObjectiveComplete(objective.kind)) {
-                reward += objective.bonus_reward;
-            }
-        }
-        return reward;
+    /// Sums the bonus cash for optional objectives completed during this run.
+    pub fn optionalReward(self: MissionSession, _: []const MissionObjective) u32 {
+        return self.objective_tracker.optionalReward();
     }
 };
