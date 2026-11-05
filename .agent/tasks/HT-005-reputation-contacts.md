@@ -42,6 +42,7 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 **Ghost Signal**
 - ID: job-04; append after the original three contracts to preserve indices.
 - Requires level 3 and Reputation 3.
+- Can only be prepared through the Fixer offer; direct prepare is rejected.
 - Has its own fictional topology, required objectives, optional metadata objective, clues, reward, and XP.
 - No Save V4 is needed.
 
@@ -75,7 +76,7 @@ Turn the existing persisted Reputation value into a meaningful progression syste
 - [ ] Unaffordable or invalid Broker purchases do not change balance.
 - [ ] Fixer service requires an active contract and positive Detection, reduces up to 10, and costs $100/$75 at the defined tiers.
 - [ ] Fixer service can be used only once per active contract and resets for the next contract.
-- [ ] Ghost Signal requires level 3 and Reputation 3 and is appended at index 3.
+- [ ] Ghost Signal requires level 3 and Reputation 3, is prepared only through the Fixer offer, and is appended at index 3.
 - [ ] Existing mission indices and original mission progression remain unchanged.
 - [ ] Existing V3/V2/V1/legacy saves load; older three-mission completion lists leave Ghost Signal incomplete.
 - [ ] All new behavior and important invalid/failure paths have automated tests.
