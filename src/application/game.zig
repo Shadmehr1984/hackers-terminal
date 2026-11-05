@@ -14,6 +14,7 @@ const commands = @import("commands.zig");
 const progression = @import("../domain/progression.zig");
 const detection = @import("detection.zig");
 const contacts = @import("../domain/contacts.zig");
+const DiscoveryAction = @import("../domain/mission_objectives.zig").DiscoveryAction;
 
 /// Re-exports the configured in-game penalty for a Detection compromise.
 pub const detection_failure_penalty: u32 = detection.failure_penalty;
@@ -39,6 +40,10 @@ pub fn currentLoadout(player: Player) MissionLoadout {
     const utility = player.equipment.equipped_utility orelse return .{};
     if (!player.equipment.owns(utility)) return .{};
     return .{ .utility = utility, .level = player.equipment.level(utility) };
+}
+
+fn reportObjectiveDiscoveries(writer: anytype, count: usize) !void {
+    if (count > 0) try writer.print("[HIDDEN OBJECTIVE DISCOVERED] {d} optional objective(s) revealed. Use 'objectives' to inspect them.\\n", .{count});
 }
 
 fn atMissionNode(mission: Mission, session: MissionSession, expected: []const u8) bool {
@@ -284,6 +289,16 @@ pub fn runCommand(
                 } else try writer.writeAll("Current location is unavailable. Restart the contract.\n");
             } else try writer.writeAll("This contract has no network map.\n");
         } else try writer.writeAll("No active contract.\n");
+    } else if (std.mem.eql(u8, command, "inspect")) {
+        if (active.*) |index| {
+            const revealed = session.discoverFile(arg, missions[index].objectives);
+            if (revealed == 0) {
+                try writer.writeAll("No undiscovered evidence matching that fictional file is available here.\\n");
+            } else {
+                try writer.print("[EVIDENCE INSPECTED] {s}\\n", .{arg});
+                try reportObjectiveDiscoveries(writer, revealed);
+            }
+        } else try writer.writeAll("No active contract.\\n");
     } else if (std.mem.eql(u8, command, "briefing")) {
         if (active.*) |index| {
             const mission = missions[index];
@@ -340,6 +355,7 @@ pub fn runCommand(
                 } else {
                     const already_scanned = session.isObjectiveComplete(.scan_target);
                     session.markScanned();
+                    try reportObjectiveDiscoveries(writer, session.discoverAction(.scan_target, mission.objectives));
                     session.completeObjective(.scan_target);
                     try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                     try writer.writeAll("A password challenge was identified.\n");
@@ -348,6 +364,7 @@ pub fn runCommand(
             } else {
                 const already_scanned = session.isObjectiveComplete(.scan_target);
                 session.markScanned();
+                try reportObjectiveDiscoveries(writer, session.discoverAction(.scan_target, mission.objectives));
                 session.completeObjective(.scan_target);
                 try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                 try writer.writeAll("A password challenge was identified.\n");
@@ -386,6 +403,7 @@ pub fn runCommand(
             } else if (std.mem.eql(u8, arg, mission.password)) {
                 const already_authenticated = session.isAuthenticated();
                 session.markAuthenticated();
+                try reportObjectiveDiscoveries(writer, session.discoverAction(.authenticate, mission.objectives));
                 session.completeObjective(.authenticate);
                 try writer.writeAll("[ACCESS GRANTED] Authentication challenge solved.\n");
                 if (!already_authenticated) _ = try detection.apply(writer, player, active, session, 5);
@@ -408,6 +426,7 @@ pub fn runCommand(
             } else if (std.mem.eql(u8, arg, mission.decryption_key)) {
                 const already_decrypted = session.isDecrypted();
                 session.markDecrypted();
+                try reportObjectiveDiscoveries(writer, session.discoverAction(.decrypt_file, mission.objectives));
                 session.completeObjective(.decrypt_file);
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
                 if (!already_decrypted) _ = try detection.apply(writer, player, active, session, 10);
@@ -452,8 +471,10 @@ pub fn runCommand(
                 try writer.print("Move to node '{s}' before extracting this file.\n", .{mission.topology.?.extract_node});
             } else {
                 const already_extracted = session.isObjectiveComplete(.extract_file);
+                try reportObjectiveDiscoveries(writer, session.discoverAction(.extract_file, mission.objectives));
                 session.completeObjective(.extract_file);
                 if (!already_extracted and try detection.apply(writer, player, active, session, 5)) return true;
+                session.markUndiscoveredObjectivesUnavailable();
                 if (!session.allObjectivesComplete(mission.objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
