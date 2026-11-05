@@ -5,6 +5,7 @@ const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
 const save = @import("save.zig");
 const game = @import("game.zig");
+const progression = @import("progression.zig");
 const terminal = @import("terminal.zig");
 const mission_data = @import("mission_data.zig");
 
@@ -22,7 +23,7 @@ pub fn main() !void {
 
     try terminal.printBanner(stdout);
     try stdout.print("Welcome back, {s}.\nBalance: ${d} | Reputation: {d} | Level: {d} | XP: {d}\n", .{
-        player.handle, player.balance, player.reputation, game.playerLevel(player), player.xp,
+        player.handle, player.balance, player.reputation, progression.playerLevel(player), player.xp,
     });
     try stdout.writeAll("Type 'help' to see commands.\n");
 
