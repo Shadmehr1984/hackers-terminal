@@ -36,7 +36,10 @@ Use `board` for the full catalog overview; `missions` remains the original compa
 | --- | --- | --- | --- |
 | `prepare <id>` | Contract ID | No active or already prepared contract; both required level and Reputation are met and the contract is incomplete | Opens a pre-mission intelligence briefing without launching the contract |
 | `loadout <utility|none>` | Owned utility or `none` | Contract is being prepared; selected utility must be owned | Selects the utility for this run without changing persistent equipment |
-| `accept <id>` | Prepared contract ID | Matching contract is prepared; no active contract | Launches the prepared contract and snapshots its selected utility and upgrade level |
+| `modifier` | None | Contract is being prepared | Lists allowed modifiers, exact effects, completion bonus, and current selection |
+| `modifier <id>` | `heightened-monitoring`, `security-sweep`, or `hardened-encryption` | Contract is being prepared; modifier must be allowed by that contract | Selects one modifier for this run; only one may be selected |
+| `modifier none` | `none` | Contract is being prepared | Clears the selected modifier |
+| `accept <id>` | Prepared contract ID | Matching contract is prepared; no active contract | Launches the prepared contract and snapshots its selected utility, upgrade level, and optional modifier |
 | `cancel` | None | Contract is being prepared | Cancels preparation for free; cannot abandon an active contract |
 | `move <node-id>` | Adjacent node ID | Active contract with topology; destination must be directly linked to current node | Moves one edge and adds 5 detection on every successful traversal |
 | `scan <target>` | Exact target hostname | Active contract; at the mission scan node when topology is present | Marks the active target as scanned |
@@ -47,9 +50,9 @@ Use `board` for the full catalog overview; `missions` remains the original compa
 | `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes the optional metadata objective and earns its bonus at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract, successful decryption, and extraction node | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
-Preparation shows known contract intelligence, target, difficulty, rewards, objective outline, and topology overview. Puzzle clues and answers remain undiscovered until the contract is launched. Preparation is temporary and is not saved.
+Preparation shows known contract intelligence, target, difficulty, rewards, objective outline, topology overview, and every allowed modifier with its exact effect and successful-completion bonus. Puzzle clues and answers remain undiscovered until the contract is launched. Preparation and its selected modifier are temporary and are not saved.
 
-Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful topology movement adds 5 Detection per traversal, including revisits, unless equipped Silent Boots reduce the cost to 4/3/2. An incorrect password adds 15 Detection unless equipped Signal Scrubber reduces the cost to 12/9/6. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect decryption-key attempts also add exposure. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
+Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful topology movement adds 5 Detection per traversal, including revisits, unless equipped Silent Boots reduce the cost to 4/3/2. `heightened-monitoring` adds another +2 after that adjusted cost; `security-sweep` adds +8 after every third successful traversal (revisits count, rejected moves do not). An incorrect password adds 15 Detection unless equipped Signal Scrubber reduces the cost to 12/9/6. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect decryption-key attempts also add exposure; `hardened-encryption` changes an incorrect key attempt from +10 to +15, without changing the successful decryption cost. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
 
 ## Contact offer commands
 
@@ -60,6 +63,8 @@ Mission difficulty is currently descriptive metadata. Mission objectives are def
 | `deal ghost-signal` | Fixed offer ID | Fixer unlocked; no active/prepared contract; level 3 and Reputation 3; job-04 incomplete. The offer is hidden while another contract is active or prepared. | Opens preparation for the exclusive Ghost Signal contract without a fee; direct prepare is rejected |
 
 Contact unlocks are derived from Reputation and are not separately saved. The Fixer service can be used once per active contract; its usage flag is temporary and resets when the contract starts or ends. Broker intelligence purchases are repeatable transactions and deduct $50 each time.
+
+A selected modifier grants an additional +$50 and +25 XP only when the contract is successfully completed. It grants nothing on failure, Detection compromise, cancellation, or incomplete objectives. All three modifiers are available for the four current built-in contracts.
 
 ## Economy commands
 
