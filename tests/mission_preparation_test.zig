@@ -271,15 +271,15 @@ test "successful modified contract pays the modifier bonus once alongside option
 
     try std.testing.expect(missions[0].completed);
     try std.testing.expect(active == null);
-    try std.testing.expectEqual(@as(u32, 575), player.balance);
+    try std.testing.expectEqual(@as(u32, 525), player.balance);
     try std.testing.expectEqual(@as(u32, 125), player.xp);
     try std.testing.expectEqual(@as(u32, 2), player.reputation);
     try std.testing.expect(session.modifier == null);
-    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Optional objective bonus: +$125") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Optional objective bonus: +$75") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Mission modifier bonus: +$50, +25 XP") != null);
 
     try run(&capture, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(@as(u32, 575), player.balance);
+    try std.testing.expectEqual(@as(u32, 525), player.balance);
     try std.testing.expectEqual(@as(u32, 125), player.xp);
 }
 
