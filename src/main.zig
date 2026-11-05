@@ -1,27 +1,6 @@
 const std = @import("std");
-
-const Mission = struct {
-    id: []const u8,
-    name: []const u8,
-    target: []const u8,
-    password: []const u8,
-    password_hint: []const u8,
-    encrypted_file: []const u8,
-    decryption_hint: []const u8,
-    decryption_key: []const u8,
-    reward: u32,
-    xp_reward: u32,
-    required_level: u32,
-    completed: bool = false,
-};
-
-const Player = struct {
-    handle: []const u8 = "ghost",
-    balance: u32 = 250,
-    reputation: u32 = 0,
-    xp: u32 = 0,
-    has_decryptor: bool = false,
-};
+const Mission = @import("mission.zig").Mission;
+const Player = @import("player.zig").Player;
 
 fn printBanner(writer: anytype) !void {
     try writer.writeAll(
