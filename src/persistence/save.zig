@@ -35,93 +35,185 @@ pub fn saveGameToDirectory(dir: std.fs.Dir, player: Player, missions: []const Mi
     try dir.rename(temporary_path, save_path);
 }
 
-fn readActiveCandidate(lines: anytype) ?usize {
-    const value = lines.next() orelse return null;
+const SaveFormat = enum { v3, v2, v1, legacy };
+
+fn parseFlag(value: []const u8) ?bool {
+    const parsed = std.fmt.parseInt(u8, value, 10) catch return null;
+    return switch (parsed) {
+        0 => false,
+        1 => true,
+        else => null,
+    };
+}
+
+fn parseActiveCandidate(value: []const u8) ?usize {
+    const parsed = std.fmt.parseInt(i64, value, 10) catch return null;
+    if (parsed < -1 or parsed == -1) return null;
     return std.fmt.parseInt(usize, value, 10) catch null;
 }
 
-fn validateActiveCandidate(candidate: ?usize, missions: []const Mission) ?usize {
-    if (candidate) |index| {
-        if (index < missions.len and !missions[index].completed) return index;
-    }
-    return null;
-}
-
-fn readLevel(value: []const u8) u2 {
-    const parsed = std.fmt.parseInt(u8, value, 10) catch 0;
-    return @intCast(@min(parsed, 2));
-}
-
-/// Loads V3, V2, V1, or legacy save data from memory while preserving supported migrations.
-pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
+fn validateSave(data: []const u8, mission_count: usize) ?SaveFormat {
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
     const first_line = lines.next() orelse return null;
-    const is_v3 = std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V3");
-    const is_v2 = std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V2");
-    const is_v1 = std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V1");
-    // Only an actual numeric first line qualifies as the unversioned legacy format.
-    // Reject unknown markers before mutating any caller-owned state.
-    const legacy_balance: ?u32 = if (is_v3 or is_v2 or is_v1)
-        null
-    else
-        std.fmt.parseInt(u32, first_line, 10) catch return null;
+    const format: SaveFormat = if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V3"))
+        .v3
+    else if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V2"))
+        .v2
+    else if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V1"))
+        .v1
+    else blk: {
+        _ = std.fmt.parseInt(u32, first_line, 10) catch return null;
+        break :blk .legacy;
+    };
 
-    player.equipment.owned_utilities = 0;
-    player.equipment.equipped_utility = null;
-    player.equipment.silent_boots_level = 0;
-    player.equipment.signal_scrubber_level = 0;
-    for (missions) |*mission| mission.completed = false;
+    var field_index: usize = 0;
+    while (lines.next()) |value| : (field_index += 1) {
+        switch (format) {
+            .v3 => switch (field_index) {
+                0...2 => _ = std.fmt.parseInt(u32, value, 10) catch return null,
+                3 => _ = parseFlag(value) orelse return null,
+                4...7 => _ = std.fmt.parseInt(u8, value, 10) catch return null,
+                8 => {
+                    const active = std.fmt.parseInt(i64, value, 10) catch return null;
+                    if (active < -1) return null;
+                    if (active >= 0) _ = std.fmt.parseInt(usize, value, 10) catch return null;
+                },
+                else => _ = parseFlag(value) orelse return null,
+            },
+            .v2 => switch (field_index) {
+                0...2 => _ = std.fmt.parseInt(u32, value, 10) catch return null,
+                3 => _ = parseFlag(value) orelse return null,
+                4 => {
+                    const active = std.fmt.parseInt(i64, value, 10) catch return null;
+                    if (active < -1) return null;
+                    if (active >= 0) _ = std.fmt.parseInt(usize, value, 10) catch return null;
+                },
+                else => _ = parseFlag(value) orelse return null,
+            },
+            .v1 => switch (field_index) {
+                0...1 => _ = std.fmt.parseInt(u32, value, 10) catch return null,
+                2 => _ = parseFlag(value) orelse return null,
+                3 => {
+                    const active = std.fmt.parseInt(i64, value, 10) catch return null;
+                    if (active < -1) return null;
+                    if (active >= 0) _ = std.fmt.parseInt(usize, value, 10) catch return null;
+                },
+                else => _ = parseFlag(value) orelse return null,
+            },
+            .legacy => switch (field_index) {
+                0 => _ = std.fmt.parseInt(u32, value, 10) catch return null,
+                1 => _ = parseFlag(value) orelse return null,
+                else => _ = parseFlag(value) orelse return null,
+            },
+        }
+    }
+
+    const fixed_fields: usize = switch (format) {
+        .v3 => 9,
+        .v2 => 5,
+        .v1 => 4,
+        .legacy => 2,
+    };
+    if (field_index < fixed_fields) return null;
+    const completion_flags = field_index - fixed_fields;
+    if (completion_flags != mission_count and
+        !(mission_count > 0 and completion_flags + 1 == mission_count))
+    {
+        return null;
+    }
+    return format;
+}
+
+fn fixedFieldCount(format: SaveFormat) usize {
+    return switch (format) {
+        .v3 => 9,
+        .v2 => 5,
+        .v1 => 4,
+        .legacy => 2,
+    };
+}
+
+/// Loads V3, V2, V1, or legacy save data without partially mutating live state.
+pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
+    const format = validateSave(data, missions.len) orelse return null;
+    var lines = std.mem.tokenizeScalar(u8, data, '\n');
+    const first_line = lines.next() orelse return null;
+
+    var loaded_player = player.*;
+    loaded_player.equipment.owned_utilities = 0;
+    loaded_player.equipment.equipped_utility = null;
+    loaded_player.equipment.silent_boots_level = 0;
+    loaded_player.equipment.signal_scrubber_level = 0;
     var active_candidate: ?usize = null;
-    var migrate_v1_xp = false;
 
-    if (is_v3) {
-        if (lines.next()) |v| player.balance = std.fmt.parseInt(u32, v, 10) catch player.balance;
-        if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
-        if (lines.next()) |v| player.xp = std.fmt.parseInt(u32, v, 10) catch player.xp;
-        if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
-        if (lines.next()) |v| player.equipment.owned_utilities = @truncate(std.fmt.parseInt(u8, v, 10) catch 0);
-        if (lines.next()) |v| {
-            player.equipment.equipped_utility = switch (std.fmt.parseInt(u8, v, 10) catch 0) {
+    switch (format) {
+        .v3 => {
+            loaded_player.balance = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.reputation = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.xp = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.equipment.has_decryptor = parseFlag(lines.next() orelse return null) orelse return null;
+            loaded_player.equipment.owned_utilities = @truncate(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null);
+            loaded_player.equipment.equipped_utility = switch (std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null) {
                 1 => .silent_boots,
                 2 => .signal_scrubber,
                 else => null,
             };
-        }
-        if (lines.next()) |v| player.equipment.silent_boots_level = readLevel(v);
-        if (lines.next()) |v| player.equipment.signal_scrubber_level = readLevel(v);
-        if (player.equipment.equipped_utility) |utility| {
-            if (!player.equipment.owns(utility)) player.equipment.equipped_utility = null;
-        }
-        if (!player.equipment.owns(.silent_boots)) player.equipment.silent_boots_level = 0;
-        if (!player.equipment.owns(.signal_scrubber)) player.equipment.signal_scrubber_level = 0;
-        active_candidate = readActiveCandidate(&lines);
-    } else if (is_v2) {
-        if (lines.next()) |v| player.balance = std.fmt.parseInt(u32, v, 10) catch player.balance;
-        if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
-        if (lines.next()) |v| player.xp = std.fmt.parseInt(u32, v, 10) catch player.xp;
-        if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
-        active_candidate = readActiveCandidate(&lines);
-    } else if (is_v1) {
-        migrate_v1_xp = true;
-        if (lines.next()) |v| player.balance = std.fmt.parseInt(u32, v, 10) catch player.balance;
-        if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
-        if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
-        active_candidate = readActiveCandidate(&lines);
-    } else {
-        player.balance = legacy_balance.?;
-        if (lines.next()) |v| player.reputation = std.fmt.parseInt(u32, v, 10) catch player.reputation;
-        if (lines.next()) |v| player.equipment.has_decryptor = std.mem.eql(u8, v, "1");
+            loaded_player.equipment.silent_boots_level = @intCast(@min(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null, 2));
+            loaded_player.equipment.signal_scrubber_level = @intCast(@min(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null, 2));
+            if (loaded_player.equipment.equipped_utility) |utility| {
+                if (!loaded_player.equipment.owns(utility)) loaded_player.equipment.equipped_utility = null;
+            }
+            if (!loaded_player.equipment.owns(.silent_boots)) loaded_player.equipment.silent_boots_level = 0;
+            if (!loaded_player.equipment.owns(.signal_scrubber)) loaded_player.equipment.signal_scrubber_level = 0;
+            active_candidate = parseActiveCandidate(lines.next() orelse return null);
+        },
+        .v2 => {
+            loaded_player.balance = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.reputation = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.xp = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.equipment.has_decryptor = parseFlag(lines.next() orelse return null) orelse return null;
+            active_candidate = parseActiveCandidate(lines.next() orelse return null);
+        },
+        .v1 => {
+            loaded_player.balance = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.reputation = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.equipment.has_decryptor = parseFlag(lines.next() orelse return null) orelse return null;
+            active_candidate = parseActiveCandidate(lines.next() orelse return null);
+            loaded_player.xp = 0;
+        },
+        .legacy => {
+            loaded_player.balance = std.fmt.parseInt(u32, first_line, 10) catch return null;
+            loaded_player.reputation = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
+            loaded_player.equipment.has_decryptor = parseFlag(lines.next() orelse return null) orelse return null;
+        },
     }
-    for (missions) |*mission| {
-        if (lines.next()) |value| mission.completed = std.mem.eql(u8, value, "1");
-    }
-    const active = validateActiveCandidate(active_candidate, missions);
-    if (migrate_v1_xp) {
+
+    // V1 has no XP field; reconstruct it from the completed catalog missions.
+    if (format == .v1) {
+        var migration_lines = std.mem.tokenizeScalar(u8, data, '\n');
+        _ = migration_lines.next();
+        for (0..fixedFieldCount(format)) |_| _ = migration_lines.next();
         for (missions) |mission| {
-            if (mission.completed) player.xp += mission.xp_reward;
+            const completed = if (migration_lines.next()) |value| parseFlag(value).? else false;
+            if (completed) {
+                loaded_player.xp = std.math.add(u32, loaded_player.xp, mission.xp_reward) catch return null;
+            }
         }
     }
-    return active;
+
+    // All remaining operations are infallible after validateSave succeeds.
+    player.* = loaded_player;
+    var completion_lines = std.mem.tokenizeScalar(u8, data, '\n');
+    _ = completion_lines.next();
+    for (0..fixedFieldCount(format)) |_| _ = completion_lines.next();
+    for (missions) |*mission| {
+        mission.completed = if (completion_lines.next()) |value| parseFlag(value).? else false;
+    }
+
+    if (active_candidate) |index| {
+        if (index < missions.len and !missions[index].completed) return index;
+    }
+    return null;
 }
 
 /// Loads the default save file into the supplied player and mission state.
