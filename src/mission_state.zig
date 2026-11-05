@@ -1,3 +1,6 @@
+const MissionObjective = @import("mission.zig").MissionObjective;
+const MissionObjectiveKind = @import("mission.zig").MissionObjectiveKind;
+
 pub const MissionProgress = enum {
     inactive,
     accepted,
@@ -12,15 +15,18 @@ pub const MissionProgress = enum {
 pub const MissionSession = struct {
     progress: MissionProgress = .inactive,
     connected: bool = false,
+    completed_objectives: u8 = 0,
 
     pub fn start(self: *MissionSession) void {
         self.progress = .accepted;
         self.connected = false;
+        self.completed_objectives = 0;
     }
 
     pub fn reset(self: *MissionSession) void {
         self.progress = .inactive;
         self.connected = false;
+        self.completed_objectives = 0;
     }
 
     pub fn hasScanned(self: MissionSession) bool {
@@ -53,5 +59,22 @@ pub const MissionSession = struct {
 
     pub fn markDecrypted(self: *MissionSession) void {
         if (self.isAuthenticated()) self.progress = .decrypted;
+    }
+
+    pub fn completeObjective(self: *MissionSession, kind: MissionObjectiveKind) void {
+        const bit = @as(u8, 1) << @intCast(@intFromEnum(kind));
+        self.completed_objectives |= bit;
+    }
+
+    pub fn isObjectiveComplete(self: MissionSession, kind: MissionObjectiveKind) bool {
+        const bit = @as(u8, 1) << @intCast(@intFromEnum(kind));
+        return (self.completed_objectives & bit) != 0;
+    }
+
+    pub fn allObjectivesComplete(self: MissionSession, objectives: []const MissionObjective) bool {
+        for (objectives) |objective| {
+            if (!self.isObjectiveComplete(objective.kind)) return false;
+        }
+        return true;
     }
 };
