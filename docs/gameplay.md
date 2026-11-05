@@ -61,15 +61,16 @@ The decryptor costs $150. It is a persistent tool: once purchased, it remains ow
 
 ## Contracts
 
-The game currently defines three contracts in `src/mission_data.zig`.
+The game currently defines four contracts in `src/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer.
 
-| ID | Contract | Difficulty | Fictional target | Required level | Cash reward | XP reward |
+| ID | Contract | Difficulty | Fictional target | Required level | Required Reputation | Cash reward | XP reward |
 | --- | --- | --- | --- | ---: | ---: | ---: |
-| `job-01` | Cold Storage | Easy | `vault-01.local` | 1 | $300 | 100 |
-| `job-02` | Paper Trail | Medium | `archive-02.local` | 2 | $500 | 150 |
-| `job-03` | Quiet Exit | Hard | `relay-03.local` | 3 | $800 | 200 |
+| `job-01` | Cold Storage | Easy | `vault-01.local` | 1 | 0 | $300 | 100 |
+| `job-02` | Paper Trail | Medium | `archive-02.local` | 2 | 0 | $500 | 150 |
+| `job-03` | Quiet Exit | Hard | `relay-03.local` | 3 | 0 | $800 | 200 |
+| `job-04` | Ghost Signal | Hard | `signal-04.local` | 3 | 3 | $1,100 | 250 |
 
-A contract is available only when the player's level meets its required level and it has not already been completed. Only one active contract is allowed at a time.
+A contract is available only when the player's level and Reputation meet its requirements and it has not already been completed. The first three contracts retain their original availability rules. Ghost Signal additionally requires Reputation 3. Only one active contract is allowed at a time.
 
 Difficulty is currently a descriptive rating shown by `missions` and `briefing`. It does not change mission mechanics or detection risk.
 
@@ -81,9 +82,9 @@ Every contract defines an ordered checklist of required and optional objectives.
 2. **Authenticate** — completed by solving the password challenge with `brute <password>`.
 3. **Decrypt evidence** — completed by a successful `decrypt <key>` after purchasing the decryptor.
 4. **Recover evidence** — completed by extracting the exact filename with `extract <filename>`.
-5. **Optional: analyze metadata** — after decryption, run `analyze <filename>` to inspect simulated metadata. This objective is not required to finish the contract and grants bonus cash: $75 for Cold Storage, $100 for Paper Trail, and $125 for Quiet Exit.
+5. **Optional: analyze metadata** — after decryption, run `analyze <filename>` to inspect simulated metadata. This objective is not required to finish the contract and grants bonus cash: $75 for Cold Storage, $100 for Paper Trail, $125 for Quiet Exit, and $175 for Ghost Signal.
 
-The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded after every required objective is complete. Optional objectives do not block completion; completed ones add their bonus cash to the contract payout. Objective progress and detection exposure are temporary and reset when a contract starts or ends; neither is written to the save file.
+The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded after every required objective is complete. Optional objectives do not block completion; completed ones add their bonus cash to the contract payout. Completing every optional objective in a contract also grants one additional Reputation point. Completing only some optional objectives grants their cash bonuses but no Reputation bonus. Objective progress and detection exposure are temporary and reset when a contract starts or ends; neither is written to the save file.
 
 ### Fictional network navigation
 
@@ -96,6 +97,7 @@ Every successful traversal normally adds **5 Detection**, including revisiting a
 | Cold Storage | Compact perimeter; a short exposed service corridor and a longer maintenance/utility detour both lead to the vault | Scan and authentication: `service`; decrypt, analyze, extract: `vault` |
 | Paper Trail | Indexing hub with separate mail-processing and records-access branches | Scan: `index`; authentication: `mail-gw`; decrypt/extract: `mail-store`; optional analysis: `records` |
 | Quiet Exit | Relay chain with a decoy branch and a controlled exit route | Scan: `relay-a`; authentication: `relay-core`; decrypt/analyze: `transfer`; extract: `exit` |
+| Ghost Signal | Abandoned relay with an optional mirrored-traffic branch | Scan: `uplink`; authentication: `handshake`; decrypt/analyze: `cache`; extract: `beacon` |
 
 The relevant commands must be issued at their assigned nodes. For example, scanning Cold Storage from `entry` is rejected; first move to `service`. All topology and position data are local static game content. Current location and successful traversal count are session-only and are not written to any save version.
 
@@ -138,6 +140,7 @@ Use `briefing` after accepting a contract. The briefing displays the target, dif
 | Cold Storage | A hunter constellation, followed by 42 | The middle of the night | `ledger.enc` |
 | Paper Trail | A reddish metal, followed by 17 | A small songbird often associated with a clear blue color | `mailbox.enc` |
 | Quiet Exit | A fixed point used for navigation in the northern sky | The time after normal business hours | `manifest.enc` |
+| Ghost Signal | A transparent shelter used to grow delicate plants | A sudden, brief fall of rain | `ghost-signal.enc` |
 
 <details>
 <summary>Puzzle solutions (spoilers)</summary>
@@ -147,6 +150,7 @@ Use `briefing` after accepting a contract. The briefing displays the target, dif
 | Cold Storage | `orion42` | `midnight` |
 | Paper Trail | `copper17` | `bluebird` |
 | Quiet Exit | `northstar` | `afterhours` |
+| Ghost Signal | `glasshouse` | `cloudburst` |
 
 </details>
 
@@ -180,7 +184,30 @@ The threshold for reaching level `L` (where `L >= 2`) is:
 
 Completing a contract adds its configured XP reward. The game announces a level-up when the player's level increases. Since the second contract requires level 2 and awards 150 XP, completing the first contract unlocks it. Completing the second contract brings the player to 250 XP and level 3, unlocking the final contract.
 
-Each completed contract also increases reputation by 1.
+Each completed contract grants 1 Reputation. If every optional objective in that contract was also completed, the player gains 1 additional Reputation (2 total).
+
+### Reputation tiers
+
+Reputation is a persistent numeric progression value. Its player-facing tier is calculated from that value:
+
+| Reputation | Tier | Meaning |
+| ---: | --- | --- |
+| 0 | Unknown | No established reputation |
+| 1–2 | Recognized | Known within the fictional network |
+| 3–4 | Trusted | Considered a reliable operator |
+| 5+ | Elite | A highly regarded operator |
+
+Failed or compromised contracts do not reduce Reputation and grant no Reputation.
+
+### Contacts and offers
+
+Use `contacts` to see both characters and their unlock status, `contact broker` or `contact fixer` for details, and `offers` to list actionable offers. Unlocks are derived from the current Reputation; they are not separately stored.
+
+- **Information Broker** unlocks at Reputation 1. The Broker sells contract-specific password and decryption clues for $50 using `deal intel-<mission-id>`. Offers appear only for unlocked, incomplete contracts. The purchase reveals clues, never the actual password or decryption key. Each purchase is a separate transaction.
+- **Fixer** unlocks at Reputation 3. The Fixer offers `deal scrub-detection` during an active contract. It reduces Detection by up to 10, can be used once per contract, and costs $100 at Trusted (Reputation 3–4) or $75 at Elite (Reputation 5+). It cannot raise Detection or be used when Detection is already zero.
+- The Fixer also offers `deal ghost-signal`, which opens preparation for `job-04` when the player meets both level 3 and Reputation 3 requirements. The offer has no fee; the contract is appended after the original three missions.
+
+The Fixer service-use flag is runtime-only and resets when a contract starts or ends. Reputation, tiers, and Contact unlocks use the existing persisted Reputation value, so Save V3 remains unchanged.
 
 ## Economy and inventory
 
