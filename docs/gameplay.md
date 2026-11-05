@@ -59,16 +59,20 @@ A new player starts with:
 
 The decryptor costs $150. It is a persistent tool: once purchased, it remains owned in subsequent sessions when the save is loaded. Utility equipment is separate from the decryptor and uses one mutually exclusive active slot.
 
+## Contract Board
+
+Use `board` to open the full catalog overview. It displays each contract's category, difficulty, base-to-maximum cash reward (including all authored optional-objective bonuses), XP, and derived availability. States are `AVAILABLE`, `LOCKED`, `COMPLETED`, `EXCLUSIVE`, and `UNAVAILABLE`. Lock reasons show the exact unmet level and/or Reputation requirement. Exclusive contracts must be accepted through their Contact offer. If a contract is active or being prepared, other incomplete entries are shown as unavailable; completed entries retain their completed status. The original `missions` command remains unchanged as a compact list. Board availability is calculated from current game state and is not persisted. The Board never reveals puzzle clues or answers.
+
 ## Contracts
 
 The game currently defines four contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer.
 
-| ID | Contract | Difficulty | Fictional target | Required level | Required Reputation | Cash reward | XP reward |
+| ID | Contract | Category | Difficulty | Fictional target | Required level | Required Reputation | Cash reward | XP reward |
 | --- | --- | --- | --- | ---: | ---: | ---: |
-| `job-01` | Cold Storage | Easy | `vault-01.local` | 1 | 0 | $300 | 100 |
-| `job-02` | Paper Trail | Medium | `archive-02.local` | 2 | 0 | $500 | 150 |
-| `job-03` | Quiet Exit | Hard | `relay-03.local` | 3 | 0 | $800 | 200 |
-| `job-04` | Ghost Signal | Hard | `signal-04.local` | 3 | 3 | $1,100 | 250 |
+| `job-01` | Cold Storage | Data Recovery | Easy | `vault-01.local` | 1 | 0 | $300 | 100 |
+| `job-02` | Paper Trail | Intelligence | Medium | `archive-02.local` | 2 | 0 | $500 | 150 |
+| `job-03` | Quiet Exit | Extraction | Hard | `relay-03.local` | 3 | 0 | $800 | 200 |
+| `job-04` | Ghost Signal | Infiltration | Hard | `signal-04.local` | 3 | 3 | $1,100 | 250 |
 
 A contract is available only when the player's level and Reputation meet its requirements and it has not already been completed. The first three contracts retain their original availability rules. Ghost Signal additionally requires Reputation 3. Only one active contract is allowed at a time.
 

@@ -16,8 +16,9 @@ Do not alter existing four mission IDs/order, rewards, puzzle answers, Detection
 Replace the impression of a short fixed mission list with a coherent in-game board of available, locked, completed, exclusive, and special contracts.
 
 ### Design direction
-- Extend the existing `missions`/Contact-offer experience or introduce a board command only after comparing command UX and parser limitations.
-- Board entries should show concise identity, category, fictional client/faction when available, difficulty, reward range, level/Reputation requirements, and availability reason.
+- Preserve the existing `missions` command unchanged and add a separate `board` command for the full overview.
+- Add typed static categories to Mission; current authored categories are Data Recovery, Intelligence, Extraction, and Infiltration. Faction metadata remains deferred to HT-010.
+- Board entries show identity, category, difficulty, base-to-maximum cash reward, XP, derived availability, and exact level/Reputation or busy-state reason. Faction/client metadata remains out of scope until its own system is approved.
 - Keep contract definitions static; calculate availability from player state and derived rules.
 - Avoid showing hidden puzzle clues or answers before launch.
 

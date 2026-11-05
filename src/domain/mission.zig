@@ -17,6 +17,24 @@ pub const MissionDifficulty = enum {
     }
 };
 
+/// Broad gameplay category used to organize contracts on the Contract Board.
+pub const MissionCategory = enum {
+    data_recovery,
+    intelligence,
+    extraction,
+    infiltration,
+
+    /// Returns the player-facing category label.
+    pub fn label(self: MissionCategory) []const u8 {
+        return switch (self) {
+            .data_recovery => "Data Recovery",
+            .intelligence => "Intelligence",
+            .extraction => "Extraction",
+            .infiltration => "Infiltration",
+        };
+    }
+};
+
 /// The gameplay event that completes a mission objective.
 pub const MissionObjectiveKind = enum {
     scan_target,
@@ -40,6 +58,7 @@ pub const Mission = struct {
     name: []const u8,
     target: []const u8,
     difficulty: MissionDifficulty,
+    category: MissionCategory = .data_recovery,
     objectives: []const MissionObjective,
     topology: ?*const Topology = null,
     password: []const u8,

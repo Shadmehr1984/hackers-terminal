@@ -34,11 +34,11 @@ The project owner approved these five feature areas on 2026-11-05. Implement the
 
 ## Gameplay Expansion Program — EXPANSION-001
 
-The owner approved planning for the next 20 gameplay ideas on 2026-11-05. **This approval covers planning and agent handoff documentation only; implementation is not yet authorized.** Do not begin HT-006 or any later feature until the owner explicitly says to start implementation and approves the first feature's detailed design.
+The owner approved planning for the next 20 gameplay ideas on 2026-11-05. HT-006 implementation was explicitly authorized on 2026-11-05 and is In Progress. Every later feature still requires its own explicit implementation authorization and detailed design approval.
 
 | Phase | Scope | Plan | Status |
 |---|---|---|---|
-| 1 | Contract Board, Mission Modifiers, Hidden Objectives, Multi-stage Operations (HT-006–HT-009) | [Phase 1](plans/PHASE-1-MISSION-CONTENT.md) | Planned |
+| 1 | Contract Board, Mission Modifiers, Hidden Objectives, Multi-stage Operations (HT-006–HT-009) | [Phase 1](plans/PHASE-1-MISSION-CONTENT.md) | HT-006 In Progress; remaining Planned |
 | 2 | Factions, Rival Hackers, Information Market, Contact Development, Data Archive (HT-010–HT-012, HT-022, HT-025) | [Phase 2](plans/PHASE-2-WORLD-AND-RELATIONSHIPS.md) | Planned |
 | 3 | Security Profiles, Countermeasures, Security Agent Behaviors and Memory (HT-016–HT-017, HT-023–HT-024) | [Phase 3](plans/PHASE-3-SECURITY-SYSTEMS.md) | Planned |
 | 4 | Specializations, Level/Unlocks, Tool Collection, Operational Costs, Recurring Contracts, Achievements, Challenges (HT-013–HT-015, HT-018–HT-021) | [Phase 4](plans/PHASE-4-PROGRESSION-AND-REPLAYABILITY.md) | Planned |

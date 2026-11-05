@@ -9,10 +9,11 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 3 | HT-003 | Equipment & Upgrade System | Implemented | [Read task](HT-003-equipment-upgrades.md) |
 | 4 | HT-004 | Mission Preparation | Implemented | [Read task](HT-004-mission-preparation.md) |
 | 5 | HT-005 | Reputation & Contacts | Implemented | [Read task](HT-005-reputation-contacts.md) |
+| 6 | HT-006 | Contract Board | In Progress | [Read task](HT-006-contract-board.md) |
 
 ## Gameplay Expansion Program — EXPANSION-001
 
-Planning approved on 2026-11-05; **implementation authorization is pending**. Do not start coding from these plans until the owner explicitly authorizes implementation. These phase documents are persistent agent handoffs and contain the execution scope and acceptance criteria for all 20 ideas.
+Planning approved on 2026-11-05. HT-006 implementation is explicitly authorized and in progress; all later features still require their own explicit implementation authorization. These phase documents are persistent agent handoffs and contain the execution scope and acceptance criteria for all 20 ideas.
 
 - [Master plan and dependency register](../plans/GAMEPLAY-EXPANSION-OVERVIEW.md)
 - [Phase 1 — Contract and Mission Content](../plans/PHASE-1-MISSION-CONTENT.md): HT-006 Contract Board; HT-007 Mission Modifiers; HT-008 Hidden Objectives; HT-009 Multi-stage Operations.
@@ -28,7 +29,7 @@ Planning approved on 2026-11-05; **implementation authorization is pending**. Do
 - [QUALITY-004 — Idempotent Completed Authentication and Decryption](QUALITY-004-idempotent-completed-stages.md) — Implemented: incorrect retries after completed stages no longer increase Detection.
 
 ## Handoff rules
-- Start with HT-001. Do not implement all five systems together.
+- HT-001 through HT-005 are complete. For EXPANSION-001, follow the dependency order and require individual owner authorization for each feature. Do not combine multiple features into one oversized change.
 - Before coding, inspect current source, tests, docs, CI, and save behavior; then add a concrete milestone plan and progress notes to the relevant brief.
 - Update the brief and `.agent/roadmap.md` as milestones move through Planned → In Progress → Blocked/Implemented.
 - Implemented means code, focused tests, documentation, review, and relevant CI are complete.

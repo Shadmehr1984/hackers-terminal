@@ -53,3 +53,27 @@ test "inactive status output uses line breaks" {
     try std.testing.expect(std.mem.indexOf(u8, output, "Active job:  none\n  Detection:   inactive") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "\\n") == null);
 }
+
+test "contract board output shows category rewards status and lock reasons without puzzle intel" {
+    const missions = mission_data.defaultMissions();
+    var capture = Capture{};
+    try terminal.printContractBoard(&capture, &missions, 1, 0, false);
+    const output = capture.output();
+    try std.testing.expect(std.mem.indexOf(u8, output, "CONTRACT BOARD") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "Data Recovery") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "$300-$375 + 100 XP") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "AVAILABLE") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "LOCKED") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "Requires level 2") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "orion42") == null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "midnight") == null);
+}
+
+test "contract board marks incomplete contracts unavailable while another is busy" {
+    const missions = mission_data.defaultMissions();
+    var capture = Capture{};
+    try terminal.printContractBoard(&capture, &missions, 3, 3, true);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "UNAVAILABLE") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Finish or fail the active contract") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "EXCLUSIVE") == null);
+}

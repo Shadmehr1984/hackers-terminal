@@ -10,4 +10,5 @@ test {
     _ = @import("progression_test.zig");
     _ = @import("terminal_test.zig");
     _ = @import("contacts_test.zig");
+    _ = @import("contract_board_test.zig");
 }

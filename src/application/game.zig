@@ -155,6 +155,9 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "status")) {
         const level = progression.playerLevel(player.*);
         try terminal.printStatus(writer, player.*, active.*, missions, level, progression.xpForNextLevel(level), session.*);
+    } else if (std.mem.eql(u8, command, "board")) {
+        const level = progression.playerLevel(player.*);
+        try terminal.printContractBoard(writer, missions, level, player.reputation, active.* != null or preparation.mission_index != null);
     } else if (std.mem.eql(u8, command, "missions")) {
         try terminal.printMissions(writer, missions, progression.playerLevel(player.*), player.reputation);
     } else if (std.mem.eql(u8, command, "contacts")) {
