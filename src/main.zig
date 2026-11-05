@@ -1,6 +1,8 @@
 const std = @import("std");
 const Player = @import("player.zig").Player;
-const MissionSession = @import("mission_state.zig").MissionSession;
+const MissionState = @import("mission_state.zig");
+const MissionSession = MissionState.MissionSession;
+const MissionPreparation = MissionState.MissionPreparation;
 const save = @import("save.zig");
 const game = @import("game.zig");
 const terminal = @import("terminal.zig");
@@ -27,8 +29,9 @@ pub fn main() !void {
     var input_buffer: [512]u8 = undefined;
     var active: ?usize = active_from_save;
     var session = MissionSession{};
+    var preparation = MissionPreparation{};
     if (active) |index| {
-        session.start();
+        session.startWithLoadout(game.currentLoadout(player));
         if (missions[index].topology) |topology| session.current_node = topology.entry_node;
     }
 
@@ -39,7 +42,7 @@ pub fn main() !void {
         const line = std.mem.trim(u8, maybe_line.?, " \r\t");
         if (line.len == 0) continue;
 
-        const keep_running = try game.runCommand(stdout, line, &player, &missions, &active, &session);
+        const keep_running = try game.runCommandWithPreparation(stdout, line, &player, &missions, &active, &session, &preparation);
         if (!keep_running) break;
     }
 }
