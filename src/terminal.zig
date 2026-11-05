@@ -75,7 +75,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
         player.xp,
         next_level_xp,
         if (player.equipment.has_decryptor) "installed" else "not installed",
-        if (player.equipment.equipped_utility) |utility| utility.label() else "none",
+        if (active != null) (if (session.loadout.utility) |utility| utility.label() else "none") else if (player.equipment.equipped_utility) |utility| utility.label() else "none",
     });
 
     if (active) |index| {
