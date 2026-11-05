@@ -57,7 +57,7 @@ fn handleDeal(
             try writer.writeAll("Information Broker is locked. Reach Reputation 1 first.\n");
             return;
         }
-        const mission_id = arg["intel-".len..];
+        const mission_id = arg[6..];
         for (missions) |mission| {
             if (!std.mem.eql(u8, mission.id, mission_id)) continue;
             if (mission.completed) {
