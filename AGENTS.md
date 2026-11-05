@@ -29,7 +29,7 @@ This file is the persistent source of project-specific instructions for AI codin
 - `src/progression.zig`: XP thresholds, player levels, and mission reward progression.
 - `src/player.zig`: player profile, typed equipment ownership, utility slot, upgrade levels, and pure risk modifier calculations.
 - `src/mission.zig`: mission/contract data types, optional topology reference, difficulty classification, and typed objective definitions.
-- `src/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and graph validation.
+- `src/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and validation that required operation nodes are reachable from the entry node.
 - `src/mission_data.zig`: built-in mission catalog.
 - `src/mission_state.zig`: runtime-only mission preparation choice, active-mission progress, connection state, objective completion tracking, detection exposure (0–100), topology position, traversal count, and the per-run loadout snapshot.
 - `src/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
@@ -63,7 +63,7 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 
 - Save compatibility is important. Existing V2, V1, and legacy saves must continue to load unless a deliberate migration is designed and documented. Current V3 persists typed utility ownership, equipped utility, and utility upgrade levels; older formats migrate with no utilities owned/equipped.
 - Do not change serialized field order, save version markers, defaults, or the save path as incidental parts of unrelated refactors.
-- Save writes must stage the complete unchanged-format payload in a temporary file and rename it into place only after a successful write; do not truncate the previous save before the replacement is ready.
+- Save writes must stage the complete unchanged-format payload in a temporary file and rename it into place only after a successful write; do not truncate the previous save before the replacement is ready. Loaders must recognize only supported version markers or a valid numeric legacy header; reject unknown non-numeric markers before mutating player or mission state.
 - Any intentional save-format change must update `docs/save-format.md`, include migration/compatibility handling where needed, and add or update tests.
 
 ## Tests, formatting, and verification
