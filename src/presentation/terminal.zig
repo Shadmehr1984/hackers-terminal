@@ -31,6 +31,10 @@ pub fn printHelp(writer: anytype) !void {
         \\  help                 Show this help
         \\  status               Show operator status
         \\  missions             List available contracts
+        \\  operations           List multi-stage operations
+        \\  operation <id>       Inspect an operation and its stages
+        \\  operation-start <id> Start an operation
+        \\  operation-status     Show current operation stage and earned facts
         \\  board                Open the Contract Board
         \\  contacts             Show unlocked and locked contacts
         \\  contact <id>         Inspect a contact and its offers
