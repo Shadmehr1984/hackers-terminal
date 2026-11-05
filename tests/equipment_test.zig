@@ -133,7 +133,7 @@ test "unknown save versions are rejected without mutating existing state" {
     var missions = mission_data.defaultMissions();
     missions[0].completed = true;
 
-    const result = save.loadGameFromBytes("HACKERS_TERMINAL_SAVE_V4\\n999\\n", &player, &missions);
+    const result = save.loadGameFromBytes("HACKERS_TERMINAL_SAVE_V4\n999\n", &player, &missions);
 
     try std.testing.expect(result == null);
     try std.testing.expectEqual(@as(u32, 321), player.balance);
@@ -144,7 +144,7 @@ test "unknown save versions are rejected without mutating existing state" {
     try std.testing.expectEqual(@as(u2, 1), player.equipment.level(.silent_boots));
     try std.testing.expect(missions[0].completed);
 
-    try std.testing.expect(save.loadGameFromBytes("not-a-save-format\\n", &player, &missions) == null);
+    try std.testing.expect(save.loadGameFromBytes("not-a-save-format\n", &player, &missions) == null);
 }
 
 test "save writes and replaces a V3 file in an isolated directory" {
@@ -168,7 +168,7 @@ test "save writes and replaces a V3 file in an isolated directory" {
 
     const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
     defer std.testing.allocator.free(data);
-    try std.testing.expect(std.mem.startsWith(u8, data, "HACKERS_TERMINAL_SAVE_V3\\n"));
+    try std.testing.expect(std.mem.startsWith(u8, data, "HACKERS_TERMINAL_SAVE_V3\n"));
     var restored_player = Player{};
     var restored_missions = mission_data.defaultMissions();
     _ = save.loadGameFromBytes(data, &restored_player, &restored_missions);
@@ -178,11 +178,7 @@ test "save writes and replaces a V3 file in an isolated directory" {
     try std.testing.expect(restored_player.equipment.owns(.silent_boots));
     try std.testing.expectEqual(@as(u2, 2), restored_player.equipment.level(.silent_boots));
     try std.testing.expect(!restored_missions[0].completed);
-    const temp_file = tmp.dir.openFile("saves/player.sav.tmp", .{}) catch null;
-    if (temp_file) |file| {
-        file.close();
-        return error.TemporarySaveFileWasNotRemoved;
-    }
+    try std.testing.expectError(error.FileNotFound, tmp.dir.openFile("saves/player.sav.tmp", .{}));
 }
 
 test "invalid V3 equipment references are normalized" {
