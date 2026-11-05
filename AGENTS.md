@@ -28,7 +28,7 @@ This file is the persistent source of project-specific instructions for AI codin
 - `src/player.zig`: player profile data and defaults.
 - `src/mission.zig`: mission/contract data types, difficulty classification, and typed objective definitions.
 - `src/mission_data.zig`: built-in mission catalog.
-- `src/mission_state.zig`: temporary active-mission progress, connection state, and objective completion tracking.
+- `src/mission_state.zig`: temporary active-mission progress, connection state, objective completion tracking, and detection exposure (0–100).
 - `src/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
 - `src/terminal.zig`: terminal presentation, including mission list and briefing-related output.
 - `src/save.zig`: persistence and compatibility with V2, V1, and legacy save formats.
@@ -50,7 +50,8 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 - Mission difficulty and objective definitions are static catalog data and are not serialized. Do not change the save format merely to persist them.
 - Each built-in mission defines objectives using `MissionObjectiveKind`; successful scan, authentication, decryption, extraction, and optional metadata analysis actions complete their corresponding objectives.
 - `MissionObjective.optional` marks work that does not block contract completion. Completed optional objectives grant their configured `bonus_reward` when the contract is completed.
-- Objective completion is runtime-only session state. `extract` may complete a contract only when every required objective is complete. Keep the objective-kind bit positions within the current eight-bit session mask; redesign the storage before adding more than eight kinds.
+- Objective completion and detection exposure are runtime-only session state. `extract` may complete a contract only when every required objective is complete. Keep the objective-kind bit positions within the current eight-bit session mask; redesign the storage before adding more than eight kinds.
+- Detection starts at 0 for each mission, is capped at 100, and is not serialized. At 100 the active contract fails, a $50 penalty (capped at the current balance) is applied, and the contract remains retryable. Keep action costs, threshold bands, and reset behavior covered by tests and documented in `docs/gameplay.md`.
 
 ## Persistence safety
 
