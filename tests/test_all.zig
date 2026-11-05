@@ -4,5 +4,5 @@ test {
     _ = @import("mission_data_test.zig");
     _ = @import("mission_objectives_test.zig");
     _ = @import("game_detection_test.zig");
-    _ = @import("../src/topology.zig");
+    _ = @import("topology_test.zig");
 }
