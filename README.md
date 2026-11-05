@@ -12,7 +12,7 @@
 - Mission difficulty labels: Easy, Medium, and Hard
 - Required and optional mission objectives with live completion tracking and bonus rewards
 - Mission progression gated by operator level
-- Mission-specific fictional network maps with adjacent-node navigation and location-based operations
+- Pre-mission intelligence briefing and run-specific utility loadout selection\n- Mission-specific fictional network maps with adjacent-node navigation and location-based operations
 - Detection exposure increases with risky actions and every successful network traversal
 - Simulated scan, connection, authentication, decryption, metadata analysis, and extraction stages
 - Player balance, reputation, XP, and level progression
@@ -54,7 +54,7 @@ On Windows, run the generated `hackers-terminal.exe` from the corresponding `zig
 
 1. Start the game with `zig build run`.
 2. Enter `help` to see the available commands.
-3. Enter `missions` and accept the first contract: `accept job-01`.
+3. Enter `missions`, inspect the first contract with `prepare job-01`, then launch it with `accept job-01`.
 4. Read the mission clues and difficulty with `briefing`, then inspect the map with `map`.
 5. Move to the node labelled `SCAN` on the map, scan the target, then move to the `AUTH` node to connect and authenticate.
 6. Solve the password challenge with `brute <password>`. Each successful move adds 5 detection.
@@ -120,7 +120,7 @@ hackers-terminal/
 │   ├── mission_objectives_test.zig
 │   ├── game_detection_test.zig
 │   ├── topology_test.zig
-│   ├── equipment_test.zig
+│   ├── equipment_test.zig\n│   ├── mission_preparation_test.zig
 │   └── test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
@@ -137,7 +137,7 @@ The `saves/` directory is created at runtime when the player saves. It is ignore
 - There is one player profile and one local save file.
 - The command parser accepts a command and at most one whitespace-delimited argument.
 - The simulated scan and connection are state flags; there is no networking layer.
-- Session progress (scan, connection, authentication, decryption, objective completion, current topology node, and traversal count) is not persisted. If a saved active contract is restored after restarting, its session stages and objectives must be performed again.
+- Mission preparation, the run-specific loadout snapshot, and session progress (scan, connection, authentication, decryption, objective completion, current topology node, and traversal count) are not persisted. If a saved active contract is restored after restarting, its session stages and objectives must be performed again.
 - The terminal UI is plain text and uses an ANSI escape sequence for `clear`.
 
 See [Architecture](docs/architecture.md) for implementation details and [Development](docs/development.md) for the current verification workflow.
