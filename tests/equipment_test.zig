@@ -38,6 +38,14 @@ test "utility purchase equip and upgrades enforce ownership and funds" {
 
     try shop.upgradeItem(writer, &player, "silent-boots");
     try std.testing.expectEqual(@as(u2, 1), player.equipment.level(.silent_boots));
+    player.balance = 250;
+    try shop.upgradeItem(writer, &player, "silent-boots");
+    try std.testing.expectEqual(@as(u2, 2), player.equipment.level(.silent_boots));
+    try std.testing.expectEqual(@as(u8, 2), player.equipment.movementDetectionCost());
+    try std.testing.expectEqual(@as(u32, 0), player.balance);
+    player.balance = 1000;
+    try shop.upgradeItem(writer, &player, "silent-boots");
+    try std.testing.expectEqual(@as(u32, 1000), player.balance);
     try shop.equipItem(writer, &player, "signal-scrubber");
     try std.testing.expect(player.equipment.isEquipped(.silent_boots));
 }
