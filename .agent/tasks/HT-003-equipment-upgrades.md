@@ -1,6 +1,6 @@
 # HT-003 — Equipment & Upgrade System
 
-**Status:** Planned  
+**Status:** In Progress  
 **Priority:** 3  
 **Approved:** 2026-11-05  
 **Depends on:** HT-001 detection/risk rules and HT-002 topology interaction model.
@@ -46,3 +46,30 @@ Expand the existing shop/decryptor flag into a coherent equipment and upgrade sy
 
 ## Agent progress notes
 - Initial handoff: scope and acceptance criteria recorded; implementation has not started.
+
+
+## Source audit and implementation plan (2026-11-05)
+
+### Verified current behavior
+- `Player` stores decryptor ownership as the standalone `has_decryptor` boolean.
+- `shop.zig` owns only inventory/shop display and the one-time $150 decryptor purchase.
+- `game.zig` checks decryptor ownership during decryption; topology movement adds a fixed 5 Detection and incorrect authentication adds 15.
+- Save V2 persists balance, reputation, XP, decryptor ownership, active mission index, and mission completion flags. V1 and the original legacy layout are still accepted.
+- The current test aggregate has no dedicated shop or save compatibility test module; HT-003 should add focused coverage before changing persistent equipment state.
+
+### Milestones
+1. Agree on the small typed equipment catalog, risk modifiers, upgrade levels/costs, and single utility slot before implementation.
+2. Replace ad-hoc ownership with typed player equipment state while preserving the existing decryptor purchase command and semantics.
+3. Add shop commands for inspecting, purchasing, equipping, and upgrading utility equipment; centralize effect calculation.
+4. Introduce a new save version only if approved persistent equipment requires it; keep V2, V1, and legacy readers compatible.
+5. Add focused catalog/shop/effect/save migration tests, update player-facing and agent documentation, self-review, and verify CI.
+
+### Proposed design — awaiting owner approval
+- Keep the decryptor as a required tool, separate from one mutually exclusive utility slot.
+- Offer two utility choices with distinct risk profiles: Silent Boots reduce Detection per successful topology traversal; Signal Scrubber reduces Detection from incorrect authentication attempts.
+- Each utility has two upgrade tiers after purchase. Only the equipped utility applies its effect; switching is allowed and does not destroy ownership.
+- Persist owned utilities, equipped utility, and upgrade tiers in a new save version. Existing V2/V1/legacy saves migrate with no utility owned/equipped and retain decryptor ownership.
+- Exact prices and modifier values are not approved yet and must be confirmed before implementation.
+
+### Current milestone
+Source audit complete. No gameplay code changed for HT-003. Awaiting owner approval of the equipment effects and balance values.
