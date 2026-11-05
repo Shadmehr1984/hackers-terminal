@@ -75,7 +75,7 @@ The descriptions differ between contracts even though the current core objective
 
 Each contract has a purpose-built, entirely fictional network graph. Accepting a contract places the operator at its entry node. Use `map` to inspect nodes, links, current position, and the node assigned to each operation; use `move <node-id>` to traverse one adjacent link.
 
-Every successful traversal adds **5 Detection**, including revisiting a previously used link. Unknown and non-adjacent destinations are rejected without changing location or Detection. Movement can therefore make a route choice safer or riskier, and reaching 100 still invokes the HT-001 failure and penalty rules.
+Every successful traversal normally adds **5 Detection**, including revisiting a previously used link. Equipped Silent Boots reduce this cost to 4 at level 0, 3 at level 1, or 2 at level 2. Unknown and non-adjacent destinations are rejected without changing location or Detection. Movement can therefore make a route choice safer or riskier, and reaching 100 still invokes the HT-001 failure and penalty rules.
 
 | Contract | Graph layout | Operation locations |
 | --- | --- | --- |
@@ -102,9 +102,9 @@ Risk costs are deterministic:
 | Action | Detection change |
 | --- | ---: |
 | Successful scan (first time only) | +10 |
-| Every successful topology traversal (including revisits) | +5 normally; Silent Boots reduce this to +4/+3/+2 |
+| Every successful topology traversal (including revisits) | +5 normally; equipped Silent Boots: +4/+3/+2 |
 | Successful authentication (first time only) | +5 |
-| Incorrect password attempt | +15 normally; Signal Scrubber reduces this to +12/+9/+6 |
+| Incorrect password attempt | +15 normally; equipped Signal Scrubber: +12/+9/+6 |
 | Successful decryption (first time only) | +10 |
 | Incorrect decryption key | +10 |
 | Successful optional metadata analysis (first time only) | +5 |
@@ -170,13 +170,17 @@ Each completed contract also increases reputation by 1.
 
 ## Economy and inventory
 
-The current shop has one item:
+The shop contains the required decryptor and two optional utilities:
 
-| Item | Price | Purpose |
-| --- | ---: | --- |
-| `decryptor` | $150 | Required to decrypt mission files |
+| Item | Purchase | Upgrade 1 | Upgrade 2 | Effect |
+| --- | ---: | ---: | ---: | --- |
+| `decryptor` | $150 | — | — | Required to decrypt mission files |
+| `silent-boots` | $100 | $150 | $250 | Movement Detection: 4 / 3 / 2 |
+| `signal-scrubber` | $100 | $150 | $250 | Incorrect-password Detection: 12 / 9 / 6 |
 
-Use `shop` to list items, `buy decryptor` to purchase it, and `inventory` to inspect owned tools. The game prevents duplicate purchases and purchases when the player cannot afford the item.
+Each utility starts at level 0. Both can be owned, but only one can occupy the active utility slot. Equipping another owned utility switches the effect without losing ownership or upgrades. The decryptor is separate and does not occupy this slot. Only the equipped matching utility modifies Detection; otherwise the base costs remain 5 per traversal and 15 per incorrect password.
+
+Use `shop` to inspect equipment and upgrade prices, `buy <item>` to purchase, `equip <utility>` to activate an owned utility, `upgrade <utility>` to purchase its next tier, and `inventory` to inspect ownership and levels. Duplicate purchases, unowned equip/upgrade attempts, maximum-level upgrades, and unaffordable transactions are rejected without charging the player.
 
 ## Saving and resuming
 
