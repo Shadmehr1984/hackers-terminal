@@ -3,7 +3,7 @@ const mission_data = @import("../src/mission_data.zig");
 const MissionObjectiveKind = @import("../src/mission.zig").MissionObjectiveKind;
 const MissionSession = @import("../src/mission_state.zig").MissionSession;
 
-test "each built-in mission defines the four core objectives" {
+test "each built-in mission defines required and optional objectives" {
     const missions = mission_data.defaultMissions();
     const expected = [_]MissionObjectiveKind{
         .scan_target,
@@ -13,7 +13,7 @@ test "each built-in mission defines the four core objectives" {
     };
 
     for (missions) |mission| {
-        try std.testing.expectEqual(expected.len, mission.objectives.len);
+        try std.testing.expectEqual(expected.len + 1, mission.objectives.len);
         for (expected, 0..) |kind, index| {
             try std.testing.expectEqual(kind, mission.objectives[index].kind);
         }
