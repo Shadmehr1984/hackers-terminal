@@ -27,7 +27,10 @@ pub fn main() !void {
     var input_buffer: [512]u8 = undefined;
     var active: ?usize = active_from_save;
     var session = MissionSession{};
-    if (active != null) session.start();
+    if (active) |index| {
+        session.start();
+        if (missions[index].topology) |topology| session.current_node = topology.entry_node;
+    }
 
     while (true) {
         try stdout.print("\n{s}@darknet:~$ ", .{player.handle});
