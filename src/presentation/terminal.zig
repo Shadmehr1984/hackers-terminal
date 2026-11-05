@@ -287,7 +287,7 @@ pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSessio
         };
         const category = if (objective.optional) "[OPTIONAL] " else "";
         try writer.print("  {s} {s}{s}", .{ state, category, objective.description });
-        if (objective.optional) try writer.print(" (+${d})", .{objective.bonus_reward});
+        if (objective.optional and objective.bonus_reward > 0) try writer.print(" (+${d})", .{objective.bonus_reward});
         try writer.writeAll("\n");
     }
     try writer.writeAll("\n");
