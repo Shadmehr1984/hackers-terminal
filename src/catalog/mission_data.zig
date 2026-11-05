@@ -120,7 +120,7 @@ const cold_storage_objectives: []const MissionObjective = &.{
     .{ .id = "decrypt-file", .kind = .decrypt_file, .description = "Decrypt the ledger.enc evidence file." },
     .{ .id = "extract-file", .kind = .extract_file, .description = "Recover ledger.enc from the vault." },
     .{ .id = "analyze-metadata", .kind = .analyze_metadata, .description = "Analyze the recovered ledger metadata for a hidden reference.", .optional = true, .bonus_reward = 75 },
-    .{ .id = "maintenance-telemetry", .kind = .analyze_metadata, .description = "Recover the maintenance telemetry signature from the vault records.", .optional = true, .bonus_reward = 50, .hidden = true, .discovery_trigger = .{ .node = "maintenance" } },
+    .{ .id = "maintenance-telemetry", .kind = .analyze_metadata, .description = "Recover the maintenance telemetry signature from the vault records.", .optional = true, .bonus_reward = 0, .hidden = true, .discovery_trigger = .{ .node = "maintenance" } },
 };
 
 const paper_trail_objectives: []const MissionObjective = &.{
@@ -129,7 +129,7 @@ const paper_trail_objectives: []const MissionObjective = &.{
     .{ .id = "decrypt-file", .kind = .decrypt_file, .description = "Decrypt the mailbox.enc message archive." },
     .{ .id = "extract-file", .kind = .extract_file, .description = "Recover mailbox.enc from the archive." },
     .{ .id = "analyze-metadata", .kind = .analyze_metadata, .description = "Analyze mailbox metadata and identify its concealed sender tag.", .optional = true, .bonus_reward = 100 },
-    .{ .id = "routing-header", .kind = .analyze_metadata, .description = "Correlate the recovered routing header with the archive index.", .optional = true, .bonus_reward = 60, .hidden = true, .discovery_trigger = .{ .file = "routing-header.log" } },
+    .{ .id = "routing-header", .kind = .analyze_metadata, .description = "Correlate the recovered routing header with the archive index.", .optional = true, .bonus_reward = 0, .hidden = true, .discovery_trigger = .{ .file = "routing-header.log" } },
 };
 
 const quiet_exit_objectives: []const MissionObjective = &.{
@@ -138,7 +138,7 @@ const quiet_exit_objectives: []const MissionObjective = &.{
     .{ .id = "decrypt-file", .kind = .decrypt_file, .description = "Decrypt the manifest.enc transfer manifest." },
     .{ .id = "extract-file", .kind = .extract_file, .description = "Recover manifest.enc from the relay." },
     .{ .id = "analyze-metadata", .kind = .analyze_metadata, .description = "Analyze manifest metadata to uncover an alternate relay marker.", .optional = true, .bonus_reward = 125 },
-    .{ .id = "relay-trace", .kind = .analyze_metadata, .description = "Correlate the relay trace revealed by the initial scan.", .optional = true, .bonus_reward = 75, .hidden = true, .discovery_trigger = .{ .action = .scan_target } },
+    .{ .id = "relay-trace", .kind = .analyze_metadata, .description = "Correlate the relay trace revealed by the initial scan.", .optional = true, .bonus_reward = 0, .hidden = true, .discovery_trigger = .{ .action = .scan_target } },
 };
 
 const ghost_signal_objectives: []const MissionObjective = &.{
@@ -147,7 +147,7 @@ const ghost_signal_objectives: []const MissionObjective = &.{
     .{ .id = "decrypt-file", .kind = .decrypt_file, .description = "Decrypt the ghost-signal.enc transmission." },
     .{ .id = "extract-file", .kind = .extract_file, .description = "Recover ghost-signal.enc from the beacon." },
     .{ .id = "analyze-metadata", .kind = .analyze_metadata, .description = "Analyze the transmission metadata to identify its origin marker.", .optional = true, .bonus_reward = 175 },
-    .{ .id = "mirror-fragment", .kind = .analyze_metadata, .description = "Analyze the mirrored relay fragment for a secondary origin marker.", .optional = true, .bonus_reward = 100, .hidden = true, .discovery_trigger = .{ .node = "mirror" } },
+    .{ .id = "mirror-fragment", .kind = .analyze_metadata, .description = "Analyze the mirrored relay fragment for a secondary origin marker.", .optional = true, .bonus_reward = 0, .hidden = true, .discovery_trigger = .{ .node = "mirror" } },
 };
 
 /// Returns the built-in contracts with their original order and configuration.
