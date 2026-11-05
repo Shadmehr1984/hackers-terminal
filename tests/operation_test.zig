@@ -191,16 +191,11 @@ test "operation save uses the unchanged V3 layout with no active mission index" 
     var tmp = std.testing.tmpDir(.{});
     defer tmp.cleanup();
 
-    var player = Player{ .xp = 250 };
-    var missions = mission_data.defaultMissions();
-    var active: ?usize = null;
-    var session = MissionSession{};
+    const player = Player{ .xp = 250 };
+    const missions = mission_data.defaultMissions();
     var preparation = MissionPreparation{};
-    var writer = TestWriter{};
-
-    try run(&writer, "operation-start blackout-protocol", &player, &missions, &active, &session, &preparation);
-    try run(&writer, "accept job-01", &player, &missions, &active, &session, &preparation);
-    try run(&writer, "save", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(preparation.operation_state.start(operation_data.blackout_protocol, true));
+    try save.saveGameToDirectory(tmp.dir, player, &missions, null);
 
     const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
     defer std.testing.allocator.free(data);
