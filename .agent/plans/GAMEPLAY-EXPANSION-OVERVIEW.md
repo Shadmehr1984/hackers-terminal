@@ -3,13 +3,13 @@
 **Program ID:** EXPANSION-001  
 **Owner direction:** Approved for planning on 2026-11-05  
 **Implementation authorization:** HT-007 specifically authorized on 2026-11-05; all other features still require explicit owner authorization  
-**Status:** Planning baseline recorded; HT-007 implementation complete on PR #11 (open/unmerged, CI passed); all other features remain subject to per-feature approval
+**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); all other features remain subject to per-feature approval
 
 ## Purpose
 
 Expand the length, variety, replayability, and sense of a living fictional cyber-world while preserving Hacker's Terminal's identity: a single-player, command-driven, text-terminal hacking simulation. This document is the persistent handoff contract for future agents. It replaces reliance on the originating chat: an agent must be able to understand the intended work, dependencies, constraints, and verification expectations from repository files.
 
-This is primarily a planning artifact, not blanket implementation authorization. HT-007 is the sole feature explicitly authorized and implemented so far (PR #11 is open and unmerged). Do not add gameplay code, commands, save fields, balance values, or user-facing behavior for any other feature until the owner explicitly authorizes it.
+This is primarily a planning artifact, not blanket implementation authorization. HT-007 is the sole feature explicitly authorized and implemented so far; it is merged to `main` via PR #11. Do not add gameplay code, commands, save fields, balance values, or user-facing behavior for any other feature until the owner explicitly authorizes it.
 
 ## Current baseline verified during planning
 
@@ -100,7 +100,7 @@ Implement one feature/milestone at a time. This order is dependency-aware, not a
 ## Dependency and sequencing rules
 
 - Contract Board must be designed before recurring contracts, challenge listings, and rival-driven contract availability.
-- Mission Modifiers must not become arbitrary random penalties. HT-007 is designed for manual player selection of zero or one modifier during Preparation; exact effects, eligibility, reward, lifecycle, and no-save-change rules are in its task brief. Implementation is complete on PR #11 (open and unmerged); CI run #567 passed. Follow the HT-007 task brief; do not merge without owner approval.
+- Mission Modifiers must not become arbitrary random penalties. HT-007 is designed for manual player selection of zero or one modifier during Preparation; exact effects, eligibility, reward, lifecycle, and no-save-change rules are in its task brief. Implementation is complete and merged to `main` via PR #11; CI run #575 passed. Follow the HT-007 task brief.
 - Hidden Objectives must not exceed the current eight-bit objective-kind mask. Prefer redesigning objective progress around objective identity/counts before introducing a ninth kind; do not overload existing bits.
 - Multi-stage Operations must define failure, retry, stage reward, and partial-completion behavior. They are mechanical sequences, not branching stories.
 - Factions should use derived relationship state where possible. Do not add persisted faction scores before a separate save decision.
