@@ -16,10 +16,10 @@ Introduce a readable, testable, entirely fictional detection/risk mechanic that 
 - Consider how detection resets or persists across missions before implementation; do not silently add persistence.
 - Difficulty metadata may eventually influence risk, but current mission difficulty is descriptive only. Do not change that implicitly.
 
-## Likely scope (verify before implementation)
-- `src/mission_state.zig` or a focused new domain module for per-session exposure state.
-- `src/game.zig` for applying action costs and validating consequences.
-- `src/terminal.zig` and help/command docs for status presentation.
+## Initial implementation scope (planning snapshot; verify current paths before future changes)
+- `src/domain/mission_state.zig` or a focused new domain module for per-session exposure state.
+- `src/application/game.zig` for applying action costs and validating consequences.
+- `src/presentation/terminal.zig` and help/command docs for status presentation.
 - Focused tests under `tests/`, registered in `tests/test_all.zig`.
 - `.agent/conventions.md`, `AGENTS.md`, `docs/architecture.md`, `docs/gameplay.md`, and `docs/commands.md` only where the final design changes their contracts.
 
@@ -51,7 +51,7 @@ Introduce a readable, testable, entirely fictional detection/risk mechanic that 
 - [x] Unit tests for action risk changes, thresholds, resets, and edge cases.
 - [x] Zig 0.13.0 formatting, build, and complete test suite (GitHub Actions run 42001487382 succeeded).
 - [x] Agent documentation structure check (included in successful CI run).
-- [ ] Independent review (or explicitly labelled self-review).
+- [x] Self-review explicitly recorded; no independent reviewer was available.
 - [x] Inspect CI result before marking Implemented.
 
 ## Agent progress notes
