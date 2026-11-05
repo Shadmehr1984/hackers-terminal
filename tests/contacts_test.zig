@@ -133,6 +133,8 @@ test "Fixer Ghost Signal offer requires level and reputation and prepares append
 
     try std.testing.expectEqual(@as(usize, 4), missions.len);
     try std.testing.expectEqualStrings("job-04", missions[3].id);
+    try run(&capture, "prepare job-04", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(preparation.mission_index == null);
     try run(&capture, "deal ghost-signal", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(preparation.mission_index == null);
 
@@ -160,4 +162,43 @@ test "contact and offer commands expose only currently unlocked opportunities" {
     try run(&capture, "offers", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "intel-job-02") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
+}
+
+test "unaffordable Broker and Fixer deals leave player and session state unchanged" {
+    var player = Player{ .balance = 49, .reputation = 1, .xp = 100 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{ .detection_level = 20 };
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "deal intel-job-02", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u32, 49), player.balance);
+
+    player.reputation = 3;
+    player.balance = 99;
+    try run(&capture, "deal scrub-detection", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u32, 99), player.balance);
+    try std.testing.expectEqual(@as(u8, 20), session.detection_level);
+    try std.testing.expect(!session.fixer_service_used);
+}
+
+test "Fixer service rejects zero Detection and inactive missions without charging" {
+    var player = Player{ .balance = 200, .reputation = 5 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "deal scrub-detection", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u32, 200), player.balance);
+    try std.testing.expect(!session.fixer_service_used);
+
+    session.detection_level = 25;
+    active = null;
+    try run(&capture, "deal scrub-detection", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(u32, 200), player.balance);
+    try std.testing.expectEqual(@as(u8, 25), session.detection_level);
+    try std.testing.expect(!session.fixer_service_used);
 }
