@@ -46,5 +46,6 @@ pub const Mission = struct {
     reward: u32,
     xp_reward: u32,
     required_level: u32,
+    required_reputation: u32 = 0,
     completed: bool = false,
 };
