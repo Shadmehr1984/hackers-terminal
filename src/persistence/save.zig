@@ -53,7 +53,8 @@ fn parseActiveCandidate(value: []const u8) ?usize {
 }
 
 fn validateSave(data: []const u8, mission_count: usize) ?SaveFormat {
-    var lines = std.mem.tokenizeScalar(u8, data, '\n');
+    const payload = if (std.mem.endsWith(u8, data, "\n")) data[0 .. data.len - 1] else data;
+    var lines = std.mem.splitScalar(u8, payload, '\n');
     const first_line = lines.next() orelse return null;
     const format: SaveFormat = if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V3"))
         .v3
@@ -201,7 +202,8 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
 
     // V1 has no XP field; reconstruct it from the completed catalog missions.
     if (format == .v1) {
-        var migration_lines = std.mem.tokenizeScalar(u8, data, '\n');
+        const migration_payload = if (std.mem.endsWith(u8, data, "\n")) data[0 .. data.len - 1] else data;
+        var migration_lines = std.mem.splitScalar(u8, migration_payload, '\n');
         _ = migration_lines.next();
         for (0..fixedFieldCount(format)) |_| _ = migration_lines.next();
         for (missions) |mission| {
@@ -214,7 +216,8 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
 
     // All remaining operations are infallible after validateSave succeeds.
     player.* = loaded_player;
-    var completion_lines = std.mem.tokenizeScalar(u8, data, '\n');
+    const completion_payload = if (std.mem.endsWith(u8, data, "\n")) data[0 .. data.len - 1] else data;
+    var completion_lines = std.mem.splitScalar(u8, completion_payload, '\n');
     _ = completion_lines.next();
     for (0..fixedFieldCount(format)) |_| _ = completion_lines.next();
     for (missions) |*mission| {
