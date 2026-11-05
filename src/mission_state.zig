@@ -74,6 +74,12 @@ pub const MissionSession = struct {
         self.detection_level = 0;
         self.current_node = null;
         self.traversal_count = 0;
+        self.loadout = .{};
+    }
+
+    pub fn startWithLoadout(self: *MissionSession, loadout: MissionLoadout) void {
+        self.start();
+        self.loadout = loadout;
     }
 
     pub fn reset(self: *MissionSession) void {
@@ -83,6 +89,7 @@ pub const MissionSession = struct {
         self.detection_level = 0;
         self.current_node = null;
         self.traversal_count = 0;
+        self.loadout = .{};
     }
 
     pub fn detectionBand(self: MissionSession) DetectionBand {
