@@ -51,6 +51,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  disconnect           End the simulated connection
         \\  brute <password>     Solve the password challenge
         \\  decrypt <key>        Decrypt the mission file
+        \\  inspect <filename>   Inspect fictional evidence for hidden objectives
         \\  analyze <filename>   Analyze optional metadata after decryption
         \\  extract <filename>   Retrieve the mission file
         \\  inventory            Show owned tools
