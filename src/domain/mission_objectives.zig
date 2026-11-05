@@ -82,6 +82,7 @@ pub const Tracker = struct {
     }
 
     fn discover(self: *Tracker, event: DiscoveryTrigger, objectives: anytype) usize {
+        if (objectives.len != self.count) return 0;
         var discovered: usize = 0;
         for (0..self.count) |index| {
             if (self.entries[index].state != .undiscovered) continue;
@@ -300,4 +301,24 @@ test "tracker rejects catalogs above the 32 objective capacity" {
     var tracker = Tracker{};
     try std.testing.expect(!tracker.initialize(&too_many));
     try std.testing.expectEqual(@as(u8, 0), tracker.count);
+}
+
+test "tracker accepts exactly 32 independently identified objectives" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    var ids: [32][16]u8 = undefined;
+    var catalog: [32]Objective = undefined;
+    for (&catalog, 0..) |*objective, index| {
+        const id = try std.fmt.bufPrint(&ids[index], "objective-{d}", .{index});
+        objective.* = .{ .id = id, .kind = .scan };
+    }
+    var tracker = Tracker{};
+    try std.testing.expect(tracker.initialize(&catalog));
+    try std.testing.expectEqual(@as(u8, 32), tracker.count);
 }
