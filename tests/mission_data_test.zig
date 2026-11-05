@@ -20,6 +20,7 @@ test "difficulty labels are player-facing" {
 test "each built-in mission has a valid distinct topology" {
     const missions = mission_data.defaultMissions();
     for (missions) |mission| {
+        try std.testing.expect(mission.hasValidObjectives());
         try std.testing.expect(mission.topology != null);
         try std.testing.expect(mission.topology.?.isValid(std.testing.allocator));
     }
