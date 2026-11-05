@@ -38,7 +38,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/application/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
 | `src/domain/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
 | `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
-| `tests/` | Unit tests for command parsing, mission state, mission data, Reputation, Contacts, and offers |
+| `tests/` | Unit and integration tests for commands, mission state, topology validation/allocation failures, equipment, save migrations and malformed input, Detection, progression, Contacts, and offers |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
