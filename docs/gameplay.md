@@ -30,6 +30,18 @@ reward, XP, and reputation
 
 Each stage unlocks the next. Commands that are issued out of order are rejected with an explanatory message.
 
+## Mission preparation
+
+Use `prepare <id>` to inspect an available, unlocked contract before committing to it. Preparation displays the target, difficulty, base rewards, objective outline, known topology nodes and links, decryptor ownership, and a concise Detection risk overview. Password clues, decryption clues, puzzle answers, and other undiscovered mission details remain hidden until launch.
+
+The selected utility defaults to the currently equipped utility if it is owned. Use `loadout silent-boots`, `loadout signal-scrubber`, or `loadout none` to choose a run-specific utility. A utility must already be owned. This selection does not change the player's persistent equipment slot; its current upgrade level is snapshotted when the contract launches.
+
+Use `accept <id>` to launch only the contract currently being prepared. The ID must match. Use `cancel` to leave preparation without cost and then prepare another contract. Only one preparation or active contract can exist at a time.
+
+After launch, the run's utility and upgrade level are fixed for that contract. Buying, equipping, or upgrading items later does not change its Detection modifiers. Active contracts cannot be abandoned or manually restarted. If Detection reaches 100, the existing failure penalty applies and the failed contract can be prepared and launched again.
+
+Preparation and its selected loadout are runtime-only and are not written to Save V3. Restoring a saved active contract starts a fresh accepted session and snapshots the player's currently equipped utility.
+
 ## Starting profile
 
 A new player starts with:
@@ -140,7 +152,7 @@ Use `briefing` after accepting a contract. The briefing displays the target, dif
 
 The first contract is a guided introduction to the complete game loop.
 
-1. Run `missions` and accept `job-01`.
+1. Run `missions`, then `prepare job-01` and `accept job-01`.
 2. Run `briefing` to read the clues and objective checklist.
 3. Run `map`, move from `entry` to `service` with `move service`, then run `scan vault-01.local` and `objectives` to see the first objective completed.
 4. Run `connect vault-01.local`.
@@ -186,4 +198,4 @@ Use `shop` to inspect equipment and upgrade prices, `buy <item>` to purchase, `e
 
 The game automatically attempts to load `saves/player.sav` at startup. Use `save` to write the current player and contract progress.
 
-The active contract can be restored, but the temporary session stages are not saved. After restarting, repeat the scan and connection stages and solve the challenges again as needed. See [Save Format](save-format.md) for the exact fields and compatibility behavior.
+The active contract can be restored, but preparation, the run-specific loadout, and temporary session stages are not saved. After restarting, repeat the scan and connection stages and solve the challenges again as needed. See [Save Format](save-format.md) for the exact fields and compatibility behavior.
