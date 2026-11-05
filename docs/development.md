@@ -24,7 +24,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/mission_state_test.zig` covers mission-session state transitions.
 - `tests/mission_data_test.zig` covers built-in mission difficulty assignments, player-facing labels, and mission-specific topology definitions.
 - `tests/topology_test.zig` covers graph lookup, bidirectional adjacency, and graph validation.
-- `tests/equipment_test.zig` covers utility ownership, purchases, equipping, upgrade tiers, risk modifiers, and V3/V2/V1/legacy save migration.
+- `tests/equipment_test.zig` covers utility ownership, purchases, equipping, upgrade tiers, shared Detection-cost profiles, and V3/V2/V1/legacy save migration.
 - `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, optional rewards, and session reset behavior.
 - `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, and location-gated operations.
 - `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, matching launch, cancellation, and shared command dispatch.
@@ -44,6 +44,8 @@ The CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/`, and `
 ## Architecture workflow
 
 Keep modules focused and dependencies one-way. Production code is grouped under `src/domain/`, `src/application/`, `src/catalog/`, `src/presentation/`, and `src/persistence/`; `src/main.zig` remains the composition root and old top-level paths are compatibility facades. `main.zig` owns application setup and the input loop; `game.zig` owns the shared command dispatcher; `detection.zig` owns exposure and compromise rules; `progression.zig` owns XP, Reputation tiers, and reward calculations; `contacts.zig` owns Contact unlock and service-price rules. `mission_state.zig` owns temporary mission-session progress, objective completion, current node, and traversal count. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
+
+Pure utility Detection-cost profiles are defined once on `UtilityEquipment` in `player.zig`. `Equipment` applies the profile for the currently equipped utility, while `MissionLoadout` applies it to the utility/level snapshot captured at mission launch. Keep those adapters free of duplicate cost tables.
 
 Preserve existing behavior unless a task explicitly requests a gameplay change. Update `docs/architecture.md` when module responsibilities or runtime state change. Update `docs/save-format.md` whenever serialized save layout changes. Temporary mission state is not persisted, so a loaded active mission starts at the accepted stage. Mission difficulty, objective definitions, and level/Reputation requirements are static metadata and are not serialized. Objective completion is temporary session state and is not currently persisted.
 

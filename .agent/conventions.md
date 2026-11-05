@@ -10,12 +10,12 @@ Derived from the current source tree; re-check source before relying on this map
 | src/application/game.zig | Shared command dispatch, validation, and mission state transitions | Low-level parsing, Detection rules, or progression calculations |
 | src/application/detection.zig | Detection costs, warnings, compromise failure, and penalty | Command parsing or mission catalog data |
 | src/domain/progression.zig | XP thresholds, player levels, Reputation tiers, and mission reward application | Command dispatch or terminal I/O policy |
-| src/domain/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and pure Detection modifiers | Persistence and terminal I/O |
+| src/domain/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and the single source of truth for pure utility Detection-cost profiles | Persistence and terminal I/O |
 | src/domain/contacts.zig | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing | Game command dispatch, terminal output, or persistence |
 | src/domain/mission.zig | Mission, optional topology reference, level/Reputation requirements, difficulty, objective types | Built-in catalog or runtime mutation |
 | src/domain/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/catalog/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
-| src/domain/mission_state.zig | Runtime session progress, connection, objective completion, detection, current node, traversal count, and Fixer service use | Serialization or user-facing output |
+| src/domain/mission_state.zig | Runtime session progress, connection, objective completion, detection, current node, traversal count, and the per-run loadout snapshot that delegates Detection costs to UtilityEquipment | Serialization or user-facing output |
 | src/application/commands.zig | Allocation-free command/first-argument parsing | Gameplay validation and dispatch |
 | src/presentation/terminal.zig | Reusable terminal presentation | Mutating game state or deciding rewards |
 | src/persistence/save.zig | Save/load serialization and legacy compatibility | Gameplay command handling |
@@ -29,6 +29,7 @@ Derived from the current source tree; re-check source before relying on this map
 - mission_data.zig depends on mission and topology types.
 - mission_state.zig models transient state and should not depend on terminal output or persistence.
 - game.zig coordinates lower-level modules; avoid reverse imports into game.zig. Detection and progression modules must remain independent of command dispatch.
+- UtilityEquipment owns the pure cost profile for each utility and upgrade level. Equipment reads the currently equipped utility; MissionLoadout reads the launch-time snapshot. Neither caller duplicates the numeric cost tables.
 - main.zig is the composition root. Avoid circular imports.
 
 ## Zig and test conventions
