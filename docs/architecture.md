@@ -17,7 +17,7 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/mission_state.zig` | Runtime-only mission progress, connection state, objective completion bitset, detection exposure, current topology node, and traversal count |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
-| `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
+| `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, history, and topology map |
 | `src/shop.zig` | Inventory display, fictional shop display, and item purchase logic |
 | `src/commands.zig` | Parses an input line into a command name and its first argument |
 | `src/game.zig` | Coordinates command dispatch, mission state transitions, mission completion rewards, and player progression calculations |
