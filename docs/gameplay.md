@@ -231,6 +231,28 @@ Each utility starts at level 0. Both can be owned, but only one can occupy the a
 
 Use `shop` to inspect equipment and upgrade prices, `buy <item>` to purchase, `equip <utility>` to activate an owned utility, `upgrade <utility>` to purchase its next tier, and `inventory` to inspect ownership and levels. Duplicate purchases, unowned equip/upgrade attempts, maximum-level upgrades, and unaffordable transactions are rejected without charging the player.
 
+## Multi-stage operations
+
+Operations combine existing contracts into a deterministic linear sequence without changing their underlying puzzles or objective rules. The first operation, `blackout-protocol`, contains:
+
+1. `job-01` — Cold Storage
+2. `job-02` — Paper Trail
+3. `job-03` — Quiet Exit
+
+Use `operations` to list the catalog, `operation blackout-protocol` to inspect its stages and requirements, and `operation-start blackout-protocol` to prepare the first stage. Accept each prepared stage with the existing `accept <mission-id>` command. Successful extraction prepares the next stage automatically, but the player must explicitly accept it. `operation-status` shows the current stage and facts already earned.
+
+An operation validates the level and Reputation requirements of every stage before it starts. A completed contract can be replayed inside an operation, while standalone `prepare` still rejects completed contracts. While an operation is active, `prepare` and `cancel` cannot replace or abandon its current stage. Detection compromise resets the current stage and prepares it for retry; successful earlier-stage facts are retained, while partial progress from the failed stage is discarded.
+
+### Carry-over facts
+
+Completing the hidden optional objective `maintenance-telemetry` in Cold Storage grants the typed `maintenance_telemetry` fact. When Paper Trail is accepted, that fact reveals its hidden optional `routing-header` objective. Completing `routing-header` grants `routing_header`, which reveals the hidden optional `relay-trace` objective when Quiet Exit is accepted. The normal in-game completion event is still required for each revealed objective. If a source objective is not completed, no fact is granted and the later objective retains its normal HT-008 discovery trigger. Facts are granted only after successful stage completion.
+
+### Rewards and persistence
+
+Each stage uses its existing contract reward rules. There is no operation-specific completion bonus. A stage whose contract was already completed before the operation run can be replayed, but pays no contract cash, XP, optional-objective cash, Reputation, or modifier bonus. Incomplete contracts pay their normal rewards on their first successful completion in the operation.
+
+Operation ID, stage index, facts, reward eligibility, and the completion display marker are runtime-only. Saving during an operation preserves player progress and existing contract completion flags but writes `-1` for the active mission index. After restart, the operation begins again at stage one and facts are cleared; previously completed stage contracts remain replayable without rewards. Save V3 and all older readers are unchanged.
+
 ## Saving and resuming
 
 The game automatically attempts to load `saves/player.sav` at startup. Use `save` to write the current player and contract progress.
