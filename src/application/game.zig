@@ -338,6 +338,7 @@ pub fn runCommand(
                     active.* = index;
                     preparation.clear();
                     if (mission.topology) |topology| session.current_node = topology.entry_node;
+                    if (session.current_node) |node| try reportObjectiveDiscoveries(writer, session.discoverNode(node, mission.objectives));
                     try writer.print("Contract launched: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
                     if (session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
                 }
@@ -351,6 +352,7 @@ pub fn runCommand(
                 active.* = index;
                 preparation.clear();
                 if (mission.topology) |topology| session.current_node = topology.entry_node;
+                if (session.current_node) |node| try reportObjectiveDiscoveries(writer, session.discoverNode(node, mission.objectives));
                 try writer.print("Contract launched: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
                 if (session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
             }
