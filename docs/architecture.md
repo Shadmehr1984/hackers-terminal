@@ -14,7 +14,7 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and risk modifier calculations |
 | `src/mission.zig` | Public `Mission` contract data type, optional topology reference, `MissionDifficulty`, and typed `MissionObjective` definitions |
 | `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and topology validation |
-| `src/mission_state.zig` | Runtime-only mission progress, connection state, objective completion bitset, detection exposure, current topology node, and traversal count |
+| `src/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, and per-run loadout snapshot |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, history, and topology map |
@@ -54,9 +54,9 @@ The player profile type is defined in `src/player.zig` and imported by `main.zig
 - `xp`: starts at 0.
 - `equipment`: typed equipment state. The decryptor remains a required tool; utility ownership is represented by a bit mask over `UtilityEquipment`, with one optional equipped utility and separate upgrade levels.
 
-### Temporary mission session
+### Temporary preparation and mission session
 
-The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than independent booleans.
+`MissionPreparation` stores the prepared mission index and selected owned utility before launch. It is runtime-only and is cleared on launch or cancellation. The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than independent booleans.
 
 The session tracks six related pieces of temporary state:
 - `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
@@ -64,7 +64,7 @@ The session tracks six related pieces of temporary state:
 - `completed_objectives`: an eight-bit mask keyed by `MissionObjectiveKind`.
 - `detection_level`: simulated exposure from 0 to 100, with Quiet, Noticed, Traced, Critical, and Compromised bands.
 - `current_node`: the current node ID in the active mission topology, or null for missions without topology.
-- `traversal_count`: number of successful node-to-node movements in this session.
+- `traversal_count`: number of successful node-to-node movements in this session.\n- `loadout`: the selected utility and upgrade level snapshotted at launch; Detection modifiers read this snapshot rather than the player inventory.
 
 Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
 
@@ -77,20 +77,20 @@ Progress is monotonic. Connection is independent because disconnecting must not 
 3. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
 4. `terminal.printBanner` and the welcome/status text are written to standard output.
 5. The application repeatedly prints the prompt and reads a line from standard input.
-6. Input is trimmed and passed to `game.runCommand`.
+6. Input is trimmed and passed to `game.runCommandWithPreparation`, together with runtime preparation state.
 7. `commands.parse` separates the command name and first argument without allocating memory.
-8. `game.runCommand` dispatches the parsed command, validates the current game state, and performs the requested state transition.
+8. `game.runCommandWithPreparation` dispatches the parsed command, validates preparation and active game state, and performs the requested state transition.
 9. The loop ends on `exit`, end-of-input, or an input/output error propagated by the relevant function.
 
 ## Mission state transitions
 
 ```text
-inactive -> accepted -> scanned -> authenticated -> decrypted
+inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
                          |
                          +---- connected (independent, temporary)
 ```
 
-- `scan` advances progress to `scanned`.
+- `prepare <id>` selects an available contract and displays known intel without revealing puzzle clues.\n- `loadout <utility|none>` selects a run-specific owned utility.\n- `accept <id>` launches only the matching prepared contract and snapshots the selected utility and its current level.\n- `cancel` clears preparation; an active contract cannot be abandoned or manually restarted.\n- `scan` advances progress to `scanned`.
 - `connect` requires a scanned target and opens the connection.
 - `brute` requires an open connection and advances progress on a correct password.
 - `disconnect` closes only the connection; it does not revoke authentication or decryption.
@@ -113,7 +113,7 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 
 Persistent state includes balance, reputation, XP, decryptor ownership, utility ownership, equipped utility, both utility upgrade levels, active mission index, and mission completion flags. Save V3 is current; `src/save.zig` continues to read V2, V1, and the original legacy layout. Older saves migrate with no utility equipment owned or equipped.
 
-Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
+Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionPreparation`, the run-specific loadout snapshot, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
 ## Error handling style
 
@@ -121,7 +121,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Dependency direction
 
-`player.zig`, `mission.zig`, and `topology.zig` are foundational data modules. `mission.zig` references the topology type; `mission_data.zig` imports mission and topology types and owns the built-in catalog. `save.zig` imports the data types and owns save/load. `terminal.zig` imports data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player`. `commands.zig` owns allocation-free parsing. `game.zig` coordinates command dispatch and delegates parsing, persistence, display, and shop operations. `main.zig` initializes the application and owns the interactive input loop. Keep dependencies one-way and avoid circular imports.
+`player.zig`, `mission.zig`, and `topology.zig` are foundational data modules. `mission.zig` references the topology type; `mission_data.zig` imports mission and topology types and owns the built-in catalog. `save.zig` imports the data types and owns save/load. `terminal.zig` imports data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player`. `commands.zig` owns allocation-free parsing. `game.zig` coordinates command dispatch, preparation/launch transitions, and session rules; it delegates parsing, persistence, display, and shop operations. `main.zig` initializes the application and owns the interactive input loop. Keep dependencies one-way and avoid circular imports.
 
 ## Current design constraints
 
