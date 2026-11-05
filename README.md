@@ -132,7 +132,7 @@ The `saves/` directory is created at runtime when the player saves. It is ignore
 - There is one player profile and one local save file.
 - The command parser accepts a command and at most one whitespace-delimited argument.
 - The simulated scan and connection are state flags; there is no networking layer.
-- Session progress (scan, connection, authentication, decryption, and objective completion, including optional objectives) is not persisted. If a saved active contract is restored after restarting, its session stages and objectives must be performed again.
+- Session progress (scan, connection, authentication, decryption, objective completion, current topology node, and traversal count) is not persisted. If a saved active contract is restored after restarting, its session stages and objectives must be performed again.
 - The terminal UI is plain text and uses an ANSI escape sequence for `clear`.
 
 See [Architecture](docs/architecture.md) for implementation details and [Development](docs/development.md) for the current verification workflow.
