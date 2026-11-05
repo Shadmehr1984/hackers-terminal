@@ -26,6 +26,52 @@ test "topology lookup and links are bidirectional" {
     try std.testing.expect(graph.isValid());
 }
 
+test "topology validation rejects unreachable required operation nodes" {
+    const nodes = [_]Node{
+        .{ .id = "entry", .label = "Entry" },
+        .{ .id = "scan", .label = "Scan" },
+        .{ .id = "auth", .label = "Auth" },
+        .{ .id = "decrypt", .label = "Decrypt" },
+        .{ .id = "analyze", .label = "Analyze" },
+        .{ .id = "extract", .label = "Extract" },
+    };
+    const disconnected_links = [_]Link{
+        .{ .from = "entry", .to = "scan" },
+        .{ .from = "auth", .to = "decrypt" },
+        .{ .from = "decrypt", .to = "analyze" },
+        .{ .from = "analyze", .to = "extract" },
+    };
+    const connected_links = [_]Link{
+        .{ .from = "entry", .to = "scan" },
+        .{ .from = "scan", .to = "auth" },
+        .{ .from = "auth", .to = "decrypt" },
+        .{ .from = "decrypt", .to = "analyze" },
+        .{ .from = "analyze", .to = "extract" },
+    };
+    const disconnected = Topology{
+        .nodes = &nodes,
+        .links = &disconnected_links,
+        .entry_node = "entry",
+        .scan_node = "scan",
+        .auth_node = "auth",
+        .decrypt_node = "decrypt",
+        .analyze_node = "analyze",
+        .extract_node = "extract",
+    };
+    const connected = Topology{
+        .nodes = &nodes,
+        .links = &connected_links,
+        .entry_node = "entry",
+        .scan_node = "scan",
+        .auth_node = "auth",
+        .decrypt_node = "decrypt",
+        .analyze_node = "analyze",
+        .extract_node = "extract",
+    };
+    try std.testing.expect(!disconnected.isValid());
+    try std.testing.expect(connected.isValid());
+}
+
 test "topology validation rejects duplicate nodes and self-links" {
     const duplicate_nodes = [_]Node{
         .{ .id = "entry", .label = "Entry" },
