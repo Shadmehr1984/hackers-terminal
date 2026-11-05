@@ -36,6 +36,7 @@ test "objective completion is tracked independently" {
     session.completeObjective(.decrypt_file);
     session.completeObjective(.extract_file);
     try std.testing.expect(session.allObjectivesComplete(missions[0].objectives));
+    try std.testing.expectEqual(@as(u32, 0), session.optionalReward(missions[0].objectives));
 }
 
 test "starting and resetting a session clear objective progress" {
