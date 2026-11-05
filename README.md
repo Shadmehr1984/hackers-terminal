@@ -105,6 +105,8 @@ hackers-terminal/
 ├── src/
 │   ├── main.zig
 │   ├── game.zig
+│   ├── detection.zig
+│   ├── progression.zig
 │   ├── player.zig
 │   ├── mission.zig
 │   ├── topology.zig
@@ -123,6 +125,7 @@ hackers-terminal/
 │   ├── topology_test.zig
 │   ├── equipment_test.zig
 │   ├── mission_preparation_test.zig
+│   ├── progression_test.zig
 │   └── test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
