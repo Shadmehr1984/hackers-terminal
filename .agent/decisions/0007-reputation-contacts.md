@@ -21,7 +21,7 @@ HT-005 turns the existing persisted Reputation counter into a meaningful progres
 
 - progression.zig owns tier calculation and mission Reputation rewards.
 - contacts.zig owns fictional Contact identities, unlock thresholds, and Fixer pricing.
-- mission.zig adds static required_reputation metadata; mission_data.zig appends Ghost Signal at index 3.
+- mission.zig adds static required_reputation and requires_contact_offer metadata; mission_data.zig appends Ghost Signal at index 3.
 - mission_state.zig tracks the one-use Fixer service flag for the current contract.
 - game.zig validates and executes contact offers; terminal.zig presents contact and offer information.
 - save.zig and the Save V3 serialized field order remain unchanged.
