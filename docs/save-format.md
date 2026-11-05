@@ -79,7 +79,7 @@ The first line must be a valid unsigned numeric balance, followed by reputation 
 ## Failure behavior and caveats
 
 - If the file cannot be opened or read, loading returns no active mission and the game continues with defaults.
-- Unknown non-numeric format markers, truncated payloads, malformed numeric fields, invalid boolean flags, and unsupported completion-flag counts are rejected before mutating player or mission state.
+- Unknown non-numeric format markers, truncated payloads, malformed or out-of-range numeric fields, invalid boolean flags, and unsupported completion-flag counts are rejected before mutating player or mission state.
 - A recognized save is parsed and validated in full before the loaded player and mission-completion state are committed. A rejected save leaves every caller-owned field unchanged.
 - Current mission catalogs accept either their full completion-flag count or one fewer flag for the appended-mission compatibility rule; a missing appended mission defaults to incomplete.
 - The loader reads at most 4096 bytes.
