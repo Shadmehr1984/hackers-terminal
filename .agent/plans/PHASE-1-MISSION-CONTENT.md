@@ -1,7 +1,7 @@
 # Phase 1 — Contract and Mission Content
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 design approved (ADR 0010; implementation not authorized); HT-009 planned  
+**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implementation in progress (design ADR 0010; owner authorization 2026-11-05); HT-009 planned  
 **Goal:** Increase contract variety and replayability before expanding the wider world.
 
 ## Shared baseline and constraints
@@ -108,7 +108,7 @@ Reward careful exploration and analysis with optional objectives that are not fu
 The complete scope, likely module ownership, acceptance criteria, test requirements, implementation milestones, and progress log are in the [HT-008 task brief](../tasks/HT-008-hidden-objectives.md). The accepted design decision is recorded in [ADR 0010](../decisions/0010-hidden-objectives.md).
 
 ### Status and authorization
-Design approved by the owner on 2026-11-05. Implementation is **not authorized** and must not begin until the owner explicitly says to start HT-008.
+Design approved and implementation explicitly authorized by the owner on 2026-11-05. Implementation is in progress on `main`; follow the [HT-008 task brief](../tasks/HT-008-hidden-objectives.md) for progress and acceptance.
 
 ## HT-009 — Multi-stage Operations
 
