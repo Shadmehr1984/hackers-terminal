@@ -22,6 +22,9 @@ pub const Equipment = struct {
         const bit = @as(u2, 1) << @intCast(@intFromEnum(utility));
         self.owned_utilities |= bit;
     }
+    pub fn isEquipped(self: Equipment, utility: UtilityEquipment) bool {
+        return if (self.equipped_utility) |equipped| equipped == utility else false;
+    }
     pub fn level(self: Equipment, utility: UtilityEquipment) u2 {
         return switch (utility) { .silent_boots => self.silent_boots_level, .signal_scrubber => self.signal_scrubber_level };
     }
