@@ -12,7 +12,8 @@
 - Mission difficulty labels: Easy, Medium, and Hard
 - Required and optional mission objectives with live completion tracking and bonus rewards
 - Mission progression gated by operator level
-- Pre-mission intelligence briefing and run-specific utility loadout selection\n- Mission-specific fictional network maps with adjacent-node navigation and location-based operations
+- Pre-mission intelligence briefing and run-specific utility loadout selection
+- Mission-specific fictional network maps with adjacent-node navigation and location-based operations
 - Detection exposure increases with risky actions and every successful network traversal
 - Simulated scan, connection, authentication, decryption, metadata analysis, and extraction stages
 - Player balance, reputation, XP, and level progression
@@ -120,7 +121,8 @@ hackers-terminal/
 │   ├── mission_objectives_test.zig
 │   ├── game_detection_test.zig
 │   ├── topology_test.zig
-│   ├── equipment_test.zig\n│   ├── mission_preparation_test.zig
+│   ├── equipment_test.zig
+│   ├── mission_preparation_test.zig
 │   └── test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
