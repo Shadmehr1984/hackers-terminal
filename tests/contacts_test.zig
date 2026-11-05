@@ -77,6 +77,7 @@ test "mission completion grants one reputation and one extra for all optional ob
     session.completeObjective(.authenticate);
     session.completeObjective(.decrypt_file);
     session.completeObjective(.extract_file);
+    try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", mission.objectives));
     session.completeObjective(.analyze_metadata);
     capture.len = 0;
     try progression.completeMission(&capture, &player, mission, &session);
