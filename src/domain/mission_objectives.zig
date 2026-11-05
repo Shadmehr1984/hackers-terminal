@@ -136,6 +136,15 @@ pub const Tracker = struct {
         return completed;
     }
 
+    /// Marks incomplete optional objectives for an event kind unavailable after that event has passed.
+    pub fn markOptionalUnavailableForKind(self: *Tracker, kind: u8) void {
+        for (self.entries[0..self.count]) |*entry| {
+            if (entry.optional and entry.kind == kind and entry.state != .completed) {
+                entry.state = .unavailable;
+            }
+        }
+    }
+
     /// Marks an objective unavailable for the remainder of this run.
     pub fn markUnavailable(self: *Tracker, id: []const u8) bool {
         for (self.entries[0..self.count]) |*entry| {
