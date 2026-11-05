@@ -23,7 +23,7 @@ test "topology lookup and links are bidirectional" {
     try std.testing.expect(graph.areAdjacent("entry", "vault"));
     try std.testing.expect(graph.areAdjacent("vault", "entry"));
     try std.testing.expect(!graph.areAdjacent("entry", "missing"));
-    try std.testing.expect(graph.isValid());
+    try std.testing.expect(graph.isValid(std.testing.allocator));
 }
 
 test "topology validation rejects unreachable required operation nodes" {
@@ -69,8 +69,8 @@ test "topology validation rejects unreachable required operation nodes" {
         .analyze_node = "analyze",
         .extract_node = "extract",
     };
-    try std.testing.expect(!disconnected.isValid());
-    try std.testing.expect(connected.isValid());
+    try std.testing.expect(!disconnected.isValid(std.testing.allocator));
+    try std.testing.expect(connected.isValid(std.testing.allocator));
 }
 
 test "topology validation rejects duplicate nodes and self-links" {
@@ -99,6 +99,6 @@ test "topology validation rejects duplicate nodes and self-links" {
         .analyze_node = "entry",
         .extract_node = "entry",
     };
-    try std.testing.expect(!duplicate_graph.isValid());
-    try std.testing.expect(!self_link_graph.isValid());
+    try std.testing.expect(!duplicate_graph.isValid(std.testing.allocator));
+    try std.testing.expect(!self_link_graph.isValid(std.testing.allocator));
 }
