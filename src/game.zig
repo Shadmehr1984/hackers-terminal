@@ -103,6 +103,53 @@ pub fn runCommandWithPreparation(
         try terminal.printStatus(writer, player.*, active.*, missions, level, xpForNextLevel(level), session.*);
     } else if (std.mem.eql(u8, command, "missions")) {
         try terminal.printMissions(writer, missions, playerLevel(player.*));
+    } else if (std.mem.eql(u8, command, "prepare")) {
+        if (active.* != null) {
+            try writer.writeAll("A contract is already active. Finish or fail it before preparing another.\n");
+        } else if (preparation.mission_index != null) {
+            try writer.writeAll("A contract is already prepared. Use cancel before choosing another.\n");
+        } else {
+            var found = false;
+            for (missions, 0..) |mission, index| {
+                if (!std.mem.eql(u8, mission.id, arg)) continue;
+                found = true;
+                if (mission.completed) {
+                    try writer.writeAll("This contract is already completed.\n");
+                } else if (playerLevel(player.*) < mission.required_level) {
+                    try writer.print("Contract locked. Reach level {d} first.\n", .{mission.required_level});
+                } else {
+                    preparation.mission_index = index;
+                    preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
+                        (if (player.equipment.owns(utility)) utility else null)
+                    else
+                        null;
+                    try terminal.printPreparation(writer, mission, player.*, preparation.selected_utility);
+                }
+                break;
+            }
+            if (!found) try writer.writeAll("Unknown contract. Use missions.\n");
+        }
+    } else if (std.mem.eql(u8, command, "loadout")) {
+        if (preparation.mission_index == null) {
+            try writer.writeAll("No contract is being prepared. Use prepare <id> first.\n");
+        } else if (std.mem.eql(u8, arg, "none")) {
+            preparation.selected_utility = null;
+            try writer.writeAll("Preparation loadout set to no utility.\n");
+        } else if (parseUtility(arg)) |utility| {
+            if (!player.equipment.owns(utility)) {
+                try writer.writeAll("You do not own that utility.\n");
+            } else {
+                preparation.selected_utility = utility;
+                try writer.print("Preparation loadout set to {s} (level {d}).\n", .{ utility.label(), player.equipment.level(utility) });
+            }
+        } else try writer.writeAll("Unknown loadout. Use loadout silent-boots, loadout signal-scrubber, or loadout none.\n");
+    } else if (std.mem.eql(u8, command, "cancel")) {
+        if (preparation.mission_index != null) {
+            preparation.clear();
+            try writer.writeAll("Mission preparation cancelled. No cost was charged.\n");
+        } else if (active.* != null) {
+            try writer.writeAll("An active contract cannot be abandoned or restarted.\n");
+        } else try writer.writeAll("There is no mission preparation to cancel.\n");
     } else if (std.mem.eql(u8, command, "map")) {
         if (active.*) |index| try terminal.printMap(writer, missions[index], session.*) else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "move")) {
