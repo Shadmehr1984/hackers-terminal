@@ -298,6 +298,11 @@ test "hidden objective content and rewards stay absent until discovery" {
     try run(&capture, "board", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "$500-$600") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "$500-$660") == null);
+    try run(&capture, "accept job-02", &player, &missions, &active, &session, &preparation);
+    capture.clear();
+    try run(&capture, "briefing", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "routing-header") == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Correlate the recovered routing header") == null);
 }
 
 test "inspect command reveals only the matching hidden fictional file objective" {
@@ -317,4 +322,23 @@ test "inspect command reveals only the matching hidden fictional file objective"
     capture.clear();
     try run(&capture, "objectives", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Correlate the recovered routing header") != null);
+}
+
+test "reaching the authored topology node reveals its hidden objective once" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "move service", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "move maintenance", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@import("../src/domain/mission_objectives.zig").ObjectiveState.discovered, session.objective_tracker.stateOf("maintenance-telemetry").?);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "HIDDEN OBJECTIVE DISCOVERED") != null);
+    try run(&capture, "move service", &player, &missions, &active, &session, &preparation);
+    try run(&capture, "move maintenance", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(usize, 0), session.discoverNode("maintenance", missions[0].objectives));
 }
