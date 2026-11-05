@@ -1,4 +1,6 @@
-pub const MissionDifficulty = enum {
+pub const Topology = @import("topology.zig").Topology;
+
+const MissionDifficulty = enum {
     easy,
     medium,
     hard,
@@ -35,6 +37,7 @@ pub const Mission = struct {
     target: []const u8,
     difficulty: MissionDifficulty,
     objectives: []const MissionObjective,
+    topology: ?*const Topology = null,
     password: []const u8,
     password_hint: []const u8,
     encrypted_file: []const u8,
