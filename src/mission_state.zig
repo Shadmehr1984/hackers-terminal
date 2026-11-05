@@ -9,6 +9,24 @@ pub const MissionProgress = enum {
     decrypted,
 };
 
+pub const DetectionBand = enum {
+    quiet,
+    noticed,
+    traced,
+    critical,
+    compromised,
+
+    pub fn label(self: DetectionBand) []const u8 {
+        return switch (self) {
+            .quiet => "Quiet",
+            .noticed => "Noticed",
+            .traced => "Traced",
+            .critical => "Critical",
+            .compromised => "Compromised",
+        };
+    }
+};
+
 /// Runtime-only state for the active mission.
 /// Progress is monotonic; connection status is independent so disconnecting
 /// does not revoke authentication or decryption already achieved.
@@ -16,17 +34,36 @@ pub const MissionSession = struct {
     progress: MissionProgress = .inactive,
     connected: bool = false,
     completed_objectives: u8 = 0,
+    detection_level: u8 = 0,
 
     pub fn start(self: *MissionSession) void {
         self.progress = .accepted;
         self.connected = false;
         self.completed_objectives = 0;
+        self.detection_level = 0;
     }
 
     pub fn reset(self: *MissionSession) void {
         self.progress = .inactive;
         self.connected = false;
         self.completed_objectives = 0;
+        self.detection_level = 0;
+    }
+
+    pub fn detectionBand(self: MissionSession) DetectionBand {
+        return switch (self.detection_level) {
+            0...24 => .quiet,
+            25...49 => .noticed,
+            50...74 => .traced,
+            75...99 => .critical,
+            else => .compromised,
+        };
+    }
+
+    /// Adds simulated exposure and caps the level at 100.
+    pub fn addDetection(self: *MissionSession, amount: u8) void {
+        const remaining = 100 - self.detection_level;
+        self.detection_level += @min(amount, remaining);
     }
 
     pub fn hasScanned(self: MissionSession) bool {
