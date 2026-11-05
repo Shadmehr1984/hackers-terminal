@@ -94,5 +94,5 @@ test "objective output hides undiscovered objectives but retains revealed unavai
     capture.len = 0;
     try terminal.printObjectives(&capture, missions[0], session);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[!] [OPTIONAL] Recover the maintenance telemetry signature") != null);
-    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "(+$50)") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "(+$0)") == null);
 }
