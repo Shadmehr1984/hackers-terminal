@@ -2,7 +2,7 @@
 
 ## Overview
 
-The application is being refactored incrementally from a single-file implementation into focused Zig modules. The first extraction moves the core `Player` and `Mission` data types into their own modules; command handling and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
+The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types and save/load persistence are now extracted; command handling and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
 
 There is no client/server split, networking layer, database, plugin system, or external game service. The game is local and self-contained.
 
@@ -13,6 +13,7 @@ There is no client/server split, networking layer, database, plugin system, or e
 | `src/main.zig` | Mission definitions, terminal output, save/load, command handling, and application entry point (remaining responsibilities during the incremental refactor) |
 | `src/player.zig` | Public `Player` profile data type and its defaults |
 | `src/mission.zig` | Public `Mission` contract data type and its completion default |
+| `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `build.zig` | Executable configuration, install artifact, and `run` build step |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
 | `docs/` | User and developer documentation |
@@ -58,7 +59,7 @@ These flags live in `main` and are passed by pointer to `runCommand`. They are r
 ## Runtime flow
 
 1. `main` creates the general-purpose allocator, standard input/output writers, a default `Player`, and the mission array.
-2. `loadGame` attempts to restore persistent progress from `saves/player.sav`.
+2. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
 3. `printBanner` and the welcome/status text are written to standard output.
 4. The application repeatedly prints the prompt and reads a line from standard input.
 5. Input is trimmed and passed to `runCommand`.
@@ -107,7 +108,7 @@ The implementation uses booleans rather than a dedicated enum/state-machine type
 
 ## Persistence boundary
 
-Persistent state includes balance, reputation, XP (in V2), decryptor ownership, active mission index, and each mission's completion flag.
+Persistent state includes balance, reputation, XP (in V2), decryptor ownership, active mission index, and each mission's completion flag. The implementation lives in `src/save.zig` and continues to read V2, V1, and the original legacy layout.
 
 Temporary state is not persisted: scanned, connected, access granted, and decrypted. This is why a restored active contract must be played through its session stages again. See [Save Format](save-format.md).
 
@@ -117,7 +118,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Incremental modularization
 
-The first refactoring step extracts only the foundational data types. `player.zig` and `mission.zig` do not import other game modules. `main.zig` imports both types directly. This keeps the dependency direction simple and avoids circular imports while behavior is preserved. Further responsibilities (persistence, terminal I/O, command handling, and game coordination) will be extracted in later steps.
+The refactoring has extracted the foundational data types and persistence. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns the save/load functions; `main.zig` calls the persistence API without owning its implementation. This keeps dependencies one-way and avoids circular imports while preserving the existing save formats. Further responsibilities (terminal I/O, command handling, and game coordination) will be extracted in later steps.
 
 ## Current design constraints
 
