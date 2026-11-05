@@ -23,6 +23,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/mission_state_test.zig` covers mission-session state transitions.
 - `tests/mission_data_test.zig` covers the built-in mission difficulty assignments and player-facing labels.
 - `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, optional rewards, and session reset behavior.
+- `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, and extraction failure before payout.
 - `tests/test_all.zig` is the aggregate test list that imports the test modules.
 - `test_root.zig` is the repository-root module used to run the aggregate suite while keeping all test files under `tests/`.
 
