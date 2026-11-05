@@ -1,4 +1,3 @@
-// Temporary formatter trigger.
 /// Static, fictional mission graph data. This module has no game or I/O dependencies.
 pub const Node = struct {
     id: []const u8,
@@ -83,14 +82,3 @@ pub const Topology = struct {
 
 const std = @import("std");
 
-fn appendPurpose(current: []const u8, next: []const u8) []const u8 {
-    if (current.len == 0) return next;
-    // All combinations are static labels; avoid allocation in this foundational module.
-    if (std.mem.eql(u8, current, "SCAN")) return if (std.mem.eql(u8, next, "AUTH")) "SCAN,AUTH" else "SCAN,DECRYPT";
-    if (std.mem.eql(u8, current, "AUTH")) return "AUTH,DECRYPT";
-    if (std.mem.eql(u8, current, "DECRYPT")) return if (std.mem.eql(u8, next, "EXTRACT")) "DECRYPT,EXTRACT" else "DECRYPT,ANALYZE";
-    if (std.mem.eql(u8, current, "ANALYZE")) return "ANALYZE,EXTRACT";
-    if (std.mem.eql(u8, current, "SCAN,AUTH")) return "SCAN,AUTH,DECRYPT";
-    if (std.mem.eql(u8, current, "DECRYPT,ANALYZE")) return "DECRYPT,ANALYZE,EXTRACT";
-    return next;
-}
