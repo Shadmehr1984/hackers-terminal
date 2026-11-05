@@ -2,7 +2,7 @@
 
 ## Overview
 
-The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types, save/load persistence, and reusable terminal display functions are now extracted; command handling and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
+The application is being refactored incrementally from a single-file implementation into focused Zig modules. The core `Player` and `Mission` data types, save/load persistence, reusable terminal display functions, and shop/inventory operations are now extracted; command handling and the rest of the game flow remain in `main.zig` for now. `build.zig` configures the executable and its run step.
 
 There is no client/server split, networking layer, database, plugin system, or external game service. The game is local and self-contained.
 
@@ -15,6 +15,7 @@ There is no client/server split, networking layer, database, plugin system, or e
 | `src/mission.zig` | Public `Mission` contract data type and its completion default |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
+| `src/shop.zig` | Inventory display, fictional shop display, and item purchase logic |
 | `build.zig` | Executable configuration, install artifact, and `run` build step |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
 | `docs/` | User and developer documentation |
@@ -119,7 +120,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Incremental modularization
 
-The refactoring has extracted the foundational data types, persistence, and terminal display helpers. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns the save/load functions. `terminal.zig` imports the data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `main.zig` delegates to these modules. This keeps dependencies one-way and avoids circular imports. Command handling, interactive input, and game coordination remain to be extracted.
+The refactoring has extracted the foundational data types, persistence, terminal display helpers, and shop operations. `player.zig` and `mission.zig` remain independent leaf modules. `save.zig` imports those types and owns the save/load functions. `terminal.zig` imports the data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player` and owns inventory output, shop output, and purchases. `main.zig` delegates to these modules. This keeps dependencies one-way and avoids circular imports. Command handling, interactive input, and game coordination remain to be extracted.
 
 ## Current design constraints
 
@@ -127,4 +128,4 @@ The refactoring has extracted the foundational data types, persistence, and term
 - The command parser accepts one argument token only.
 - There is no automated unit-test suite beyond compiling/running Zig tests in the CI command; tests can be added in the source file.
 - The save parser is line-oriented and has no checksum or schema validation layer.
-- Command-specific output is still written directly by command handling; reusable display sections are centralized in `terminal.zig`.
+- Command-specific output is still written directly by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output is centralized in `shop.zig`.
