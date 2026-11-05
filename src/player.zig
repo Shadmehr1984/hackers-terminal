@@ -2,10 +2,16 @@ pub const UtilityEquipment = enum(u8) {
     silent_boots = 0,
     signal_scrubber = 1,
     pub fn label(self: UtilityEquipment) []const u8 {
-        return switch (self) { .silent_boots => "Silent Boots", .signal_scrubber => "Signal Scrubber" };
+        return switch (self) {
+            .silent_boots => "Silent Boots",
+            .signal_scrubber => "Signal Scrubber",
+        };
     }
     pub fn commandName(self: UtilityEquipment) []const u8 {
-        return switch (self) { .silent_boots => "silent-boots", .signal_scrubber => "signal-scrubber" };
+        return switch (self) {
+            .silent_boots => "silent-boots",
+            .signal_scrubber => "signal-scrubber",
+        };
     }
 };
 pub const Equipment = struct {
@@ -26,18 +32,32 @@ pub const Equipment = struct {
         return if (self.equipped_utility) |equipped| equipped == utility else false;
     }
     pub fn level(self: Equipment, utility: UtilityEquipment) u2 {
-        return switch (utility) { .silent_boots => self.silent_boots_level, .signal_scrubber => self.signal_scrubber_level };
+        return switch (utility) {
+            .silent_boots => self.silent_boots_level,
+            .signal_scrubber => self.signal_scrubber_level,
+        };
     }
     pub fn setLevel(self: *Equipment, utility: UtilityEquipment, value: u2) void {
-        switch (utility) { .silent_boots => self.silent_boots_level = value, .signal_scrubber => self.signal_scrubber_level = value }
+        switch (utility) {
+            .silent_boots => self.silent_boots_level = value,
+            .signal_scrubber => self.signal_scrubber_level = value,
+        }
     }
     pub fn movementDetectionCost(self: Equipment) u8 {
         if (self.equipped_utility == null or self.equipped_utility.? != .silent_boots) return 5;
-        return switch (self.silent_boots_level) { 0 => 4, 1 => 3, else => 2 };
+        return switch (self.silent_boots_level) {
+            0 => 4,
+            1 => 3,
+            else => 2,
+        };
     }
     pub fn incorrectAuthenticationDetectionCost(self: Equipment) u8 {
         if (self.equipped_utility == null or self.equipped_utility.? != .signal_scrubber) return 15;
-        return switch (self.signal_scrubber_level) { 0 => 12, 1 => 9, else => 6 };
+        return switch (self.signal_scrubber_level) {
+            0 => 12,
+            1 => 9,
+            else => 6,
+        };
     }
 };
 pub const Player = struct {

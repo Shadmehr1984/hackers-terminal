@@ -9,10 +9,9 @@ pub fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void
     var writer = file.writer();
     const equipped: u8 = if (player.equipment.equipped_utility) |utility| @intFromEnum(utility) + 1 else 0;
     try writer.print("HACKERS_TERMINAL_SAVE_V3\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n", .{
-        player.balance, player.reputation, player.xp,
-        @as(u8, if (player.equipment.has_decryptor) 1 else 0),
-        player.equipment.owned_utilities, equipped,
-        player.equipment.silent_boots_level, player.equipment.signal_scrubber_level,
+        player.balance,                                        player.reputation,                      player.xp,
+        @as(u8, if (player.equipment.has_decryptor) 1 else 0), player.equipment.owned_utilities,       equipped,
+        player.equipment.silent_boots_level,                   player.equipment.signal_scrubber_level,
     });
     if (active) |index| try writer.print("{d}\n", .{index}) else try writer.writeAll("-1\n");
     for (missions) |mission| try writer.print("{d}\n", .{@as(u8, if (mission.completed) 1 else 0)});
