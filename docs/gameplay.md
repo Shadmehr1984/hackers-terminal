@@ -67,12 +67,12 @@ Use `board` to open the full catalog overview. It displays each contract's categ
 
 The game currently defines four contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer.
 
-| ID | Contract | Difficulty | Fictional target | Required level | Required Reputation | Cash reward | XP reward |
+| ID | Contract | Category | Difficulty | Fictional target | Required level | Required Reputation | Cash reward | XP reward |
 | --- | --- | --- | --- | ---: | ---: | ---: |
-| `job-01` | Cold Storage | Easy | `vault-01.local` | 1 | 0 | $300 | 100 |
-| `job-02` | Paper Trail | Medium | `archive-02.local` | 2 | 0 | $500 | 150 |
-| `job-03` | Quiet Exit | Hard | `relay-03.local` | 3 | 0 | $800 | 200 |
-| `job-04` | Ghost Signal | Hard | `signal-04.local` | 3 | 3 | $1,100 | 250 |
+| `job-01` | Cold Storage | Data Recovery | Easy | `vault-01.local` | 1 | 0 | $300 | 100 |
+| `job-02` | Paper Trail | Intelligence | Medium | `archive-02.local` | 2 | 0 | $500 | 150 |
+| `job-03` | Quiet Exit | Extraction | Hard | `relay-03.local` | 3 | 0 | $800 | 200 |
+| `job-04` | Ghost Signal | Infiltration | Hard | `signal-04.local` | 3 | 3 | $1,100 | 250 |
 
 A contract is available only when the player's level and Reputation meet its requirements and it has not already been completed. The first three contracts retain their original availability rules. Ghost Signal additionally requires Reputation 3. Only one active contract is allowed at a time.
 
