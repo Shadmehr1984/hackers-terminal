@@ -105,4 +105,5 @@ test "uncompleted optional objectives become unavailable only when the contract 
     try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
     session.markUncompletedOptionalObjectivesUnavailable();
     try std.testing.expectEqual(ObjectiveState.unavailable, session.objective_tracker.stateOf("maintenance-telemetry").?);
+    try std.testing.expect(!session.objective_tracker.progressOf("maintenance-telemetry").?.revealed);
 }
