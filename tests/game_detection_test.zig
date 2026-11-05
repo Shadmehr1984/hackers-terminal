@@ -39,17 +39,19 @@ test "risky actions increase exposure once while safe and invalid actions do not
     try run(writer, "brute orion42", &player, &missions, &active, &session);
     try run(writer, "brute orion42", &player, &missions, &active, &session);
     try std.testing.expectEqual(@as(u8, 20), session.detection_level);
+    try run(writer, "move corridor", &player, &missions, &active, &session);
+    try run(writer, "move vault", &player, &missions, &active, &session);
 
     try run(writer, "buy decryptor", &player, &missions, &active, &session);
     try run(writer, "decrypt wrong-key", &player, &missions, &active, &session);
-    try std.testing.expectEqual(@as(u8, 30), session.detection_level);
+    try std.testing.expectEqual(@as(u8, 50), session.detection_level);
     try run(writer, "decrypt midnight", &player, &missions, &active, &session);
     try run(writer, "decrypt midnight", &player, &missions, &active, &session);
     try std.testing.expectEqual(@as(u8, 40), session.detection_level);
 
     try run(writer, "analyze ledger.enc", &player, &missions, &active, &session);
     try run(writer, "analyze ledger.enc", &player, &missions, &active, &session);
-    try std.testing.expectEqual(@as(u8, 45), session.detection_level);
+    try std.testing.expectEqual(@as(u8, 55), session.detection_level);
 
     try run(writer, "extract ledger.enc", &player, &missions, &active, &session);
     try std.testing.expect(missions[0].completed);
