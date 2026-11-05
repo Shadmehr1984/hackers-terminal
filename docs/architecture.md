@@ -13,7 +13,7 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and risk modifier calculations |
 | `src/mission.zig` | Public `Mission` contract data type, optional topology reference, `MissionDifficulty`, and typed `MissionObjective` definitions |
-| `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and topology validation |
+| `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
 | `src/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, and per-run loadout snapshot |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
@@ -124,7 +124,7 @@ Mission difficulty and objective definitions are static catalog metadata and are
 
 ## Error handling style
 
-Most user input errors are handled by printing a message and returning to the prompt. File creation and writing errors during `save` are caught and reported to the player. Loading is intentionally tolerant: failure to open or read the save file returns no active mission, and individual numeric parse failures generally fall back to the current default value.
+Most user input errors are handled by printing a message and returning to the prompt. File creation and writing errors during `save` are caught and reported to the player. Loading is intentionally tolerant: failure to open or read the save file returns no active mission, unknown non-numeric format markers are rejected before caller state is mutated, and individual numeric parse failures inside a recognized format generally fall back to the current default value.
 
 ## Dependency direction
 
@@ -137,7 +137,8 @@ Most user input errors are handled by printing a message and returning to the pr
 - The current objective kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds. Optional objective rewards are calculated at contract completion and are not separately persisted.
 - Detection is a runtime-only 0–100 meter. Its thresholds, action costs, failure penalty, and reset behavior are defined in the gameplay guide and implemented through `MissionSession` and `detection.zig`.
 - The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
-- The save parser is line-oriented and has no checksum or schema validation layer. Save writes are staged to a temporary file and renamed into place after the complete payload is written.
+- The save parser is line-oriented and has no checksum or full corruption-recovery layer. It recognizes V3, V2, V1, and numeric legacy data; unknown non-numeric markers are rejected without mutating loaded state. Save writes are staged to a temporary file and renamed into place after the complete payload is written.
+- `topology.Topology.isValid` verifies unique non-empty node IDs, valid links, and reachability from the entry node to every required operation node. Decorative nodes are not required to be connected.
 - Command-specific output is written by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output in `shop.zig`.
 - Automated tests live under `tests/` and are aggregated by `tests/test_all.zig`, with `test_root.zig` providing the repository-root module path.
 
