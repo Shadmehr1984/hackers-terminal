@@ -39,7 +39,7 @@ test "utility purchase equip and upgrades enforce ownership and funds" {
     try shop.upgradeItem(writer, &player, "silent-boots");
     try std.testing.expectEqual(@as(u2, 1), player.equipment.level(.silent_boots));
     try shop.equipItem(writer, &player, "signal-scrubber");
-    try std.testing.expect(player.equipment.equipped_utility == .silent_boots);
+    try std.testing.expect(player.equipment.isEquipped(.silent_boots));
 }
 
 test "signal scrubber modifiers apply only while equipped" {
@@ -87,7 +87,7 @@ test "V3 save restores utilities while V2 V1 and legacy saves migrate without ut
     try std.testing.expect(player.equipment.has_decryptor);
     try std.testing.expect(player.equipment.owns(.silent_boots));
     try std.testing.expect(player.equipment.owns(.signal_scrubber));
-    try std.testing.expect(player.equipment.equipped_utility == .signal_scrubber);
+    try std.testing.expect(player.equipment.isEquipped(.signal_scrubber));
     try std.testing.expectEqual(@as(u2, 2), player.equipment.level(.silent_boots));
     try std.testing.expectEqual(@as(u2, 1), player.equipment.level(.signal_scrubber));
 
