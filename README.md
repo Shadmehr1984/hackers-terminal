@@ -12,7 +12,7 @@
 - Mission difficulty labels: Easy, Medium, and Hard
 - Required and optional mission objectives with live completion tracking and bonus rewards
 - Mission progression gated by operator level
-- Simulated scan, connection, authentication, decryption, metadata analysis, and extraction stages
+- Mission-specific fictional network maps with adjacent-node navigation and location-based operations\n- Detection exposure increases with risky actions and every successful network traversal\n- Simulated scan, connection, authentication, decryption, metadata analysis, and extraction stages
 - Player balance, reputation, XP, and level progression
 - A small shop and persistent tool inventory
 - Local save/load, including migration from older save formats
@@ -53,9 +53,9 @@ On Windows, run the generated `hackers-terminal.exe` from the corresponding `zig
 1. Start the game with `zig build run`.
 2. Enter `help` to see the available commands.
 3. Enter `missions` and accept the first contract: `accept job-01`.
-4. Read the mission clues and difficulty with `briefing`.
-5. Scan and connect to the target shown in the briefing.
-6. Solve the password challenge with `brute <password>`.
+4. Read the mission clues and difficulty with `briefing`, then inspect the map with `map`.
+5. Move to the node labelled `SCAN` on the map, scan the target, then move to the `AUTH` node to connect and authenticate.
+6. Solve the password challenge with `brute <password>`. Each successful move adds 5 detection.
 7. Buy the decryptor if you do not own it, then solve the decryption challenge.
 8. Optionally run `analyze <filename>` to earn a bonus reward.
 9. Extract the exact filename shown in the briefing.
