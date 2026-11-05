@@ -247,3 +247,37 @@ test "topology movement reaching full detection triggers HT-001 failure and pena
     try std.testing.expect(session.current_node == null);
     try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
 }
+
+
+test "incorrect retries after authentication and decryption do not add detection" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    const writer = TestWriter{};
+
+    try run(writer, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try run(writer, "move service", &player, &missions, &active, &session, &preparation);
+    try run(writer, "scan vault-01.local", &player, &missions, &active, &session, &preparation);
+    try run(writer, "connect vault-01.local", &player, &missions, &active, &session, &preparation);
+    try run(writer, "brute orion42", &player, &missions, &active, &session, &preparation);
+
+    try std.testing.expect(session.isAuthenticated());
+    const detection_after_authentication = session.detection_level;
+    try run(writer, "brute wrong-password", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(detection_after_authentication, session.detection_level);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+
+    try run(writer, "move corridor", &player, &missions, &active, &session, &preparation);
+    try run(writer, "move vault", &player, &missions, &active, &session, &preparation);
+    try run(writer, "buy decryptor", &player, &missions, &active, &session, &preparation);
+    try run(writer, "decrypt midnight", &player, &missions, &active, &session, &preparation);
+
+    try std.testing.expect(session.isDecrypted());
+    const detection_after_decryption = session.detection_level;
+    try run(writer, "decrypt wrong-key", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(detection_after_decryption, session.detection_level);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+}
