@@ -14,7 +14,7 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/player.zig` | Public `Player` profile data type and its defaults |
 | `src/mission.zig` | Public `Mission` contract data type, optional topology reference, `MissionDifficulty`, and typed `MissionObjective` definitions |
 | `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and topology validation |
-| `src/mission_state.zig` | Runtime-only mission progress, connection state, objective completion bitset, detection exposure, and current topology node |
+| `src/mission_state.zig` | Runtime-only mission progress, connection state, objective completion bitset, detection exposure, current topology node, and traversal count |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
@@ -58,7 +58,7 @@ The player profile type is defined in `src/player.zig` and imported by `main.zig
 
 The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than independent booleans.
 
-The session tracks four related pieces of temporary state:
+The session tracks six related pieces of temporary state:
 - `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
 - `connected`: whether the simulated connection is currently open.
 - `completed_objectives`: an eight-bit mask keyed by `MissionObjectiveKind`.
@@ -121,7 +121,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Dependency direction
 
-`player.zig` and `mission.zig` are foundational data modules. `mission_data.zig` imports `Mission` and owns the built-in catalog. `save.zig` imports the data types and owns save/load. `terminal.zig` imports data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player`. `commands.zig` owns allocation-free parsing. `game.zig` coordinates command dispatch and delegates parsing, persistence, display, and shop operations. `main.zig` initializes the application and owns the interactive input loop. Keep dependencies one-way and avoid circular imports.
+`player.zig`, `mission.zig`, and `topology.zig` are foundational data modules. `mission.zig` references the topology type; `mission_data.zig` imports mission and topology types and owns the built-in catalog. `save.zig` imports the data types and owns save/load. `terminal.zig` imports data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player`. `commands.zig` owns allocation-free parsing. `game.zig` coordinates command dispatch and delegates parsing, persistence, display, and shop operations. `main.zig` initializes the application and owns the interactive input loop. Keep dependencies one-way and avoid circular imports.
 
 ## Current design constraints
 
