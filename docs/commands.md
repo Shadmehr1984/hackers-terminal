@@ -51,9 +51,13 @@ For the first contract:
 missions
 accept job-01
 briefing
+map
+move service
 scan vault-01.local
 connect vault-01.local
 brute orion42
+move corridor
+move vault
 buy decryptor
 decrypt midnight
 analyze ledger.enc   (optional: +$75)
