@@ -210,6 +210,7 @@ pub fn defaultMissions() [4]Mission {
             .xp_reward = 250,
             .required_level = 3,
             .required_reputation = 3,
+            .requires_contact_offer = true,
         },
     };
 }
