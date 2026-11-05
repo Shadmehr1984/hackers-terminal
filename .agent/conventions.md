@@ -34,7 +34,7 @@ Derived from the current source tree; re-check source before relying on this map
 - Run the suite with zig test test_root.zig.
 
 ## State and persistence
-- Mission-session progress, connection state, objective completion, detection, current topology node, and successful traversal count are transient.
+- Mission preparation selection, per-run loadout snapshot, mission-session progress, connection state, objective completion, detection, current topology node, and successful traversal count are transient.\n- The active mission loadout is snapshotted at launch; Detection modifiers read the session snapshot, never live player equipment. Preparation does not reveal puzzle clues or answers.
 - Player progression and mission completion are persisted.
 - Save format is positional and writes V3 and reads V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
 - Objective completion currently uses an eight-bit mask; adding a ninth kind requires redesign and tests.
