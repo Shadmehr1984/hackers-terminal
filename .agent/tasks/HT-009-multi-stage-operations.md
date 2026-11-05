@@ -1,6 +1,6 @@
 # HT-009 — Multi-stage Operations
 
-- **Status:** In Progress (2026-11-06); owner explicitly authorized implementation on `main`.
+- **Status:** Implemented (2026-11-06); committed directly to `main`; GitHub Actions run #733 passed.
 - **Decision:** Runtime-only operation progress, approved by the owner on 2026-11-06.
 - **ADR:** [0011 — Multi-stage Operations](../decisions/0011-multi-stage-operations.md)
 - **Phase:** 1 — Contract and Mission Content
@@ -84,20 +84,20 @@ While an operation is active, ordinary `prepare` and `cancel` cannot replace or 
 
 ## Acceptance criteria
 
-- [ ] Operation catalog validates stable IDs, 1–8 stages, unique stage references, known mission IDs, and valid fact/objective references.
-- [ ] Player can list and inspect operations, including stage count, ordered stage names, and prerequisites.
-- [ ] Operation start validates all stage unlock requirements atomically and does not mutate state on rejection.
-- [ ] Only the current stage can be prepared/accepted; stage order cannot be skipped or changed.
-- [ ] Successful stage completion advances exactly one stage and prepares the next; final completion is reported once.
-- [ ] Failed/compromised stage retries the same stage from a clean MissionSession; prior facts survive and failed-stage partial facts do not.
-- [ ] Stage-one and stage-two objective completions grant only their authored facts; incoming facts reveal only the specified optional hidden objective, idempotently.
-- [ ] Undiscovered objective details remain hidden unless an authored trigger or approved incoming fact reveals them.
-- [ ] Existing per-contract cash, XP, optional objective, Reputation, and modifier rewards are paid once per contract across standalone play, operation play, and restart replay; no operation bonus is added.
-- [ ] Previously completed stage contracts can be replayed in an operation without repeating any reward.
-- [ ] Operation state and facts reset on restart; a save made during an operation does not restore its stage as a standalone active mission.
-- [ ] Save V3 bytes/layout and V2/V1/legacy readers remain unchanged; existing standalone active-mission save behavior remains unchanged.
-- [ ] Existing commands and standalone contract flow retain their behavior.
-- [ ] Focused tests, full Zig 0.13.0 formatting/build/test, docs, self/independent review (independent review if available), and main-branch CI are complete before status becomes Implemented.
+- [x] Operation catalog validates stable IDs, 1–8 stages, unique stage references, known mission IDs, and valid fact/objective references.
+- [x] Player can list and inspect operations, including stage count, ordered stage names, and prerequisites.
+- [x] Operation start validates all stage unlock requirements atomically and does not mutate state on rejection.
+- [x] Only the current stage can be prepared/accepted; stage order cannot be skipped or changed.
+- [x] Successful stage completion advances exactly one stage and prepares the next; final completion is reported once.
+- [x] Failed/compromised stage retries the same stage from a clean MissionSession; prior facts survive and failed-stage partial facts do not.
+- [x] Stage-one and stage-two objective completions grant only their authored facts; incoming facts reveal only the specified optional hidden objective, idempotently.
+- [x] Undiscovered objective details remain hidden unless an authored trigger or approved incoming fact reveals them.
+- [x] Existing per-contract cash, XP, optional objective, Reputation, and modifier rewards are paid once per contract across standalone play, operation play, and restart replay; no operation bonus is added.
+- [x] Previously completed stage contracts can be replayed in an operation without repeating any reward.
+- [x] Operation state and facts reset on restart; a save made during an operation does not restore its stage as a standalone active mission.
+- [x] Save V3 bytes/layout and V2/V1/legacy readers remain unchanged; existing standalone active-mission save behavior remains unchanged.
+- [x] Existing commands and standalone contract flow retain their behavior.
+- [x] Focused tests, full Zig 0.13.0 formatting/build/test, docs, self/independent review (independent review if available), and main-branch CI are complete before status becomes Implemented.
 
 ## Implementation milestones
 
@@ -111,7 +111,9 @@ While an operation is active, ordinary `prepare` and `cancel` cannot replace or 
 ## Progress log
 
 - 2026-11-06: Owner approved Runtime-only operation progress and requested final design plus agent handoff documentation.
-- 2026-11-06: Design finalized and recorded in ADR 0011.
-- 2026-11-06: Owner explicitly authorized implementation with “شروع کن”. Re-audited the current main branch and implemented the bounded domain model, catalog, runtime state, command orchestration, stage transitions, fact carry-over, retry, completed-stage reward suppression, and runtime-only save behavior.
-- 2026-11-06: Added domain and integration tests covering catalog validation, atomic start rejection, stage ownership, stage-one-to-three fact carry-over, compromise retry, completed-stage replay, and V3 active-index behavior. Final standard CI verification is pending after the last source/documentation changes.
-- 2026-11-06: No independent second reviewer or manual interactive playtest was available; both limitations must be stated in the final handoff.
+- 2026-11-06: Design finalized and recorded in ADR 0011; owner explicitly authorized implementation with “شروع کن”.
+- 2026-11-06: Implemented the bounded domain model, catalog, runtime state, command orchestration, stage transitions, fact carry-over, retry, completed-stage reward suppression, and runtime-only save behavior directly on `main`.
+- 2026-11-06: Added domain/integration coverage for catalog validation, atomic start rejection, operation ownership, stage-one-to-three fact carry-over, compromise retry during movement and extraction, completed-stage replay, and unchanged V3 active-index behavior.
+- 2026-11-06: Updated gameplay, command, architecture, save-format, root agent, ADR, roadmap, phase plan, and handoff documentation.
+- 2026-11-06: GitHub Actions run [#733](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42120909577) passed formatting, build, full Zig tests, and agent documentation checks.
+- 2026-11-06: Self-review completed. No independent second reviewer or manual interactive playtest was available; no claim of either is made.
