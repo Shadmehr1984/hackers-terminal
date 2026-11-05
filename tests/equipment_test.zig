@@ -238,3 +238,16 @@ test "equipment enum catalog remains stable" {
     try std.testing.expectEqual(@as(u8, 0), @intFromEnum(UtilityEquipment.silent_boots));
     try std.testing.expectEqual(@as(u8, 1), @intFromEnum(UtilityEquipment.signal_scrubber));
 }
+
+test "older three-contract save completion flags leave appended Ghost Signal incomplete" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    const old_v3 =
+        "HACKERS_TERMINAL_SAVE_V3\n" ++
+        "900\n3\n250\n1\n0\n0\n0\n0\n-1\n1\n0\n1\n";
+    _ = save.loadGameFromBytes(old_v3, &player, &missions);
+    try std.testing.expect(missions[0].completed);
+    try std.testing.expect(!missions[1].completed);
+    try std.testing.expect(missions[2].completed);
+    try std.testing.expect(!missions[3].completed);
+}
