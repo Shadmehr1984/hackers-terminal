@@ -11,7 +11,7 @@ Give each contract a small, navigable fictional network graph. The topology shou
 
 ## Accepted design direction
 - All three built-in missions receive their own authored node-and-link graph; no generic shared map or clone maps.
-- Keep graph definitions static alongside mission catalog data. Keep the player's current node and traversal history runtime-only in MissionSession.
+- Keep graph definitions static alongside mission catalog data. Keep the player's current node and traversal count runtime-only in MissionSession.
 - Add `map` to show the active mission's graph and current location, and `move <node-id>` to traverse one directly connected edge.
 - Start each accepted contract at its own entry node. Movement is allowed only across a declared link; unknown nodes and non-adjacent destinations are rejected without changing state or detection.
 - Every successful traversal adds +5 detection, including traversing an edge already used before. This prevents repeated backtracking from becoming a free action. Reaching 100 uses HT-001's existing failure and penalty behavior.
@@ -30,7 +30,7 @@ The implementation should keep each graph small enough to understand from termin
 ## Architecture plan
 - Introduce a focused, foundational topology domain module for node/link/topology types and graph lookup/adjacency helpers; it must not depend on game or terminal modules.
 - Attach an optional topology reference to Mission so missions without a graph retain current behavior.
-- Store the current node in MissionSession; do not add it to Player or save serialization.
+- Store the current node and successful traversal count in MissionSession; do not add them to Player or save serialization.
 - Keep traversal validation and detection application in game coordination, and keep map formatting in terminal presentation.
 - Keep node IDs stable, concise, and distinct within a mission. Validate built-in graphs in tests.
 
@@ -61,9 +61,9 @@ The implementation should keep each graph small enough to understand from termin
 
 ## Agent progress notes
 - Implemented the graph domain in `src/topology.zig`, attached optional topology data to `Mission`, and authored three distinct static graphs in `mission_data.zig`.
-- Added `map` and `move`; location-gated scan, connection/authentication, decryption, analysis, and extraction; movement detection costs; and transient current-node initialization/reset.
+- Added `map` and `move`; location-gated scan, connection/authentication, decryption, analysis, and extraction; +5 detection per successful traversal; and transient current-node/traversal-count initialization/reset.
 - Added graph/data/session/game integration tests. Formatting, build, full tests, independent review, and CI verification remain pending.
 - Repository review confirmed that mission definitions are static in `mission_data.zig`, runtime state is owned by `MissionSession`, and `game.zig` coordinates command behavior.
 - HT-001 is now CI-verified (run 42001487382 succeeded); HT-002 is the active implementation task.
 - Owner confirmed that all three missions need unique, purpose-built topologies.
-- Initial topology concepts and the +5-per-traversal risk rule are recorded above. Next step: implement the graph model and mission-specific data, then integrate movement and location-gated actions with focused tests.
+- Initial topology concepts and the +5-per-traversal risk rule are recorded above. The graph model, three mission maps, movement, location-gated operations, tests, and documentation are now implemented; verification and review remain before marking the task complete.
