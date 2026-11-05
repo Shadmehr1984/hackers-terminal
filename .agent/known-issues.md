@@ -6,7 +6,8 @@ This file separates verified constraints from items that need investigation.
 - Zig 0.13.0 is the target; other versions are not guaranteed.
 - The command parser accepts a command and at most one argument; later tokens are ignored.
 - Mission-session state and objective completion are not persisted.
-- Save data is positional and has no checksum or explicit corruption recovery. Writes are staged through a temporary file and renamed after a successful write.
+- Save data is positional and has no checksum or full corruption recovery. Writes are staged through a temporary file and renamed after a successful write. Loaders accept V3, V2, V1, and numeric legacy headers; unknown non-numeric markers are rejected before mutating player or mission state.
+- Mission topology validation requires every operation node to be reachable from the entry node; decorative nodes may remain disconnected.
 - The objective completion mask is eight bits; a ninth kind requires redesign.
 - Mission difficulty is descriptive metadata, not a gameplay modifier.
 - There is no real networking layer; all hacking/host behavior is fictional and simulated.
