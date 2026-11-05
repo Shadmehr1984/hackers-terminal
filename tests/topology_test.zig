@@ -103,8 +103,7 @@ test "topology validation rejects duplicate nodes and self-links" {
     try std.testing.expect(!self_link_graph.isValid(std.testing.allocator));
 }
 
-
-test "topology validation returns false when either traversal allocation fails" {
+test topology validation returns false when either traversal allocation fails" {
     const nodes = [_]Node{
         .{ .id = "entry", .label = "Entry" },
         .{ .id = "scan", .label = "Scan" },
