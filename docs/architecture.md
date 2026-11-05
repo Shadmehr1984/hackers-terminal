@@ -12,7 +12,7 @@ There is no client/server split, real networking layer, database, plugin system,
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and risk modifier calculations |
-| `src/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements, `MissionDifficulty`, and typed `MissionObjective` definitions |
+| `src/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, and typed `MissionObjective` definitions |
 | `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
 | `src/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
 | `src/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
