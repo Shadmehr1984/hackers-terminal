@@ -12,18 +12,18 @@ There is no client/server split, real networking layer, database, plugin system,
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and risk modifier calculations |
-| `src/mission.zig` | Public `Mission` contract data type, optional topology reference, `MissionDifficulty`, and typed `MissionObjective` definitions |
+| `src/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements, `MissionDifficulty`, and typed `MissionObjective` definitions |
 | `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
 | `src/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, and per-run loadout snapshot |
-| `src/mission_data.zig` | Built-in mission definitions and their default ordering |
+| `src/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, history, and topology map |
 | `src/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/commands.zig` | Parses an input line into a command name and its first argument |
-| `src/game.zig` | Coordinates the shared preparation-aware command dispatcher and game-state transitions |
+| `src/game.zig` | Coordinates the shared preparation-aware command dispatcher, Contact commands, offer transactions, and game-state transitions |
 | `src/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
-| `src/progression.zig` | Player level thresholds, XP display thresholds, and mission reward progression |
-| `tests/` | Unit tests for command parsing, mission state, and built-in mission data |
+| `src/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
+| `src/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |\n| `tests/` | Unit tests for command parsing, mission state, mission data, Reputation, Contacts, and offers |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
@@ -40,11 +40,11 @@ A mission stores its static contract definition and completion state:
 - `password` and `password_hint` define the authentication puzzle.
 - `encrypted_file`, `decryption_hint`, and `decryption_key` define the decryption puzzle and required extraction filename.
 - `reward`, `xp_reward`, and `required_level` configure progression.
-- `completed` records whether the contract has been completed.
+- `required_level` and `required_reputation` define the minimum progression requirements.\n- `completed` records whether the contract has been completed.
 
 Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives may be required or optional. Required objectives gate contract completion; optional objectives never block it and can grant configured bonus cash. Successful scan, authentication, decryption, extraction, and metadata-analysis commands complete their matching objective.
 
-The three built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array, preserving their original order. Each has its own static graph from `src/topology.zig`: Cold Storage has an exposed short corridor and a maintenance detour; Paper Trail branches from an indexing hub into mail and records systems; Quiet Exit uses a relay chain with a decoy branch and controlled exit.
+The four built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array. Ghost Signal is appended at index 3 so the original mission indices remain stable. Each contract has its own static graph from `src/topology.zig`: Cold Storage has an exposed short corridor and a maintenance detour; Paper Trail branches from an indexing hub into mail and records systems; Quiet Exit uses a relay chain with a decoy branch and controlled exit; Ghost Signal uses an abandoned relay with a mirrored-traffic branch.
 
 ### `Player`
 
@@ -67,7 +67,7 @@ The session tracks six related pieces of temporary state:
 - `detection_level`: simulated exposure from 0 to 100, with Quiet, Noticed, Traced, Critical, and Compromised bands.
 - `current_node`: the current node ID in the active mission topology, or null for missions without topology.
 - `traversal_count`: number of successful node-to-node movements in this session.
-- `loadout`: the selected utility and upgrade level snapshotted at launch; Detection modifiers read this snapshot rather than the player inventory.
+- `loadout`: the selected utility and upgrade level snapshotted at launch; Detection modifiers read this snapshot rather than the player inventory.\n- `fixer_service_used`: whether the one-use Fixer Detection service has been consumed during this mission.
 
 Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
 
@@ -114,13 +114,13 @@ inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
 
 `progression.playerLevel` calculates the level from total XP. The first threshold is 100 XP and each subsequent threshold increases by 150 XP. `progression.xpForNextLevel` returns the cumulative threshold associated with a level for display in the status output.
 
-`progression.completeMission` adds the mission's cash reward and optional-objective bonus, increments reputation by one, adds the XP reward, and prints a level-up message if the level increased.
+`progression.reputationTier` maps Reputation 0 to Unknown, 1–2 to Recognized, 3–4 to Trusted, and 5+ to Elite. `progression.completeMission` adds the mission's cash reward and optional-objective bonus, increments Reputation by one, grants one additional Reputation when every optional objective is complete, adds the XP reward, and prints the resulting tier and any level-up.
 
 ## Persistence boundary
 
 Persistent state includes balance, reputation, XP, decryptor ownership, utility ownership, equipped utility, both utility upgrade levels, active mission index, and mission completion flags. Save V3 is current; `src/save.zig` continues to read V2, V1, and the original legacy layout. Older saves migrate with no utility equipment owned or equipped.
 
-Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionPreparation`, the run-specific loadout snapshot, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
+Mission difficulty, objective definitions, and Reputation requirements are static catalog metadata and are not serialized. Contact unlocks and tiers are derived from the persisted Reputation value. Fixer service use is runtime-only. Temporary `MissionPreparation`, the run-specific loadout snapshot, `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
 ## Error handling style
 
@@ -128,11 +128,11 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Dependency direction
 
-`player.zig`, `mission.zig`, and `topology.zig` are foundational data modules. `mission.zig` references the topology type; `mission_data.zig` imports mission and topology types and owns the built-in catalog. `save.zig` imports the data types and owns save/load. `terminal.zig` imports data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player`. `commands.zig` owns allocation-free parsing. `game.zig` coordinates command dispatch and mission transitions; `detection.zig` owns exposure and compromise handling; `progression.zig` owns XP, levels, and mission rewards. These modules depend on foundational player/mission/session types and do not import the command coordinator. `main.zig` initializes the application and owns the interactive input loop. Keep dependencies one-way and avoid circular imports.
+`player.zig`, `mission.zig`, and `topology.zig` are foundational data modules. `mission.zig` references the topology type; `mission_data.zig` imports mission and topology types and owns the built-in catalog. `save.zig` imports the data types and owns save/load. `terminal.zig` imports data types and owns reusable display functions; it receives calculated progression values from its caller rather than depending on game logic. `shop.zig` imports only `Player`. `commands.zig` owns allocation-free parsing. `game.zig` coordinates command dispatch and mission transitions; `detection.zig` owns exposure and compromise handling; `progression.zig` owns XP, levels, Reputation tiers, and mission rewards. `contacts.zig` owns the static fictional Contact catalog, unlock thresholds, and service pricing. These modules depend on foundational player/mission/session types and do not import the command coordinator. `main.zig` initializes the application and owns the interactive input loop. Keep dependencies one-way and avoid circular imports.
 
 ## Current design constraints
 
-- The built-in mission catalog is hard-coded in `mission_data.zig` and contains three missions.
+- The built-in mission catalog is hard-coded in `mission_data.zig` and contains four missions; `job-04` is appended after the original three.
 - Mission difficulty is currently descriptive metadata; no mechanics are tied to it yet.
 - The current objective kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds. Optional objective rewards are calculated at contract completion and are not separately persisted.
 - Detection is a runtime-only 0–100 meter. Its thresholds, action costs, failure penalty, and reset behavior are defined in the gameplay guide and implemented through `MissionSession` and `detection.zig`.
