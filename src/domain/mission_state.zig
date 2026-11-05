@@ -8,24 +8,12 @@ pub const MissionLoadout = struct {
     level: u2 = 0,
 
     pub fn movementDetectionCost(self: MissionLoadout) u8 {
-        if (self.utility) |utility| {
-            if (utility == .silent_boots) return switch (self.level) {
-                0 => 4,
-                1 => 3,
-                else => 2,
-            };
-        }
+        if (self.utility) |utility| return utility.movementDetectionCost(self.level);
         return 5;
     }
 
     pub fn incorrectAuthenticationDetectionCost(self: MissionLoadout) u8 {
-        if (self.utility) |utility| {
-            if (utility == .signal_scrubber) return switch (self.level) {
-                0 => 12,
-                1 => 9,
-                else => 6,
-            };
-        }
+        if (self.utility) |utility| return utility.incorrectAuthenticationDetectionCost(self.level);
         return 15;
     }
 };

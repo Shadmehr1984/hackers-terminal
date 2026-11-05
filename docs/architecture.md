@@ -25,10 +25,10 @@ The former top-level module paths remain as thin compatibility facades so existi
 | Path | Responsibility |
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
-| `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and risk modifier calculations |
+| `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
 | `src/domain/mission.zig` | Public `Mission` contract data type, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, and typed `MissionObjective` definitions |
 | `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
-| `src/domain/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
+| `src/domain/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, and per-run loadout snapshot |
 | `src/catalog/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
 | `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contacts, offers, history, and topology map |
@@ -164,4 +164,4 @@ Most user input errors are handled by printing a message and returning to the pr
 
 The root `AGENTS.md` is the mandatory instruction entry point for contributors and coding agents. The `.agent/` directory contains the workflow, module contracts, roadmap, known constraints, task template, review checklist, and accepted Architecture Decision Records. These documents describe development constraints; they do not replace source code as the authority for current runtime behavior.
 
-The accepted records capture the current Zig 0.13.0 toolchain, focused one-way module boundaries, runtime-only mission sessions, preservation of older save compatibility, and the typed equipment/save V3 decision. Future proposals remain candidates in the roadmap until explicitly agreed and implemented.
+The accepted records capture the current Zig 0.13.0 toolchain, focused one-way module boundaries, runtime-only mission sessions, preservation of older save compatibility, and the typed equipment/save V3 decision.
