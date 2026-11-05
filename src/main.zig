@@ -5,7 +5,7 @@ const MissionSession = MissionState.MissionSession;
 const MissionPreparation = MissionState.MissionPreparation;
 const save = @import("persistence/save.zig");
 const game = @import("application/game.zig");
-const progression = @import("application/progression.zig");
+const progression = @import("domain/progression.zig");
 const terminal = @import("presentation/terminal.zig");
 const mission_data = @import("catalog/mission_data.zig");
 
