@@ -25,7 +25,7 @@ const Capture = struct {
 };
 
 test "active status output uses line breaks and includes location" {
-    var player = Player{};
+    const player = Player{};
     const missions = mission_data.defaultMissions();
     var session = MissionSession{};
     session.detection_level = 25;
@@ -42,7 +42,7 @@ test "active status output uses line breaks and includes location" {
 }
 
 test "inactive status output uses line breaks" {
-    var player = Player{};
+    const player = Player{};
     const missions = mission_data.defaultMissions();
     const session = MissionSession{};
     var capture = Capture{};
