@@ -4,7 +4,7 @@ This roadmap records owner-approved feature direction and implementation order. 
 
 ## Implemented foundation
 - Modular Zig 0.13.0 terminal game.
-- Three built-in missions with descriptive difficulty metadata.
+- Four built-in missions with descriptive difficulty metadata, including Reputation-gated Ghost Signal.
 - Required and optional objectives with live progress and optional cash bonuses.
 - Local save/load with V2, V1, and legacy compatibility.
 - Unit tests and GitHub Actions formatting/build/test workflow.
