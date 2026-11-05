@@ -25,7 +25,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  briefing             Show clues and objectives for the active contract
         \\  objectives           Show active contract objective progress
         \\  map                  Show the active fictional network map
-        \\  move <node-id>       Move to an adjacent map node (+5 detection)
+        \\  move <node-id>       Move to an adjacent map node (equipment may reduce Detection)
         \\  Detection is shown by 'status'; risky actions increase exposure.
         \\  accept <id>          Accept a contract
         \\  scan <target>        Scan the active fictional target
