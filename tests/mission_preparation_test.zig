@@ -1,6 +1,7 @@
 const std = @import("std");
 const game = @import("../src/game.zig");
 const Player = @import("../src/player.zig").Player;
+const UtilityEquipment = @import("../src/player.zig").UtilityEquipment;
 const Mission = @import("../src/mission.zig").Mission;
 const MissionState = @import("../src/mission_state.zig");
 const MissionSession = MissionState.MissionSession;
@@ -46,7 +47,7 @@ test "preparation reveals contract intel but keeps puzzle clues and answers hidd
     try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(@as(?usize, 0), preparation.mission_index);
     try std.testing.expect(active == null);
-    try std.testing.expectEqualStrings("password clue: undiscovered", capture.output()[std.mem.indexOf(u8, capture.output(), "password clue: undiscovered").?..][0..29]);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "password clue: undiscovered") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "orion42") == null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "midnight") == null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Cold Storage") != null);
@@ -94,7 +95,7 @@ test "loadout selection validates ownership and launches only matching prepared 
     try run(&capture, "accept job-01", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(@as(?usize, 0), active);
     try std.testing.expect(preparation.mission_index == null);
-    try std.testing.expectEqual(@as(?@import("../src/player.zig").UtilityEquipment), .silent_boots, session.loadout.utility);
+    try std.testing.expectEqual(@as(?UtilityEquipment, .silent_boots), session.loadout.utility);
     try std.testing.expectEqual(@as(u2, 0), session.loadout.level);
 }
 
