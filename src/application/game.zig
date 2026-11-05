@@ -293,7 +293,7 @@ pub fn runCommand(
         if (active.*) |index| {
             const revealed = session.discoverFile(arg, missions[index].objectives);
             if (revealed == 0) {
-                try writer.writeAll("No undiscovered evidence matching that fictional file is available here.\n");
+                try writer.writeAll("No undiscovered evidence matching that fictional file is available for this contract.\n");
             } else {
                 try writer.print("[EVIDENCE INSPECTED] {s}\n", .{arg});
                 try reportObjectiveDiscoveries(writer, revealed);
