@@ -10,10 +10,20 @@ The project targets Zig 0.13.0. Use the same version locally and in CI.
 zig build
 zig build run
 zig fmt --check build.zig src
-zig test src/main.zig
+zig test src/tests.zig
 ```
 
 CI runs formatting, build, and tests on pushes and pull requests targeting main.
+
+## Automated unit tests
+
+Unit tests for the mission-session state model and command parser live beside their implementation modules. The test root imports those modules so Zig discovers their tests:
+
+```sh
+zig test src/tests.zig
+```
+
+The CI workflow runs this command after formatting and build checks.
 
 ## Architecture workflow
 
