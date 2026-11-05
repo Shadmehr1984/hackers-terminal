@@ -29,7 +29,7 @@ This file is the persistent source of project-specific instructions for AI codin
 - `src/mission.zig`: mission/contract data types, optional topology reference, difficulty classification, and typed objective definitions.
 - `src/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and graph validation.
 - `src/mission_data.zig`: built-in mission catalog.
-- `src/mission_state.zig`: temporary active-mission progress, connection state, objective completion tracking, detection exposure (0–100), and current topology node.
+- `src/mission_state.zig`: temporary active-mission progress, connection state, objective completion tracking, detection exposure (0–100), current topology node, and successful traversal count.
 - `src/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
 - `src/terminal.zig`: terminal presentation, including mission list, briefing-related output, and topology maps.
 - `src/save.zig`: persistence and compatibility with V2, V1, and legacy save formats.
@@ -53,7 +53,7 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 - `MissionObjective.optional` marks work that does not block contract completion. Completed optional objectives grant their configured `bonus_reward` when the contract is completed.
 - Objective completion and detection exposure are runtime-only session state. `extract` may complete a contract only when every required objective is complete. Keep the objective-kind bit positions within the current eight-bit session mask; redesign the storage before adding more than eight kinds.
 - Detection starts at 0 for each mission, is capped at 100, and is not serialized. At 100 the active contract fails, a $50 penalty (capped at the current balance) is applied, and the contract remains retryable. Keep action costs, threshold bands, and reset behavior covered by tests and documented in `docs/gameplay.md`.
-- For missions with a topology, `map` displays the graph and `move <node-id>` permits only adjacent movement. Each successful traversal adds 5 detection, including revisits; invalid movement changes neither location nor detection. Scan, authentication, decryption, optional analysis, and extraction are restricted to their authored mission nodes. Current node is runtime-only and must never be serialized.
+- For missions with a topology, `map` displays the graph and `move <node-id>` permits only adjacent movement. Each successful traversal adds 5 detection, including revisits; invalid movement changes neither location nor detection. Scan, authentication, decryption, optional analysis, and extraction are restricted to their authored mission nodes. Current node and traversal count are runtime-only and must never be serialized.
 
 ## Persistence safety
 
