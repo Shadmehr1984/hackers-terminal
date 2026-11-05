@@ -283,3 +283,21 @@ test "undiscovered optional objectives prevent reputation bonus and can become u
     try std.testing.expect(!tracker.allOptionalComplete());
     try std.testing.expectEqual(@as(u32, 0), tracker.optionalReward());
 }
+
+test "tracker rejects catalogs above the 32 objective capacity" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    var too_many: [33]Objective = undefined;
+    for (&too_many, 0..) |*objective, index| {
+        objective.* = .{ .id = if (index == 0) "objective-0" else "objective", .kind = .scan };
+    }
+    var tracker = Tracker{};
+    try std.testing.expect(!tracker.initialize(&too_many));
+    try std.testing.expectEqual(@as(u8, 0), tracker.count);
+}
