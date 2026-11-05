@@ -12,14 +12,14 @@ Prevent reward overflow and partial Save-load mutation, then close the four acti
 - CI runs only the default Debug optimization and references mutable Action tags.
 
 ## Acceptance criteria
-- [ ] Cash, Reputation, and XP payout totals use checked arithmetic; overflow leaves player state and the payout guard unchanged.
-- [ ] Mission completion is recorded only after a successful eligible payout.
-- [ ] V3/V2/V1/legacy input is fully validated before any player or mission mutation; truncated/malformed input preserves all prior state.
-- [ ] Existing V3 writer layout and V2/V1/legacy migrations remain compatible, including a missing appended mission flag.
-- [ ] Tests cover overflow for all three reward fields and truncated/malformed Save non-mutation.
-- [ ] Operation save integration coverage invokes the actual game save command with an isolated directory and verifies active index -1.
-- [ ] Known-issues documentation describes the 32-entry objective tracker accurately.
-- [ ] CI runs Debug and ReleaseSafe and pins third-party Actions to reviewed immutable commit SHAs.
+- [x] Cash, Reputation, and XP payout totals use checked arithmetic; overflow leaves player state and the payout guard unchanged.
+- [x] Mission completion is recorded only after a successful eligible payout.
+- [x] V3/V2/V1/legacy input is fully validated before any player or mission mutation; truncated/malformed input preserves all prior state.
+- [x] Existing V3 writer layout and V2/V1/legacy migrations remain compatible, including a missing appended mission flag.
+- [x] Tests cover overflow for all three reward fields and truncated/malformed Save non-mutation.
+- [x] Operation save integration coverage invokes the actual game save command with an isolated directory and verifies active index -1.
+- [x] Known-issues documentation describes the 32-entry objective tracker accurately.
+- [x] CI runs Debug and ReleaseSafe and pins third-party Actions to reviewed immutable commit SHAs.
 
 ## Likely scope
 - src/domain/progression.zig
@@ -40,7 +40,7 @@ Prevent reward overflow and partial Save-load mutation, then close the four acti
 - Explicitly out of scope: gameplay balancing, new features, Save version migration, and unrelated refactoring.
 
 ## Verification
-- [ ] Focused regression tests
+- [x] Focused regression tests
 - [ ] Zig formatting, build, and complete test suite in Debug and ReleaseSafe via GitHub Actions
-- [ ] Agent documentation check
+- [x] Agent documentation check
 - [ ] Independent review or explicitly documented self-review
