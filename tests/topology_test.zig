@@ -34,6 +34,7 @@ test "topology validation rejects unreachable required operation nodes" {
         .{ .id = "decrypt", .label = "Decrypt" },
         .{ .id = "analyze", .label = "Analyze" },
         .{ .id = "extract", .label = "Extract" },
+        .{ .id = "decorative", .label = "Disconnected decorative node" },
     };
     const disconnected_links = [_]Link{
         .{ .from = "entry", .to = "scan" },
