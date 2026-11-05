@@ -44,10 +44,10 @@ test "risky actions increase exposure once while safe and invalid actions do not
 
     try run(writer, "buy decryptor", &player, &missions, &active, &session);
     try run(writer, "decrypt wrong-key", &player, &missions, &active, &session);
-    try std.testing.expectEqual(@as(u8, 50), session.detection_level);
-    try run(writer, "decrypt midnight", &player, &missions, &active, &session);
-    try run(writer, "decrypt midnight", &player, &missions, &active, &session);
     try std.testing.expectEqual(@as(u8, 40), session.detection_level);
+    try run(writer, "decrypt midnight", &player, &missions, &active, &session);
+    try run(writer, "decrypt midnight", &player, &missions, &active, &session);
+    try std.testing.expectEqual(@as(u8, 50), session.detection_level);
 
     try run(writer, "analyze ledger.enc", &player, &missions, &active, &session);
     try run(writer, "analyze ledger.enc", &player, &missions, &active, &session);
