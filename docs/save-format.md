@@ -12,9 +12,9 @@ The directory is created automatically by `saveGame` when the player runs the `s
 
 The `saves/` directory is listed in `.gitignore`; player save data should remain local and should not be committed to the repository.
 
-## V2 format
+## V3 format (current)
 
-The current format begins with the version marker `HACKERS_TERMINAL_SAVE_V2`. Each value is stored on its own line.
+The current format begins with the version marker `HACKERS_TERMINAL_SAVE_V3`. Each value is stored on its own line.
 
 ```text
 HACKERS_TERMINAL_SAVE_V2
@@ -45,7 +45,7 @@ An active mission index of `-1` means there is no active contract. A non-negativ
 | Balance | Yes |
 | Reputation | Yes |
 | XP | Yes, in V2 |
-| Decryptor ownership | Yes |
+| Decryptor ownership | Yes |\n| Utility ownership | Yes (V3) |\n| Equipped utility | Yes (V3) |\n| Utility upgrade levels | Yes (V3) |
 | Active mission index | Yes |
 | Mission completion flags | Yes |
 | Scan state | No |
@@ -61,7 +61,7 @@ When the application restarts, the active contract may be restored but its tempo
 
 ## Backward compatibility
 
-The loader recognizes three layouts:
+The loader recognizes four layouts:
 
 ### V2
 
@@ -71,11 +71,11 @@ Reads balance, reputation, XP, decryptor ownership, active mission index, and mi
 
 The marker is `HACKERS_TERMINAL_SAVE_V1`. V1 did not store XP. During migration, the loader reconstructs XP by adding the configured XP reward for each mission marked completed.
 
-The V1 layout stores balance, reputation, decryptor ownership, active mission index, and then completion flags.
+The V1 layout stores balance, reputation, decryptor ownership, active mission index, and then completion flags. Utility state migrates to no utilities owned/equipped and level 0.
 
 ### Original unversioned format
 
-If the first line is not either version marker, it is interpreted as the balance. The next lines are read as reputation and decryptor ownership. Any subsequent lines are consumed as mission completion flags. This preserves compatibility with the original early save layout.
+If the first line is not either version marker, it is interpreted as the balance. The next lines are read as reputation and decryptor ownership. Any subsequent lines are consumed as mission completion flags. This preserves compatibility with the original early save layout. Utility state migrates to no utilities owned/equipped and level 0.
 
 ## Failure behavior and caveats
 
