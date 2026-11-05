@@ -3,6 +3,7 @@ const Mission = @import("mission.zig").Mission;
 const Player = @import("player.zig").Player;
 const save = @import("save.zig");
 const terminal = @import("terminal.zig");
+const shop = @import("shop.zig");
 
 fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
     const old_level = playerLevel(player.*);
@@ -136,22 +137,11 @@ fn runCommand(
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "inventory")) {
-        try writer.writeAll("INVENTORY\n  Basic terminal kit\n");
-        if (player.has_decryptor) try writer.writeAll("  File decryptor\n");
+        try shop.printInventory(writer, player.*);
     } else if (std.mem.eql(u8, command, "shop")) {
-        try writer.writeAll("BLACK MARKET (fictional)\n  decryptor - $150 - required to decrypt mission files\n");
+        try shop.printShop(writer);
     } else if (std.mem.eql(u8, command, "buy")) {
-        if (std.mem.eql(u8, arg, "decryptor")) {
-            if (player.has_decryptor) {
-                try writer.writeAll("You already own a decryptor.\n");
-            } else if (player.balance < 150) {
-                try writer.writeAll("Insufficient funds.\n");
-            } else {
-                player.balance -= 150;
-                player.has_decryptor = true;
-                try writer.writeAll("Purchase complete: decryptor installed.\n");
-            }
-        } else try writer.writeAll("Unknown item. Use 'shop'.\n");
+        try shop.buyItem(writer, player, arg);
     } else if (std.mem.eql(u8, command, "history")) {
         try terminal.printHistory(writer, missions);
     } else if (std.mem.eql(u8, command, "save")) {
