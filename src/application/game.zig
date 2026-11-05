@@ -466,7 +466,7 @@ pub fn runCommand(
                 }
                 if (!available) {
                     try writer.writeAll("No optional metadata analysis is available for this contract.\n");
-                } else if (session.isObjectiveComplete(.analyze_metadata)) {
+                } else if (!session.hasIncompleteObjective(.analyze_metadata)) {
                     try writer.writeAll("Metadata has already been analyzed.\n");
                 } else {
                     session.completeObjective(.analyze_metadata);
