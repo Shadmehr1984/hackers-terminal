@@ -41,6 +41,20 @@ pub const Topology = struct {
         return self.findNode(id) != null;
     }
 
+    pub fn isValid(self: *const Topology) bool {
+        if (!self.containsNode(self.entry_node) or
+            !self.containsNode(self.scan_node) or
+            !self.containsNode(self.auth_node) or
+            !self.containsNode(self.decrypt_node) or
+            !self.containsNode(self.analyze_node) or
+            !self.containsNode(self.extract_node)) return false;
+        for (self.links) |link| {
+            if (!self.containsNode(link.from) or !self.containsNode(link.to) or
+                std.mem.eql(u8, link.from, link.to)) return false;
+        }
+        return true;
+    }
+
     pub fn purposeAt(self: *const Topology, id: []const u8) []const u8 {
         var purpose: []const u8 = "";
         if (std.mem.eql(u8, id, self.scan_node)) purpose = appendPurpose(purpose, "SCAN");
@@ -59,7 +73,7 @@ fn appendPurpose(current: []const u8, next: []const u8) []const u8 {
     // All combinations are static labels; avoid allocation in this foundational module.
     if (std.mem.eql(u8, current, "SCAN")) return if (std.mem.eql(u8, next, "AUTH")) "SCAN,AUTH" else "SCAN,DECRYPT";
     if (std.mem.eql(u8, current, "AUTH")) return "AUTH,DECRYPT";
-    if (std.mem.eql(u8, current, "DECRYPT")) return "DECRYPT,ANALYZE";
+    if (std.mem.eql(u8, current, "DECRYPT")) return if (std.mem.eql(u8, next, "EXTRACT")) "DECRYPT,EXTRACT" else "DECRYPT,ANALYZE";
     if (std.mem.eql(u8, current, "ANALYZE")) return "ANALYZE,EXTRACT";
     if (std.mem.eql(u8, current, "SCAN,AUTH")) return "SCAN,AUTH,DECRYPT";
     if (std.mem.eql(u8, current, "DECRYPT,ANALYZE")) return "DECRYPT,ANALYZE,EXTRACT";
@@ -84,4 +98,5 @@ test "topology lookup and links are bidirectional" {
     try std.testing.expect(graph.areAdjacent("entry", "vault"));
     try std.testing.expect(graph.areAdjacent("vault", "entry"));
     try std.testing.expect(!graph.areAdjacent("entry", "missing"));
+    try std.testing.expect(graph.isValid());
 }
