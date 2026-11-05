@@ -47,7 +47,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
     try writer.print(
         \\OPERATOR
         \\  Handle:      {s}
-        \\  Balance:     $\{d}
+        \\  Balance:     ${d}
         \\  Reputation:  {d}
         \\  Level:       {d}
         \\  XP:          {d}/{d}
@@ -66,7 +66,7 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32) !vo
     try writer.writeAll("AVAILABLE CONTRACTS\n");
     for (missions) |mission| {
         const state = if (mission.completed) "COMPLETED" else if (level < mission.required_level) "LOCKED" else "AVAILABLE";
-        try writer.print("  [{s}] {s} | target: {s} | difficulty: {s} | reward: $\{d} + {d} XP | {s}", .{
+        try writer.print("  [{s}] {s} | target: {s} | difficulty: {s} | reward: ${d} + {d} XP | {s}", .{
             mission.id,
             mission.name,
             mission.target,
@@ -89,7 +89,7 @@ pub fn printHistory(writer: anytype, missions: []const Mission) !void {
     for (missions) |mission| {
         if (mission.completed) {
             found = true;
-            try writer.print("  [COMPLETED] {s} ({s}) | reward: $\{d}\n", .{
+            try writer.print("  [COMPLETED] {s} ({s}) | reward: ${d}\n", .{
                 mission.name, mission.id, mission.reward,
             });
         }
