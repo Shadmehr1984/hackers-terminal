@@ -58,11 +58,11 @@ The first contract is **Cold Storage**. Its fictional target is `vault-01.local`
 5. Solve the decryption clue with `decrypt midnight`.
 6. Extract it with `extract ledger.enc`.
 
-The other contracts use the same gameplay loop.
+The other contracts use the same gameplay loop. Contract availability is tied to operator level: `job-01` is available at level 1, `job-02` unlocks at level 2, and `job-03` unlocks at level 3. Completing contracts grants XP as well as money and reputation. The first contract grants 100 XP; the second grants 150 XP; the third grants 200 XP. The level thresholds are 100 XP for level 2 and 250 total XP for level 3.
 
 ## Save data
 
-Progress is stored locally in `saves/player.sav`. The game loads this file automatically on startup. Use `save` to write the current balance, reputation, purchased tools, completed contracts, and active contract. If an active contract is restored after restarting, its scan and connection session must be started again. The loader also accepts save files created by the previous version.
+Progress is stored locally in `saves/player.sav`. The game loads this file automatically on startup. Use `save` to write the current balance, reputation, XP, purchased tools, completed contracts, and active contract. Save files now use the `HACKERS_TERMINAL_SAVE_V2` format. Existing V1 and original pre-versioned save files are still accepted; V1 saves start with 0 XP (level 1). If an active contract is restored after restarting, its scan and connection session must be started again.
 
 ## Project layout
 
@@ -77,4 +77,4 @@ hackers-terminal/
 
 ## Current scope
 
-This is the first playable foundation: a command parser, operator profile, three fictional contracts, a basic progression loop, a small tool shop, and local save/load. More mission variety, richer puzzles, narrative events, and a deeper economy can be added in later versions.
+The current foundation includes a command parser, operator profile, three fictional contracts, XP and level progression, level-gated contracts, a small tool shop, and local save/load. More mission variety, richer puzzles, narrative events, and a deeper economy can be added in later versions.
