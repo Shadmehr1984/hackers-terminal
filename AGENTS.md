@@ -86,16 +86,16 @@ zig test test_root.zig
 - Keep `tests/test_all.zig` as the aggregate test list and include new test modules there.
 - `zig build test` is the supported build-system test step; it uses `test_root.zig` and the unchanged aggregate list.
 - Use `test_root.zig` as the test command's root module.
-- Add tests for state transitions, objective definitions and completion tracking, parsing edge cases, progression rules, and save compatibility when those areas change.
+- Add tests for state transitions, objective definitions and completion tracking, parsing edge cases, progression rules, save compatibility, and allocator failure paths when those areas change.
+- Document exported public types, constants, and functions with concise Zig doc comments.
 - If local build execution is unavailable, perform static inspection and say clearly that build/tests were not run. Never describe static inspection as a passing build or test.
 - When CI is available, inspect the actual workflow run and report its conclusion; do not infer success from a commit being pushed.
 
 ## Repository workflow
 
-- Work on the existing `main` branch unless the user explicitly asks for another branch.
-- The user has authorized direct commits to `main` for this project. Make focused commits and report the commit link and SHA after each completed step.
+- Use a separate phase branch for each approved refactor phase, based on the previous phase branch. Do not merge or move to the next phase without the user's explicit approval.
 - Before editing an existing file, fetch its latest contents and current blob SHA from GitHub. Do not overwrite based on stale copies.
-- After changes, inspect the resulting files/diff where possible and verify the commit exists on `main`.
+- After changes, inspect the resulting files/diff and verify the commit exists on the active phase branch. Do not claim changes are on `main` unless merged with explicit approval.
 - Do not claim that a change has been pushed or committed until GitHub confirms it.
 - Explain the purpose and architectural impact of meaningful changes in the conversation. Prefer Persian explanations for this user, while keeping source code, identifiers, and repository documentation in clear technical English.
 
