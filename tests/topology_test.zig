@@ -25,3 +25,34 @@ test "topology lookup and links are bidirectional" {
     try std.testing.expect(!graph.areAdjacent("entry", "missing"));
     try std.testing.expect(graph.isValid());
 }
+
+
+test "topology validation rejects duplicate nodes and self-links" {
+    const duplicate_nodes = [_]Node{
+        .{ .id = "entry", .label = "Entry" },
+        .{ .id = "entry", .label = "Duplicate entry" },
+    };
+    const self_link = [_]Link{.{ .from = "entry", .to = "entry" }};
+    const duplicate_graph = Topology{
+        .nodes = &duplicate_nodes,
+        .links = &.{},
+        .entry_node = "entry",
+        .scan_node = "entry",
+        .auth_node = "entry",
+        .decrypt_node = "entry",
+        .analyze_node = "entry",
+        .extract_node = "entry",
+    };
+    const self_link_graph = Topology{
+        .nodes = duplicate_nodes[0..1],
+        .links = &self_link,
+        .entry_node = "entry",
+        .scan_node = "entry",
+        .auth_node = "entry",
+        .decrypt_node = "entry",
+        .analyze_node = "entry",
+        .extract_node = "entry",
+    };
+    try std.testing.expect(!duplicate_graph.isValid());
+    try std.testing.expect(!self_link_graph.isValid());
+}
