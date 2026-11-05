@@ -16,8 +16,8 @@
 - Detection exposure increases with risky actions and every successful network traversal
 - Simulated scan, connection, authentication, decryption, metadata analysis, and extraction stages
 - Player balance, reputation, XP, and level progression
-- A small shop and persistent tool inventory
-- Local save/load, including migration from older save formats
+- A shop with a required decryptor plus two optional utility tools, a single active utility slot, and two upgrade tiers per utility
+- Local save/load, including V3 equipment persistence and migration from V2, V1, and legacy saves
 - Zig formatting, build, and test checks in GitHub Actions
 
 ## Requirements
@@ -72,7 +72,7 @@ For a complete walkthrough, see [Gameplay](docs/gameplay.md). For exact command 
 | [Gameplay](docs/gameplay.md) | Mission loop, difficulty labels, progression, contracts, clues, and walkthrough |
 | [Command Reference](docs/commands.md) | Commands, arguments, prerequisites, and responses |
 | [Architecture](docs/architecture.md) | Source layout, runtime state, data model, and command flow |
-| [Save Format](docs/save-format.md) | Save location, V2 layout, loading, and legacy migration |
+| [Save Format](docs/save-format.md) | Save location, V3 equipment layout, loading, and legacy migration |
 | [Development](docs/development.md) | Build, format, test, CI, and contribution notes |
 | [Agent Instructions](AGENTS.md) | Mandatory project rules and coding-agent entry point |
 | [Agent Workspace](.agent/README.md) | Agent workflow, module contracts, roadmap, ADRs, task template, and review checklist |
