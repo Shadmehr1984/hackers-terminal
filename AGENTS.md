@@ -148,3 +148,11 @@ Keep `.agent/roadmap.md` as the authoritative feature sequence and status tracke
 ### CI documentation check
 
 The CI workflow also runs `sh scripts/check-agent-docs.sh` to ensure the required agent guidance and core docs remain present. This structural check does not replace code review, Zig compilation, unit tests, or manual playtesting.
+
+## Mandatory code review standard
+
+Every code review request must follow the complete `.agent/review-checklist.md` standard. That file is the canonical, exhaustive review contract; it is not optional and must be read in full by every agent before reviewing. It requires the weighted Correctness (40%), OWASP Top 10:2025 Security (20%), Architecture/Design (30%), and Performance (10%) passes; the exact Zig scan order (`zig fmt` → ALWAYS FLAG → Safety → Context-dependent → Style); project-specific checks; Maintainability/Observability; tests and CI verification; severity/evidence rules; and the complete final report with coverage statistics and limitations.
+
+For a full repository review, inspect the whole current repository, not only a diff. Account for every relevant source, test, build/configuration, workflow, and documentation file. Mark every item as reviewed, not applicable (with reason), partially reviewed, or not verified. Every finding requires exact file/line evidence and a concrete scenario or rationale. If evidence is unavailable, say "نمی‌دانم" and use `[NEEDS-VERIFICATION]`; never guess or overstate coverage.
+
+A code review is read-only by default. Do not modify source, tests, documentation, CI, or repository state unless the owner separately authorizes fixes. Never claim tests, CI, or manual gameplay checks passed unless they were actually run and their results inspected.
