@@ -10,7 +10,7 @@ Derived from the current source tree; re-check source before relying on this map
 | src/mission.zig | Mission, optional topology reference, difficulty, objective types | Built-in catalog or runtime mutation |
 | src/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
-| src/mission_state.zig | Runtime session progress, connection, objective completion | Serialization or user-facing output |
+| src/mission_state.zig | Runtime session progress, connection, objective completion, detection, current node, traversal count | Serialization or user-facing output |
 | src/commands.zig | Allocation-free command/first-argument parsing | Gameplay validation and dispatch |
 | src/terminal.zig | Reusable terminal presentation | Mutating game state or deciding rewards |
 | src/save.zig | Save/load serialization and legacy compatibility | Gameplay command handling |
