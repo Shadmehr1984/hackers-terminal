@@ -303,8 +303,7 @@ test "older three-contract save completion flags leave appended Ghost Signal inc
     try std.testing.expect(!missions[3].completed);
 }
 
-
-test "truncated and malformed versioned saves use documented defaults without crashing" {
+test truncated and malformed versioned saves use documented defaults without crashing" {
     var player = Player{ .balance = 321, .reputation = 7, .xp = 99 };
     var missions = mission_data.defaultMissions();
     missions[0].completed = true;
