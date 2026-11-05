@@ -374,7 +374,6 @@ pub fn runCommandWithPreparation(
     return true;
 }
 
-
 pub fn runCommand(
     writer: anytype,
     line: []const u8,

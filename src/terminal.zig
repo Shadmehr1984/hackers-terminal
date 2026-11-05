@@ -151,13 +151,21 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
     try writer.writeAll("Movement cost: ");
     if (selected_utility) |utility| {
         if (utility == .silent_boots) {
-            try writer.print("{d} Detection per traversal (Silent Boots).\n", .{switch (player.equipment.level(utility)) { 0 => 4, 1 => 3, else => 2 }});
+            try writer.print("{d} Detection per traversal (Silent Boots).\n", .{switch (player.equipment.level(utility)) {
+                0 => 4,
+                1 => 3,
+                else => 2,
+            }});
         } else try writer.writeAll("5 Detection per traversal.\n");
     } else try writer.writeAll("5 Detection per traversal.\n");
     try writer.writeAll("Incorrect password cost: ");
     if (selected_utility) |utility| {
         if (utility == .signal_scrubber) {
-            try writer.print("{d} Detection (Signal Scrubber).\n", .{switch (player.equipment.level(utility)) { 0 => 12, 1 => 9, else => 6 }});
+            try writer.print("{d} Detection (Signal Scrubber).\n", .{switch (player.equipment.level(utility)) {
+                0 => 12,
+                1 => 9,
+                else => 6,
+            }});
         } else try writer.writeAll("15 Detection.\n");
     } else try writer.writeAll("15 Detection.\n");
     try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility, then 'accept <id>' to launch or 'cancel' to leave preparation.\n");
