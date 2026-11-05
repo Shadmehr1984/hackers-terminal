@@ -1,6 +1,7 @@
 const Mission = @import("mission.zig").Mission;
 const MissionSession = @import("mission_state.zig").MissionSession;
 const Player = @import("player.zig").Player;
+const std = @import("std");
 
 pub fn printBanner(writer: anytype) !void {
     try writer.writeAll(
@@ -23,6 +24,8 @@ pub fn printHelp(writer: anytype) !void {
         \\  missions             List available contracts
         \\  briefing             Show clues and objectives for the active contract
         \\  objectives           Show active contract objective progress
+        \\  map                  Show the active fictional network map
+        \\  move <node-id>       Move to an adjacent map node (+5 detection)
         \\  Detection is shown by 'status'; risky actions increase exposure.
         \\  accept <id>          Accept a contract
         \\  scan <target>        Scan the active fictional target
@@ -61,6 +64,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
 
     if (active) |index| {
         try writer.print("  Active job:  {s} ({s})\n  Detection:   {d}/100 ({s})\n", .{ missions[index].name, missions[index].id, session.detection_level, session.detectionBand().label() });
+        if (session.current_node) |node| try writer.print("  Location:    {s}\n", .{node});
     } else {
         try writer.writeAll("  Active job:  none\n  Detection:   inactive\n");
     }
@@ -111,4 +115,29 @@ pub fn printHistory(writer: anytype, missions: []const Mission) !void {
         }
     }
     if (!found) try writer.writeAll("  No completed contracts yet.\n");
+}
+
+
+pub fn printMap(writer: anytype, mission: Mission, session: MissionSession) !void {
+    if (mission.topology) |topology| {
+        try writer.print("NETWORK MAP: {s}\nCurrent node: {s}\n\nNODES\n", .{
+            mission.name, session.current_node orelse "unknown",
+        });
+        for (topology.nodes) |node| {
+            const current = if (session.current_node) |id| std.mem.eql(u8, id, node.id) else false;
+            const purpose = topology.purposeAt(node.id);
+            if (purpose.len > 0) {
+                try writer.print("  {s}{s} — {s} [{s}]\n", .{
+                    if (current) "-> " else "   ", node.id, node.label, purpose,
+                });
+            } else {
+                try writer.print("  {s}{s} — {s}\n", .{
+                    if (current) "-> " else "   ", node.id, node.label,
+                });
+            }
+        }
+        try writer.writeAll("\nLINKS\n");
+        for (topology.links) |link| try writer.print("  {s} <-> {s}\n", .{link.from, link.to});
+        try writer.writeAll("\nMove only to an adjacent node. Every successful move adds 5 detection.\n");
+    } else try writer.writeAll("This contract has no network topology.\n");
 }
