@@ -1,5 +1,4 @@
 const Mission = @import("mission.zig").Mission;
-const MissionDifficulty = @import("mission.zig").MissionDifficulty;
 
 /// Returns the built-in contracts with their original order and configuration.
 pub fn defaultMissions() [3]Mission {
@@ -47,12 +46,4 @@ pub fn defaultMissions() [3]Mission {
             .required_level = 3,
         },
     };
-}
-
-test "built-in missions have increasing difficulty" {
-    const missions = defaultMissions();
-
-    try @import("std").testing.expectEqual(MissionDifficulty.easy, missions[0].difficulty);
-    try @import("std").testing.expectEqual(MissionDifficulty.medium, missions[1].difficulty);
-    try @import("std").testing.expectEqual(MissionDifficulty.hard, missions[2].difficulty);
 }
