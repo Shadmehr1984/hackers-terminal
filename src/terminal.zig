@@ -37,7 +37,9 @@ pub fn printHelp(writer: anytype) !void {
         \\  extract <filename>   Retrieve the mission file
         \\  inventory            Show owned tools
         \\  shop                 Show available tools
-        \\  buy <item>           Purchase a tool\n        \\  equip <utility>      Equip an owned utility\n        \\  upgrade <utility>    Upgrade an owned utility
+        \\  buy <item>           Purchase a tool
+        \\  equip <utility>      Equip an owned utility
+        \\  upgrade <utility>    Upgrade an owned utility
         \\  history              Show completed contracts
         \\  save                 Save progress
         \\  clear                Clear the terminal
@@ -138,6 +140,6 @@ pub fn printMap(writer: anytype, mission: Mission, session: MissionSession) !voi
         }
         try writer.writeAll("\nLINKS\n");
         for (topology.links) |link| try writer.print("  {s} <-> {s}\n", .{ link.from, link.to });
-        try writer.writeAll("\nMove only to an adjacent node. Every successful move adds 5 detection.\n");
+        try writer.writeAll("\nMove only to an adjacent node. Every successful move adds 5 detection before equipment modifiers.\n");
     } else try writer.writeAll("This contract has no network topology.\n");
 }
