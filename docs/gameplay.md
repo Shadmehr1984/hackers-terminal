@@ -55,7 +55,7 @@ The game currently defines three contracts in `src/mission_data.zig`.
 
 A contract is available only when the player's level meets its required level and it has not already been completed. Only one active contract is allowed at a time.
 
-Difficulty is currently a descriptive rating shown by `missions` and `briefing`. It does not yet change mission mechanics, rewards, or detection risk. Future mission-system work may give these ratings mechanical meaning, but that should be introduced as a separately designed and tested change.
+Difficulty is currently a descriptive rating shown by `missions` and `briefing`. It does not change mission mechanics or detection risk.
 
 ### Mission objectives
 
@@ -67,9 +67,38 @@ Every contract defines an ordered checklist of required and optional objectives.
 4. **Recover evidence** — completed by extracting the exact filename with `extract <filename>`.
 5. **Optional: analyze metadata** — after decryption, run `analyze <filename>` to inspect simulated metadata. This objective is not required to finish the contract and grants bonus cash: $75 for Cold Storage, $100 for Paper Trail, and $125 for Quiet Exit.
 
-The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded after every required objective is complete. Optional objectives do not block completion; completed ones add their bonus cash to the contract payout. Objective progress is temporary and is reset when a contract starts or ends; it is not written to the save file.
+The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded after every required objective is complete. Optional objectives do not block completion; completed ones add their bonus cash to the contract payout. Objective progress and detection exposure are temporary and reset when a contract starts or ends; neither is written to the save file.
 
-### Contract clues
+### Detection and operational risk
+
+Detection is a fictional exposure meter for the active contract. It starts at 0 and is capped at 100. The current band is shown by `status`:
+
+| Level | Band |
+| ---: | --- |
+| 0–24 | Quiet |
+| 25–49 | Noticed |
+| 50–74 | Traced |
+| 75–99 | Critical |
+| 100 | Compromised |
+
+Risk costs are deterministic:
+
+| Action | Detection change |
+| --- | ---: |
+| Successful scan (first time only) | +10 |
+| Successful authentication (first time only) | +5 |
+| Incorrect password attempt | +15 |
+| Successful decryption (first time only) | +10 |
+| Incorrect decryption key | +10 |
+| Successful optional metadata analysis (first time only) | +5 |
+| Successful extraction (first time only) | +5 |
+| Connect, disconnect, invalid commands, or rejected prerequisites | +0 |
+
+Repeated successful actions do not add exposure again. Crossing a band boundary prints a warning. At 100, the active contract immediately fails: no contract reward, XP, or reputation is granted, and a $50 penalty is deducted. The penalty is capped at the player's available balance, so the balance never becomes negative. The failed contract remains available to accept again. Detection resets when a contract starts, completes, or fails.
+
+Detection is session-only and is deliberately excluded from all save versions. Restoring an active contract after restarting begins with 0 detection, just as other temporary mission progress is reset.
+
+## Contract clues
 
 Use `briefing` after accepting a contract. The briefing displays the target, difficulty, password clue, encrypted filename, and decryption clue.
 
@@ -103,7 +132,7 @@ The first contract is a guided introduction to the complete game loop.
 7. Solve the decryption clue with `decrypt midnight`.
 8. Optionally run `analyze ledger.enc` to complete the metadata objective and earn an extra $75.
 9. Run `objectives` to review the checklist, then retrieve the file with `extract ledger.enc`.
-10. Run `status` to see the updated balance, XP, reputation, and level.
+10. Run `status` to see the updated balance, XP, reputation, level, and current detection level.
 11. Run `save` to persist your progress.
 
 The initial $250 is enough to buy the decryptor. Completing the first contract grants $300 and 100 XP.
