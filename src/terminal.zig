@@ -29,6 +29,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  disconnect           End the simulated connection
         \\  brute <password>     Solve the password challenge
         \\  decrypt <key>        Decrypt the mission file
+        \\  analyze <filename>   Analyze optional metadata after decryption
         \\  extract <filename>   Retrieve the mission file
         \\  inventory            Show owned tools
         \\  shop                 Show available tools
@@ -40,7 +41,7 @@ pub fn printHelp(writer: anytype) !void {
         \\
         \\MISSION FLOW
         \\  missions -> accept -> briefing -> scan -> connect
-        \\  -> brute -> decrypt -> extract
+        \\  -> brute -> decrypt -> analyze (optional) -> extract
         \\
     );
 }
