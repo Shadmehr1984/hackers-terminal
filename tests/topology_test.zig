@@ -102,3 +102,38 @@ test "topology validation rejects duplicate nodes and self-links" {
     try std.testing.expect(!duplicate_graph.isValid(std.testing.allocator));
     try std.testing.expect(!self_link_graph.isValid(std.testing.allocator));
 }
+
+test "topology validation returns false when either traversal allocation fails" {
+    const nodes = [_]Node{
+        .{ .id = "entry", .label = "Entry" },
+        .{ .id = "scan", .label = "Scan" },
+        .{ .id = "auth", .label = "Auth" },
+        .{ .id = "decrypt", .label = "Decrypt" },
+        .{ .id = "analyze", .label = "Analyze" },
+        .{ .id = "extract", .label = "Extract" },
+    };
+    const links = [_]Link{
+        .{ .from = "entry", .to = "scan" },
+        .{ .from = "scan", .to = "auth" },
+        .{ .from = "auth", .to = "decrypt" },
+        .{ .from = "decrypt", .to = "analyze" },
+        .{ .from = "analyze", .to = "extract" },
+    };
+    const graph = Topology{
+        .nodes = &nodes,
+        .links = &links,
+        .entry_node = "entry",
+        .scan_node = "scan",
+        .auth_node = "auth",
+        .decrypt_node = "decrypt",
+        .analyze_node = "analyze",
+        .extract_node = "extract",
+    };
+
+    inline for (.{ 0, 1 }) |fail_index| {
+        var failing_allocator = std.testing.FailingAllocator.init(std.testing.allocator, .{
+            .fail_index = fail_index,
+        });
+        try std.testing.expect(!graph.isValid(failing_allocator.allocator()));
+    }
+}

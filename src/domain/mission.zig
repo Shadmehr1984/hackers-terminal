@@ -1,10 +1,13 @@
+/// Re-exports the static topology type used by mission definitions.
 pub const Topology = @import("topology.zig").Topology;
 
+/// Describes presentation difficulty; it does not modify gameplay rules.
 pub const MissionDifficulty = enum {
     easy,
     medium,
     hard,
 
+    /// Returns the title-case label displayed for this difficulty.
     pub fn label(self: MissionDifficulty) []const u8 {
         return switch (self) {
             .easy => "Easy",
@@ -31,6 +34,7 @@ pub const MissionObjective = struct {
     bonus_reward: u32 = 0,
 };
 
+/// Defines static contract data and its mutable completion flag.
 pub const Mission = struct {
     id: []const u8,
     name: []const u8,

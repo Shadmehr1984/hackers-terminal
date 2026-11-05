@@ -2,6 +2,7 @@ const std = @import("std");
 const Mission = @import("../domain/mission.zig").Mission;
 const Player = @import("../domain/player.zig").Player;
 
+/// Writes the current player and mission completion state to the default save location.
 pub fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
     try saveGameToDirectory(std.fs.cwd(), player, missions, active);
 }
@@ -51,6 +52,7 @@ fn readLevel(value: []const u8) u2 {
     return @intCast(@min(parsed, 2));
 }
 
+/// Loads V3, V2, V1, or legacy save data from memory while preserving supported migrations.
 pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
     const first_line = lines.next() orelse return null;
@@ -122,6 +124,7 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
     return active;
 }
 
+/// Loads the default save file into the supplied player and mission state.
 pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
     const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch return null;
     defer file.close();

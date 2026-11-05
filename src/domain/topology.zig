@@ -6,11 +6,13 @@ pub const Node = struct {
     label: []const u8,
 };
 
+/// Defines an undirected connection between two fictional mission locations.
 pub const Link = struct {
     from: []const u8,
     to: []const u8,
 };
 
+/// Describes a mission graph and the locations required for its operations.
 pub const Topology = struct {
     nodes: []const Node,
     links: []const Link,
@@ -21,6 +23,7 @@ pub const Topology = struct {
     analyze_node: []const u8,
     extract_node: []const u8,
 
+    /// Finds a node by its stable identifier.
     pub fn findNode(self: *const Topology, id: []const u8) ?Node {
         for (self.nodes) |node| {
             if (std.mem.eql(u8, node.id, id)) return node;
@@ -28,6 +31,7 @@ pub const Topology = struct {
         return null;
     }
 
+    /// Reports whether two node identifiers share a link.
     pub fn areAdjacent(self: *const Topology, first: []const u8, second: []const u8) bool {
         for (self.links) |link| {
             if ((std.mem.eql(u8, link.from, first) and std.mem.eql(u8, link.to, second)) or
@@ -39,6 +43,7 @@ pub const Topology = struct {
         return false;
     }
 
+    /// Reports whether the graph contains the specified node identifier.
     pub fn containsNode(self: *const Topology, id: []const u8) bool {
         return self.findNode(id) != null;
     }
@@ -50,6 +55,7 @@ pub const Topology = struct {
         return null;
     }
 
+    /// Validates required nodes, links, uniqueness, and reachability using the supplied allocator.
     pub fn isValid(self: *const Topology, allocator: std.mem.Allocator) bool {
         if (!self.containsNode(self.entry_node) or
             !self.containsNode(self.scan_node) or
@@ -112,6 +118,7 @@ pub const Topology = struct {
         return true;
     }
 
+    /// Returns the operation labels associated with a node identifier.
     pub fn purposeAt(self: *const Topology, id: []const u8) []const u8 {
         const scan = std.mem.eql(u8, id, self.scan_node);
         const auth = std.mem.eql(u8, id, self.auth_node);

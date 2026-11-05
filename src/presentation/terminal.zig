@@ -8,6 +8,7 @@ const std = @import("std");
 const progression = @import("../domain/progression.zig");
 const contacts = @import("../domain/contacts.zig");
 
+/// Writes the game banner.
 pub fn printBanner(writer: anytype) !void {
     try writer.writeAll(
         \\============================================================
@@ -21,6 +22,7 @@ pub fn printBanner(writer: anytype) !void {
     );
 }
 
+/// Writes the available command help.
 pub fn printHelp(writer: anytype) !void {
     try writer.writeAll(
         \\COMMANDS
@@ -64,6 +66,7 @@ pub fn printHelp(writer: anytype) !void {
     );
 }
 
+/// Writes the player, mission, progression, and Detection status.
 pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []const Mission, level: u32, next_level_xp: u32, session: MissionSession) !void {
     try writer.print(
         \\OPERATOR
@@ -101,6 +104,7 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
     }
 }
 
+/// Writes the contract catalog and its availability requirements.
 pub fn printMissions(writer: anytype, missions: []const Mission, level: u32, reputation: u32) !void {
     try writer.writeAll("AVAILABLE CONTRACTS\n");
     for (missions) |mission| {
@@ -127,6 +131,7 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32, rep
     try writer.writeAll("\nUse: prepare <id>\n");
 }
 
+/// Writes the Contacts unlocked by the player's Reputation.
 pub fn printContacts(writer: anytype, player: Player) !void {
     try writer.print("CONTACT NETWORK\nReputation: {d} ({s})\n\n", .{
         player.reputation, progression.reputationTier(player.reputation).label(),
@@ -144,6 +149,7 @@ pub fn printContacts(writer: anytype, player: Player) !void {
     try writer.writeAll("\nUse contact <id> for details and offers for available deals.\n");
 }
 
+/// Writes the details and available services for one Contact.
 pub fn printContact(
     writer: anytype,
     contact: contacts.ContactId,
@@ -193,6 +199,7 @@ pub fn printContact(
     try writer.writeAll("Use 'offers' to see currently actionable deals.\n");
 }
 
+/// Writes the contracts currently available through Contact offers.
 pub fn printOffers(
     writer: anytype,
     player: Player,
@@ -229,6 +236,7 @@ pub fn printOffers(
     try writer.writeAll("Use deal <id> to purchase or accept an offer.\n");
 }
 
+/// Writes objective completion state for the active contract.
 pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSession) !void {
     try writer.print("OBJECTIVES: {s}\n", .{mission.name});
     for (mission.objectives) |objective| {
@@ -241,6 +249,7 @@ pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSessio
     try writer.writeAll("\n");
 }
 
+/// Writes a pre-launch briefing without revealing undiscovered puzzle clues or answers.
 pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selected_utility: ?UtilityEquipment) !void {
     try writer.print("MISSION PREPARATION: {s} ({s})\nTarget: {s}\nDifficulty: {s}\nReward: ${d} + {d} XP\n", .{
         mission.name, mission.id, mission.target, mission.difficulty.label(), mission.reward, mission.xp_reward,
@@ -289,6 +298,7 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
     try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility, then 'accept <id>' to launch or 'cancel' to leave preparation.\n");
 }
 
+/// Writes the completion history for the supplied contracts.
 pub fn printHistory(writer: anytype, missions: []const Mission) !void {
     try writer.writeAll("CONTRACT HISTORY\n");
     var found = false;
@@ -303,6 +313,7 @@ pub fn printHistory(writer: anytype, missions: []const Mission) !void {
     if (!found) try writer.writeAll("  No completed contracts yet.\n");
 }
 
+/// Writes the fictional topology map and current player location.
 pub fn printMap(writer: anytype, mission: Mission, session: MissionSession) !void {
     if (mission.topology) |topology| {
         try writer.print("NETWORK MAP: {s}\nCurrent node: {s}\nSuccessful traversals: {d}\n\nNODES\n", .{
