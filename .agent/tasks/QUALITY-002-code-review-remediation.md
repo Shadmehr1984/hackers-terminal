@@ -1,6 +1,6 @@
 # QUALITY-002 — Save Format, Topology Reachability, and Persistence Tests
 
-- Status: In Progress
+- Status: Implemented
 - Origin: Follow-up project-wide code review on 2026-11-05
 - Owner approval: All three remediation items approved.
 
@@ -22,8 +22,8 @@ Harden save-format detection, reject mission topologies whose required locations
 - [x] Save V3 marker, field order, save path, and V1/V2/legacy compatibility remain unchanged.
 - [x] Focused tests are included in the existing aggregate suite; no real networking or external-system behavior is introduced.
 - [x] Relevant docs, this brief, task index, and review records are updated.
-- [ ] Zig 0.13.0 formatting, build, all tests, and agent-doc check pass in GitHub Actions.
-- [ ] Final self-review against `.agent/review-checklist.md` is recorded; no second reviewer is claimed unless one is actually available.
+- [x] Zig 0.13.0 formatting, build, all tests, and agent-doc check pass in GitHub Actions.
+- [x] Final self-review against `.agent/review-checklist.md` is recorded; no second reviewer is claimed unless one is actually available.
 
 ## Likely scope
 - `src/save.zig`
@@ -51,13 +51,13 @@ Harden save-format detection, reject mission topologies whose required locations
 - Documentation now records the strict marker policy and topology reachability invariant.
 
 ## Verification
-- [x] Focused save-format and filesystem test cases added (execution pending CI).
-- [x] Focused topology reachability tests added (execution pending CI).
-- [ ] `zig fmt --check test_root.zig build.zig src tests`
-- [ ] `zig build`
-- [ ] `zig test test_root.zig`
-- [ ] `sh scripts/check-agent-docs.sh`
-- [ ] GitHub Actions result inspected for final commit
+- [x] Focused save-format and filesystem test cases added and executed successfully in GitHub Actions.
+- [x] Focused topology reachability tests added and executed successfully in GitHub Actions.
+- [x] `zig fmt --check test_root.zig build.zig src tests` — passed in GitHub Actions.
+- [x] `zig build` — passed in GitHub Actions.
+- [x] `zig test test_root.zig` — passed in GitHub Actions.
+- [x] `sh scripts/check-agent-docs.sh` — passed in GitHub Actions.
+- [x] GitHub Actions result inspected for final commit `1237a6d687d46dc51e1718a0669d3cf26e13f50a`: run `42028510226` (Zig CI, run #372) completed with `success`; all seven job steps passed.
 - [x] Independent review checklist completed as self-review; no second reviewer was available.
 
 
