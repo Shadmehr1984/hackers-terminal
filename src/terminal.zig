@@ -37,7 +37,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  extract <filename>   Retrieve the mission file
         \\  inventory            Show owned tools
         \\  shop                 Show available tools
-        \\  buy <item>           Purchase a tool
+        \\  buy <item>           Purchase a tool\n        \\  equip <utility>      Equip an owned utility\n        \\  upgrade <utility>    Upgrade an owned utility
         \\  history              Show completed contracts
         \\  save                 Save progress
         \\  clear                Clear the terminal
