@@ -30,6 +30,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  help                 Show this help
         \\  status               Show operator status
         \\  missions             List available contracts
+        \\  board                Open the Contract Board
         \\  contacts             Show unlocked and locked contacts
         \\  contact <id>         Inspect a contact and its offers
         \\  offers               List actionable contact offers
@@ -134,14 +135,14 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32, rep
 
 /// Writes every catalog contract with derived availability and reward range.
 pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32, reputation: u32, another_contract_busy: bool) !void {
-    try writer.writeAll("CONTRACT BOARD\\n");
+    try writer.writeAll("CONTRACT BOARD\n");
     for (missions) |mission| {
         const entry = contract_board.evaluate(mission, .{
             .level = level,
             .reputation = reputation,
             .another_contract_busy = another_contract_busy,
         });
-        try writer.print("  [{s}] {s} — {s} | {s} | ${d}-${d} + {d} XP | {s}\\n", .{
+        try writer.print("  [{s}] {s} — {s} | {s} | ${d}-${d} + {d} XP | {s}\n", .{
             mission.id,
             mission.name,
             mission.category.label(),
@@ -152,15 +153,15 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
             entry.availability.label(),
         });
         if (entry.availability == .locked) {
-            if (entry.level_locked) try writer.print("    Requires level {d} (current: {d}).\\n", .{ mission.required_level, level });
-            if (entry.reputation_locked) try writer.print("    Requires Reputation {d} (current: {d}).\\n", .{ mission.required_reputation, reputation });
+            if (entry.level_locked) try writer.print("    Requires level {d} (current: {d}).\n", .{ mission.required_level, level });
+            if (entry.reputation_locked) try writer.print("    Requires Reputation {d} (current: {d}).\n", .{ mission.required_reputation, reputation });
         } else if (entry.availability == .exclusive) {
-            try writer.writeAll("    Obtain this contract through its Contact offer.\\n");
+            try writer.writeAll("    Obtain this contract through its Contact offer.\n");
         } else if (entry.availability == .unavailable) {
-            try writer.writeAll("    Finish or fail the active contract, or cancel the current preparation, before selecting another.\\n");
+            try writer.writeAll("    Finish or fail the active contract, or cancel the current preparation, before selecting another.\n");
         }
     }
-    try writer.writeAll("\\nUse prepare <id> for standard contracts; use the relevant Contact offer for exclusive contracts.\\n");
+    try writer.writeAll("\nUse prepare <id> for standard contracts; use the relevant Contact offer for exclusive contracts.\n");
 }
 
 /// Writes the Contacts unlocked by the player's Reputation.
