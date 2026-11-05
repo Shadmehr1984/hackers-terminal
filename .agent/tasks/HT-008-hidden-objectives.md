@@ -1,6 +1,6 @@
 # HT-008 — Hidden Objectives
 
-**Status:** Design Approved (2026-11-05); implementation not authorized  
+**Status:** In Progress (2026-11-05); implementation authorized by owner  
 **Program:** EXPANSION-001, Phase 1  
 **Depends on:** HT-006 Contract Board, HT-007 Mission Modifiers, current mission/objective lifecycle
 
@@ -8,7 +8,7 @@
 
 Reward careful exploration and analysis with optional objectives that are not fully disclosed in the initial briefing. Players discover them through fictional in-game evidence and actions, then choose whether to complete them.
 
-This brief is the approved design contract for implementation agents. Approval of this brief is not permission to begin coding. The project owner must separately authorize implementation.
+This brief is the approved design contract. The project owner authorized implementation on 2026-11-05; work is being performed directly on `main`.
 
 ## Owner-approved design
 
@@ -115,7 +115,7 @@ Avoid creating a generic event framework or introducing unnecessary allocations.
 - [ ] Code review findings are addressed; independent review availability is recorded honestly.
 - [ ] Actual GitHub Actions CI on the final main commit passes before status becomes Implemented.
 
-## Implementation milestones (not yet authorized)
+## Implementation milestones
 
 1. **Audit and model:** re-audit current main, tests, event flow, objective rendering, rewards, and reset lifecycle; finalize type/data shape and capacity validation.
 2. **State engine:** implement bounded objective state and pure transitions; preserve existing behavior with focused tests.
@@ -123,8 +123,8 @@ Avoid creating a generic event framework or introducing unnecessary allocations.
 4. **Reward integration:** integrate optional rewards and all-optional Reputation semantics with idempotent completion.
 5. **Regression and handoff:** full tests, docs, self/independent review, CI, and task/roadmap status update.
 
-Do not start milestone 1 until the owner explicitly authorizes HT-008 implementation.
+Implementation is authorized. Continue in the listed order and record verified progress below.
 
 ## Progress log
 
-- 2026-11-05: Owner approved the design: 32-objective bounded per-session model; stable objective IDs; four states; Node/File/Action discovery; all hidden objectives optional; runtime-only lifecycle; no save-format changes. Implementation authorization remains pending.
+- 2026-11-05: Owner approved the design and separately authorized implementation.\n- 2026-11-05: Re-audited current `main`, including mission/session/catalog/application/presentation/reward/persistence paths and relevant tests. Confirmed the former eight-bit kind mask, objective event integration, optional reward aggregation, all-optional Reputation rule, reset-on-load behavior, and Save V3 boundaries.\n- 2026-11-05: Added `mission_objectives.zig`: fixed-capacity 32-entry tracker, stable ID lookup, four states, typed Node/File/Action triggers, idempotent discovery/completion, unavailable transition, and optional reward/required/optional queries.\n- 2026-11-05: Added stable IDs to built-in objectives and four hidden optional examples (node, file, action, and node triggers); integrated objective state initialization, successful-action/node/file discovery, `inspect <filename>`, safe objective visibility, and hidden reward exclusion from Contract Board estimates.\n- 2026-11-05: Added/updated focused tests for tracker behavior, discovery trigger isolation, duplicate IDs, hidden objective validation, reward/reputation rules, reset behavior, and catalog validation.\n- 2026-11-05: Updated gameplay, command, architecture, save-boundary, AGENTS, and module convention documentation. Full regression/CI verification and final review remain pending.
