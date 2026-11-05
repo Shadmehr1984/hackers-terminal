@@ -302,3 +302,30 @@ test "older three-contract save completion flags leave appended Ghost Signal inc
     try std.testing.expect(missions[2].completed);
     try std.testing.expect(!missions[3].completed);
 }
+
+
+test "truncated and malformed versioned saves use documented defaults without crashing" {
+    var player = Player{ .balance = 321, .reputation = 7, .xp = 99 };
+    var missions = mission_data.defaultMissions();
+    missions[0].completed = true;
+
+    const truncated = "HACKERS_TERMINAL_SAVE_V3\n";
+    const active = save.loadGameFromBytes(truncated, &player, &missions);
+    try std.testing.expect(active == null);
+    try std.testing.expectEqual(@as(u32, 321), player.balance);
+    try std.testing.expectEqual(@as(u32, 7), player.reputation);
+    try std.testing.expect(!missions[0].completed);
+
+    const malformed =
+        "HACKERS_TERMINAL_SAVE_V3\n" ++
+        "not-a-balance\ninvalid-reputation\ninvalid-xp\n" ++
+        "1\n3\ninvalid-utility\n9\n255\n999\n1\n0\n0\n0\n";
+    _ = save.loadGameFromBytes(malformed, &player, &missions);
+    try std.testing.expectEqual(@as(u32, 321), player.balance);
+    try std.testing.expectEqual(@as(u32, 7), player.reputation);
+    try std.testing.expectEqual(@as(u32, 99), player.xp);
+    try std.testing.expectEqual(@as(u2, 2), player.equipment.silent_boots_level);
+    try std.testing.expectEqual(@as(u2, 2), player.equipment.signal_scrubber_level);
+    try std.testing.expect(player.equipment.equipped_utility == null);
+    try std.testing.expect(missions[0].completed);
+}
