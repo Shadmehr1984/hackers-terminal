@@ -13,8 +13,8 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `objectives` | None | Show completion status for every objective in the active contract |
 | `map` | None | Show the active mission graph, operation locations, and current node |
 | `history` | None | List completed contracts |
-| `inventory` | None | Show owned tools |
-| `shop` | None | List purchasable tools |
+| `inventory` | None | Show owned tools, utility levels, and equipped utility |
+| `shop` | None | List purchasable equipment and upgrade prices |
 | `save` | None | Save progress to `saves/player.sav` |
 | `clear` | None | Clear the terminal using an ANSI escape sequence |
 | `exit` | None | Leave the game |
@@ -33,7 +33,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes the optional metadata objective and earns its bonus at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract, successful decryption, and extraction node | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
-Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful topology movement adds 5 detection per traversal, including revisits. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect password and decryption-key attempts also add exposure. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
+Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful topology movement adds 5 Detection per traversal, including revisits, unless equipped Silent Boots reduce the cost to 4/3/2. An incorrect password adds 15 Detection unless equipped Signal Scrubber reduces the cost to 12/9/6. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect decryption-key attempts also add exposure. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
 
 ## Economy commands
 
@@ -70,7 +70,7 @@ The password and decryption key above are the first contract's puzzle answers. O
 
 ## Input behavior and limitations
 
-For missions with a topology, each successful `move` adds 5 detection, including backtracking. Invalid or non-adjacent moves add none. Missions without topology retain the previous command behavior.
+For missions with a topology, each successful `move` normally adds 5 Detection, including backtracking; equipped Silent Boots reduce this to 4/3/2. Invalid or non-adjacent moves add none. Missions without topology retain the previous command behavior.
 
 The parser tokenizes input on spaces and reads only the first argument token. Therefore:
 
