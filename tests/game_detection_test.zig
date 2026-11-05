@@ -24,6 +24,7 @@ test "risky actions increase exposure once while safe and invalid actions do not
     try run(writer, "accept job-01", &player, &missions, &active, &session);
     try run(writer, "scan wrong-target", &player, &missions, &active, &session);
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
     try run(writer, "move service", &player, &missions, &active, &session);
 
     try run(writer, "scan vault-01.local", &player, &missions, &active, &session);
@@ -132,15 +133,18 @@ test "topology rejects invalid movement without detection and charges every vali
 
     try run(writer, "accept job-01", &player, &missions, &active, &session);
     try std.testing.expectEqualStrings("entry", session.current_node.?);
+    try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
     try run(writer, "move vault", &player, &missions, &active, &session);
     try std.testing.expectEqualStrings("entry", session.current_node.?);
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
     try run(writer, "move service", &player, &missions, &active, &session);
     try std.testing.expectEqualStrings("service", session.current_node.?);
     try std.testing.expectEqual(@as(u8, 5), session.detection_level);
+    try std.testing.expectEqual(@as(u32, 1), session.traversal_count);
     try run(writer, "move entry", &player, &missions, &active, &session);
     try run(writer, "move service", &player, &missions, &active, &session);
     try std.testing.expectEqual(@as(u8, 15), session.detection_level);
+    try std.testing.expectEqual(@as(u32, 3), session.traversal_count);
 }
 
 test "mission actions require their assigned topology locations" {
