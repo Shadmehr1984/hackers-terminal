@@ -54,7 +54,7 @@ test "contact unlock thresholds and Fixer service pricing follow reputation tier
 }
 
 test "mission completion grants one reputation and one extra for all optional objectives" {
-    var missions = mission_data.defaultMissions();
+    const missions = mission_data.defaultMissions();
     const mission = missions[0];
     var player = Player{};
     var session = MissionSession{};
