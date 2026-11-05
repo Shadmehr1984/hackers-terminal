@@ -127,7 +127,6 @@ test "extraction can trigger compromise before contract payout" {
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
 }
 
-
 test "topology rejects invalid movement without detection and charges every valid traversal" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
@@ -216,7 +215,6 @@ test "missions without topology preserve the original command flow" {
     try std.testing.expect(session.isAuthenticated());
     try std.testing.expectEqual(@as(u8, 15), session.detection_level);
 }
-
 
 test "topology movement reaching full detection triggers HT-001 failure and penalty" {
     var player = Player{ .balance = 90 };

@@ -26,7 +26,6 @@ test "topology lookup and links are bidirectional" {
     try std.testing.expect(graph.isValid());
 }
 
-
 test "topology validation rejects duplicate nodes and self-links" {
     const duplicate_nodes = [_]Node{
         .{ .id = "entry", .label = "Entry" },

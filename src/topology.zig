@@ -94,4 +94,3 @@ fn appendPurpose(current: []const u8, next: []const u8) []const u8 {
     if (std.mem.eql(u8, current, "DECRYPT,ANALYZE")) return "DECRYPT,ANALYZE,EXTRACT";
     return next;
 }
-

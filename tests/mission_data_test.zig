@@ -16,7 +16,6 @@ test "difficulty labels are player-facing" {
     try std.testing.expectEqualStrings("Hard", MissionDifficulty.hard.label());
 }
 
-
 test "each built-in mission has a valid distinct topology" {
     const missions = mission_data.defaultMissions();
     for (missions) |mission| {

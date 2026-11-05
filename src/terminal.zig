@@ -118,7 +118,6 @@ pub fn printHistory(writer: anytype, missions: []const Mission) !void {
     if (!found) try writer.writeAll("  No completed contracts yet.\n");
 }
 
-
 pub fn printMap(writer: anytype, mission: Mission, session: MissionSession) !void {
     if (mission.topology) |topology| {
         try writer.print("NETWORK MAP: {s}\nCurrent node: {s}\nSuccessful traversals: {d}\n\nNODES\n", .{
@@ -138,7 +137,7 @@ pub fn printMap(writer: anytype, mission: Mission, session: MissionSession) !voi
             }
         }
         try writer.writeAll("\nLINKS\n");
-        for (topology.links) |link| try writer.print("  {s} <-> {s}\n", .{link.from, link.to});
+        for (topology.links) |link| try writer.print("  {s} <-> {s}\n", .{ link.from, link.to });
         try writer.writeAll("\nMove only to an adjacent node. Every successful move adds 5 detection.\n");
     } else try writer.writeAll("This contract has no network topology.\n");
 }

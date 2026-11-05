@@ -21,9 +21,14 @@ const cold_storage_links = [_]Link{
     .{ .from = "plant", .to = "vault" },
 };
 const cold_storage_topology = Topology{
-    .nodes = &cold_storage_nodes, .links = &cold_storage_links,
-    .entry_node = "entry", .scan_node = "service", .auth_node = "service",
-    .decrypt_node = "vault", .analyze_node = "vault", .extract_node = "vault",
+    .nodes = &cold_storage_nodes,
+    .links = &cold_storage_links,
+    .entry_node = "entry",
+    .scan_node = "service",
+    .auth_node = "service",
+    .decrypt_node = "vault",
+    .analyze_node = "vault",
+    .extract_node = "vault",
 };
 
 const paper_trail_nodes = [_]Node{
@@ -42,9 +47,14 @@ const paper_trail_links = [_]Link{
     .{ .from = "records-gw", .to = "records" },
 };
 const paper_trail_topology = Topology{
-    .nodes = &paper_trail_nodes, .links = &paper_trail_links,
-    .entry_node = "entry", .scan_node = "index", .auth_node = "mail-gw",
-    .decrypt_node = "mail-store", .analyze_node = "records", .extract_node = "mail-store",
+    .nodes = &paper_trail_nodes,
+    .links = &paper_trail_links,
+    .entry_node = "entry",
+    .scan_node = "index",
+    .auth_node = "mail-gw",
+    .decrypt_node = "mail-store",
+    .analyze_node = "records",
+    .extract_node = "mail-store",
 };
 
 const quiet_exit_nodes = [_]Node{
@@ -63,9 +73,14 @@ const quiet_exit_links = [_]Link{
     .{ .from = "transfer", .to = "exit" },
 };
 const quiet_exit_topology = Topology{
-    .nodes = &quiet_exit_nodes, .links = &quiet_exit_links,
-    .entry_node = "entry", .scan_node = "relay-a", .auth_node = "relay-core",
-    .decrypt_node = "transfer", .analyze_node = "transfer", .extract_node = "exit",
+    .nodes = &quiet_exit_nodes,
+    .links = &quiet_exit_links,
+    .entry_node = "entry",
+    .scan_node = "relay-a",
+    .auth_node = "relay-core",
+    .decrypt_node = "transfer",
+    .analyze_node = "transfer",
+    .extract_node = "exit",
 };
 
 const cold_storage_objectives: []const MissionObjective = &.{
