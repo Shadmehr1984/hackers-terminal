@@ -14,6 +14,7 @@ const progression = @import("../domain/progression.zig");
 const detection = @import("detection.zig");
 const contacts = @import("../domain/contacts.zig");
 
+/// Re-exports the configured in-game penalty for a Detection compromise.
 pub const detection_failure_penalty: u32 = detection.failure_penalty;
 
 fn isMissionUnlocked(mission: Mission, player: Player) bool {
@@ -32,6 +33,7 @@ fn parseUtility(name: []const u8) ?UtilityEquipment {
     return null;
 }
 
+/// Builds the run-specific loadout from the player's currently equipped utility.
 pub fn currentLoadout(player: Player) MissionLoadout {
     const utility = player.equipment.equipped_utility orelse return .{};
     if (!player.equipment.owns(utility)) return .{};
@@ -134,6 +136,7 @@ fn handleDeal(
     }
 }
 
+/// Parses and dispatches one game command, applying validation and state transitions.
 pub fn runCommand(
     writer: anytype,
     line: []const u8,
