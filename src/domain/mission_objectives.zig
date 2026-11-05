@@ -33,6 +33,7 @@ pub const ObjectiveProgress = struct {
     kind: u8 = 0,
     optional: bool = false,
     bonus_reward: u32 = 0,
+    revealed: bool = false,
     state: ObjectiveState = .undiscovered,
 };
 
@@ -66,6 +67,7 @@ pub const Tracker = struct {
                 .kind = @intCast(@intFromEnum(objective.kind)),
                 .optional = objective.optional,
                 .bonus_reward = objective.bonus_reward,
+                .revealed = !objective.hidden,
                 .state = if (objective.hidden) .undiscovered else .discovered,
             };
         }
@@ -100,6 +102,7 @@ pub const Tracker = struct {
             const trigger = objectives[index].discovery_trigger orelse continue;
             if (triggersMatch(trigger, event)) {
                 self.entries[index].state = .discovered;
+                self.entries[index].revealed = true;
                 discovered += 1;
             }
         }
@@ -154,6 +157,14 @@ pub const Tracker = struct {
             }
         }
         return false;
+    }
+
+    /// Returns the full runtime progress for a stable mission-local objective ID.
+    pub fn progressOf(self: Tracker, id: []const u8) ?ObjectiveProgress {
+        for (self.entries[0..self.count]) |entry| {
+            if (std.mem.eql(u8, entry.id, id)) return entry;
+        }
+        return null;
     }
 
     /// Returns the state for a stable mission-local objective ID.
