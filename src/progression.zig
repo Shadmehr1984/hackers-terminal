@@ -16,7 +16,7 @@ pub const ReputationTier = enum {
             .elite => "Elite",
         };
     }
-}
+};
 
 pub fn reputationTier(reputation: u32) ReputationTier {
     return switch (reputation) {
