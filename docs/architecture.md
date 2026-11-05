@@ -39,7 +39,7 @@ A mission stores its static contract definition and completion state:
 - `reward`, `xp_reward`, and `required_level` configure progression.
 - `completed` records whether the contract has been completed.
 
-Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives are gameplay requirements: successful scan, authentication, decryption, and extraction commands complete their matching objective.
+Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives may be required or optional. Required objectives gate contract completion; optional objectives never block it and can grant configured bonus cash. Successful scan, authentication, decryption, extraction, and metadata-analysis commands complete their matching objective.
 
 The three built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array, preserving their original order.
 
@@ -61,6 +61,8 @@ The session tracks three related pieces of temporary state:
 - `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
 - `connected`: whether the simulated connection is currently open.
 - `completed_objectives`: an eight-bit mask keyed by `MissionObjectiveKind`.
+
+Each `MissionObjective` also carries an `optional` flag and a `bonus_reward`. `MissionSession.allObjectivesComplete` ignores optional entries, while `optionalReward` totals the rewards for optional entries completed during the current session.
 
 Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`. Objective completion is runtime-only and is cleared when a mission starts or resets.
 
@@ -89,7 +91,8 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 - `brute` requires an open connection and advances progress on a correct password.
 - `disconnect` closes only the connection; it does not revoke authentication or decryption.
 - `decrypt` requires authentication and an owned decryptor.
-- `extract` requires decrypted progress and the exact mission filename. It completes the extraction objective and awards the contract only when every objective in the mission definition is complete.
+- `analyze <filename>` requires decrypted progress and the exact mission filename. It completes the optional metadata-analysis objective.
+- `extract` requires decrypted progress and the exact mission filename. It completes the extraction objective and awards the contract when every required objective is complete; completed optional objectives add their configured cash bonus.
 - `briefing` displays the objective list and current status; `objectives` displays the live checklist at any time.
 
 ## Progression calculations
@@ -116,7 +119,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 - The built-in mission catalog is hard-coded in `mission_data.zig` and contains three missions.
 - Mission difficulty is currently descriptive metadata; no mechanics are tied to it yet.
-- The current objective kinds are scan target, authenticate, decrypt file, and extract file. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds.
+- The current objective kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds. Optional objective rewards are calculated at contract completion and are not separately persisted.
 - The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
 - The save parser is line-oriented and has no checksum or schema validation layer.
 - Command-specific output is written by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output in `shop.zig`.
