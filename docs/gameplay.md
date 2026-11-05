@@ -59,14 +59,15 @@ Difficulty is currently a descriptive rating shown by `missions` and `briefing`.
 
 ### Mission objectives
 
-Every contract defines an ordered checklist of objectives. `briefing` displays the checklist, and `objectives` shows its current completion state at any point during the active contract. The current objective types are:
+Every contract defines an ordered checklist of required and optional objectives. `briefing` displays the checklist, and `objectives` shows its current completion state at any point during the active contract. The current objective types are:
 
 1. **Survey target** — completed by a successful `scan <target>`.
 2. **Authenticate** — completed by solving the password challenge with `brute <password>`.
 3. **Decrypt evidence** — completed by a successful `decrypt <key>` after purchasing the decryptor.
 4. **Recover evidence** — completed by extracting the exact filename with `extract <filename>`.
+5. **Optional: analyze metadata** — after decryption, run `analyze <filename>` to inspect simulated metadata. This objective is not required to finish the contract and grants bonus cash: $75 for Cold Storage, $100 for Paper Trail, and $125 for Quiet Exit.
 
-The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded only after every objective in its definition is complete. Objective progress is temporary and is reset when a contract starts or ends; it is not written to the save file.
+The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded after every required objective is complete. Optional objectives do not block completion; completed ones add their bonus cash to the contract payout. Objective progress is temporary and is reset when a contract starts or ends; it is not written to the save file.
 
 ### Contract clues
 
@@ -100,9 +101,10 @@ The first contract is a guided introduction to the complete game loop.
 5. Solve the clue with `brute orion42`.
 6. Buy the file decryptor with `buy decryptor`. It costs $150.
 7. Solve the decryption clue with `decrypt midnight`.
-8. Run `objectives` to review the checklist, then retrieve the file with `extract ledger.enc`.
-9. Run `status` to see the updated balance, XP, reputation, and level.
-10. Run `save` to persist your progress.
+8. Optionally run `analyze ledger.enc` to complete the metadata objective and earn an extra $75.
+9. Run `objectives` to review the checklist, then retrieve the file with `extract ledger.enc`.
+10. Run `status` to see the updated balance, XP, reputation, and level.
+11. Run `save` to persist your progress.
 
 The initial $250 is enough to buy the decryptor. Completing the first contract grants $300 and 100 XP.
 
