@@ -29,11 +29,11 @@ pub const Equipment = struct {
         switch (utility) { .silent_boots => self.silent_boots_level = value, .signal_scrubber => self.signal_scrubber_level = value }
     }
     pub fn movementDetectionCost(self: Equipment) u8 {
-        if (self.equipped_utility != .silent_boots) return 5;
+        if (self.equipped_utility == null or self.equipped_utility.? != .silent_boots) return 5;
         return switch (self.silent_boots_level) { 0 => 4, 1 => 3, else => 2 };
     }
     pub fn incorrectAuthenticationDetectionCost(self: Equipment) u8 {
-        if (self.equipped_utility != .signal_scrubber) return 15;
+        if (self.equipped_utility == null or self.equipped_utility.? != .signal_scrubber) return 15;
         return switch (self.signal_scrubber_level) { 0 => 12, 1 => 9, else => 6 };
     }
 };
