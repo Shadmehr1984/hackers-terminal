@@ -342,3 +342,25 @@ test "tracker accepts exactly 32 independently identified objectives" {
     try std.testing.expect(tracker.initialize(&catalog));
     try std.testing.expectEqual(@as(u8, 32), tracker.count);
 }
+
+test "one-shot event completion makes undiscovered matching optional objectives unavailable" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    const catalog = [_]Objective{
+        .{ .id = "visible-scan", .kind = .scan },
+        .{ .id = "late-scan", .kind = .scan, .optional = true, .hidden = true, .discovery_trigger = .{ .file = "late.log" } },
+    };
+    var tracker = Tracker{};
+    try std.testing.expect(tracker.initialize(&catalog));
+    try std.testing.expectEqual(@as(usize, 1), tracker.complete(0));
+    tracker.markOptionalUnavailableForKind(0);
+    try std.testing.expectEqual(ObjectiveState.completed, tracker.stateOf("visible-scan").?);
+    try std.testing.expectEqual(ObjectiveState.unavailable, tracker.stateOf("late-scan").?);
+    try std.testing.expectEqual(@as(usize, 0), tracker.discoverFile("late.log", &catalog));
+}
