@@ -8,7 +8,8 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 2 | HT-002 | Fictional Network Topology | Implemented | [Read task](HT-002-network-topology.md) |
 | 3 | HT-003 | Equipment & Upgrade System | Implemented | [Read task](HT-003-equipment-upgrades.md) |
 | 4 | HT-004 | Mission Preparation | Implemented | [Read task](HT-004-mission-preparation.md) |
-| 5 | HT-005 | Reputation & Contacts | Implemented | [Read task](HT-005-reputation-contacts.md) |\n| 6 | HT-006 | Contract Board | In Progress | [Read task](HT-006-contract-board.md) |
+| 5 | HT-005 | Reputation & Contacts | Implemented | [Read task](HT-005-reputation-contacts.md) |
+| 6 | HT-006 | Contract Board | In Progress | [Read task](HT-006-contract-board.md) |
 
 ## Gameplay Expansion Program — EXPANSION-001
 
