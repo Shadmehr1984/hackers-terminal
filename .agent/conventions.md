@@ -16,7 +16,7 @@ Derived from the current source tree; re-check source before relying on this map
 | src/domain/mission.zig | Mission, category, optional topology reference, level/Reputation requirements, difficulty, stable-ID objective definitions, and static allowed-modifier metadata | Built-in catalog or runtime mutation |\n| src/domain/mission_objectives.zig | Fixed-capacity objective tracker, typed discovery triggers, objective lifecycle transitions, and reward queries | Terminal I/O, command dispatch, or persistence |
 | src/domain/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/catalog/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
-| src/domain/mission_state.zig | Runtime preparation selection (utility and optional modifier), session progress, connection, objective completion, detection, current node, traversal count, and per-run utility/modifier snapshots, and one-time completion payout guard | Serialization or user-facing output |
+| src/domain/mission_state.zig | Runtime preparation selection (utility and optional modifier), session progress, connection, per-objective tracker, detection, current node, traversal count, and per-run utility/modifier snapshots, and one-time completion payout guard | Serialization or user-facing output |
 | src/application/commands.zig | Allocation-free command/first-argument parsing | Gameplay validation and dispatch |
 | src/presentation/terminal.zig | Reusable terminal presentation | Mutating game state or deciding rewards |
 | src/persistence/save.zig | Save/load serialization and legacy compatibility | Gameplay command handling |
