@@ -1,6 +1,6 @@
 # HT-008 — Hidden Objectives
 
-**Status:** In Progress (2026-11-05); implementation authorized by owner  
+**Status:** Implemented on `main` (2026-11-05)  
 **Program:** EXPANSION-001, Phase 1  
 **Depends on:** HT-006 Contract Board, HT-007 Mission Modifiers, current mission/objective lifecycle
 
@@ -86,7 +86,7 @@ Avoid creating a generic event framework or introducing unnecessary allocations.
 ## Acceptance criteria
 
 ### Model and safety
-- [ ] Each objective has a stable mission-local ID distinct from its event kind.
+- [x] Each objective has a stable mission-local ID distinct from its event kind.
 - [ ] Two objectives sharing one event kind can be independently discovered and completed.
 - [ ] Per-session state supports up to 32 objectives; 33+ authored objectives are rejected safely.
 - [ ] No bit shifts, indexing, or enum assumptions can overflow or alias objective state.
@@ -121,9 +121,9 @@ Avoid creating a generic event framework or introducing unnecessary allocations.
 2. **[x] State engine:** implemented bounded objective state and pure transitions; preserved existing behavior with focused tests.
 3. **[x] Discovery integration:** added deterministic node/file/action triggers and visibility-safe terminal feedback.
 4. **[x] Reward integration:** integrated optional rewards and all-optional Reputation semantics with idempotent completion.
-5. **[~] Regression and handoff:** focused tests and docs are updated; final CI/regression review and task/roadmap status update are pending.
+5. **[x] Regression and handoff:** focused tests, documentation, self-review, and final GitHub Actions verification are complete.
 
-Implementation is authorized. Continue in the listed order and record verified progress below.
+Implementation is complete on `main`. No PR or merge was created; this follows the owner's main-first workflow.
 
 ## Progress log
 

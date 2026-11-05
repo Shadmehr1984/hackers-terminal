@@ -1,12 +1,12 @@
 # Phase 1 — Contract and Mission Content
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implementation in progress (design ADR 0010; owner authorization 2026-11-05); HT-009 planned  
+**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implemented on `main` (design ADR 0010; owner authorization and CI run #679 passed); HT-009 planned  
 **Goal:** Increase contract variety and replayability before expanding the wider world.
 
 ## Shared baseline and constraints
 
-Current contract data is defined by `Mission` in `src/domain/mission.zig` and authored in `src/catalog/mission_data.zig`. Runtime progress lives in `src/domain/mission_state.zig`; command coordination is in `src/application/game.zig`; terminal output is in `src/presentation/terminal.zig`. At the planning baseline, objective progress used an eight-bit mask; HT-008 implementation replaces it with a bounded 32-entry per-objective tracker. Current command parsing accepts only a command and first argument. Re-audit before implementation.
+Current contract data is defined by `Mission` in `src/domain/mission.zig` and authored in `src/catalog/mission_data.zig`. Runtime progress lives in `src/domain/mission_state.zig`; command coordination is in `src/application/game.zig`; terminal output is in `src/presentation/terminal.zig`. At the planning baseline, objective progress used an eight-bit mask; HT-008 replaced it with a bounded 32-entry per-objective tracker. The existing command parser was retained; `inspect <filename>` uses its existing command/first-argument contract.
 
 Do not alter existing four mission IDs/order, rewards, puzzle answers, Detection costs, or save format incidentally. No branching story or dialogue trees.
 
@@ -108,7 +108,7 @@ Reward careful exploration and analysis with optional objectives that are not fu
 The complete scope, likely module ownership, acceptance criteria, test requirements, implementation milestones, and progress log are in the [HT-008 task brief](../tasks/HT-008-hidden-objectives.md). The accepted design decision is recorded in [ADR 0010](../decisions/0010-hidden-objectives.md).
 
 ### Status and authorization
-Design approved and implementation explicitly authorized by the owner on 2026-11-05. Implementation is in progress on `main`; follow the [HT-008 task brief](../tasks/HT-008-hidden-objectives.md) for progress and acceptance.
+Design approved and implementation explicitly authorized by the owner on 2026-11-05. Implementation is complete on `main`; CI run #679 passed. See the [HT-008 task brief](../tasks/HT-008-hidden-objectives.md) for the completed scope and acceptance record.
 
 ## HT-009 — Multi-stage Operations
 
