@@ -217,6 +217,11 @@ pub const MissionSession = struct {
         return self.objective_tracker.discoverAction(action, objectives);
     }
 
+    /// Reveals an authored hidden optional objective by stable mission-local ID.
+    pub fn revealObjectiveById(self: *MissionSession, id: []const u8, objectives: []const MissionObjective) bool {
+        return self.objective_tracker.revealById(id, objectives);
+    }
+
     /// Marks every currently discovered objective for the supplied event kind complete.
     pub fn completeObjective(self: *MissionSession, kind: MissionObjectiveKind) void {
         _ = self.objective_tracker.complete(@intCast(@intFromEnum(kind)));
