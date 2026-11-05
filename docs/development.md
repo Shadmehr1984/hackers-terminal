@@ -28,7 +28,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 Run the complete unit-test suite with:
 
 ```sh
-zig test tests/test_all.zig
+zig test test_root.zig
 ```
 
 The CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/`, and `tests/`, then builds the game and runs the root test module.
