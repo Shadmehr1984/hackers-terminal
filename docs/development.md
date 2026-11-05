@@ -54,3 +54,18 @@ Preserve existing behavior unless a task explicitly requests a gameplay change. 
 10. Save and restart; persistent progress should be restored while temporary objective state starts unchecked.
 
 Back up `saves/player.sav` before testing save migration or clean-profile progression.
+
+
+## AI agent workflow
+
+Read the repository-root [AGENTS.md](../AGENTS.md) before making changes. The [agent workspace](../.agent/README.md) provides the required work cycle, module contracts, roadmap, known constraints, accepted architecture decisions, task brief template, and independent review checklist.
+
+For substantial tasks, create a brief from [the task template](../.agent/tasks/TEMPLATE.md). Follow Explore → Understand → Plan → Implement → Verify → Document → Review → Commit. Reviewers should independently inspect the diff when a second agent is available; otherwise record that the review was a self-review.
+
+Run the agent documentation structure check with:
+
+```sh
+sh scripts/check-agent-docs.sh
+```
+
+CI runs this check in addition to Zig formatting, compilation, and unit tests. It verifies required guidance files and key links/sections; it does not prove code correctness or replace the Zig checks.
