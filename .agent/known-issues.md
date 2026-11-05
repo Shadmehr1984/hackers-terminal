@@ -8,7 +8,7 @@ This file separates verified constraints from items that need investigation.
 - Mission-session state and objective completion are not persisted.
 - Save data is positional and has no checksum or full corruption recovery. Writes are staged through a temporary file and renamed after a successful write. Loaders accept V3, V2, V1, and numeric legacy headers; unknown non-numeric markers are rejected before mutating player or mission state.
 - Mission topology validation requires every operation node to be reachable from the entry node; decorative nodes may remain disconnected.
-- The objective completion mask is eight bits; a ninth kind requires redesign.
+- Objective progress uses a fixed-capacity 32-entry tracker keyed by stable objective IDs; catalogs exceeding 32 objectives are rejected.
 - Mission difficulty is descriptive metadata, not a gameplay modifier.
 - There is no real networking layer; all hacking/host behavior is fictional and simulated.
 - The owner cannot reliably build locally at present; report CI separately from manual playtesting.
@@ -17,7 +17,6 @@ This file separates verified constraints from items that need investigation.
 - Should mission-session progress survive restart, and what migration would that require?
 - Should command parsing evolve beyond one argument?
 - Should future mission branches affect payout, reputation, unlocks, or narrative only?
-- What representation best fits objective counts beyond the current bitset capacity?
 
 Do not present an open question as a defect or resolve it during unrelated work.
 
