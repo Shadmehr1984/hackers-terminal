@@ -38,7 +38,7 @@ test "active status output uses line breaks and includes location" {
 
     const output = capture.output();
     try std.testing.expect(std.mem.indexOf(u8, output, "Active job:  Cold Storage (job-01)\n  Detection:") != null);
-    try std.testing.expect(std.mem.indexOf(u8, output, "Detection:   25/100 (Noticed)\n  Location:    relay\n  Traversals:  2") != null);
+    try std.testing.expect(std.mem.indexOf(u8, output, "Detection:   25/100 (Noticed)\n  Location:    relay\n  Traversals:  2\n  Modifier:    Security Sweep") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "\\n") == null);
 }
 
