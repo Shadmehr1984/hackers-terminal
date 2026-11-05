@@ -7,16 +7,6 @@ pub const MissionProgress = enum {
     scanned,
     authenticated,
     decrypted,
-
-    pub fn optionalReward(self: MissionSession, objectives: []const MissionObjective) u32 {
-        var reward: u32 = 0;
-        for (objectives) |objective| {
-            if (objective.optional and self.isObjectiveComplete(objective.kind)) {
-                reward += objective.bonus_reward;
-            }
-        }
-        return reward;
-    }
 };
 
 /// Runtime-only state for the active mission.
@@ -86,5 +76,15 @@ pub const MissionSession = struct {
             if (!objective.optional and !self.isObjectiveComplete(objective.kind)) return false;
         }
         return true;
+    }
+
+    pub fn optionalReward(self: MissionSession, objectives: []const MissionObjective) u32 {
+        var reward: u32 = 0;
+        for (objectives) |objective| {
+            if (objective.optional and self.isObjectiveComplete(objective.kind)) {
+                reward += objective.bonus_reward;
+            }
+        }
+        return reward;
     }
 };
