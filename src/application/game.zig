@@ -144,15 +144,28 @@ fn handleDeal(
 }
 
 fn findMissionIndex(missions: []const Mission, id: []const u8) ?usize {
-    for (missions, 0..) |mission, index| if (std.mem.eql(u8, mission.id, id)) return index;
+    for (missions, 0..) |mission, index| {
+        if (std.mem.eql(u8, mission.id, id)) return index;
+    }
     return null;
 }
+
+/// Prepares the contract referenced by the operation's current stage.
 fn prepareOperationStage(preparation: *MissionPreparation, player: Player, index: usize) void {
     preparation.mission_index = index;
-    preparation.selected_utility = if (player.equipment.equipped_utility) |u| (if (player.equipment.owns(u)) u else null) else null;
+    preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
+        (if (player.equipment.owns(utility)) utility else null)
+    else
+        null;
     preparation.selected_modifier = null;
 }
-fn revealIncomingOperationObjective(preparation: MissionPreparation, session: *MissionSession, mission: Mission) usize {
+
+/// Reveals the current stage's incoming objective when its typed fact is present.
+fn revealIncomingOperationObjective(
+    preparation: MissionPreparation,
+    session: *MissionSession,
+    mission: Mission,
+) usize {
     if (!preparation.operation_state.active) return 0;
     const operation = operation_data.find(preparation.operation_state.operation_id) orelse return 0;
     const stage = preparation.operation_state.currentStage(operation) orelse return 0;
@@ -161,22 +174,39 @@ fn revealIncomingOperationObjective(preparation: MissionPreparation, session: *M
     return @intFromBool(session.revealObjectiveById(incoming.objective_id, mission.objectives));
 }
 fn operationFactLabel(fact: @import("../domain/operation.zig").OperationFact) []const u8 {
-    return switch (fact) { .maintenance_telemetry => "maintenance_telemetry", .routing_header => "routing_header" };
+    return switch (fact) {
+        .maintenance_telemetry => "maintenance_telemetry",
+        .routing_header => "routing_header",
+    };
 }
 fn printOperationStatus(writer: anytype, preparation: MissionPreparation) !void {
     if (!preparation.operation_state.active) {
-        if (preparation.operation_state.last_completed_operation_id.len > 0) try writer.print("Last completed this session: {s}\\n", .{preparation.operation_state.last_completed_operation_id})
-        else try writer.writeAll("No active operation.\\n");
+        if (preparation.operation_state.last_completed_operation_id.len > 0) {
+            try writer.print("Last completed this session: {s}\n", .{preparation.operation_state.last_completed_operation_id});
+        } else {
+            try writer.writeAll("No active operation.\n");
+        }
         return;
     }
     const op = operation_data.find(preparation.operation_state.operation_id) orelse return;
     const stage = op.stages[preparation.operation_state.stage_index];
-    try writer.print("OPERATION: {s}\\nStage: {d}/{d} — {s}\\nEarned facts:", .{ op.name, @as(usize, preparation.operation_state.stage_index) + 1, op.stages.len, stage.mission_id });
+    try writer.print("OPERATION: {s}\nStage: {d}/{d} — {s}\nEarned facts:", .{
+        op.name,
+        @as(usize, preparation.operation_state.stage_index) + 1,
+        op.stages.len,
+        stage.mission_id,
+    });
     var any = false;
-    if (preparation.operation_state.hasFact(.maintenance_telemetry)) { try writer.writeAll(" maintenance_telemetry"); any = true; }
-    if (preparation.operation_state.hasFact(.routing_header)) { try writer.writeAll(" routing_header"); any = true; }
+    if (preparation.operation_state.hasFact(.maintenance_telemetry)) {
+        try writer.writeAll(" maintenance_telemetry");
+        any = true;
+    }
+    if (preparation.operation_state.hasFact(.routing_header)) {
+        try writer.writeAll(" routing_header");
+        any = true;
+    }
     if (!any) try writer.writeAll(" none");
-    try writer.writeAll("\\n");
+    try writer.writeAll("\n");
 }
 /// Applies the base movement cost before any modifier-specific traversal exposure.
 fn applyTraversalDetection(
@@ -225,40 +255,45 @@ pub fn runCommand(
     } else if (std.mem.eql(u8, command, "missions")) {
         try terminal.printMissions(writer, missions, progression.playerLevel(player.*), player.reputation);
     } else if (std.mem.eql(u8, command, "operations")) {
-        try writer.writeAll("OPERATIONS\\n");
-        for (operation_data.all()) |op| try writer.print("  [{s}] {s} — {d} stages\\n", .{ op.id, op.name, op.stages.len });
-        try writer.writeAll("Use operation <id>, then operation-start <id>.\\n");
+        try writer.writeAll("OPERATIONS\n");
+        for (operation_data.all()) |op| {
+            try writer.print("  [{s}] {s} — {d} stages\n", .{ op.id, op.name, op.stages.len });
+        }
+        try writer.writeAll("Use operation <id>, then operation-start <id>.\n");
     } else if (std.mem.eql(u8, command, "operation")) {
         if (operation_data.find(arg)) |op| {
-            try writer.print("{s} ({s})\\n{s}\\nSTAGES\\n", .{ op.name, op.id, op.description });
+            try writer.print("{s} ({s})\n{s}\nSTAGES\n", .{ op.name, op.id, op.description });
             for (op.stages, 0..) |stage, i| {
                 const m = @import("../domain/operation.zig").findMission(missions, stage.mission_id).?;
-                try writer.print("  {d}. {s} — {s} | level {d}, Reputation {d}\\n", .{ i + 1, m.id, m.name, m.required_level, m.required_reputation });
+                try writer.print("  {d}. {s} — {s} | level {d}, Reputation {d}\n", .{ i + 1, m.id, m.name, m.required_level, m.required_reputation });
             }
-        } else try writer.writeAll("Unknown operation. Use operations.\\n");
+        } else try writer.writeAll("Unknown operation. Use operations.\n");
     } else if (std.mem.eql(u8, command, "operation-status")) {
         try printOperationStatus(writer, preparation.*);
     } else if (std.mem.eql(u8, command, "operation-start")) {
         if (active.* != null or preparation.mission_index != null or preparation.operation_state.active) {
-            try writer.writeAll("Finish the current contract/preparation/operation first.\\n");
+            try writer.writeAll("Finish the current contract/preparation/operation first.\n");
         } else if (operation_data.find(arg)) |op| {
             if (!op.validate(missions)) {
-                try writer.writeAll("Operation catalog validation failed; start rejected.\\n");
+                try writer.writeAll("Operation catalog validation failed; start rejected.\n");
             } else {
                 var unlocked = true;
                 for (op.stages) |stage| {
                     const m = @import("../domain/operation.zig").findMission(missions, stage.mission_id).?;
-                    if (!isMissionUnlocked(m, player.*)) { try printMissionLock(writer, m, player.*); unlocked = false; }
+                    if (!isMissionUnlocked(m, player.*)) {
+                        try printMissionLock(writer, m, player.*);
+                        unlocked = false;
+                    }
                 }
                 if (unlocked) {
                     const idx = findMissionIndex(missions, op.stages[0].mission_id).?;
                     _ = preparation.operation_state.start(op, !missions[idx].completed);
                     prepareOperationStage(preparation, player.*, idx);
-                    try writer.print("[OPERATION STARTED] {s}; first stage prepared: {s}.\\n", .{ op.name, missions[idx].name });
+                    try writer.print("[OPERATION STARTED] {s}; first stage prepared: {s}.\n", .{ op.name, missions[idx].name });
                     try terminal.printPreparation(writer, missions[idx], player.*, preparation.selected_utility, null);
-                } else try writer.writeAll("Operation requirements are not met; no state changed.\\n");
+                } else try writer.writeAll("Operation requirements are not met; no state changed.\n");
             }
-        } else try writer.writeAll("Unknown operation. Use operations.\\n");
+        } else try writer.writeAll("Unknown operation. Use operations.\n");
     } else if (std.mem.eql(u8, command, "contacts")) {
         try terminal.printContacts(writer, player.*);
     } else if (std.mem.eql(u8, command, "contact")) {
@@ -271,7 +306,7 @@ pub fn runCommand(
         try handleDeal(writer, arg, player, missions, active, session, preparation);
     } else if (std.mem.eql(u8, command, "prepare")) {
         if (preparation.operation_state.active) {
-            try writer.writeAll("An operation owns the current stage.\\n");
+            try writer.writeAll("An operation owns the current stage.\n");
         } else if (active.* != null) {
             try writer.writeAll("A contract is already active. Finish or fail it before preparing another.\n");
         } else if (preparation.mission_index != null) {
@@ -336,7 +371,7 @@ pub fn runCommand(
         }
     } else if (std.mem.eql(u8, command, "cancel")) {
         if (preparation.operation_state.active) {
-            try writer.writeAll("An operation cannot be cancelled.\\n");
+            try writer.writeAll("An operation cannot be cancelled.\n");
         } else if (preparation.mission_index != null) {
             preparation.clear();
             try writer.writeAll("Mission preparation cancelled. No cost was charged.\n");
@@ -575,33 +610,39 @@ pub fn runCommand(
                     session.markUncompletedOptionalObjectivesUnavailable();
                     const reward_eligible = !preparation.operation_state.active or preparation.operation_state.current_stage_reward_eligible;
                     missions[index].completed = true;
-                    try writer.print("[EXTRACTED] {s}\\n", .{mission.encrypted_file});
+                    try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
                     if (reward_eligible) try progression.completeMission(writer, player, mission, session)
-                    else try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\\n");
+                    else try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\n");
                     if (preparation.operation_state.active) {
                         const op = operation_data.find(preparation.operation_state.operation_id).?;
                         const stage = preparation.operation_state.currentStage(op).?;
                         if (stage.outgoing) |out| {
                             if (session.objective_tracker.stateOf(out.objective_id) == .completed) {
                                 preparation.operation_state.grantFact(out.fact);
-                                try writer.print("[OPERATION INTEL] Fact secured: {s}.\\n", .{operationFactLabel(out.fact)});
+                                try writer.print("[OPERATION INTEL] Fact secured: {s}.\n", .{operationFactLabel(out.fact)});
                             }
                         }
                         const next = @as(usize, preparation.operation_state.stage_index) + 1;
-                        const next_eligible = if (next < op.stages.len) !missions[findMissionIndex(missions, op.stages[next].mission_id).?].completed else false;
+                        const next_eligible = if (next < op.stages.len)
+                            !missions[findMissionIndex(missions, op.stages[next].mission_id).?].completed
+                        else
+                            false;
                         const finished = preparation.operation_state.advance(op, next_eligible);
                         active.* = null;
                         preparation.clear();
                         session.reset();
-                        if (finished) try writer.print("[OPERATION COMPLETE] {s}.\\n", .{op.name})
+                        if (finished) try writer.print("[OPERATION COMPLETE] {s}.\n", .{op.name})
                         else {
                             const next_stage = op.stages[preparation.operation_state.stage_index];
                             const next_idx = findMissionIndex(missions, next_stage.mission_id).?;
                             prepareOperationStage(preparation, player.*, next_idx);
-                            try writer.print("[STAGE COMPLETE] Next stage prepared: {s}. Accept it when ready.\\n", .{missions[next_idx].name});
+                            try writer.print("[STAGE COMPLETE] Next stage prepared: {s}. Accept it when ready.\n", .{missions[next_idx].name});
                             try terminal.printPreparation(writer, missions[next_idx], player.*, preparation.selected_utility, null);
                         }
-                    } else { active.* = null; session.reset(); }
+                    } else {
+                        active.* = null;
+                        session.reset();
+                    }
                 }
             }
         } else try writer.writeAll("No active contract.\n");
@@ -636,7 +677,7 @@ pub fn runCommand(
         const stage = preparation.operation_state.currentStage(op) orelse return true;
         if (findMissionIndex(missions, stage.mission_id)) |idx| {
             prepareOperationStage(preparation, player.*, idx);
-            try writer.print("[STAGE RETRY] {s} is ready again; prior facts retained.\\n", .{missions[idx].name});
+            try writer.print("[STAGE RETRY] {s} is ready again; prior facts retained.\n", .{missions[idx].name});
             try terminal.printPreparation(writer, missions[idx], player.*, preparation.selected_utility, null);
         }
     }
