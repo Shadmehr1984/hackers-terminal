@@ -8,7 +8,7 @@ Derived from the current source tree; re-check source before relying on this map
 | src/game.zig | Shared command dispatch, validation, and mission state transitions | Low-level parsing, Detection rules, or progression calculations |
 | src/detection.zig | Detection costs, warnings, compromise failure, and penalty | Command parsing or mission catalog data |
 | src/progression.zig | XP thresholds, player levels, and mission reward application | Command dispatch or terminal I/O policy |
-| src/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and pure Detection modifiers | Persistence and terminal I/O |
+| src/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and pure Detection modifiers | Persistence and terminal I/O |\n| src/contacts.zig | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing | Game command dispatch, terminal output, or persistence |
 | src/mission.zig | Mission, optional topology reference, difficulty, objective types | Built-in catalog or runtime mutation |
 | src/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
@@ -38,6 +38,6 @@ Derived from the current source tree; re-check source before relying on this map
 ## State and persistence
 - Mission preparation selection, per-run loadout snapshot, mission-session progress, connection state, objective completion, detection, current topology node, and successful traversal count are transient.
 - The active mission loadout is snapshotted at launch; Detection modifiers read the session snapshot, never live player equipment. Preparation does not reveal puzzle clues or answers.
-- Player progression and mission completion are persisted.
+- Player progression and mission completion are persisted. Reputation tiers and Contact unlocks are derived from Reputation; Fixer service usage is transient.
 - Save format is positional and writes V3 and reads V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
 - Objective completion currently uses an eight-bit mask; adding a ninth kind requires redesign and tests.
