@@ -27,7 +27,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, optional rewards, and session reset behavior.
 - `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, and location-gated operations.
 - `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, matching launch, cancellation, and shared command dispatch.
-- `tests/progression_test.zig` covers cumulative XP thresholds and player levels.
+- `tests/progression_test.zig` covers cumulative XP thresholds and player levels.\n- `tests/contacts_test.zig` covers Reputation tier thresholds, Contact unlocks, optional-objective Reputation bonuses, paid intelligence, Fixer service pricing/usage, and the Ghost Signal offer.
 - `tests/test_all.zig` is the aggregate test list that imports the test modules.
 - `test_root.zig` is the repository-root module used to run the aggregate suite while keeping all test files under `tests/`.
 
@@ -41,7 +41,7 @@ The CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/`, and `
 
 ## Architecture workflow
 
-Keep modules focused and dependencies one-way. `main.zig` owns application setup and the input loop; `game.zig` owns the shared command dispatcher; `detection.zig` owns exposure and compromise rules; `progression.zig` owns XP and reward calculations. `mission_state.zig` owns temporary mission-session progress, objective completion, current node, and traversal count. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
+Keep modules focused and dependencies one-way. `main.zig` owns application setup and the input loop; `game.zig` owns the shared command dispatcher; `detection.zig` owns exposure and compromise rules; `progression.zig` owns XP, Reputation tiers, and reward calculations; `contacts.zig` owns Contact unlock and service-price rules. `mission_state.zig` owns temporary mission-session progress, objective completion, current node, and traversal count. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
 
 Preserve existing behavior unless a task explicitly requests a gameplay change. Update `docs/architecture.md` when module responsibilities or runtime state change. Update `docs/save-format.md` whenever serialized save layout changes. Temporary mission state is not persisted, so a loaded active mission starts at the accepted stage. Mission difficulty and objective definitions are static metadata and are not serialized. Objective completion is temporary session state and is not currently persisted.
 
@@ -57,7 +57,7 @@ Preserve existing behavior unless a task explicitly requests a gameplay change. 
 8. Buy the decryptor, decrypt with the briefing key, and confirm the decryption objective is checked.
 9. Optionally run `analyze ledger.enc` at `vault`; verify the optional objective is checked.
 10. Extract `ledger.enc` at `vault`; verify the required objectives permit completion and the optional bonus is included only if analysis was completed.
-11. Save and restart; persistent progress should be restored while temporary objective and location state starts at the contract entry node, with a traversal count of zero.
+11. Save and restart; persistent progress should be restored while temporary objective and location state starts at the contract entry node, with a traversal count of zero.\n12. After earning Reputation 1, inspect `contacts`, `contact broker`, and `offers`; purchase `deal intel-job-02` only after meeting its level requirement and verify it reveals clues but not answers.\n13. After earning Reputation 3 and reaching level 3, inspect `contact fixer`, use `deal ghost-signal` to prepare job-04, and verify the appended contract starts at its entry node. In an active contract with Detection above zero, verify `deal scrub-detection` reduces exposure once and cannot be repeated in that contract.
 
 Back up `saves/player.sav` before testing save migration or clean-profile progression.
 
