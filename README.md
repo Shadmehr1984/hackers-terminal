@@ -79,6 +79,17 @@ For a complete walkthrough, see [Gameplay](docs/gameplay.md). For exact command 
 
 ```text
 hackers-terminal/
+├── .agent/
+│   ├── decisions/
+│   ├── tasks/
+│   ├── README.md
+│   ├── workflow.md
+│   ├── conventions.md
+│   ├── roadmap.md
+│   ├── known-issues.md
+│   └── review-checklist.md
+├── scripts/
+│   └── check-agent-docs.sh
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
