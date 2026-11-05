@@ -1,6 +1,7 @@
 const Mission = @import("mission.zig").Mission;
 const MissionSession = @import("mission_state.zig").MissionSession;
 const Player = @import("player.zig").Player;
+const UtilityEquipment = @import("player.zig").UtilityEquipment;
 const std = @import("std");
 
 pub fn printBanner(writer: anytype) !void {
@@ -119,6 +120,40 @@ pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSessio
         try writer.writeAll("\n");
     }
     try writer.writeAll("\n");
+}
+
+pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selected_utility: ?UtilityEquipment) !void {
+    try writer.print("MISSION PREPARATION: {s} ({s})\nTarget: {s}\nDifficulty: {s}\nReward: ${d} + {d} XP\n", .{
+        mission.name, mission.id, mission.target, mission.difficulty.label(), mission.reward, mission.xp_reward,
+    });
+    try writer.print("Decryptor: {s}\n", .{if (player.equipment.has_decryptor) "owned" else "not owned — purchase before decryption"});
+    try writer.writeAll("\nKNOWN OBJECTIVES\n");
+    for (mission.objectives) |objective| {
+        try writer.print("  {s}{s}\n", .{ if (objective.optional) "[OPTIONAL] " else "", objective.description });
+    }
+    if (mission.topology) |topology| {
+        try writer.writeAll("\nKNOWN TOPOLOGY\nNodes: ");
+        for (topology.nodes, 0..) |node, index| {
+            if (index > 0) try writer.writeAll(", ");
+            try writer.writeAll(node.id);
+        }
+        try writer.writeAll("\nLinks:\n");
+        for (topology.links) |link| try writer.print("  {s} <-> {s}\n", .{ link.from, link.to });
+    } else try writer.writeAll("\nTopology: none authored for this contract.\n");
+    try writer.writeAll("\nPUZZLE INTELLIGENCE\n  Password clue: undiscovered\n  Decryption clue: undiscovered\n  Puzzle answers: hidden\n");
+    if (selected_utility) |utility| {
+        try writer.print("\nSelected loadout: {s} (level {d})\n", .{ utility.label(), player.equipment.level(utility) });
+    } else try writer.writeAll("\nSelected loadout: none\n");
+    try writer.writeAll("Risk indicators: scan +10, successful authentication +5, decryption +10, extraction +5.\n");
+    try writer.writeAll("Movement cost: ");
+    if (selected_utility == .silent_boots) {
+        try writer.print("{d} Detection per traversal (Silent Boots).\n", .{player.equipment.movementDetectionCost()});
+    } else try writer.writeAll("5 Detection per traversal.\n");
+    try writer.writeAll("Incorrect password cost: ");
+    if (selected_utility == .signal_scrubber) {
+        try writer.print("{d} Detection (Signal Scrubber).\n", .{player.equipment.incorrectAuthenticationDetectionCost()});
+    } else try writer.writeAll("15 Detection.\n");
+    try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility, then 'accept <id>' to launch or 'cancel' to leave preparation.\n");
 }
 
 pub fn printHistory(writer: anytype, missions: []const Mission) !void {
