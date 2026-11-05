@@ -7,6 +7,7 @@ const MissionSession = @import("../src/mission_state.zig").MissionSession;
 const MissionPreparation = @import("../src/mission_state.zig").MissionPreparation;
 const Player = @import("../src/player.zig").Player;
 const game = @import("../src/game.zig");
+const save = @import("../src/save.zig");
 
 const TestWriter = struct {
     pub fn writeAll(_: *@This(), _: []const u8) !void {}
@@ -184,4 +185,27 @@ test "replaying a completed stage does not pay rewards again" {
     try std.testing.expectEqual(original_reputation, player.reputation);
     try std.testing.expect(preparation.operation_state.active);
     try std.testing.expectEqual(@as(u8, 1), preparation.operation_state.stage_index);
+}
+
+test "operation save uses the unchanged V3 layout with no active mission index" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    var player = Player{ .xp = 250 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var writer = TestWriter{};
+
+    try run(&writer, "operation-start blackout-protocol", &player, &missions, &active, &session, &preparation);
+    try run(&writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try run(&writer, "save", &player, &missions, &active, &session, &preparation);
+
+    const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
+    defer std.testing.allocator.free(data);
+    var lines = std.mem.tokenizeScalar(u8, data, '\\n');
+    try std.testing.expectEqualStrings("HACKERS_TERMINAL_SAVE_V3", lines.next().?);
+    inline for (0..8) |_| _ = lines.next().?;
+    try std.testing.expectEqualStrings("-1", lines.next().?);
 }
