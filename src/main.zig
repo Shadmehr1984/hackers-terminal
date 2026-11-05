@@ -36,7 +36,7 @@ fn runCommand(
     } else if (std.mem.eql(u8, command, "status")) {
         try terminal.printStatus(writer, player.*, active.*, missions, playerLevel(player.*), xpForNextLevel(playerLevel(player.*)));
     } else if (std.mem.eql(u8, command, "missions")) {
-        try terminal.printMissions(writer, player.*, missions, playerLevel(player.*));
+        try terminal.printMissions(writer, missions, playerLevel(player.*));
     } else if (std.mem.eql(u8, command, "briefing")) {
         if (active.*) |index| {
             const mission = missions[index];
