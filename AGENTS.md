@@ -63,6 +63,7 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 
 - Save compatibility is important. Existing V2, V1, and legacy saves must continue to load unless a deliberate migration is designed and documented. Current V3 persists typed utility ownership, equipped utility, and utility upgrade levels; older formats migrate with no utilities owned/equipped.
 - Do not change serialized field order, save version markers, defaults, or the save path as incidental parts of unrelated refactors.
+- Save writes must stage the complete unchanged-format payload in a temporary file and rename it into place only after a successful write; do not truncate the previous save before the replacement is ready.
 - Any intentional save-format change must update `docs/save-format.md`, include migration/compatibility handling where needed, and add or update tests.
 
 ## Tests, formatting, and verification
