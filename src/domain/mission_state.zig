@@ -220,6 +220,22 @@ pub const MissionSession = struct {
         _ = self.objective_tracker.complete(@intCast(@intFromEnum(kind)));
     }
 
+    /// Reports whether a discovered objective of this event kind still awaits completion.
+    pub fn hasIncompleteObjective(self: MissionSession, kind: MissionObjectiveKind) bool {
+        const value: u8 = @intCast(@intFromEnum(kind));
+        for (self.objective_tracker.entries[0..self.objective_tracker.count]) |entry| {
+            if (entry.kind == value and entry.state == .discovered) return true;
+        }
+        return false;
+    }
+
+    /// Marks every still-hidden objective unavailable when its run can no longer reveal it.
+    pub fn markUndiscoveredObjectivesUnavailable(self: *MissionSession) void {
+        for (self.objective_tracker.entries[0..self.objective_tracker.count]) |*entry| {
+            if (entry.state == .undiscovered) entry.state = .unavailable;
+        }
+    }
+
     /// Reports whether at least one objective of this event kind is complete.
     pub fn isObjectiveComplete(self: MissionSession, kind: MissionObjectiveKind) bool {
         const value: u8 = @intCast(@intFromEnum(kind));
