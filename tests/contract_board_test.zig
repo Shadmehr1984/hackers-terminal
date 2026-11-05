@@ -28,7 +28,7 @@ test "exclusive contracts become visible as exclusive only after requirements" {
 
 test "busy state makes incomplete contracts unavailable but completed takes precedence" {
     var missions = mission_data.defaultMissions();
-    var context = board.Context{ .level = 3, .reputation = 3, .another_contract_busy = true };
+    const context = board.Context{ .level = 3, .reputation = 3, .another_contract_busy = true };
     try std.testing.expectEqual(board.Availability.unavailable, board.evaluate(missions[0], context).availability);
     missions[1].completed = true;
     try std.testing.expectEqual(board.Availability.completed, board.evaluate(missions[1], context).availability);
