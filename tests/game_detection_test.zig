@@ -123,6 +123,7 @@ test "extraction can trigger compromise before contract payout" {
     var active: ?usize = 0;
     var session = MissionSession{ .progress = .decrypted, .detection_level = 95, .current_node = "vault" };
     var preparation = MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
     session.completeObjective(.scan_target);
     session.completeObjective(.authenticate);
     session.completeObjective(.decrypt_file);
@@ -408,6 +409,7 @@ test "modified extraction with incomplete required objectives does not pay rewar
     };
     var preparation = MissionPreparation{};
     const writer = TestWriter{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
 
     try run(writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(active != null);
