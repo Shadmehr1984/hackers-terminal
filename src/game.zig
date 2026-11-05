@@ -99,6 +99,7 @@ pub fn runCommand(
                     } else {
                         const node = topology.findNode(arg).?;
                         session.current_node = node.id;
+                        session.traversal_count += 1;
                         try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
                         _ = try applyDetection(writer, player, active, session, 5);
                     }
