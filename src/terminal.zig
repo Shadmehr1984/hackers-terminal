@@ -216,7 +216,8 @@ pub fn printOffers(
             try writer.print("  scrub-detection — reduce Detection by up to 10 (${d})\n", .{contacts.fixerServicePrice(player.reputation).?});
         }
         for (missions) |mission| {
-            if (std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
+            if (active == null and preparation.mission_index == null and
+                std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
                 progression.playerLevel(player) >= mission.required_level and player.reputation >= mission.required_reputation)
             {
                 found = true;
