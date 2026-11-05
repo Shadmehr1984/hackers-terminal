@@ -1,4 +1,5 @@
 const Mission = @import("mission.zig").Mission;
+const MissionDifficulty = @import("mission.zig").MissionDifficulty;
 
 /// Returns the built-in contracts with their original order and configuration.
 pub fn defaultMissions() [3]Mission {
@@ -7,6 +8,7 @@ pub fn defaultMissions() [3]Mission {
             .id = "job-01",
             .name = "Cold Storage",
             .target = "vault-01.local",
+            .difficulty = .easy,
             .password = "orion42",
             .password_hint = "A hunter constellation, followed by the number 42.",
             .encrypted_file = "ledger.enc",
@@ -20,6 +22,7 @@ pub fn defaultMissions() [3]Mission {
             .id = "job-02",
             .name = "Paper Trail",
             .target = "archive-02.local",
+            .difficulty = .medium,
             .password = "copper17",
             .password_hint = "A reddish metal, followed by the number 17.",
             .encrypted_file = "mailbox.enc",
@@ -33,6 +36,7 @@ pub fn defaultMissions() [3]Mission {
             .id = "job-03",
             .name = "Quiet Exit",
             .target = "relay-03.local",
+            .difficulty = .hard,
             .password = "northstar",
             .password_hint = "A fixed point used for navigation in the northern sky.",
             .encrypted_file = "manifest.enc",
@@ -43,4 +47,12 @@ pub fn defaultMissions() [3]Mission {
             .required_level = 3,
         },
     };
+}
+
+test "built-in missions have increasing difficulty" {
+    const missions = defaultMissions();
+
+    try @import("std").testing.expectEqual(MissionDifficulty.easy, missions[0].difficulty);
+    try @import("std").testing.expectEqual(MissionDifficulty.medium, missions[1].difficulty);
+    try @import("std").testing.expectEqual(MissionDifficulty.hard, missions[2].difficulty);
 }
