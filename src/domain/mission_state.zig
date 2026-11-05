@@ -1,6 +1,8 @@
 const MissionObjective = @import("mission.zig").MissionObjective;
 const MissionObjectiveKind = @import("mission.zig").MissionObjectiveKind;
 const UtilityEquipment = @import("player.zig").UtilityEquipment;
+const Mission = @import("mission.zig").Mission;
+const ModifierId = @import("mission_modifier.zig").ModifierId;
 
 /// A temporary, per-contract equipment snapshot. It never changes player inventory.
 pub const MissionLoadout = struct {
@@ -24,11 +26,21 @@ pub const MissionLoadout = struct {
 pub const MissionPreparation = struct {
     mission_index: ?usize = null,
     selected_utility: ?UtilityEquipment = null,
+    selected_modifier: ?ModifierId = null,
+
+    /// Selects a modifier only when the prepared contract explicitly allows it.
+    /// A rejected selection leaves the current choice unchanged.
+    pub fn selectModifier(self: *MissionPreparation, mission: Mission, modifier: ModifierId) bool {
+        if (!mission.allowsModifier(modifier)) return false;
+        self.selected_modifier = modifier;
+        return true;
+    }
 
     /// Clears the prepared contract and selected utility.
     pub fn clear(self: *MissionPreparation) void {
         self.mission_index = null;
         self.selected_utility = null;
+        self.selected_modifier = null;
     }
 };
 
