@@ -148,11 +148,6 @@ These patterns must always be investigated and flagged when present unless the e
 - [ ] Container literals, inferred array/slice types, sentinel termination, fixed-array capacity, and index/count type assumptions that may be invalid or overflow.
 - [ ] Flush/write/close ordering or temporary-file/rename assumptions that can lose data on failure.
 - [ ] Any other construct that turns a recoverable runtime condition into an unchecked assumption, silent success, or process crash.
-- [ ] `getOrPut` and related map insertion APIs: inspect insertion failure, value initialization, and pointer/reference validity after insertion or map growth.
-- [ ] `std.heap.DebugAllocator` and testing allocator use: inspect allocator lifetime, deinit, leak checking, and whether debug-only behavior is being mistaken for release guarantees.
-- [ ] `root_source_file`, build API calls, target/CPU/ABI options, and optimize-mode configuration. For Zig 0.13.0, `root_source_file` is valid; do not report it as obsolete based on newer Zig releases.
-- [ ] Container literals, inferred array/slice types, sentinel termination, alignment, and compile-time versus runtime type assumptions.
-- [ ] Flush/write/close operations and ignored I/O errors, including terminal output ordering and save-file durability assumptions.
 - [ ] Integer arithmetic operators on externally influenced or cumulative values, including reward/payout accumulation and long-running counters.
 
 For every occurrence, trace the proof and all relevant control-flow paths. Do not mechanically flag a safe construct when its invariant is explicit and locally demonstrable; document why it is safe.
