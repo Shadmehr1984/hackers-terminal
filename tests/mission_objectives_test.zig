@@ -98,5 +98,11 @@ test "uncompleted optional objectives become unavailable only when the contract 
     try std.testing.expect(session.startWithMission(.{}, null, missions[0].objectives));
     session.markUncompletedOptionalObjectivesUnavailable();
     try std.testing.expectEqual(ObjectiveState.unavailable, session.objective_tracker.stateOf("maintenance-telemetry").?);
+    try std.testing.expectEqual(ObjectiveState.discovered, session.objective_tracker.stateOf("scan-target").?);
     try std.testing.expect(!session.allOptionalObjectivesComplete(missions[0].objectives));
+
+    try std.testing.expect(session.startWithMission(.{}, null, missions[0].objectives));
+    try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
+    session.markUncompletedOptionalObjectivesUnavailable();
+    try std.testing.expectEqual(ObjectiveState.unavailable, session.objective_tracker.stateOf("maintenance-telemetry").?);
 }
