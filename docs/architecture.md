@@ -11,14 +11,14 @@ There is no client/server split, real networking layer, database, plugin system,
 | Path | Responsibility |
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
-| `src/player.zig` | Public `Player` profile data type and its defaults |
+| `src/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and risk modifier calculations |
 | `src/mission.zig` | Public `Mission` contract data type, optional topology reference, `MissionDifficulty`, and typed `MissionObjective` definitions |
 | `src/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and topology validation |
 | `src/mission_state.zig` | Runtime-only mission progress, connection state, objective completion bitset, detection exposure, current topology node, and traversal count |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, history, and topology map |
-| `src/shop.zig` | Inventory display, fictional shop display, and item purchase logic |
+| `src/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/commands.zig` | Parses an input line into a command name and its first argument |
 | `src/game.zig` | Coordinates command dispatch, mission state transitions, mission completion rewards, and player progression calculations |
 | `tests/` | Unit tests for command parsing, mission state, and built-in mission data |
@@ -52,7 +52,7 @@ The player profile type is defined in `src/player.zig` and imported by `main.zig
 - `balance`: in-game currency; defaults to 250.
 - `reputation`: starts at 0.
 - `xp`: starts at 0.
-- `has_decryptor`: whether the decryptor tool has been purchased.
+- `equipment`: typed equipment state. The decryptor remains a required tool; utility ownership is represented by a bit mask over `UtilityEquipment`, with one optional equipped utility and separate upgrade levels.
 
 ### Temporary mission session
 
@@ -111,7 +111,7 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 
 ## Persistence boundary
 
-Persistent state includes balance, reputation, XP (in V2), decryptor ownership, active mission index, and each mission's completion flag. The implementation lives in `src/save.zig` and continues to read V2, V1, and the original legacy layout.
+Persistent state includes balance, reputation, XP, decryptor ownership, utility ownership, equipped utility, both utility upgrade levels, active mission index, and mission completion flags. Save V3 is current; `src/save.zig` continues to read V2, V1, and the original legacy layout. Older saves migrate with no utility equipment owned or equipped.
 
 Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionSession` progress, connection state, objective completion, detection exposure, current topology node, and traversal count are also not persisted. A loaded active contract starts at its topology entry node. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
@@ -139,4 +139,4 @@ Most user input errors are handled by printing a message and returning to the pr
 
 The root `AGENTS.md` is the mandatory instruction entry point for contributors and coding agents. The `.agent/` directory contains the workflow, module contracts, roadmap, known constraints, task template, review checklist, and accepted Architecture Decision Records. These documents describe development constraints; they do not replace source code as the authority for current runtime behavior.
 
-The accepted records capture the current Zig 0.13.0 toolchain, focused one-way module boundaries, runtime-only mission sessions, and preservation of V2/V1/legacy save compatibility. Future proposals remain candidates in the roadmap until explicitly agreed and implemented.
+The accepted records capture the current Zig 0.13.0 toolchain, focused one-way module boundaries, runtime-only mission sessions, preservation of older save compatibility, and the typed equipment/save V3 decision. Future proposals remain candidates in the roadmap until explicitly agreed and implemented.
