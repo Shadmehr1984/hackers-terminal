@@ -23,6 +23,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  missions             List available contracts
         \\  briefing             Show clues and objectives for the active contract
         \\  objectives           Show active contract objective progress
+        \\  Detection is shown by 'status'; risky actions increase exposure.
         \\  accept <id>          Accept a contract
         \\  scan <target>        Scan the active fictional target
         \\  connect <target>     Connect after scanning
@@ -46,7 +47,7 @@ pub fn printHelp(writer: anytype) !void {
     );
 }
 
-pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []const Mission, level: u32, next_level_xp: u32) !void {
+pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []const Mission, level: u32, next_level_xp: u32, session: MissionSession) !void {
     try writer.print(
         \\OPERATOR
         \\  Handle:      {s}
@@ -59,9 +60,9 @@ pub fn printStatus(writer: anytype, player: Player, active: ?usize, missions: []
     , .{ player.handle, player.balance, player.reputation, level, player.xp, next_level_xp, if (player.has_decryptor) "installed" else "not installed" });
 
     if (active) |index| {
-        try writer.print("  Active job:  {s} ({s})\n", .{ missions[index].name, missions[index].id });
+        try writer.print("  Active job:  {s} ({s})\n  Detection:   {d}/100 ({s})\n", .{ missions[index].name, missions[index].id, session.detection_level, session.detectionBand().label() });
     } else {
-        try writer.writeAll("  Active job:  none\n");
+        try writer.writeAll("  Active job:  none\n  Detection:   inactive\n");
     }
 }
 
