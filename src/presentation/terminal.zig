@@ -9,6 +9,8 @@ const std = @import("std");
 const progression = @import("../domain/progression.zig");
 const contacts = @import("../domain/contacts.zig");
 const contract_board = @import("../domain/contract_board.zig");
+const operation_data = @import("../catalog/operation_data.zig");
+const operation_model = @import("../domain/operation.zig");
 
 /// Writes the game banner.
 pub fn printBanner(writer: anytype) !void {
@@ -369,6 +371,83 @@ pub fn printModifierOptions(writer: anytype, mission: Mission, selected: ?Modifi
     }
     try writer.print("  Current selection: {s}\n", .{if (selected) |modifier| modifier.commandId() else "none"});
 }
+/// Writes the authored operation catalog and derived availability.
+pub fn printOperations(writer: anytype, player: Player, missions: []const Mission, preparation: MissionPreparation) !void {
+    try writer.writeAll("OPERATIONS\n");
+    for (operation_data.all()) |operation| {
+        var available = true;
+        for (operation.stages) |stage| {
+            const mission = operation_model.findMission(missions, stage.mission_id) orelse {
+                available = false;
+                break;
+            };
+            if (progression.playerLevel(player) < mission.required_level or player.reputation < mission.required_reputation) {
+                available = false;
+            }
+        }
+        const status = if (preparation.operation_state.active and
+            std.mem.eql(u8, preparation.operation_state.operation_id, operation.id))
+            "IN PROGRESS"
+        else if (available)
+            "AVAILABLE"
+        else
+            "LOCKED";
+        try writer.print("  [{s}] {s} — {d} stages | {s}\n", .{
+            operation.id, operation.name, operation.stages.len, status,
+        });
+    }
+    if (preparation.operation_state.last_completed_operation_id.len > 0) {
+        try writer.print("Last completed this session: {s}\n", .{preparation.operation_state.last_completed_operation_id});
+    }
+    try writer.writeAll("Use operation <id> for details, then operation-start <id>.\n");
+}
+
+/// Writes an operation's ordered contracts and their progression requirements.
+pub fn printOperationDetails(writer: anytype, operation: operation_model.Operation, player: Player, missions: []const Mission) !void {
+    try writer.print("{s} ({s})\n{s}\nSTAGES\n", .{ operation.name, operation.id, operation.description });
+    for (operation.stages, 0..) |stage, index| {
+        const mission = operation_model.findMission(missions, stage.mission_id) orelse continue;
+        const level = progression.playerLevel(player);
+        const status = if (level < mission.required_level or player.reputation < mission.required_reputation) "LOCKED" else "AVAILABLE";
+        try writer.print("  {d}. {s} — {s} | requires level {d}, Reputation {d} | {s}\n", .{
+            index + 1, mission.id, mission.name, mission.required_level, mission.required_reputation, status,
+        });
+    }
+}
+
+/// Writes the current operation stage and its already-earned typed facts.
+pub fn printOperationStatus(writer: anytype, preparation: MissionPreparation, missions: []const Mission) !void {
+    if (!preparation.operation_state.active) {
+        if (preparation.operation_state.last_completed_operation_id.len > 0) {
+            try writer.print("Last completed this session: {s}\n", .{preparation.operation_state.last_completed_operation_id});
+        } else {
+            try writer.writeAll("No active operation.\n");
+        }
+        return;
+    }
+    const operation = operation_data.find(preparation.operation_state.operation_id) orelse return;
+    const stage = operation.stages[preparation.operation_state.stage_index];
+    const mission = operation_model.findMission(missions, stage.mission_id) orelse return;
+    try writer.print("OPERATION: {s}\nStage: {d}/{d} — {s} ({s})\nEarned facts:", .{
+        operation.name,
+        @as(usize, preparation.operation_state.stage_index) + 1,
+        operation.stages.len,
+        stage.mission_id,
+        mission.name,
+    });
+    var any = false;
+    if (preparation.operation_state.hasFact(.maintenance_telemetry)) {
+        try writer.writeAll(" maintenance_telemetry");
+        any = true;
+    }
+    if (preparation.operation_state.hasFact(.routing_header)) {
+        try writer.writeAll(" routing_header");
+        any = true;
+    }
+    if (!any) try writer.writeAll(" none");
+    try writer.writeAll("\n");
+}
+
 /// Writes the completion history for the supplied contracts.
 pub fn printHistory(writer: anytype, missions: []const Mission) !void {
     try writer.writeAll("CONTRACT HISTORY\n");
