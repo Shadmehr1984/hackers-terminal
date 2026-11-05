@@ -33,7 +33,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes the optional metadata objective and earns its bonus at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract, successful decryption, and extraction node | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
-Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect password and decryption-key attempts also add exposure. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
+Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful topology movement adds 5 detection per traversal, including revisits. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect password and decryption-key attempts also add exposure. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
 
 ## Economy commands
 
@@ -70,7 +70,9 @@ The password and decryption key above are the first contract's puzzle answers. O
 
 ## Input behavior and limitations
 
-For missions with a topology, each successful `move` adds 5 detection, including backtracking. Invalid or non-adjacent moves add none. Missions without topology retain the previous command behavior.\n\nThe parser tokenizes input on spaces and reads only the first argument token. Therefore:
+For missions with a topology, each successful `move` adds 5 detection, including backtracking. Invalid or non-adjacent moves add none. Missions without topology retain the previous command behavior.
+
+The parser tokenizes input on spaces and reads only the first argument token. Therefore:
 
 - Commands and arguments are case-sensitive.
 - Arguments cannot contain spaces.
