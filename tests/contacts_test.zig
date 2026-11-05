@@ -159,6 +159,15 @@ test "contact and offer commands expose only currently unlocked opportunities" {
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[LOCKED] Fixer") != null);
 
     capture.len = 0;
+    try run(&capture, "contact broker", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Information Broker") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "deal intel-job-02") != null);
+
+    capture.len = 0;
+    try run(&capture, "contact fixer", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "LOCKED") != null);
+
+    capture.len = 0;
     try run(&capture, "offers", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "intel-job-02") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
