@@ -58,9 +58,9 @@ On Windows, run the generated `hackers-terminal.exe` from the corresponding `zig
 4. Read the mission clues and difficulty with `briefing`, then inspect the map with `map`.
 5. Move to the node labelled `SCAN` on the map, scan the target, then move to the `AUTH` node to connect and authenticate.
 6. Solve the password challenge with `brute <password>`. Each successful move adds 5 detection.
-7. Buy the decryptor if you do not own it, then solve the decryption challenge.
-8. Optionally run `analyze <filename>` to earn a bonus reward.
-9. Extract the exact filename shown in the briefing.
+7. Move to the node labelled `DECRYPT`, buy the decryptor if needed, and solve the decryption challenge.
+8. Move to the `ANALYZE` node and optionally run `analyze <filename>` to earn a bonus reward.
+9. Move to the `EXTRACT` node and extract the exact filename shown in the briefing.
 10. Use `save` to persist your progress.
 
 For a complete walkthrough, see [Gameplay](docs/gameplay.md). For exact command syntax and prerequisites, see [Command Reference](docs/commands.md).
@@ -106,6 +106,7 @@ hackers-terminal/
 │   ├── game.zig
 │   ├── player.zig
 │   ├── mission.zig
+│   ├── topology.zig
 │   ├── mission_data.zig
 │   ├── mission_state.zig
 │   ├── commands.zig
@@ -118,6 +119,7 @@ hackers-terminal/
 │   ├── mission_data_test.zig
 │   ├── mission_objectives_test.zig
 │   ├── game_detection_test.zig
+│   ├── topology_test.zig
 │   └── test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
