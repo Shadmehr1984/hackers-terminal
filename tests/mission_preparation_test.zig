@@ -47,7 +47,7 @@ test "preparation reveals contract intel but keeps puzzle clues and answers hidd
     try run(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(@as(?usize, 0), preparation.mission_index);
     try std.testing.expect(active == null);
-    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "password clue: undiscovered") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Password clue: undiscovered") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "orion42") == null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "midnight") == null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Cold Storage") != null);
