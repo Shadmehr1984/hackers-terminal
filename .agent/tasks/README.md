@@ -12,10 +12,11 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 6 | HT-006 | Contract Board | Implemented & Merged | [Read task](HT-006-contract-board.md) |
 | 7 | HT-007 | Mission Modifiers | Implemented and merged to main (PR #11) | [Read task](HT-007-mission-modifiers.md) |
 | 8 | HT-008 | Hidden Objectives | Implemented on `main`; CI run #679 passed | [Read task](HT-008-hidden-objectives.md) |
+| 9 | HT-009 | Multi-stage Operations | Design Approved (Runtime-only); implementation not authorized | [Read task](HT-009-multi-stage-operations.md) |
 
 ## Gameplay Expansion Program — EXPANSION-001
 
-Planning approved on 2026-11-05. HT-006 is implemented and merged. HT-007 implementation is merged to `main` via PR #11; latest CI run #575 passed. Squash merge commit: `c17d19b93c18af286e97d6f00d2b9892017a784c`. HT-008 design is approved in ADR 0010; implementation completed directly on `main` on 2026-11-05 and CI run #679 passed. All other later features still require their own feature-specific design approval and implementation authorization. These phase documents are persistent agent handoffs and contain the execution scope and acceptance criteria for all 20 ideas.
+Planning approved on 2026-11-05. HT-006 is implemented and merged. HT-007 implementation is merged to `main` via PR #11; latest CI run #575 passed. Squash merge commit: `c17d19b93c18af286e97d6f00d2b9892017a784c`. HT-008 design is approved in ADR 0010; implementation completed directly on `main` on 2026-11-05 and CI run #679 passed. HT-009 design and Runtime-only persistence were approved on 2026-11-06 in ADR 0011; implementation still requires separate explicit authorization. These phase documents are persistent agent handoffs and contain the execution scope and acceptance criteria for all 20 ideas.
 
 - [Master plan and dependency register](../plans/GAMEPLAY-EXPANSION-OVERVIEW.md)
 - [Phase 1 — Contract and Mission Content](../plans/PHASE-1-MISSION-CONTENT.md): HT-006 Contract Board; HT-007 Mission Modifiers; HT-008 Hidden Objectives; HT-009 Multi-stage Operations.

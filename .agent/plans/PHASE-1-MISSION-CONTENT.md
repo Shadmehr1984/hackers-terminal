@@ -112,33 +112,46 @@ Design approved and implementation explicitly authorized by the owner on 2026-11
 
 ## HT-009 — Multi-stage Operations
 
+**Status:** Design Approved (2026-11-06); Runtime-only persistence approved; implementation not authorized. See [task brief](../tasks/HT-009-multi-stage-operations.md) and [ADR 0011](../decisions/0011-multi-stage-operations.md).
+
 ### Goal
-Create longer operations made of sequential contracts whose results affect later stages.
+Create longer linear operations made of sequential existing contracts. Successful stage results may transfer narrowly defined mechanical facts that reveal optional objectives in later stages.
 
-### Design direction
-- Define an Operation as a static sequence of stage/contract references, not a branching story graph.
-- A completed stage may unlock the next stage and pass narrowly defined mechanical facts (e.g. discovered intel, exposure flag, acquired evidence).
-- Specify when cash/XP/Reputation are granted: per stage or only at operation completion. Avoid double-paying.
-- Define stage failure, retry, compromised run, save/restart, and operation abandonment before coding.
-- Preserve the existing rule that an active contract cannot be manually abandoned unless the owner explicitly changes it.
-- Keep stage-local session data runtime-only by default. Persisting operation progress requires a separate migration decision.
-
-### Likely scope
-New operation domain/catalog types, operation progression state, mission outcome integration, application coordinator, terminal board/briefing output, tests, docs, possible save design (not pre-approved).
+### Approved design
+- Static, linear Operation catalog; no branching story graph or dialogue choices.
+- First operation: `blackout-protocol`, three stages in order: `job-01` → `job-02` → `job-03`.
+- Reuse the existing mission preparation/acceptance and MissionSession flow for each stage. The player explicitly accepts each stage; successful extraction prepares the next stage automatically.
+- All referenced mission level/Reputation requirements are validated before operation start. Completed contracts may be replayed as operation stages, but ordinary standalone preparation continues to reject completed contracts.
+- Stage failure/Detection compromise retries the same stage from a fresh MissionSession. Facts earned by prior successful stages remain for the current process; failed-stage partial progress does not.
+- Stage rewards are paid per contract using existing reward rules, once only. No Operation completion bonus or new balance values. A stage whose mission was already completed before its operation replay pays no cash, XP, optional-objective, Reputation, or modifier rewards.
+- Typed carry-over: completing hidden optional objective `maintenance-telemetry` in stage one grants `maintenance_telemetry`, revealing `routing-header` at stage two start. Completing `routing-header` grants `routing_header`, revealing `relay-trace` at stage three start. If a fact is absent, normal HT-008 discovery remains in effect. Incoming facts reveal only the authored objective; its normal completion event is still required.
+- Maximum 8 stages per operation; bounded allocation-free runtime state and catalog validation. No generic event bus or arbitrary fact map.
+- **Runtime-only:** operation ID, stage index, facts, reward eligibility snapshot, and completion display state are not serialized. On restart, the operation starts again at stage one and facts reset. Previously completed stages can be replayed without rewards.
+- Saving during an operation writes the existing Save V3 data with active mission index `-1`; no stage is restored as a standalone active contract. Save V3 writer and V2/V1/legacy readers remain unchanged.
+- Commands: `operations`, `operation <id>`, `operation-start <id>`, and `operation-status`. Existing parser accepts only one argument, so do not introduce `operation start <id>`.
 
 ### Acceptance criteria
-- [ ] Player can identify an operation, its stage count, current stage, and stage prerequisites.
-- [ ] Stage transitions are deterministic and cannot skip required stages.
-- [ ] Only explicitly defined mechanical outcomes carry forward; no narrative branch is introduced.
-- [ ] Failure/retry does not duplicate rewards or corrupt stage progress.
-- [ ] Restart behavior is documented and tested.
-- [ ] Save compatibility is preserved unless a separate migration is approved and tested.
+- [ ] Player can list/inspect operations, stage count/order, and prerequisites.
+- [ ] Start validates all stage prerequisites atomically; invalid starts do not mutate state.
+- [ ] Only the current stage can be accepted; transitions are deterministic and cannot skip.
+- [ ] Success advances exactly one stage; final success reports operation completion.
+- [ ] Failure retries the same stage, preserving prior facts but clearing failed-stage state.
+- [ ] Only successful completion of the authored source optional objective grants its typed fact.
+- [ ] Incoming facts reveal only the specified hidden optional objective, idempotently.
+- [ ] Existing per-stage rewards are paid once across standalone play, operation play, and restart replay; no operation bonus.
+- [ ] Runtime operation state/facts reset on restart; saving during an operation does not restore a stage as a standalone contract.
+- [ ] Save V3 layout and V2/V1/legacy readers remain unchanged.
+- [ ] Existing standalone mission behavior and command compatibility remain intact.
+- [ ] Focused tests, docs, review, and verified main CI pass before status becomes Implemented.
 
-### Dependencies
-HT-006 Contract Board; HT-008 objective model; HT-007 modifier snapshot model where applicable.
+### Likely ownership
+- `src/domain/operation.zig`, `src/domain/operation_state.zig`, `src/catalog/operation_data.zig`
+- Narrow reveal-by-objective-ID transition in `src/domain/mission_objectives.zig`
+- Orchestration in `src/application/game.zig`; presentation in `src/presentation/terminal.zig`
+- Tests under `tests/`; no Save V3 schema changes in `src/persistence/save.zig`
 
 ### Out of scope
-Branching narrative, dialogue trees, multiplayer co-op, automatic real-time progression.
+Branching narrative, dialogue trees, operation abandonment, stage skipping, operation-specific rewards, persistent operation progress/Save V4, more than 8 stages, and all real-world network/host/shell/credential interaction.
 
 ## Phase exit criteria
 

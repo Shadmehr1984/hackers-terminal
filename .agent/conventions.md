@@ -15,6 +15,9 @@ Derived from the current source tree; re-check source before relying on this map
 | src/domain/contract_board.zig | Pure derived contract availability and reward-range query; no I/O or persistence |
 | src/domain/mission.zig | Mission, category, optional topology reference, level/Reputation requirements, difficulty, stable-ID objective definitions, and static allowed-modifier metadata | Built-in catalog or runtime mutation |
 | src/domain/mission_objectives.zig | Fixed-capacity objective tracker, typed discovery triggers, objective lifecycle transitions, and reward queries | Terminal I/O, command dispatch, or persistence |
+| src/domain/operation.zig | Static linear Operation/Stage definitions, typed carry-over facts, and catalog validation | Runtime mutation, command dispatch, terminal I/O, or persistence |
+| src/domain/operation_state.zig | Bounded runtime-only operation stage/fact lifecycle, retry/reset, and reward-eligibility snapshot | Serialization, mission catalog mutation, or terminal I/O |
+| src/catalog/operation_data.zig | Authored static operation sequences and stage fact/objective links | Dispatch, runtime state, or terminal output |
 | src/domain/topology.zig | Static fictional graph nodes, links, lookup, adjacency, graph validation | Game dispatch, terminal I/O, or real networking |
 | src/catalog/mission_data.zig | Ordered built-in mission definitions | Dispatch and terminal output |
 | src/domain/mission_state.zig | Runtime preparation selection (utility and optional modifier), session progress, connection, per-objective tracker, detection, current node, traversal count, and per-run utility/modifier snapshots, and one-time completion payout guard | Serialization or user-facing output |
@@ -51,6 +54,8 @@ Derived from the current source tree; re-check source before relying on this map
 - Player progression and mission completion are persisted. Reputation tiers and Contact unlocks are derived from Reputation; Fixer service usage is transient.
 - Save format is positional and writes V3 and reads V2, V1, and original unversioned layouts. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
 - Objective progress uses HT-008's fixed-capacity 32-entry tracker keyed by stable mission-local IDs; never use an event-kind enum ordinal as objective identity.
+- HT-009 Operation definitions are static and linear (maximum 8 stages); current stage, typed carry-over facts, and completion display state are runtime-only. Stage rewards are paid individually once, using the existing persisted mission-completed flag to suppress rewards when a completed contract is replayed inside an operation.
+- While an operation is active, saving must preserve the existing Save V3 layout but pass no active mission index. Restart begins the operation again at stage one with no operation facts; already-completed stage contracts are replayable without rewards.
 
 ## Git workflow
 - Work directly on `main` by default, as requested by the owner on 2026-11-05.
