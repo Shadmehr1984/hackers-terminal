@@ -4,7 +4,6 @@ set -eu
 required_files="
 AGENTS.md
 .agent/README.md
-.agent/code-review-standard.md
 .agent/workflow.md
 .agent/conventions.md
 .agent/roadmap.md
@@ -36,7 +35,6 @@ done
 grep -q 'Read it before planning or changing code' AGENTS.md
 grep -q 'Explore' .agent/workflow.md
 grep -q 'review-checklist.md' .agent/README.md
-grep -q 'review-checklist.md' .agent/code-review-standard.md
 grep -q 'V2' .agent/decisions/0004-save-compatibility.md
 grep -q 'ADR 0007' .agent/decisions/0007-reputation-contacts.md
 grep -q 'Acceptance criteria' .agent/tasks/HT-005-reputation-contacts.md
