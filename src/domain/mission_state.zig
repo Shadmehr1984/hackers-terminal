@@ -84,6 +84,7 @@ pub const MissionSession = struct {
     current_node: ?[]const u8 = null,
     traversal_count: u32 = 0,
     loadout: MissionLoadout = .{},
+    modifier: ?ModifierId = null,
     fixer_service_used: bool = false,
 
     /// Starts a fresh accepted mission and clears transient run state.
@@ -95,6 +96,7 @@ pub const MissionSession = struct {
         self.current_node = null;
         self.traversal_count = 0;
         self.loadout = .{};
+        self.modifier = null;
         self.fixer_service_used = false;
     }
 
@@ -102,6 +104,12 @@ pub const MissionSession = struct {
     pub fn startWithLoadout(self: *MissionSession, loadout: MissionLoadout) void {
         self.start();
         self.loadout = loadout;
+    }
+
+    /// Starts a fresh mission with an immutable run-specific utility and modifier snapshot.
+    pub fn startWithModifier(self: *MissionSession, loadout: MissionLoadout, modifier: ?ModifierId) void {
+        self.startWithLoadout(loadout);
+        self.modifier = modifier;
     }
 
     /// Returns the mission session to its inactive default state.
