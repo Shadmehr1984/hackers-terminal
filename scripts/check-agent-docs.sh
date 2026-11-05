@@ -39,4 +39,15 @@ grep -q 'V2' .agent/decisions/0004-save-compatibility.md
 grep -q 'ADR 0007' .agent/decisions/0007-reputation-contacts.md
 grep -q 'Acceptance criteria' .agent/tasks/HT-005-reputation-contacts.md
 
+# Guard the mandatory code-review standard against accidental truncation.
+grep -q 'Correctness — **40%' .agent/review-checklist.md
+grep -q 'Security (OWASP Top 10:2025) — **20%' .agent/review-checklist.md
+grep -q 'Architecture and Design — **30%' .agent/review-checklist.md
+grep -q 'Performance — **10%' .agent/review-checklist.md
+grep -q 'ALWAYS FLAG' .agent/review-checklist.md
+grep -q 'NEEDS-VERIFICATION' .agent/review-checklist.md
+grep -q 'Mandatory final report format' .agent/review-checklist.md
+grep -q 'full repository review' .agent/README.md
+grep -q 'Maintainability/Observability' .agent/workflow.md
+
 echo "Agent documentation structure check passed."
