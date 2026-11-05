@@ -79,3 +79,33 @@ test "authored hidden cash reward is paid exactly once on successful completion"
     try std.testing.expectEqual(@as(u32, 100), player.xp);
     try std.testing.expectEqual(@as(u32, 2), player.reputation);
 }
+
+
+test "reward overflow leaves player and completion guard unchanged" {
+    const missions = mission_data.defaultMissions();
+    const writer = TestWriter{};
+
+    var cash_player = Player{ .balance = std.math.maxInt(u32) };
+    var cash_session = MissionSession{};
+    try std.testing.expectError(error.RewardOverflow, progression.completeMission(writer, &cash_player, missions[0], &cash_session));
+    try std.testing.expectEqual(std.math.maxInt(u32), cash_player.balance);
+    try std.testing.expectEqual(@as(u32, 0), cash_player.reputation);
+    try std.testing.expectEqual(@as(u32, 0), cash_player.xp);
+    try std.testing.expect(!cash_session.completion_reward_paid);
+
+    var reputation_player = Player{ .balance = 100, .reputation = std.math.maxInt(u32) };
+    var reputation_session = MissionSession{};
+    try std.testing.expectError(error.RewardOverflow, progression.completeMission(writer, &reputation_player, missions[0], &reputation_session));
+    try std.testing.expectEqual(std.math.maxInt(u32), reputation_player.reputation);
+    try std.testing.expectEqual(@as(u32, 100), reputation_player.balance);
+    try std.testing.expectEqual(@as(u32, 0), reputation_player.xp);
+    try std.testing.expect(!reputation_session.completion_reward_paid);
+
+    var xp_player = Player{ .balance = 100, .xp = std.math.maxInt(u32) };
+    var xp_session = MissionSession{};
+    try std.testing.expectError(error.RewardOverflow, progression.completeMission(writer, &xp_player, missions[0], &xp_session));
+    try std.testing.expectEqual(std.math.maxInt(u32), xp_player.xp);
+    try std.testing.expectEqual(@as(u32, 100), xp_player.balance);
+    try std.testing.expectEqual(@as(u32, 0), xp_player.reputation);
+    try std.testing.expect(!xp_session.completion_reward_paid);
+}
