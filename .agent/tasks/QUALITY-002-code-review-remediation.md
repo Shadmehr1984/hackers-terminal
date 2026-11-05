@@ -13,14 +13,14 @@ Harden save-format detection, reject mission topologies whose required locations
 - Existing save tests cover in-memory V3/V2/V1/legacy loading, but do not exercise `saveGame` writing and replacing a file on disk.
 
 ## Acceptance criteria
-- [ ] Unknown non-numeric save markers are rejected without mutating the supplied player or mission state.
+- [x] Unknown non-numeric save markers are rejected without mutating the supplied player or mission state.
 - [ ] Numeric legacy saves and V1/V2/V3 saves continue to load with existing migration behavior.
-- [ ] A topology is invalid if any required operation node (scan, auth, decrypt, analyze, extract) is unreachable from entry; valid connected graphs remain valid.
-- [ ] Tests cover disconnected required nodes and connected topology.
-- [ ] Tests exercise real save write/read round-trip using an isolated temporary directory, including replacement of an existing save.
-- [ ] Save V3 marker, field order, save path, and V1/V2/legacy compatibility remain unchanged.
+- [x] A topology is invalid if any required operation node (scan, auth, decrypt, analyze, extract) is unreachable from entry; valid connected graphs remain valid.
+- [x] Tests cover disconnected required nodes and connected topology.
+- [x] Tests exercise real save write/read round-trip using an isolated temporary directory, including replacement of an existing save.
+- [x] Save V3 marker, field order, save path, and V1/V2/legacy compatibility remain unchanged.
 - [ ] Focused tests and aggregate test suite are included; no real networking or external-system behavior is introduced.
-- [ ] Relevant docs, this brief, task index, and review records are updated.
+- [x] Relevant docs, this brief, task index, and review records are updated.
 - [ ] Zig 0.13.0 formatting, build, all tests, and agent-doc check pass in GitHub Actions.
 - [ ] Final self-review against `.agent/review-checklist.md` is recorded; no second reviewer is claimed unless one is actually available.
 
@@ -40,6 +40,13 @@ Harden save-format detection, reject mission topologies whose required locations
 - Topology validation should concern the required operation nodes; optional decorative nodes need not all be connected.
 - Filesystem tests must be isolated and must not touch the user's real `saves/player.sav`.
 - Do not add checksum/corruption recovery, save version V4, new gameplay rules, or unrelated refactors.
+
+## Implementation notes
+
+- `loadGameFromBytes` now classifies V3/V2/V1 markers and validates an unversioned legacy header as an unsigned integer before resetting equipment or mutating mission/player data.
+- `Topology.isValid` now uses breadth-first traversal from the entry node and requires each operation location to be reachable. Non-empty unique node IDs are enforced; disconnected decorative nodes remain allowed.
+- `saveGameToDirectory` is the shared filesystem implementation used by production `saveGame` and tests. Tests use `std.testing.tmpDir` to avoid touching the real save directory and verify replacement, V3 round-trip, and temporary-file cleanup.
+- Documentation now records the strict marker policy and topology reachability invariant.
 
 ## Verification
 - [ ] Focused save-format and filesystem tests
