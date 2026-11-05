@@ -10,6 +10,16 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 4 | HT-004 | Mission Preparation | Implemented | [Read task](HT-004-mission-preparation.md) |
 | 5 | HT-005 | Reputation & Contacts | Implemented | [Read task](HT-005-reputation-contacts.md) |
 
+## Gameplay Expansion Program — EXPANSION-001
+
+Planning approved on 2026-11-05; **implementation authorization is pending**. Do not start coding from these plans until the owner explicitly authorizes implementation. These phase documents are persistent agent handoffs and contain the execution scope and acceptance criteria for all 20 ideas.
+
+- [Master plan and dependency register](../plans/GAMEPLAY-EXPANSION-OVERVIEW.md)
+- [Phase 1 — Contract and Mission Content](../plans/PHASE-1-MISSION-CONTENT.md): HT-006 Contract Board; HT-007 Mission Modifiers; HT-008 Hidden Objectives; HT-009 Multi-stage Operations.
+- [Phase 2 — World, Intelligence, and Relationships](../plans/PHASE-2-WORLD-AND-RELATIONSHIPS.md): HT-010 Factions; HT-011 Rival Hackers; HT-012 Information Market; HT-025 Contact Development; HT-022 Data Archive.
+- [Phase 3 — Security Systems](../plans/PHASE-3-SECURITY-SYSTEMS.md): HT-016 Security Profiles; HT-017 Security Countermeasures; HT-023 Security Agent Behaviors; HT-024 Security Agent Memory.
+- [Phase 4 — Progression and Replayability](../plans/PHASE-4-PROGRESSION-AND-REPLAYABILITY.md): HT-013 Hacker Specializations; HT-014 Level & Unlock Expansion; HT-015 Tool Collection; HT-018 Challenge Missions; HT-019 Operational Costs; HT-020 Recurring Contract Cycles; HT-021 Achievements.
+
 ## Quality and maintenance tasks
 
 - [QUALITY-001 — Code Review Remediation](QUALITY-001-code-review-remediation.md) — Implemented: documentation consistency, command-path unification, atomic save writes, and focused module boundaries.

@@ -61,7 +61,7 @@ The decryptor costs $150. It is a persistent tool: once purchased, it remains ow
 
 ## Contracts
 
-The game currently defines four contracts in `src/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer.
+The game currently defines four contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer.
 
 | ID | Contract | Difficulty | Fictional target | Required level | Required Reputation | Cash reward | XP reward |
 | --- | --- | --- | --- | ---: | ---: | ---: |
