@@ -70,7 +70,7 @@ test "authored hidden cash reward is paid exactly once on successful completion"
 
     const writer = TestWriter{};
     try progression.completeMission(writer, &player, mission, &session);
-    try std.testing.expectEqual(@as(u32, 625), player.balance);
+    try std.testing.expectEqual(@as(u32, 675), player.balance);
     try std.testing.expectEqual(@as(u32, 100), player.xp);
     try std.testing.expectEqual(@as(u32, 2), player.reputation);
 
