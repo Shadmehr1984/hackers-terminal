@@ -93,7 +93,11 @@ inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
                          +---- connected (independent, temporary)
 ```
 
-- `prepare <id>` selects an available contract and displays known intel without revealing puzzle clues.\n- `loadout <utility|none>` selects a run-specific owned utility.\n- `accept <id>` launches only the matching prepared contract and snapshots the selected utility and its current level.\n- `cancel` clears preparation; an active contract cannot be abandoned or manually restarted.\n- `scan` advances progress to `scanned`.
+- `prepare <id>` selects an available contract and displays known intel without revealing puzzle clues.
+- `loadout <utility|none>` selects a run-specific owned utility.
+- `accept <id>` launches only the matching prepared contract and snapshots the selected utility and its current level.
+- `cancel` clears preparation; an active contract cannot be abandoned or manually restarted.
+- `scan` advances progress to `scanned`.
 - `connect` requires a scanned target and opens the connection.
 - `brute` requires an open connection and advances progress on a correct password.
 - `disconnect` closes only the connection; it does not revoke authentication or decryption.
@@ -108,9 +112,9 @@ inactive -> preparing -> accepted -> scanned -> authenticated -> decrypted
 
 ## Progression calculations
 
-`game.playerLevel` calculates the level from total XP. The first threshold is 100 XP and each subsequent threshold increases by 150 XP. `game.xpForNextLevel` returns the cumulative threshold associated with a level for display in the status output.
+`progression.playerLevel` calculates the level from total XP. The first threshold is 100 XP and each subsequent threshold increases by 150 XP. `progression.xpForNextLevel` returns the cumulative threshold associated with a level for display in the status output.
 
-`game.completeMission` (an internal helper) adds the mission's cash reward, increments reputation by one, adds the XP reward, and prints a level-up message if the level increased.
+`progression.completeMission` adds the mission's cash reward and optional-objective bonus, increments reputation by one, adds the XP reward, and prints a level-up message if the level increased.
 
 ## Persistence boundary
 
