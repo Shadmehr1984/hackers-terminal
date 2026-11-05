@@ -8,15 +8,16 @@
 ## Features
 
 - Interactive terminal command loop and command parser
-- Three fictional contracts with target-specific clues and puzzle answers
+- Four fictional contracts with target-specific clues and puzzle answers
 - Mission difficulty labels: Easy, Medium, and Hard
 - Required and optional mission objectives with live completion tracking and bonus rewards
-- Mission progression gated by operator level
+- Mission progression gated by operator level and reputation
+- Four reputation tiers with two unlockable fictional contacts, paid intelligence, temporary Detection services, and an exclusive contract
 - Pre-mission intelligence briefing and run-specific utility loadout selection
 - Mission-specific fictional network maps with adjacent-node navigation and location-based operations
 - Detection exposure increases with risky actions and every successful network traversal
 - Simulated scan, connection, authentication, decryption, metadata analysis, and extraction stages
-- Player balance, reputation, XP, and level progression
+- Player balance, reputation tiers, XP, and level progression
 - A shop with a required decryptor plus two optional utility tools, a single active utility slot, and two upgrade tiers per utility
 - Local save/load, including V3 equipment persistence and migration from V2, V1, and legacy saves
 - Zig formatting, build, and test checks in GitHub Actions
@@ -107,6 +108,7 @@ hackers-terminal/
 │   ├── game.zig
 │   ├── detection.zig
 │   ├── progression.zig
+│   ├── contacts.zig
 │   ├── player.zig
 │   ├── mission.zig
 │   ├── topology.zig
@@ -126,6 +128,7 @@ hackers-terminal/
 │   ├── equipment_test.zig
 │   ├── mission_preparation_test.zig
 │   ├── progression_test.zig
+│   ├── contacts_test.zig
 │   └── test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
@@ -137,12 +140,12 @@ The `saves/` directory is created at runtime when the player saves. It is ignore
 
 ## Current scope and limitations
 
-- The game currently contains three built-in missions defined in `src/mission_data.zig`.
+- The game currently contains four built-in missions defined in `src/mission_data.zig`; `job-04` (Ghost Signal) is appended and requires level 3 and Reputation 3.
 - Mission difficulty is descriptive metadata only; it is displayed in the mission list and briefing but does not yet affect gameplay mechanics.
 - There is one player profile and one local save file.
 - The command parser accepts a command and at most one whitespace-delimited argument.
 - The simulated scan and connection are state flags; there is no networking layer.
-- Mission preparation, the run-specific loadout snapshot, and session progress (scan, connection, authentication, decryption, objective completion, current topology node, and traversal count) are not persisted. If a saved active contract is restored after restarting, its session stages and objectives must be performed again.
+- Mission preparation, the run-specific loadout snapshot, session progress (scan, connection, authentication, decryption, objective completion, current topology node, traversal count), and per-mission Fixer service use are not persisted. Reputation tiers and Contact unlocks are derived from persisted Reputation; no Save V4 is required. If a saved active contract is restored after restarting, its session stages and objectives must be performed again.
 - The terminal UI is plain text and uses an ANSI escape sequence for `clear`.
 
 See [Architecture](docs/architecture.md) for implementation details and [Development](docs/development.md) for the current verification workflow.
