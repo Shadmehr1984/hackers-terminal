@@ -22,13 +22,16 @@ pub fn xpForNextLevel(level: u32) u32 {
     return 100 + (level - 1) * 150;
 }
 
-fn completeMission(writer: anytype, player: *Player, mission: Mission) !void {
+fn completeMission(writer: anytype, player: *Player, mission: Mission, session: MissionSession) !void {
     const old_level = playerLevel(player.*);
-    player.balance += mission.reward;
+    const bonus_reward = session.optionalReward(mission.objectives);
+    player.balance += mission.reward + bonus_reward;
     player.reputation += 1;
     player.xp += mission.xp_reward;
     const new_level = playerLevel(player.*);
-    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}\nXP gained: {d}\nReputation increased.\n", .{ mission.name, mission.reward, mission.xp_reward });
+    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}", .{ mission.name, mission.reward });
+    if (bonus_reward > 0) try writer.print("\nOptional objective bonus: +${d}", .{bonus_reward});
+    try writer.print("\nXP gained: {d}\nReputation increased.\n", .{mission.xp_reward});
     if (new_level > old_level) {
         try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
     }
@@ -134,9 +137,32 @@ pub fn runCommand(
             } else if (std.mem.eql(u8, arg, missions[index].decryption_key)) {
                 session.markDecrypted();
                 session.completeObjective(.decrypt_file);
-                try writer.writeAll("[DECRYPTED] File contents verified. You can now extract the file.\n");
+                try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
             } else {
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
+            }
+        } else try writer.writeAll("No active contract.\n");
+    } else if (std.mem.eql(u8, command, "analyze")) {
+        if (active.*) |index| {
+            const mission = missions[index];
+            if (!session.isDecrypted() or !std.mem.eql(u8, arg, mission.encrypted_file)) {
+                try writer.writeAll("Decrypt the active mission file first: decrypt <key>\n");
+            } else {
+                var available = false;
+                for (mission.objectives) |objective| {
+                    if (objective.kind == .analyze_metadata and objective.optional) {
+                        available = true;
+                        break;
+                    }
+                }
+                if (!available) {
+                    try writer.writeAll("No optional metadata analysis is available for this contract.\n");
+                } else if (session.isObjectiveComplete(.analyze_metadata)) {
+                    try writer.writeAll("Metadata has already been analyzed.\n");
+                } else {
+                    session.completeObjective(.analyze_metadata);
+                    try writer.writeAll("[ANALYSIS COMPLETE] Hidden metadata reference recovered. Optional objective completed.\n");
+                }
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "extract")) {
@@ -150,10 +176,10 @@ pub fn runCommand(
                 } else {
                     const finished = missions[index];
                     missions[index].completed = true;
+                    try writer.print("[EXTRACTED] {s}\n", .{finished.encrypted_file});
+                    try completeMission(writer, player, finished, session.*);
                     active.* = null;
                     session.reset();
-                    try writer.print("[EXTRACTED] {s}\n", .{finished.encrypted_file});
-                    try completeMission(writer, player, finished);
                 }
             }
         } else try writer.writeAll("No active contract.\n");
