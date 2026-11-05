@@ -131,10 +131,9 @@ test "topology validation returns false when either traversal allocation fails" 
     };
 
     inline for (.{ 0, 1 }) |fail_index| {
-        var failing_allocator = std.testing.FailingAllocator.init(.{
-            .allocator = std.testing.allocator,
+        var failing_allocator = std.testing.FailingAllocator.init(std.testing.allocator, .{
             .fail_index = fail_index,
         });
-        try std.testing.expect(!graph.isValid(failing_allocator.allocator(@returnAddress())));
+        try std.testing.expect(!graph.isValid(failing_allocator.allocator()));
     }
 }
