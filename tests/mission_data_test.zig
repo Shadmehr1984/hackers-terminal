@@ -1,6 +1,7 @@
 const std = @import("std");
 const mission_data = @import("../src/mission_data.zig");
 const MissionDifficulty = @import("../src/mission.zig").MissionDifficulty;
+const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 
 test "built-in missions have increasing difficulty" {
     const missions = mission_data.defaultMissions();
@@ -34,4 +35,16 @@ test "each built-in mission has a valid distinct topology" {
     try std.testing.expect(missions[3].topology.?.containsNode("beacon"));
     try std.testing.expect(!std.mem.eql(u8, missions[0].topology.?.nodes[2].id, missions[1].topology.?.nodes[2].id) or
         !std.mem.eql(u8, missions[0].topology.?.nodes[2].label, missions[1].topology.?.nodes[2].label));
+}
+
+test "all four built-in contracts explicitly allow all three approved modifiers" {
+    const missions = mission_data.defaultMissions();
+    const expected = [_]ModifierId{ .heightened_monitoring, .security_sweep, .hardened_encryption };
+    try std.testing.expectEqual(@as(usize, 4), missions.len);
+    for (missions) |mission| {
+        try std.testing.expectEqual(expected.len, mission.allowed_modifiers.len);
+        for (expected) |modifier| {
+            try std.testing.expect(mission.allowsModifier(modifier));
+        }
+    }
 }
