@@ -2,7 +2,7 @@ const std = @import("std");
 const Mission = @import("mission.zig").Mission;
 const Player = @import("player.zig").Player;
 
-fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
+pub fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
     try std.fs.cwd().makePath("saves");
     const file = try std.fs.cwd().createFile("saves/player.sav", .{ .truncate = true });
     defer file.close();
@@ -24,7 +24,7 @@ fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
     }
 }
 
-fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
+pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
     const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch return null;
     defer file.close();
 
