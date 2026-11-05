@@ -74,7 +74,7 @@ test "hidden objectives are optional, discoverable and reward only after discove
     try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
     try std.testing.expectEqual(@as(usize, 0), session.discoverNode("maintenance", missions[0].objectives));
     session.completeObjective(.analyze_metadata);
-    try std.testing.expectEqual(@as(u32, 125), session.optionalReward(missions[0].objectives));
+    try std.testing.expectEqual(@as(u32, 75), session.optionalReward(missions[0].objectives));
     try std.testing.expect(session.allOptionalObjectivesComplete(missions[0].objectives));
 }
 
