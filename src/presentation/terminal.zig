@@ -277,9 +277,14 @@ pub fn printOffers(
 pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSession) !void {
     try writer.print("OBJECTIVES: {s}\n", .{mission.name});
     for (mission.objectives) |objective| {
-        const objective_state = session.objective_tracker.stateOf(objective.id) orelse continue;
-        if (objective_state == .undiscovered or objective_state == .unavailable) continue;
-        const state = if (objective_state == .completed) "[x]" else "[ ]";
+        const progress = session.objective_tracker.progressOf(objective.id) orelse continue;
+        if (!progress.revealed) continue;
+        const state = switch (progress.state) {
+            .undiscovered => continue,
+            .discovered => "[ ]",
+            .completed => "[x]",
+            .unavailable => "[!]",
+        };
         const category = if (objective.optional) "[OPTIONAL] " else "";
         try writer.print("  {s} {s}{s}", .{ state, category, objective.description });
         if (objective.optional) try writer.print(" (+${d})", .{objective.bonus_reward});
