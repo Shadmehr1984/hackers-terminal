@@ -8,4 +8,5 @@ test {
     _ = @import("equipment_test.zig");
     _ = @import("mission_preparation_test.zig");
     _ = @import("progression_test.zig");
+    _ = @import("terminal_test.zig");
 }
