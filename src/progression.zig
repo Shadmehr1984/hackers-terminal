@@ -25,4 +25,3 @@ pub fn completeMission(writer: anytype, player: *Player, mission: Mission, sessi
     try writer.print("\nXP gained: {d}\nReputation increased.\n", .{mission.xp_reward});
     if (new_level > old_level) try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
 }
-

@@ -32,7 +32,6 @@ fn atMissionNode(mission: Mission, session: MissionSession, expected: []const u8
     return std.mem.eql(u8, session.current_node orelse "", expected);
 }
 
-
 pub fn runCommand(
     writer: anytype,
     line: []const u8,
@@ -323,4 +322,3 @@ pub fn runCommand(
     }
     return true;
 }
-
