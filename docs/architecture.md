@@ -12,8 +12,8 @@ There is no client/server split, real networking layer, database, plugin system,
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/player.zig` | Public `Player` profile data type and its defaults |
-| `src/mission.zig` | Public `Mission` contract data type and `MissionDifficulty` classification |
-| `src/mission_state.zig` | Runtime-only mission progress and connection state |
+| `src/mission.zig` | Public `Mission` contract data type, `MissionDifficulty`, and typed `MissionObjective` definitions |
+| `src/mission_state.zig` | Runtime-only mission progress, connection state, and objective completion bitset |
 | `src/mission_data.zig` | Built-in mission definitions and their default ordering |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, and history |
@@ -33,12 +33,13 @@ A mission stores its static contract definition and completion state:
 
 - `id`, `name`, and `target` identify the contract.
 - `difficulty` classifies the contract as `easy`, `medium`, or `hard`. Its `label()` method provides the player-facing title-case label.
+- `objectives` contains the static, ordered list of `MissionObjective` records. Each record has a `MissionObjectiveKind` and player-facing description.
 - `password` and `password_hint` define the authentication puzzle.
 - `encrypted_file`, `decryption_hint`, and `decryption_key` define the decryption puzzle and required extraction filename.
 - `reward`, `xp_reward`, and `required_level` configure progression.
 - `completed` records whether the contract has been completed.
 
-Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements.
+Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives are gameplay requirements: successful scan, authentication, decryption, and extraction commands complete their matching objective.
 
 The three built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array, preserving their original order.
 
@@ -56,11 +57,12 @@ The player profile type is defined in `src/player.zig` and imported by `main.zig
 
 The active mission index is an optional `usize`. Its temporary runtime state is modeled by `MissionSession` in `mission_state.zig`, rather than four independent booleans.
 
-The session has two dimensions:
+The session tracks three related pieces of temporary state:
 - `progress`: `inactive`, `accepted`, `scanned`, `authenticated`, or `decrypted`.
 - `connected`: whether the simulated connection is currently open.
+- `completed_objectives`: an eight-bit mask keyed by `MissionObjectiveKind`.
 
-Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`.
+Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`. Objective completion is runtime-only and is cleared when a mission starts or resets.
 
 ## Runtime flow
 
@@ -87,7 +89,8 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 - `brute` requires an open connection and advances progress on a correct password.
 - `disconnect` closes only the connection; it does not revoke authentication or decryption.
 - `decrypt` requires authentication and an owned decryptor.
-- `extract` requires decrypted progress and the exact mission filename, then resets the session.
+- `extract` requires decrypted progress and the exact mission filename. It completes the extraction objective and awards the contract only when every objective in the mission definition is complete.
+- `briefing` displays the objective list and current status; `objectives` displays the live checklist at any time.
 
 ## Progression calculations
 
@@ -99,7 +102,7 @@ inactive -> accepted -> scanned -> authenticated -> decrypted
 
 Persistent state includes balance, reputation, XP (in V2), decryptor ownership, active mission index, and each mission's completion flag. The implementation lives in `src/save.zig` and continues to read V2, V1, and the original legacy layout.
 
-Mission difficulty is static catalog metadata and is not serialized. Temporary `MissionSession` progress and connection state are also not persisted. A restored active contract therefore starts at the accepted stage. See [Save Format](save-format.md).
+Mission difficulty and objective definitions are static catalog metadata and are not serialized. Temporary `MissionSession` progress, connection state, and objective completion are also not persisted. A restored active contract therefore starts at the accepted stage with all objectives unchecked. See [Save Format](save-format.md).
 
 ## Error handling style
 
@@ -113,6 +116,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 - The built-in mission catalog is hard-coded in `mission_data.zig` and contains three missions.
 - Mission difficulty is currently descriptive metadata; no mechanics are tied to it yet.
+- The current objective kinds are scan target, authenticate, decrypt file, and extract file. Objective progress is stored in a runtime-only eight-bit mask; expand or redesign it before introducing more than eight objective kinds.
 - The command parser accepts one argument token only; additional tokens are ignored to preserve existing behavior.
 - The save parser is line-oriented and has no checksum or schema validation layer.
 - Command-specific output is written by command handling; reusable display sections are centralized in `terminal.zig` and shop-specific output in `shop.zig`.
