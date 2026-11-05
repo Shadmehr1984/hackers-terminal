@@ -47,7 +47,7 @@ grep -q 'Performance — **10%' .agent/review-checklist.md
 grep -q 'ALWAYS FLAG' .agent/review-checklist.md
 grep -q 'NEEDS-VERIFICATION' .agent/review-checklist.md
 grep -q 'Mandatory final report format' .agent/review-checklist.md
-grep -q 'full repository review' .agent/README.md
+grep -q 'For a full review' .agent/README.md
 grep -q 'Maintainability/Observability' .agent/workflow.md
 
 echo "Agent documentation structure check passed."
