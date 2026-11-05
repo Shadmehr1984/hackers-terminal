@@ -24,16 +24,16 @@ Add a terminal-first Contract Board that presents every catalog contract with a 
 - Board ordering follows catalog order. All entries remain visible. Do not reveal puzzle clues, passwords, keys, or hidden mission intel.
 
 ## Acceptance criteria
-- [ ] `board` lists all contracts without changing `missions`.
-- [ ] Every entry shows ID, name, category, difficulty, cash reward range, XP, status, and reason where applicable.
-- [ ] Completed entries remain Completed even while another contract is active/prepared.
-- [ ] Level and Reputation lock reasons are accurate and may both be shown.
-- [ ] Contact-exclusive contracts show Exclusive only after ordinary requirements are met.
-- [ ] Active/prepared state marks other incomplete contracts Unavailable.
-- [ ] Categories and maximum reward calculation are deterministic and unit-tested.
-- [ ] Board output does not disclose puzzle clues or answers.
-- [ ] Existing `prepare`, `accept`, Contact offers, and `missions` behavior remain unchanged.
-- [ ] Save V3 and all legacy readers/writers remain untouched.
+- [x] `board` lists all contracts without changing `missions`.
+- [x] Every entry shows ID, name, category, difficulty, cash reward range, XP, status, and reason where applicable.
+- [x] Completed entries remain Completed even while another contract is active/prepared.
+- [x] Level and Reputation lock reasons are accurate and may both be shown.
+- [x] Contact-exclusive contracts show Exclusive only after ordinary requirements are met.
+- [x] Active/prepared state marks other incomplete contracts Unavailable.
+- [x] Categories and maximum reward calculation are deterministic and unit-tested.
+- [x] Board output does not disclose puzzle clues or answers.
+- [x] Existing `prepare`, `accept`, Contact offers, and `missions` behavior remain unchanged.
+- [x] Save V3 and all legacy readers/writers remain untouched.
 
 ## Likely scope
 - `src/domain/mission.zig`
@@ -53,10 +53,17 @@ Add a terminal-first Contract Board that presents every catalog contract with a 
 - Do not alter existing contract IDs/order, requirements, rewards, objectives, puzzle content, or progression balance.
 
 ## Verification
-- [ ] Focused domain and terminal/command tests.
-- [ ] `zig fmt --check test_root.zig build.zig src tests`
-- [ ] `zig build`
-- [ ] `zig build test`
-- [ ] `sh scripts/check-agent-docs.sh`
-- [ ] Independent review or explicitly identified self-review.
-- [ ] Inspect GitHub Actions CI before reporting final verification.
+- [x] Focused domain and terminal/command tests.
+- [x] `zig fmt --check test_root.zig build.zig src tests` (GitHub Actions)
+- [x] `zig build` (GitHub Actions)
+- [x] `zig build test` (GitHub Actions)
+- [x] `sh scripts/check-agent-docs.sh` (GitHub Actions)
+- [x] Self-review completed against `.agent/review-checklist.md`; independent reviewer unavailable.
+- [x] GitHub Actions run 42088153597 completed successfully.
+
+## Progress
+
+- Implementation is complete on `feature/ht-006-contract-board`.
+- Pull request: https://github.com/Shadmehr1984/hackers-terminal/pull/8 (open; awaiting owner review/merge).
+- GitHub Actions run 42088153597: formatting, project compile, Zig tests, and agent documentation structure all succeeded.
+- No save files or serialization code changed. No manual interactive playtest was performed.
