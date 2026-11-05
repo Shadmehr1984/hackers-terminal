@@ -1,4 +1,4 @@
-const ReputationTier = @import("progression.zig").ReputationTier;
+const progression = @import("progression.zig");
 
 pub const ContactId = enum {
     broker,
@@ -31,7 +31,7 @@ pub const ContactId = enum {
             .fixer => 3,
         };
     }
-}
+};
 
 pub const intel_price: u32 = 50;
 pub const detection_reduction: u8 = 10;
@@ -41,12 +41,7 @@ pub fn isUnlocked(contact: ContactId, reputation: u32) bool {
 }
 
 pub fn fixerServicePrice(reputation: u32) ?u32 {
-    return switch (@as(ReputationTier, switch (reputation) {
-        0 => .unknown,
-        1...2 => .recognized,
-        3...4 => .trusted,
-        else => .elite,
-    })) {
+    return switch (progression.reputationTier(reputation)) {
         .trusted => 100,
         .elite => 75,
         .unknown, .recognized => null,
