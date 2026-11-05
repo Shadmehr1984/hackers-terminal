@@ -117,11 +117,11 @@ Avoid creating a generic event framework or introducing unnecessary allocations.
 
 ## Implementation milestones
 
-1. **Audit and model:** re-audit current main, tests, event flow, objective rendering, rewards, and reset lifecycle; finalize type/data shape and capacity validation.
-2. **State engine:** implement bounded objective state and pure transitions; preserve existing behavior with focused tests.
-3. **Discovery integration:** add deterministic node/file/action triggers and visibility-safe terminal feedback.
-4. **Reward integration:** integrate optional rewards and all-optional Reputation semantics with idempotent completion.
-5. **Regression and handoff:** full tests, docs, self/independent review, CI, and task/roadmap status update.
+1. **[x] Audit and model:** re-audited current main, tests, event flow, objective rendering, rewards, and reset lifecycle; finalized type/data shape and capacity validation.
+2. **[x] State engine:** implemented bounded objective state and pure transitions; preserved existing behavior with focused tests.
+3. **[x] Discovery integration:** added deterministic node/file/action triggers and visibility-safe terminal feedback.
+4. **[x] Reward integration:** integrated optional rewards and all-optional Reputation semantics with idempotent completion.
+5. **[~] Regression and handoff:** focused tests and docs are updated; final CI/regression review and task/roadmap status update are pending.
 
 Implementation is authorized. Continue in the listed order and record verified progress below.
 
@@ -132,4 +132,4 @@ Implementation is authorized. Continue in the listed order and record verified p
 - 2026-11-05: Added `mission_objectives.zig`: fixed-capacity 32-entry tracker, stable ID lookup, four states, typed Node/File/Action triggers, idempotent discovery/completion, unavailable transition, and optional reward/required/optional queries.
 - 2026-11-05: Added stable IDs to built-in objectives and four hidden optional examples (node, file, action, and node triggers); integrated objective state initialization, successful-action/node/file discovery, `inspect <filename>`, safe objective visibility, and hidden reward exclusion from Contract Board estimates.
 - 2026-11-05: Added/updated focused tests for tracker behavior, discovery trigger isolation, duplicate IDs, hidden objective validation, reward/reputation rules, reset behavior, and catalog validation.
-- 2026-11-05: Updated gameplay, command, architecture, save-boundary, AGENTS, and module convention documentation. Full regression/CI verification and final review remain pending.
+- 2026-11-05: Updated gameplay, command, architecture, save-boundary, AGENTS, and module convention documentation.\n- 2026-11-05: Kept the four built-in hidden-objective cash values at zero so the feature does not introduce unapproved cash-balance changes; the tracker and payout path support authored hidden cash rewards, and focused domain tests verify exactly-once reward aggregation. Existing visible optional rewards and base rewards remain unchanged.\n- 2026-11-05: Final regression/CI verification and review remain pending.
