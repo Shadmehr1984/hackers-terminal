@@ -46,7 +46,7 @@ The CI workflow runs:
 zig test src/main.zig
 ```
 
-This compiles and runs Zig tests declared in the source file. The current repository does not define a dedicated test suite or separate test modules yet, so this command primarily verifies that the source's test compilation succeeds. Add focused tests as game logic is extracted into independently testable functions.
+This compiles and runs Zig tests declared in the source file. The current repository does not define a dedicated test suite yet. As modules are extracted, add focused tests for independently testable data and game logic. `main.zig` imports the extracted modules, so this command also checks that those module imports compile.
 
 ## Continuous integration
 
