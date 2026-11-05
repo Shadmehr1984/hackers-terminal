@@ -60,10 +60,10 @@ The implementation should keep each graph small enough to understand from termin
 - [x] Inspect CI before marking Implemented.
 
 ## Agent progress notes
-- Implemented the graph domain in `src/topology.zig`, attached optional topology data to `Mission`, and authored three distinct static graphs in `mission_data.zig`.
+- Implemented the graph domain in `src/domain/topology.zig`, attached optional topology data to `Mission`, and authored distinct static graphs in `src/catalog/mission_data.zig`.
 - Added `map` and `move`; location-gated scan, connection/authentication, decryption, analysis, and extraction; +5 detection per successful traversal; and transient current-node/traversal-count initialization/reset.
 - Added graph/data/session/game integration tests. Formatting, build, full tests, and agent-documentation checks passed in CI run [42005306937](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42005306937).
-- Repository review confirmed that mission definitions are static in `mission_data.zig`, runtime state is owned by `MissionSession`, and `game.zig` coordinates command behavior.
+- Repository review confirmed that mission definitions are static in `mission_data.zig`, runtime state is owned by `MissionSession`, and `src/application/game.zig` coordinates command behavior.
 - HT-001 was CI-verified in run 42001487382; HT-002 is now implemented.
 - Owner confirmed that all three missions need unique, purpose-built topologies.
 - Initial topology concepts and the +5-per-traversal risk rule are recorded above. The graph model, three mission maps, movement, location-gated operations, tests, and documentation are now implemented; verification and review completed; this task is implemented.
