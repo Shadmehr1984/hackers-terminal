@@ -6,44 +6,44 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 
 | Command | Arguments | Description |
 | --- | --- | --- |
-| `help` | None | Print the command list and mission flow |
-| `status` | None | Show handle, balance, reputation, level, XP, decryptor ownership, and active contract |
-| `missions` | None | List contracts and their availability |
-| `briefing` | None | Show clues for the active contract |
-| `history` | None | List completed contracts |
-| `inventory` | None | Show owned tools |
-| `shop` | None | List purchasable tools |
-| `save` | None | Save progress to `saves/player.sav` |
-| `clear` | None | Clear the terminal using an ANSI escape sequence |
-| `exit` | None | Leave the game |
+| \`help\` | None | Print the command list and mission flow |
+| \`status\` | None | Show handle, balance, reputation, level, XP, decryptor ownership, and active contract |
+| \`missions\` | None | List contracts, difficulty labels, and availability |
+| \`briefing\` | None | Show target, difficulty, and clues for the active contract |
+| \`history\` | None | List completed contracts |
+| \`inventory\` | None | Show owned tools |
+| \`shop\` | None | List purchasable tools |
+| \`save\` | None | Save progress to \`saves/player.sav\` |
+| \`clear\` | None | Clear the terminal using an ANSI escape sequence |
+| \`exit\` | None | Leave the game |
 
 ## Mission commands
 
 | Command | Arguments | Prerequisites | Effect |
 | --- | --- | --- | --- |
-| `accept <id>` | Contract ID | No other active contract; contract is not completed; required level reached | Makes the selected contract active and resets temporary mission-stage flags |
-| `scan <target>` | Exact target hostname | An active contract | Marks the active target as scanned |
-| `connect <target>` | Exact target hostname | Active contract has been scanned | Establishes the simulated session |
-| `disconnect` | None | None | Closes the simulated session |
-| `brute <password>` | Password answer | Active contract and connected session | Grants simulated authentication when the answer matches |
-| `decrypt <key>` | Decryption answer | Active contract, authentication granted, decryptor owned | Marks the mission file as decrypted when the key matches |
-| `extract <filename>` | Exact encrypted filename | Active contract and successful decryption | Completes the contract and awards rewards |
+| \`accept <id>\` | Contract ID | No other active contract; contract is not completed; required level reached | Makes the selected contract active and resets temporary mission-stage flags |
+| \`scan <target>\` | Exact target hostname | An active contract | Marks the active target as scanned |
+| \`connect <target>\` | Exact target hostname | Active contract has been scanned | Establishes the simulated session |
+| \`disconnect\` | None | None | Closes the simulated session |
+| \`brute <password>\` | Password answer | Active contract and connected session | Grants simulated authentication when the answer matches |
+| \`decrypt <key>\` | Decryption answer | Active contract, authentication granted, decryptor owned | Marks the mission file as decrypted when the key matches |
+| \`extract <filename>\` | Exact encrypted filename | Active contract and successful decryption | Completes the contract and awards rewards |
 
-The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state.
+Mission difficulty is currently descriptive metadata. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state.
 
 ## Economy commands
 
 | Command | Arguments | Description |
 | --- | --- | --- |
-| `buy <item>` | Item name | Purchase an item if it exists, is not already owned, and the player can afford it |
+| \`buy <item>\` | Item name | Purchase an item if it exists, is not already owned, and the player can afford it |
 
-Currently, the only item is `decryptor`, priced at $150.
+Currently, the only item is \`decryptor\`, priced at $150.
 
 ## Typical command sequence
 
 For the first contract:
 
-```text
+\`\`\`text
 missions
 accept job-01
 briefing
@@ -55,7 +55,7 @@ decrypt midnight
 extract ledger.enc
 status
 save
-```
+\`\`\`
 
 The password and decryption key above are the first contract's puzzle answers. Other contracts have different clues and answers; consult the briefing for the active contract.
 
