@@ -18,7 +18,7 @@ pub fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void
     for (missions) |mission| try writer.print("{d}\n", .{@as(u8, if (mission.completed) 1 else 0)});
 }
 
-fn readActive(lines: *std.mem.TokenIterator(u8, .scalar), missions: []Mission) ?usize {
+fn readActive(lines: anytype, missions: []Mission) ?usize {
     const value = lines.next() orelse return null;
     const parsed = std.fmt.parseInt(i64, value, 10) catch -1;
     if (parsed < 0) return null;
@@ -27,7 +27,7 @@ fn readActive(lines: *std.mem.TokenIterator(u8, .scalar), missions: []Mission) ?
     return null;
 }
 
-pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
+fn readLevel(value: []const u8) u2 {\n    const parsed = std.fmt.parseInt(u8, value, 10) catch 0;\n    return @intCast(@min(parsed, 2));\n}\n\npub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission) ?usize {
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
     const first_line = lines.next() orelse return null;
     var active: ?usize = null;
@@ -46,8 +46,8 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
                 else => null,
             };
         }
-        if (lines.next()) |v| player.equipment.silent_boots_level = @truncate(std.fmt.parseInt(u8, v, 10) catch 0);
-        if (lines.next()) |v| player.equipment.signal_scrubber_level = @truncate(std.fmt.parseInt(u8, v, 10) catch 0);
+        if (lines.next()) |v| player.equipment.silent_boots_level = readLevel(v);
+        if (lines.next()) |v| player.equipment.signal_scrubber_level = readLevel(v);
         if (player.equipment.equipped_utility) |utility| {
             if (!player.equipment.owns(utility)) player.equipment.equipped_utility = null;
         }
