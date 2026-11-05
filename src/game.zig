@@ -32,8 +32,8 @@ fn completeMission(writer: anytype, player: *Player, mission: Mission, session: 
     player.reputation += 1;
     player.xp += mission.xp_reward;
     const new_level = playerLevel(player.*);
-    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: \${d}", .{ mission.name, mission.reward });
-    if (bonus_reward > 0) try writer.print("\nOptional objective bonus: +\${d}", .{bonus_reward});
+    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}", .{ mission.name, mission.reward });
+    if (bonus_reward > 0) try writer.print("\nOptional objective bonus: +${d}", .{bonus_reward});
     try writer.print("\nXP gained: {d}\nReputation increased.\n", .{mission.xp_reward});
     if (new_level > old_level) try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
 }
@@ -57,7 +57,7 @@ fn applyDetection(
         const penalty = @min(player.balance, detection_failure_penalty);
         player.balance -= penalty;
         try writer.print(
-            "[CONTRACT FAILED] Detection reached 100/100. The operation was compromised. \${d} penalty applied; remaining balance: {d}. You may accept this contract again.\n",
+            "[CONTRACT FAILED] Detection reached 100/100. The operation was compromised. ${d} penalty applied; remaining balance: {d}. You may accept this contract again.\n",
             .{ penalty, player.balance },
         );
         active.* = null;
