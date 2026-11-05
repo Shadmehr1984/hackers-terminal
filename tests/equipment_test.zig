@@ -329,8 +329,7 @@ test "truncated and malformed saves are rejected without mutating live state" {
 
     const malformed =
         "HACKERS_TERMINAL_SAVE_V3\n" ++
-        "not-a-balance\ninvalid-reputation\ninvalid-xp\n" ++
-        "1\n3\ninvalid-utility\n9\n255\n999\n1\n0\n0\n0\n";
+        "999\n8\n100\n1\n3\n2\n2\n1\n-1\n0\n0\ninvalid-flag\n";
     try std.testing.expect(save.loadGameFromBytes(malformed, &player, &missions) == null);
     try std.testing.expectEqual(@as(u32, 321), player.balance);
     try std.testing.expectEqual(@as(u32, 7), player.reputation);
