@@ -25,15 +25,15 @@ This file is the persistent source of project-specific instructions for AI codin
 
 - `src/main.zig`: application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop.
 - `src/game.zig`: command dispatch, game-state validation/transitions, mission completion rewards, and player progression calculations.
-- `src/player.zig`: player profile data and defaults.
+- `src/player.zig`: player profile, typed equipment ownership, utility slot, upgrade levels, and pure risk modifier calculations.
 - `src/mission.zig`: mission/contract data types, optional topology reference, difficulty classification, and typed objective definitions.
 - `src/topology.zig`: foundational fictional graph nodes, links, adjacency lookup, and graph validation.
 - `src/mission_data.zig`: built-in mission catalog.
 - `src/mission_state.zig`: temporary active-mission progress, connection state, objective completion tracking, detection exposure (0–100), current topology node, and successful traversal count.
 - `src/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
 - `src/terminal.zig`: terminal presentation, including mission list, briefing-related output, and topology maps.
-- `src/save.zig`: persistence and compatibility with V2, V1, and legacy save formats.
-- `src/shop.zig`: inventory and shop behavior.
+- `src/save.zig`: V3 persistence and compatibility with V2, V1, and legacy save formats.
+- `src/shop.zig`: equipment catalog, inventory, purchases, equipping, and utility upgrades.
 - `tests/`: unit tests, separate from production source.
 - `docs/`: user and developer documentation.
 
@@ -52,12 +52,12 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 - Each built-in mission defines objectives using `MissionObjectiveKind`; successful scan, authentication, decryption, extraction, and optional metadata analysis actions complete their corresponding objectives.
 - `MissionObjective.optional` marks work that does not block contract completion. Completed optional objectives grant their configured `bonus_reward` when the contract is completed.
 - Objective completion and detection exposure are runtime-only session state. `extract` may complete a contract only when every required objective is complete. Keep the objective-kind bit positions within the current eight-bit session mask; redesign the storage before adding more than eight kinds.
-- Detection starts at 0 for each mission, is capped at 100, and is not serialized. At 100 the active contract fails, a $50 penalty (capped at the current balance) is applied, and the contract remains retryable. Keep action costs, threshold bands, and reset behavior covered by tests and documented in `docs/gameplay.md`.
+- Detection starts at 0 for each mission, is capped at 100, and is not serialized. At 100 the active contract fails, a $50 penalty (capped at the current balance) is applied, and the contract remains retryable. Keep action costs, threshold bands, and reset behavior covered by tests and documented in `docs/gameplay.md`. HT-003 equipment may reduce movement and incorrect-authentication costs only while the matching utility is equipped; base costs remain 5 and 15.
 - For missions with a topology, `map` displays the graph and `move <node-id>` permits only adjacent movement. Each successful traversal adds 5 detection, including revisits; invalid movement changes neither location nor detection. Scan, authentication, decryption, optional analysis, and extraction are restricted to their authored mission nodes. Current node and traversal count are runtime-only and must never be serialized.
 
 ## Persistence safety
 
-- Save compatibility is important. Existing V2, V1, and legacy saves must continue to load unless a deliberate migration is designed and documented.
+- Save compatibility is important. Existing V2, V1, and legacy saves must continue to load unless a deliberate migration is designed and documented. Current V3 persists typed utility ownership, equipped utility, and utility upgrade levels; older formats migrate with no utilities owned/equipped.
 - Do not change serialized field order, save version markers, defaults, or the save path as incidental parts of unrelated refactors.
 - Any intentional save-format change must update `docs/save-format.md`, include migration/compatibility handling where needed, and add or update tests.
 
