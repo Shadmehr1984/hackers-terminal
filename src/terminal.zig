@@ -28,7 +28,10 @@ pub fn printHelp(writer: anytype) !void {
         \\  map                  Show the active fictional network map
         \\  move <node-id>       Move to an adjacent map node (equipment may reduce Detection)
         \\  Detection is shown by 'status'; risky actions increase exposure.
-        \\  accept <id>          Accept a contract
+        \\  prepare <id>         Review a contract and prepare its loadout
+        \\  loadout <utility|none> Select this run's utility
+        \\  accept <id>          Launch the prepared contract
+        \\  cancel               Cancel mission preparation
         \\  scan <target>        Scan the active fictional target
         \\  connect <target>     Connect after scanning
         \\  disconnect           End the simulated connection
@@ -47,7 +50,7 @@ pub fn printHelp(writer: anytype) !void {
         \\  exit                 Leave the game
         \\
         \\MISSION FLOW
-        \\  missions -> accept -> briefing -> scan -> connect
+        \\  missions -> prepare -> loadout -> accept -> briefing -> scan -> connect
         \\  -> brute -> decrypt -> analyze (optional) -> extract
         \\
     );
@@ -107,7 +110,7 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32) !vo
         }
         try writer.writeAll("\n");
     }
-    try writer.writeAll("\nUse: accept <id>\n");
+    try writer.writeAll("\nUse: prepare <id>\n");
 }
 
 pub fn printObjectives(writer: anytype, mission: Mission, session: MissionSession) !void {
