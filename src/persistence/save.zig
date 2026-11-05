@@ -72,7 +72,18 @@ fn validateSave(data: []const u8, mission_count: usize) ?SaveFormat {
             .v3 => switch (field_index) {
                 0...2 => _ = std.fmt.parseInt(u32, value, 10) catch return null,
                 3 => _ = parseFlag(value) orelse return null,
-                4...7 => _ = std.fmt.parseInt(u8, value, 10) catch return null,
+                4 => {
+                    const owned = std.fmt.parseInt(u8, value, 10) catch return null;
+                    if (owned > 3) return null;
+                },
+                5 => {
+                    const equipped = std.fmt.parseInt(u8, value, 10) catch return null;
+                    if (equipped > 2) return null;
+                },
+                6...7 => {
+                    const level = std.fmt.parseInt(u8, value, 10) catch return null;
+                    if (level > 2) return null;
+                },
                 8 => {
                     const active = std.fmt.parseInt(i64, value, 10) catch return null;
                     if (active < -1) return null;
@@ -152,14 +163,14 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
             loaded_player.reputation = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
             loaded_player.xp = std.fmt.parseInt(u32, lines.next() orelse return null, 10) catch return null;
             loaded_player.equipment.has_decryptor = parseFlag(lines.next() orelse return null) orelse return null;
-            loaded_player.equipment.owned_utilities = @truncate(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null);
+            loaded_player.equipment.owned_utilities = @intCast(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null);
             loaded_player.equipment.equipped_utility = switch (std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null) {
                 1 => .silent_boots,
                 2 => .signal_scrubber,
                 else => null,
             };
-            loaded_player.equipment.silent_boots_level = @intCast(@min(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null, 2));
-            loaded_player.equipment.signal_scrubber_level = @intCast(@min(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null, 2));
+            loaded_player.equipment.silent_boots_level = @intCast(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null);
+            loaded_player.equipment.signal_scrubber_level = @intCast(std.fmt.parseInt(u8, lines.next() orelse return null, 10) catch return null);
             if (loaded_player.equipment.equipped_utility) |utility| {
                 if (!loaded_player.equipment.owns(utility)) loaded_player.equipment.equipped_utility = null;
             }
@@ -194,7 +205,7 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
         _ = migration_lines.next();
         for (0..fixedFieldCount(format)) |_| _ = migration_lines.next();
         for (missions) |mission| {
-            const completed = if (migration_lines.next()) |value| parseFlag(value).? else false;
+            const completed = if (migration_lines.next()) |value| (parseFlag(value) orelse false) else false;
             if (completed) {
                 loaded_player.xp = std.math.add(u32, loaded_player.xp, mission.xp_reward) catch return null;
             }
@@ -207,7 +218,7 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
     _ = completion_lines.next();
     for (0..fixedFieldCount(format)) |_| _ = completion_lines.next();
     for (missions) |*mission| {
-        mission.completed = if (completion_lines.next()) |value| parseFlag(value).? else false;
+        mission.completed = if (completion_lines.next()) |value| (parseFlag(value) orelse false) else false;
     }
 
     if (active_candidate) |index| {
