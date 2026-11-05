@@ -237,11 +237,11 @@ test "exclusive Ghost Signal offer is hidden while another contract is active or
     active = null;
     preparation.mission_index = 0;
     capture.len = 0;
-    try run(&capture, "offers", &player, @constCast(&missions), &active, &session, &preparation);
+    try run(&capture, "offers", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
 
     preparation.clear();
     capture.len = 0;
-    try run(&capture, "offers", &player, @constCast(&missions), &active, &session, &preparation);
+    try run(&capture, "offers", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") != null);
 }
