@@ -17,9 +17,7 @@ fn atMissionNode(mission: Mission, session: MissionSession, expected: []const u8
 pub fn playerLevel(player: Player) u32 {
     var level: u32 = 1;
     var next_level_xp: u32 = 100;
-    while (level < 99 and player.xp >= next_level_xp) : (level += 1) {
-        next_level_xp += 150;
-    }
+    while (level < 99 and player.xp >= next_level_xp) : (level += 1) next_level_xp += 150;
     return level;
 }
 
@@ -34,15 +32,12 @@ fn completeMission(writer: anytype, player: *Player, mission: Mission, session: 
     player.reputation += 1;
     player.xp += mission.xp_reward;
     const new_level = playerLevel(player.*);
-    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: ${d}", .{ mission.name, mission.reward });
-    if (bonus_reward > 0) try writer.print("\nOptional objective bonus: +${d}", .{bonus_reward});
+    try writer.print("\n[CONTRACT COMPLETE] {s}\nReward received: \${d}", .{ mission.name, mission.reward });
+    if (bonus_reward > 0) try writer.print("\nOptional objective bonus: +\${d}", .{bonus_reward});
     try writer.print("\nXP gained: {d}\nReputation increased.\n", .{mission.xp_reward});
-    if (new_level > old_level) {
-        try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
-    }
+    if (new_level > old_level) try writer.print("[LEVEL UP] You are now level {d}!\n", .{new_level});
 }
 
-/// Applies one simulated action cost. Returns true when the contract is failed.
 fn applyDetection(
     writer: anytype,
     player: *Player,
@@ -53,18 +48,16 @@ fn applyDetection(
     const previous_band = session.detectionBand();
     session.addDetection(amount);
     const current_band = session.detectionBand();
-
     if (current_band != previous_band and current_band != .compromised) {
         try writer.print("[DETECTION WARNING] Exposure is now {d}/100 ({s}).\n", .{
             session.detection_level, current_band.label(),
         });
     }
-
     if (session.detection_level >= 100) {
         const penalty = @min(player.balance, detection_failure_penalty);
         player.balance -= penalty;
         try writer.print(
-            "[CONTRACT FAILED] Detection reached 100/100. The operation was compromised. ${d} penalty applied; remaining balance: ${d}. You may accept this contract again.\n",
+            "[CONTRACT FAILED] Detection reached 100/100. The operation was compromised. \${d} penalty applied; remaining balance: {d}. You may accept this contract again.\n",
             .{ penalty, player.balance },
         );
         active.* = null;
@@ -89,42 +82,40 @@ pub fn runCommand(
     if (std.mem.eql(u8, command, "help")) {
         try terminal.printHelp(writer);
     } else if (std.mem.eql(u8, command, "status")) {
-        try terminal.printStatus(writer, player.*, active.*, missions, playerLevel(player.*), xpForNextLevel(playerLevel(player.*)), session.*);
+        const level = playerLevel(player.*);
+        try terminal.printStatus(writer, player.*, active.*, missions, level, xpForNextLevel(level), session.*);
+    } else if (std.mem.eql(u8, command, "missions")) {
+        try terminal.printMissions(writer, missions, playerLevel(player.*));
     } else if (std.mem.eql(u8, command, "map")) {
-        if (active.*) |index| {
-            try terminal.printMap(writer, missions[index], session.*);
-        } else try writer.writeAll("No active contract. Accept a mission first.\\n");
+        if (active.*) |index| try terminal.printMap(writer, missions[index], session.*) else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "move")) {
         if (active.*) |index| {
             if (missions[index].topology) |topology| {
                 if (session.current_node) |current| {
                     if (!topology.containsNode(arg)) {
-                        try writer.writeAll("Unknown node. Use 'map' to inspect this contract's network.\\n");
+                        try writer.writeAll("Unknown node. Use 'map' to inspect this contract's network.\n");
                     } else if (!topology.areAdjacent(current, arg)) {
-                        try writer.writeAll("That node is not directly connected to your current location.\\n");
+                        try writer.writeAll("That node is not directly connected to your current location.\n");
                     } else {
                         session.current_node = arg;
                         const node = topology.findNode(arg).?;
-                        try writer.print("[MOVED] {s} — {s}\\n", .{ node.id, node.label });
+                        try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
                         _ = try applyDetection(writer, player, active, session, 5);
                     }
-                } else try writer.writeAll("Current location is unavailable. Restart the contract.\\n");
-            } else try writer.writeAll("This contract has no network map.\\n");
-        } else try writer.writeAll("No active contract.\\n");
-    } else if (std.mem.eql(u8, command, "missions")) {
-        try terminal.printMissions(writer, missions, playerLevel(player.*));
+                } else try writer.writeAll("Current location is unavailable. Restart the contract.\n");
+            } else try writer.writeAll("This contract has no network map.\n");
+        } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "briefing")) {
         if (active.*) |index| {
             const mission = missions[index];
             try writer.print("CONTRACT BRIEFING: {s}\nTarget: {s}\nDifficulty: {s}\nPassword clue: {s}\nEncrypted file: {s}\nDecryption clue: {s}\n", .{
                 mission.name, mission.target, mission.difficulty.label(), mission.password_hint, mission.encrypted_file, mission.decryption_hint,
             });
+            if (mission.topology != null) try writer.writeAll("Network: use 'map' to inspect nodes and objective locations.\n");
             try terminal.printObjectives(writer, mission, session.*);
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "objectives")) {
-        if (active.*) |index| {
-            try terminal.printObjectives(writer, missions[index], session.*);
-        } else try writer.writeAll("No active contract. Accept a mission first.\n");
+        if (active.*) |index| try terminal.printObjectives(writer, missions[index], session.*) else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "accept")) {
         if (active.* != null) {
             try writer.writeAll("A contract is already active. Complete it first.\n");
@@ -137,6 +128,7 @@ pub fn runCommand(
                     if (mission.topology) |topology| session.current_node = topology.entry_node;
                     found = true;
                     try writer.print("Contract accepted: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
+                    if (session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
                     break;
                 }
             }
@@ -154,17 +146,18 @@ pub fn runCommand(
         }
     } else if (std.mem.eql(u8, command, "scan")) {
         if (active.*) |index| {
-            if (!std.mem.eql(u8, arg, missions[index].target)) {
+            const mission = missions[index];
+            if (!std.mem.eql(u8, arg, mission.target)) {
                 try writer.writeAll("No active contract matches that target.\n");
-            } else if (missions[index].topology) |topology| {
-                if (!atMissionNode(missions[index], session.*, topology.scan_node)) {
-                    try writer.print("Move to node '{s}' before scanning this target.\\n", .{topology.scan_node});
+            } else if (mission.topology) |topology| {
+                if (!atMissionNode(mission, session.*, topology.scan_node)) {
+                    try writer.print("Move to node '{s}' before scanning this target.\n", .{topology.scan_node});
                 } else {
                     const already_scanned = session.isObjectiveComplete(.scan_target);
                     session.markScanned();
                     session.completeObjective(.scan_target);
-                    try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\\n", .{arg});
-                    try writer.writeAll("A password challenge was identified.\\n");
+                    try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
+                    try writer.writeAll("A password challenge was identified.\n");
                     if (!already_scanned) _ = try applyDetection(writer, player, active, session, 10);
                 }
             } else {
@@ -178,8 +171,16 @@ pub fn runCommand(
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "connect")) {
         if (active.*) |index| {
-            if (!session.hasScanned() or !std.mem.eql(u8, arg, missions[index].target)) {
+            const mission = missions[index];
+            if (!session.hasScanned() or !std.mem.eql(u8, arg, mission.target)) {
                 try writer.writeAll("Scan the active target first: scan <target>\n");
+            } else if (mission.topology) |topology| {
+                if (!atMissionNode(mission, session.*, topology.auth_node)) {
+                    try writer.print("Move to node '{s}' before connecting.\n", .{topology.auth_node});
+                } else {
+                    session.connected = true;
+                    try writer.print("Simulated session established with {s}.\n", .{arg});
+                }
             } else {
                 session.connected = true;
                 try writer.print("Simulated session established with {s}.\n", .{arg});
@@ -190,9 +191,12 @@ pub fn runCommand(
         try writer.writeAll("Session closed.\n");
     } else if (std.mem.eql(u8, command, "brute")) {
         if (active.*) |index| {
-            if (!session.connected) {
+            const mission = missions[index];
+            if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.auth_node)) {
+                try writer.print("Move to node '{s}' before authentication.\n", .{mission.topology.?.auth_node});
+            } else if (!session.connected) {
                 try writer.writeAll("No session. Connect to the target first.\n");
-            } else if (std.mem.eql(u8, arg, missions[index].password)) {
+            } else if (std.mem.eql(u8, arg, mission.password)) {
                 const already_authenticated = session.isAuthenticated();
                 session.markAuthenticated();
                 session.completeObjective(.authenticate);
@@ -205,11 +209,14 @@ pub fn runCommand(
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "decrypt")) {
         if (active.*) |index| {
+            const mission = missions[index];
             if (!session.isAuthenticated()) {
                 try writer.writeAll("Authentication is required before decryption.\n");
+            } else if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.decrypt_node)) {
+                try writer.print("Move to node '{s}' before decryption.\n", .{mission.topology.?.decrypt_node});
             } else if (!player.has_decryptor) {
                 try writer.writeAll("Missing tool: decryptor. Visit the shop.\n");
-            } else if (std.mem.eql(u8, arg, missions[index].decryption_key)) {
+            } else if (std.mem.eql(u8, arg, mission.decryption_key)) {
                 const already_decrypted = session.isDecrypted();
                 session.markDecrypted();
                 session.completeObjective(.decrypt_file);
@@ -225,12 +232,11 @@ pub fn runCommand(
             const mission = missions[index];
             if (!session.isDecrypted() or !std.mem.eql(u8, arg, mission.encrypted_file)) {
                 try writer.writeAll("Decrypt the active mission file first: decrypt <key>\n");
-            } else if (mission.topology) |topology| {
-                if (!atMissionNode(mission, session.*, topology.analyze_node)) {
-                    try writer.print("Move to node '{s}' before metadata analysis.\\n", .{topology.analyze_node});
-                } else {
-                    var available = false;
-                    for (mission.objectives) |objective| {
+            } else if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.analyze_node)) {
+                try writer.print("Move to node '{s}' before metadata analysis.\n", .{mission.topology.?.analyze_node});
+            } else {
+                var available = false;
+                for (mission.objectives) |objective| {
                     if (objective.kind == .analyze_metadata and objective.optional) {
                         available = true;
                         break;
@@ -249,39 +255,21 @@ pub fn runCommand(
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "extract")) {
         if (active.*) |index| {
-            if (!session.isDecrypted() or !std.mem.eql(u8, arg, missions[index].encrypted_file)) {
+            const mission = missions[index];
+            if (!session.isDecrypted() or !std.mem.eql(u8, arg, mission.encrypted_file)) {
                 try writer.writeAll("The requested file is unavailable or still encrypted.\n");
-            } else if (missions[index].topology) |topology| {
-                if (!atMissionNode(missions[index], session.*, topology.extract_node)) {
-                    try writer.print("Move to node '{s}' before extracting this file.\\n", .{topology.extract_node});
-                } else {
-                    const already_extracted = session.isObjectiveComplete(.extract_file);
-                    session.completeObjective(.extract_file);
-                    if (!already_extracted and try applyDetection(writer, player, active, session, 5)) return true;
-                    if (!session.allObjectivesComplete(missions[index].objectives)) {
-                        try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\\n");
-                    } else {
-                        const finished = missions[index];
-                        missions[index].completed = true;
-                        try writer.print("[EXTRACTED] {s}\\n", .{finished.encrypted_file});
-                        try completeMission(writer, player, finished, session.*);
-                        active.* = null;
-                        session.reset();
-                    }
-                }
+            } else if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.extract_node)) {
+                try writer.print("Move to node '{s}' before extracting this file.\n", .{mission.topology.?.extract_node});
             } else {
                 const already_extracted = session.isObjectiveComplete(.extract_file);
                 session.completeObjective(.extract_file);
-                if (!already_extracted) {
-                    if (try applyDetection(writer, player, active, session, 5)) return true;
-                }
-                if (!session.allObjectivesComplete(missions[index].objectives)) {
+                if (!already_extracted and try applyDetection(writer, player, active, session, 5)) return true;
+                if (!session.allObjectivesComplete(mission.objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
-                    const finished = missions[index];
                     missions[index].completed = true;
-                    try writer.print("[EXTRACTED] {s}\n", .{finished.encrypted_file});
-                    try completeMission(writer, player, finished, session.*);
+                    try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
+                    try completeMission(writer, player, mission, session.*);
                     active.* = null;
                     session.reset();
                 }
