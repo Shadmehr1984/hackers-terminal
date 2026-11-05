@@ -1,7 +1,7 @@
 # Phase 1 — Contract and Mission Content
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-006 implemented; HT-007 implementation complete (PR #11 open/unmerged; CI passed); HT-008–009 planned  
+**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008–009 planned  
 **Goal:** Increase contract variety and replayability before expanding the wider world.
 
 ## Shared baseline and constraints
@@ -83,7 +83,7 @@ The completion bonus is granted exactly once only when a modified contract compl
 See the complete implementation contract in [HT-007 task brief](../tasks/HT-007-mission-modifiers.md). The implementation must cover typed definitions, eligibility, manual selection, pre-accept disclosure, immutable session snapshot, equipment/Detection interactions, sweep cadence, hardened decryption behavior, immediate compromise at 100, one-time payout, retry reset, and unchanged save compatibility. Zig 0.13.0 checks, docs, review, and actual CI are required before marking Implemented.
 
 ### Dependencies and scope boundaries
-Depends on HT-006 Contract Board, current Mission Preparation, MissionSession, equipment loadout snapshots, Detection, and progression. Do not add other modifier types, random selection, stacking, real-time timers, new missions, baseline rebalance, or persistence. Design approval is recorded in [ADR 0009](../decisions/0009-mission-modifiers.md); implementation is authorized and in progress; follow the milestone plan in the task brief.
+Depends on HT-006 Contract Board, current Mission Preparation, MissionSession, equipment loadout snapshots, Detection, and progression. Do not add other modifier types, random selection, stacking, real-time timers, new missions, baseline rebalance, or persistence. Design approval is recorded in [ADR 0009](../decisions/0009-mission-modifiers.md); implementation is complete and merged to `main`; follow the completed milestone record in the task brief.
 
 ## HT-008 — Hidden Objectives
 
