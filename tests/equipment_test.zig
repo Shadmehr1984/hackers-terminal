@@ -147,6 +147,26 @@ test "unknown save versions are rejected without mutating existing state" {
     try std.testing.expect(save.loadGameFromBytes("not-a-save-format\n", &player, &missions) == null);
 }
 
+test "active mission is validated against completion flags loaded from the same save" {
+    var completed_missions = mission_data.defaultMissions();
+    const inconsistent_v3 =
+        "HACKERS_TERMINAL_SAVE_V3\n" ++
+        "100\n0\n0\n0\n0\n0\n0\n0\n0\n1\n0\n0\n";
+    var completed_player = Player{};
+    const completed_active = save.loadGameFromBytes(inconsistent_v3, &completed_player, &completed_missions);
+    try std.testing.expect(completed_active == null);
+    try std.testing.expect(completed_missions[0].completed);
+
+    var incomplete_missions = mission_data.defaultMissions();
+    const valid_v3 =
+        "HACKERS_TERMINAL_SAVE_V3\n" ++
+        "100\n0\n0\n0\n0\n0\n0\n0\n1\n0\n0\n";
+    var incomplete_player = Player{};
+    const incomplete_active = save.loadGameFromBytes(valid_v3, &incomplete_player, &incomplete_missions);
+    try std.testing.expectEqual(@as(?usize, 1), incomplete_active);
+    try std.testing.expect(!incomplete_missions[1].completed);
+}
+
 test "save writes and replaces a V3 file in an isolated directory" {
     var tmp = std.testing.tmpDir(.{});
     defer tmp.cleanup();
