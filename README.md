@@ -72,7 +72,8 @@ For a complete walkthrough, see [Gameplay](docs/gameplay.md). For exact command 
 | [Architecture](docs/architecture.md) | Source layout, runtime state, data model, and command flow |
 | [Save Format](docs/save-format.md) | Save location, V2 layout, loading, and legacy migration |
 | [Development](docs/development.md) | Build, format, test, CI, and contribution notes |
-| [Agent Instructions](AGENTS.md) | Persistent architecture, coding, testing, and repository workflow rules |
+| [Agent Instructions](AGENTS.md) | Mandatory project rules and coding-agent entry point |
+| [Agent Workspace](.agent/README.md) | Agent workflow, module contracts, roadmap, ADRs, task template, and review checklist |
 
 ## Project layout
 
