@@ -67,7 +67,7 @@ While an operation is active, ordinary `prepare` and `cancel` cannot replace or 
 - `src/catalog/operation_data.zig`: `blackout-protocol` and its three stage definitions.
 - `src/domain/mission_objectives.zig`: add a narrow safe operation-facing reveal-by-stable-objective-ID transition; it may reveal only an authored hidden optional objective and must remain idempotent.
 - `src/application/game.zig`: coordinate operation commands, current stage preparation/acceptance, success/failure transitions, and save behavior. Keep domain modules free of terminal I/O and persistence imports.
-- `src/presentation/terminal.zig`: shared help output documents the operation commands; operation list/details/status output is currently emitted by the command coordinator. Hidden objectives remain undisclosed until their normal trigger or an approved incoming operation fact.
+- `src/presentation/terminal.zig`: operation list, details, status, help, and reusable stage presentation. Hidden objectives remain undisclosed until their normal trigger or an approved incoming operation fact.
 - `src/persistence/save.zig`: no schema changes; existing writer receives a null active index while an operation is active.
 - `tests/`: domain, catalog validation, command, transition, retry, carry-over, reward idempotency, restart, and save-compatibility tests.
 - Updated `docs/architecture.md`, `docs/gameplay.md`, `docs/commands.md`, `docs/save-format.md`, `AGENTS.md`, and agent handoff records as part of implementation.
