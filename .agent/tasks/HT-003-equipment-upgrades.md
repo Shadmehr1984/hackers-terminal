@@ -9,7 +9,7 @@
 Expand the existing shop/decryptor flag into a coherent equipment and upgrade system where player choices create meaningful, understandable trade-offs during simulated missions.
 
 ## Design direction
-- Inspect the existing `src/shop.zig`, `src/player.zig`, and save format before changing inventory.
+- Inspect the existing `src/application/shop.zig`, `src/domain/player.zig`, and save format before changing inventory.
 - Define a small equipment catalog and clear effects; avoid a large generic item framework.
 - Equipment effects may modify simulated risk, topology traversal, or action capabilities, but each modifier must be explicit and testable.
 - Establish ownership, equipping, upgrade costs, and insufficient-funds behavior.
@@ -17,10 +17,10 @@ Expand the existing shop/decryptor flag into a coherent equipment and upgrade sy
 - Preserve the current decryptor behavior and old save compatibility.
 
 ## Likely scope (verify before implementation)
-- `src/player.zig` or a focused inventory/equipment data module.
-- `src/shop.zig` for catalog, purchase, equip, and upgrade behavior.
-- `src/game.zig` for applying equipment effects to mission actions.
-- `src/save.zig` only if persistent inventory representation requires a deliberate versioned migration.
+- `src/domain/player.zig` or a focused inventory/equipment data module.
+- `src/application/shop.zig` for catalog, purchase, equip, and upgrade behavior.
+- `src/application/game.zig` for applying equipment effects to mission actions.
+- `src/persistence/save.zig` only if persistent inventory representation requires a deliberate versioned migration.
 - Tests and shop/gameplay/command/architecture/save documentation as required.
 
 ## Acceptance criteria
@@ -45,10 +45,10 @@ Expand the existing shop/decryptor flag into a coherent equipment and upgrade sy
 - [x] Inspect CI before marking Implemented.
 
 ## Agent progress notes
-- Initial handoff: scope and acceptance criteria recorded; implementation has not started.
+- Initial handoff note (historical): scope and acceptance criteria were recorded before implementation began. The completed implementation and verification are recorded below.
 
 
-## Source audit and implementation plan (2026-11-05)
+## Source audit and implementation plan (2026-11-05; historical pre-implementation snapshot)
 
 ### Verified current behavior
 - `Player` stores decryptor ownership as the standalone `has_decryptor` boolean.
