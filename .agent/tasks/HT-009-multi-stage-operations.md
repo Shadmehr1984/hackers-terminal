@@ -101,12 +101,12 @@ While an operation is active, ordinary `prepare` and `cancel` cannot replace or 
 
 ## Implementation milestones
 
-1. **[ ] Audit and model:** re-audit current main, mission success/failure/reset paths, reward idempotency, save behavior, parser, tests, and catalog; finalize exact types and invariants.
-2. **[ ] Domain/catalog:** add bounded Operation/OperationStage/OperationFact definitions, OperationState lifecycle, validation, and the first static operation.
-3. **[ ] Stage orchestration:** integrate operation list/details/start/status with preparation and accept flow; preserve standalone commands and stage order.
-4. **[ ] Carry-over:** implement safe reveal-by-objective-ID and typed fact grant/consume rules for the three-stage operation.
-5. **[ ] Recovery/rewards/save:** handle stage failure/retry, previously completed stage replay, per-stage reward eligibility, and runtime-only save/restart behavior without changing Save V3.
-6. **[ ] Regression and handoff:** add focused and integration tests, update gameplay/command/architecture/save/agent docs, review, and verify main CI.
+1. **[x] Audit and model:** re-audit current main, mission success/failure/reset paths, reward idempotency, save behavior, parser, tests, and catalog; finalize exact types and invariants.
+2. **[x] Domain/catalog:** add bounded Operation/OperationStage/OperationFact definitions, OperationState lifecycle, validation, and the first static operation.
+3. **[x] Stage orchestration:** integrate operation list/details/start/status with preparation and accept flow; preserve standalone commands and stage order.
+4. **[x] Carry-over:** implement safe reveal-by-objective-ID and typed fact grant/consume rules for the three-stage operation.
+5. **[x] Recovery/rewards/save:** handle stage failure/retry, previously completed stage replay, per-stage reward eligibility, and runtime-only save/restart behavior without changing Save V3.
+6. **[x] Regression and handoff:** add focused and integration tests, update gameplay/command/architecture/save/agent docs, review, and verify main CI.
 
 ## Progress log
 
