@@ -58,7 +58,12 @@ pub fn runCommand(
             try writer.print("CONTRACT BRIEFING: {s}\nTarget: {s}\nDifficulty: {s}\nPassword clue: {s}\nEncrypted file: {s}\nDecryption clue: {s}\n", .{
                 mission.name, mission.target, mission.difficulty.label(), mission.password_hint, mission.encrypted_file, mission.decryption_hint,
             });
+            try terminal.printObjectives(writer, mission, session.*);
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
+    } else if (std.mem.eql(u8, command, "objectives")) {
+        if (active.*) |index| {
+            try terminal.printObjectives(writer, missions[index], session.*);
+        } else try writer.writeAll("No active contract. Accept a mission first.\\n");
     } else if (std.mem.eql(u8, command, "accept")) {
         if (active.* != null) {
             try writer.writeAll("A contract is already active. Complete it first.\n");
@@ -91,6 +96,7 @@ pub fn runCommand(
                 try writer.writeAll("No active contract matches that target.\n");
             } else {
                 session.markScanned();
+                session.completeObjective(.scan_target);
                 try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                 try writer.writeAll("A password challenge was identified.\n");
             }
@@ -113,6 +119,7 @@ pub fn runCommand(
                 try writer.writeAll("No session. Connect to the target first.\n");
             } else if (std.mem.eql(u8, arg, missions[index].password)) {
                 session.markAuthenticated();
+                session.completeObjective(.authenticate);
                 try writer.writeAll("[ACCESS GRANTED] Authentication challenge solved.\n");
             } else {
                 try writer.writeAll("[ACCESS DENIED] Incorrect password. Check the mission briefing.\n");
@@ -126,6 +133,7 @@ pub fn runCommand(
                 try writer.writeAll("Missing tool: decryptor. Visit the shop.\n");
             } else if (std.mem.eql(u8, arg, missions[index].decryption_key)) {
                 session.markDecrypted();
+                session.completeObjective(.decrypt_file);
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now extract the file.\n");
             } else {
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
