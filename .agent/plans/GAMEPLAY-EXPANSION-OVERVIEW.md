@@ -2,14 +2,14 @@
 
 **Program ID:** EXPANSION-001  
 **Owner direction:** Approved for planning on 2026-11-05  
-**Implementation authorization:** HT-007 specifically authorized on 2026-11-05; all other features still require explicit owner authorization  
-**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); all other features remain subject to per-feature approval
+**Implementation authorization:** HT-007 specifically authorized and completed; HT-008 design approved on 2026-11-05 but implementation not yet authorized; all other features require explicit owner authorization  
+**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation and all other features remain subject to explicit authorization
 
 ## Purpose
 
 Expand the length, variety, replayability, and sense of a living fictional cyber-world while preserving Hacker's Terminal's identity: a single-player, command-driven, text-terminal hacking simulation. This document is the persistent handoff contract for future agents. It replaces reliance on the originating chat: an agent must be able to understand the intended work, dependencies, constraints, and verification expectations from repository files.
 
-This is primarily a planning artifact, not blanket implementation authorization. HT-007 is the sole feature explicitly authorized and implemented so far; it is merged to `main` via PR #11. Do not add gameplay code, commands, save fields, balance values, or user-facing behavior for any other feature until the owner explicitly authorizes it.
+This is primarily a planning artifact, not blanket implementation authorization. HT-007 is implemented and merged to `main` via PR #11. HT-008 design is approved, but its implementation is not authorized. Do not add gameplay code, commands, save fields, balance values, or user-facing behavior for HT-008 or any other feature until the owner explicitly authorizes implementation.
 
 ## Current baseline verified during planning
 
@@ -158,10 +158,9 @@ During/after implementation:
 
 ## Open design decisions — deliberately not pre-decided
 
-The following require a feature-specific design and owner approval before implementation:
+The following require a feature-specific design and owner approval before implementation (HT-008 objective storage/discovery decisions are recorded in ADR 0010):
 - Contract Board command surface and whether the existing `missions` command is extended or a new command is added.
 - Future modifier additions, eligibility changes, stacking, or automatic selection beyond the accepted HT-007 design.
-- Objective storage redesign beyond eight objective kinds.
 - Multi-stage operation reward timing, retry model, and persistence.
 - Faction relationship representation and any save impact.
 - Rival simulation cadence and how rivals affect availability/results without frustrating the player.
