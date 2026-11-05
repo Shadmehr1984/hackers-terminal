@@ -12,7 +12,7 @@ Hacker's Terminal needs controlled replay variation without opaque random penalt
 
 - The player manually selects zero or one modifier during Mission Preparation using the separate `modifier [id|none]` command.
 - The initial set is `heightened-monitoring`, `security-sweep`, and `hardened-encryption`.
-- All three are authored as available on the four current built-in contracts. Eligibility remains static catalog metadata.
+- Proposed eligibility default (confirm before implementation): make all three available on the four current built-in contracts. Eligibility remains static catalog metadata.
 - Exact effects and the completion bonus are disclosed before `accept`.
 - `accept` snapshots the selection into runtime-only MissionSession state; static Mission definitions are never mutated.
 - Modifier selection and Security Sweep cadence are runtime-only. Save V3 and V2/V1/legacy compatibility remain unchanged.
