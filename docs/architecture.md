@@ -17,7 +17,7 @@ There is no client/server split, real networking layer, database, plugin system,
 | `src/mission_state.zig` | Runtime-only preparation choice, active mission progress, connection state, objective completion bitset, detection exposure, topology position, traversal count, per-run loadout snapshot, and Fixer service-use flag |
 | `src/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
 | `src/save.zig` | Save/load persistence for player progress and mission completion state |
-| `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, history, and topology map |
+| `src/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contacts, offers, history, and topology map |
 | `src/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/commands.zig` | Parses an input line into a command name and its first argument |
 | `src/game.zig` | Coordinates the shared preparation-aware command dispatcher, Contact commands, offer transactions, and game-state transitions |
