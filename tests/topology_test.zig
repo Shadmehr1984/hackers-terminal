@@ -135,6 +135,6 @@ test "topology validation returns false when either traversal allocation fails" 
             .allocator = std.testing.allocator,
             .fail_index = fail_index,
         });
-        try std.testing.expect(!graph.isValid(failing_allocator.allocator()));
+        try std.testing.expect(!graph.isValid(failing_allocator.allocator(@returnAddress())));
     }
 }
