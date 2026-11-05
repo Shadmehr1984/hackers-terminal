@@ -16,7 +16,7 @@ The project owner approved these five feature areas on 2026-11-05. Implement the
 
 | Order | Feature | Task brief | Status | Dependency |
 |---:|---|---|---|---|
-| 1 | Detection & Risk System | [HT-001](tasks/HT-001-detection-risk.md) | Planned | None |
+| 1 | Detection & Risk System | [HT-001](tasks/HT-001-detection-risk.md) | In Progress | None |
 | 2 | Fictional Network Topology | [HT-002](tasks/HT-002-network-topology.md) | Planned | Detection/risk model should be defined first so topology can expose risk-aware choices |
 | 3 | Equipment & Upgrade System | [HT-003](tasks/HT-003-equipment-upgrades.md) | Planned | Detection/risk and topology provide meaningful equipment trade-offs |
 | 4 | Mission Preparation | [HT-004](tasks/HT-004-mission-preparation.md) | Planned | Reuses mission topology, equipment, and risk concepts |
