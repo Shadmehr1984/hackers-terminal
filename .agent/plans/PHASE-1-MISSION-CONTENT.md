@@ -50,7 +50,7 @@ Make repeat runs of an existing contract mechanically different through a small 
 - New separate command: `modifier [id|none]`. Preserve all existing command behavior, especially `missions` and `board`.
 - Zero or one modifier per run; no stacking. No selection means normal mission rules.
 - Exact effects and bonus are disclosed before `accept`; the selected modifier is copied into an immutable runtime session snapshot.
-- Proposed default, pending owner confirmation: all three modifiers are available for all four current built-in contracts. Eligibility remains static catalog metadata.
+- Owner-confirmed on 2026-11-05: all three modifiers are available for all four current built-in contracts. Eligibility remains static catalog metadata.
 - Modifier state and Security Sweep cadence are runtime-only. No Save V3 or legacy format changes.
 
 | ID | Exact effect | Successful completion bonus |
