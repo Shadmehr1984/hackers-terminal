@@ -151,6 +151,7 @@ fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) 
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
     const first_line = lines.next() orelse return null;
     var active: ?usize = null;
+    var migrate_v1_xp = false;
 
     if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V2")) {
         if (lines.next()) |value| player.balance = std.fmt.parseInt(u32, value, 10) catch player.balance;
@@ -165,7 +166,8 @@ fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) 
             }
         }
     } else if (std.mem.eql(u8, first_line, "HACKERS_TERMINAL_SAVE_V1")) {
-        // V1 saves did not store XP; keep them at level 1.
+        // Reconstruct XP from completed contracts because V1 did not store it.
+        migrate_v1_xp = true;
         if (lines.next()) |value| player.balance = std.fmt.parseInt(u32, value, 10) catch player.balance;
         if (lines.next()) |value| player.reputation = std.fmt.parseInt(u32, value, 10) catch player.reputation;
         if (lines.next()) |value| player.has_decryptor = std.mem.eql(u8, value, "1");
@@ -186,6 +188,11 @@ fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) 
     for (missions) |*mission| {
         if (lines.next()) |value| {
             mission.completed = std.mem.eql(u8, value, "1");
+        }
+    }
+    if (migrate_v1_xp) {
+        for (missions) |mission| {
+            if (mission.completed) player.xp += mission.xp_reward;
         }
     }
     return active;
