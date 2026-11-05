@@ -1,7 +1,7 @@
 # Phase 1 — Contract and Mission Content
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implemented on `main` (design ADR 0010; owner authorization and CI run #679 passed); HT-009 design approved (ADR 0011; Runtime-only), implementation not authorized  
+**Status:** HT-006 implemented; HT-007 implemented and merged (PR #11; CI passed); HT-008 implemented on `main` (ADR 0010; CI #679 passed); HT-009 implementation in progress on `main` (ADR 0011; Runtime-only; owner authorized)  
 **Goal:** Increase contract variety and replayability before expanding the wider world.
 
 ## Shared baseline and constraints
@@ -112,7 +112,7 @@ Design approved and implementation explicitly authorized by the owner on 2026-11
 
 ## HT-009 — Multi-stage Operations
 
-**Status:** Design Approved (2026-11-06); Runtime-only persistence approved; implementation not authorized. See [task brief](../tasks/HT-009-multi-stage-operations.md) and [ADR 0011](../decisions/0011-multi-stage-operations.md).
+**Status:** In Progress (2026-11-06); Runtime-only persistence approved; implementation explicitly authorized. See [task brief](../tasks/HT-009-multi-stage-operations.md) and [ADR 0011](../decisions/0011-multi-stage-operations.md).
 
 ### Goal
 Create longer linear operations made of sequential existing contracts. Successful stage results may transfer narrowly defined mechanical facts that reveal optional objectives in later stages.
