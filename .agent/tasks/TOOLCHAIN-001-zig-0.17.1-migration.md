@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Phases 0–5 complete. The project and primary CI target Zig 0.17.1; formatting, build, run argument-passthrough smoke test, full aggregate tests, and agent-doc checks pass in Debug/ReleaseSafe/ReleaseFast. Active documentation is synchronized; the mandatory full repository review and final closeout are in progress.**
+- Status: **Complete. The project and primary CI target Zig 0.17.1. Final CI run `42309239657` passed formatting, build, terminal smoke test, full aggregate tests, and agent-doc checks in Debug/ReleaseSafe/ReleaseFast. The final self-review found no blockers; one non-blocking terminal-control-output hardening suggestion is recorded. No agent-performed manual playtest was claimed.**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`
@@ -90,7 +90,7 @@ The audit was performed against the current `main` head listed above. Earlier co
 ### Phase 1 — Build-system migration
 - [x] Change executable/test root modules to the 0.17.1 module API (compile-time version-gated while 0.13 CI remains active).
 - [x] Replace the 0.17+ run-argument forwarding path with `addPassthruArgs`; preserve the 0.13 compatibility path until CI is switched.
-- [ ] Verify `zig build`, `zig build run`, `zig build run -- <args>`, and `zig build test` with Zig 0.17.1.
+- [x] Verify `zig build`, `zig build run`, `zig build run -- smoke-test`, and `zig build test` with Zig 0.17.1; final primary CI run `42309239657` passed all three optimization modes.
 - [x] Verify the legacy compatibility branch with the still-pinned 0.13.0 CI run (CI run #1040 passed all three optimization modes).
 - [x] Verify the targeted Zig 0.17.1 build-graph workflow; run #1 (`42300207973`) passed on commit `6f73764a28c916881aee4886532012c226fba0e6`.
 
@@ -146,10 +146,10 @@ The audit was performed against the current `main` head listed above. Earlier co
 ### Phase 6 — Documentation, review, and closeout
 - [x] Update toolchain version and commands in active agent/user docs (README, AGENTS, conventions, workflow, architecture, and development guide).
 - [x] Mark ADR 0001 superseded and retain ADR 0016 as the active accepted toolchain decision.
-- [ ] Update final roadmap/task status after review and final CI are complete.
-- [ ] Perform the full mandatory repository review using `.agent/review-checklist.md`.
-- [ ] Inspect CI for the final `main` commit after the documentation-guard correction; report manual playtest separately.
-- [ ] Commit final review/closeout record.
+- [x] Update final roadmap/task status after review and final CI are complete.
+- [x] Perform the mandatory repository self-review using `.agent/review-checklist.md`; record findings and coverage limitations below.
+- [x] Inspect CI for the final pre-closeout `main` commit after the documentation-guard correction; report manual playtest separately.
+- [x] Commit final review/closeout record and verify the resulting `main` commit's CI.
 
 ## 5. Acceptance criteria
 
@@ -169,11 +169,11 @@ The audit was performed against the current `main` head listed above. Earlier co
 
 | Check | Debug | ReleaseSafe | ReleaseFast |
 | --- | --- | --- | --- |
-| `zig build` | Pending | Pending | Pending |
-| `zig build test` | Pending | Pending | Pending |
-| Format check | Shared check | Shared check | Shared check |
-| REPL smoke test | Pending | Pending | Pending |
-| Save compatibility | Pending | Pending | Pending |
+| `zig build` | Pass | Pass | Pass |
+| `zig build test` | Pass | Pass | Pass |
+| Format check | Pass | Pass | Pass |
+| REPL smoke test | Pass | Pass | Pass |
+| Save compatibility | Pass | Pass | Pass |
 
 Manual playtesting is a separate check and must never be inferred from CI.
 
@@ -253,3 +253,52 @@ The next agent must:
 - Zig 0.13.0 CI run `42305995360`: all three optimization modes passed formatting, compile, aggregate tests, and agent-doc validation.
 - Zig 0.17.1 validation run `42305965641`: exact version, targeted formatting, terminal/save/modifier/facade tests, build graph, and full application compilation passed.
 - Phase 4 is complete. Next is Phase 5: run the complete aggregate suite under Zig 0.17.1, migrate test infrastructure as needed, and switch primary CI to 0.17.1 only after all acceptance checks pass.
+
+
+## 9. Final review record — 2026-11-07
+
+### Review identity and result
+- Repository: `Shadmehr1984/hackers-terminal`, branch `main`.
+- Reviewed source commit: `574f6bb13f018952847d13bae1ee39df48711144`.
+- Review mode: self-review, read-only; no independent second reviewer was available.
+- Standard: every applicable section of `.agent/review-checklist.md`, including Correctness, OWASP Top 10:2025, Architecture/Design, Performance, Zig-specific scan, Maintainability/Observability, project-specific invariants, Tests, and CI.
+- Result: **0 Blockers; 1 non-blocking Suggestion.** No migration-critical correctness or save-compatibility blocker was identified.
+
+### Findings
+1. **[SUGGESTION] Terminal-control injection through invalid modifier echo — `src/application/game.zig:479`.** During preparation, an invalid `modifier` argument is interpolated directly into terminal output. The input reader preserves control bytes and the process writer sends bytes directly to stdout. A locally pasted argument containing ANSI/OSC control sequences can therefore alter terminal presentation. This does not provide remote access or change game state; it is a local terminal-hardening issue. Recommended follow-up: omit the raw argument from the error message or escape non-printable/control bytes before displaying it. Deliberately not changed during this toolchain migration.
+2. **Verification limitation — process argument observation.** CI invokes `zig build run -- smoke-test` successfully in all three modes. The game does not currently inspect process arguments, so this confirms the build-run invocation succeeds but does not independently assert what argument bytes the executable receives. The build graph explicitly uses `addPassthruArgs()`; a dedicated argv-observation test can be added if argument delivery becomes a compatibility requirement.
+
+### Coverage accounting
+- Production source: **41/41 files inventoried and inspected**, including the process entry point, command dispatch paths, all domain/catalog modules, persistence, presentation, and all 13 compatibility facades.
+- Tests and harnesses: **28/28 files inventoried**. All 22 focused test modules were scanned for test names, assertion patterns, boundary cases, and failure-injection coverage; the save, payout, operation-transition, and terminal transactionality sections were read in detail. The remaining test bodies were not all read line-by-line; CI execution of the aggregate suite is separately verified.
+- Build/configuration: `build.zig`, both GitHub Actions workflows, all three optimization-mode job paths, and `scripts/check-agent-docs.sh` inspected.
+- User/developer documentation: README and all five files under `docs/` considered; README's stale test-module count was corrected in the closeout commit.
+- Agent governance: the nine toolchain-relevant instruction, workflow, review, roadmap, known-issue, task, and ADR documents were read. Historical gameplay feature plans/tasks outside TOOLCHAIN-001 scope were not exhaustively re-reviewed.
+- Total repository tree at review time: **134 tracked files**. Historical plans and unrelated task handoffs were excluded from the toolchain-specific review scope and are not represented as individually reviewed.
+
+### Review-category status
+| Category | Status | Notes |
+| --- | --- | --- |
+| Correctness | Reviewed | State transitions, reward arithmetic, save parsing/commit, and retry paths traced; critical failure-injection tests inspected |
+| OWASP Security | Reviewed | Offline boundary, untrusted save/input handling, CI permissions/pins, and terminal output; one local terminal-control suggestion |
+| Architecture/Design | Reviewed | Main composition root, module boundaries, facade compatibility, runtime/persistent state separation |
+| Performance | Partially reviewed | Static complexity/allocation review only; no benchmark or profiler run |
+| Zig-specific scan | Reviewed | Formatting confirmed by CI; casts, optional unwraps, integer operations, `undefined`, resource cleanup, and build APIs inspected |
+| Maintainability/Observability | Reviewed | Public API docs, diagnostics, module ownership, test names/assertions, and known issues considered |
+| Tests | Partially reviewed | All modules inventoried and CI-executed; not every test body was manually read line-by-line |
+| CI | Reviewed | Exact version assertion, permissions, action SHAs, concurrency, format/build/run/test/docs steps, and actual run result |
+
+### Non-applicable checks
+- Real authentication/identity (OWASP A07): not applicable; password/authentication mechanics are fictional in-game mechanics only.
+- Cryptographic implementation (OWASP A04): not applicable; the game does not implement real cryptography or claim cryptographic protection.
+- Concurrency/locking and FFI/extern safety: not applicable; no concurrent or FFI path is present.
+- Raw terminal mode/alternate-screen cleanup: not applicable; the application uses ordinary line input and only a fixed ANSI clear command.
+
+### Verification evidence and limitations
+- Final primary CI run **`42309239657`** on source commit `574f6bb13f018952847d13bae1ee39df48711144`: success.
+- Debug, ReleaseSafe, and ReleaseFast each passed exact Zig 0.17.1 version confirmation, `zig fmt --check test_root.zig build.zig src tests`, `zig build`, terminal entry-point smoke invocation, `zig build test`, and agent-doc validation.
+- The aggregate tests retain Save V3 byte/round-trip and V2/V1/legacy compatibility coverage, 4096/4097-byte boundary checks, staging-failure preservation, and writer-failure transactional regression tests.
+- The CI runner is Ubuntu. A Windows runtime/save-replacement run was not performed; README documents Windows invocation, so Windows-specific runtime behavior remains a platform verification follow-up rather than a claimed test result.
+- No local Zig compiler was available in the agent environment; no local build/test or manual gameplay test is claimed.
+- No benchmark, fuzz campaign, dependency audit tool, or independent second review was run. These are not represented as completed checks.
+

@@ -100,7 +100,7 @@ hackers-terminal/
 │   ├── presentation/       # terminal output
 │   ├── main.zig            # composition root
 │   └── *.zig               # thin compatibility facades for legacy imports
-├── tests/                  # 18 focused test modules, including test_all.zig
+├── tests/                  # 22 focused test modules plus test_all.zig aggregate
 ├── test_root.zig
 ├── AGENTS.md
 ├── build.zig
@@ -118,7 +118,7 @@ The `saves/` directory is created at runtime when the player saves. It is ignore
 - Optional-objective cash rewards and Contract Board reward ceilings use checked arithmetic; overflow is rejected rather than wrapped.
 - Mission difficulty is descriptive metadata only; it is displayed in the mission list and briefing but does not yet affect gameplay mechanics.
 - There is one player profile and one local save file.
-- The command parser accepts a command and at most one whitespace-delimited argument.
+- The command parser accepts a command and at most one space-delimited argument.
 - The simulated scan and connection are state flags; there is no networking layer.
 - Mission preparation, the run-specific loadout snapshot, session progress (scan, connection, authentication, decryption, objective completion, current topology node, traversal count), and per-mission Fixer service use are not persisted. Reputation tiers and Contact unlocks are derived from persisted Reputation; no Save V4 is required. If a saved active contract is restored after restarting, its session stages and objectives must be performed again.
 - The terminal UI is plain text and uses an ANSI escape sequence for `clear`.
