@@ -9,6 +9,7 @@
 
 - Interactive terminal command loop and command parser
 - Five fictional contracts with target-specific clues and puzzle answers
+- Five deterministic fictional rival hackers with contestable optional intelligence and dossier commands (`rivals`, `rival <id>`)
 - Seven fictional factions with derived standing, symmetric relationships, and faction-locked contract access
 - A Contract Board with derived availability and reward ranges
 - Multi-stage Operations with ordered stages, carry-over facts, retry behavior, and start-time faction preauthorization
@@ -92,9 +93,9 @@ hackers-terminal/
 ├── scripts/check-agent-docs.sh
 ├── src/
 │   ├── application/        # commands, detection, game, shop
-│   ├── catalog/            # faction_data, mission_data, operation_data
+│   ├── catalog/            # faction_data, mission_data, operation_data, rival_data
 │   ├── domain/             # contacts, contract_board, factions, missions,
-│   │                       # objectives, operations, player, progression, topology
+│   │                       # objectives, operations, player, progression, rivals, topology
 │   ├── persistence/        # save/load and legacy compatibility
 │   ├── presentation/       # terminal output
 │   ├── main.zig            # composition root
@@ -113,6 +114,7 @@ The `saves/` directory is created at runtime when the player saves. It is ignore
 - The game currently contains five built-in missions defined in `src/catalog/mission_data.zig`; `job-04` (Ghost Signal) remains the exclusive Fixer offer, and `job-05` (Corporate Ghost) is appended at index 4 with level 2 and Reputation 2 requirements plus Nexus Dynamics faction access.
 - Faction standing is derived from Reputation and completed contract affiliations; no per-faction score is saved. Hostile client standing blocks contract access, while an Operation that passed all stage checks at start remains preauthorized.
 - The authored `blackout-protocol` Operation sequences Cold Storage, Paper Trail, and Quiet Exit. Operation state and carry-over facts are runtime-only.
+- Five authored rivals contest one hidden optional objective each. Their outcomes are deterministic and runtime-only; losing an optional objective can forfeit the existing all-optional +1 Reputation bonus for that run, while required objectives and extraction remain available.
 - Optional-objective cash rewards and Contract Board reward ceilings use checked arithmetic; overflow is rejected rather than wrapped.
 - Mission difficulty is descriptive metadata only; it is displayed in the mission list and briefing but does not yet affect gameplay mechanics.
 - There is one player profile and one local save file.
