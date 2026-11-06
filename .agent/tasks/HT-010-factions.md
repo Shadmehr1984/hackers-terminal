@@ -66,10 +66,10 @@ These affiliations are static catalog metadata and do not alter existing puzzle 
 - [x] Faction dossier/list terminal views are available.
 - [x] Contract preparation, exclusive contract access, and operation start enforce hostile-standing restrictions.
 - [x] Save V3/V2/V1/legacy formats remain unchanged.
-- [ ] HT-010.1 Corporate Ghost is appended at index 4 with the approved Nexus Dynamics / Null Syndicate affiliation and preserves earlier contract indices.
-- [ ] The new contract is faction-locked at Nexus Hostile standing and becomes available after Quiet Exit raises standing to Wary.
-- [ ] Its seven-node topology, five required objectives, visible optional objective, and hidden mirror-node objective are validated and covered by end-to-end tests.
-- [ ] Catalog validation and focused regression tests pass in CI.
+- [x] HT-010.1 Corporate Ghost is appended at index 4 with the approved Nexus Dynamics / Null Syndicate affiliation and preserves earlier contract indices.
+- [x] The new contract is faction-locked at Nexus Hostile standing and becomes available after Quiet Exit raises standing to Wary.
+- [x] Its seven-node topology, five required objectives, visible optional objective, and hidden mirror-node objective are validated and covered by end-to-end tests.
+- [x] Catalog validation and focused regression tests pass in CI.
 - [ ] Formatting, build, complete tests, and agent-doc checks pass in CI.
 - [ ] Comprehensive change review against .agent/review-checklist.md is complete.
 - [ ] Final docs/handoff and CI result are recorded.

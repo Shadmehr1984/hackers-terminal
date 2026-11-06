@@ -1,6 +1,6 @@
 # ADR 0013 — Corporate Ghost as the fifth contract
 
-- **Status:** Accepted; implementation in progress
+- **Status:** Accepted; implemented on `main`
 - **Date:** 2026-11-06
 - **Feature:** HT-010.1 — Corporate Ghost
 - **Decision owner:** Project owner
