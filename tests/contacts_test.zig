@@ -8,6 +8,15 @@ const progression = @import("../src/progression.zig");
 const contacts = @import("../src/contacts.zig");
 const game = @import("../src/game.zig");
 
+const FailingWriter = struct {
+    pub fn writeAll(_: @This(), _: []const u8) error{OutputFailure}!void {
+        return error.OutputFailure;
+    }
+    pub fn print(_: @This(), comptime _: []const u8, _: anytype) error{OutputFailure}!void {
+        return error.OutputFailure;
+    }
+};
+
 const Capture = struct {
     buffer: [8192]u8 = undefined,
     len: usize = 0,
@@ -254,4 +263,20 @@ test "exclusive Ghost Signal offer is hidden while another contract is active or
     capture.len = 0;
     try run(&capture, "offers", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") != null);
+}
+
+
+test "Broker purchase does not charge the player when purchase output fails" {
+    var player = Player{ .balance = 500, .reputation = 1, .xp = 100 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(FailingWriter{}, "deal intel-job-02", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(@as(u32, 500), player.balance);
 }
