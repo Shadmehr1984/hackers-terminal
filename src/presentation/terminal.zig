@@ -11,6 +11,9 @@ const contacts = @import("../domain/contacts.zig");
 const contract_board = @import("../domain/contract_board.zig");
 const operation_data = @import("../catalog/operation_data.zig");
 const operation_model = @import("../domain/operation.zig");
+const faction = @import("../domain/faction.zig");
+const FactionId = @import("../domain/faction_id.zig").FactionId;
+const faction_data = @import("../catalog/faction_data.zig");
 
 /// Writes the game banner.
 pub fn printBanner(writer: anytype) !void {
@@ -151,6 +154,7 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
             .level = level,
             .reputation = reputation,
             .another_contract_busy = another_contract_busy,
+            .missions = missions,
         });
         try writer.print("  [{s}] {s} — {s} | {s} | ${d}-${d} + {d} XP | {s}\n", .{
             mission.id,
@@ -162,16 +166,52 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
             mission.xp_reward,
             entry.availability.label(),
         });
+        const client = faction_data.find(mission.client_faction).?;
+        const standing = faction.playerStanding(mission.client_faction, reputation, missions);
+        try writer.print("    Client: {s} | Your standing: {s} | Security: {d}/5\n", .{ client.name, standing.label(), client.security_rating });
+        if (mission.target_owner_faction) |owner_id| {
+            const owner = faction_data.find(owner_id).?;
+            try writer.print("    Target owner: {s}\n", .{owner.name});
+        }
         if (entry.availability == .locked) {
             if (entry.level_locked) try writer.print("    Requires level {d} (current: {d}).\n", .{ mission.required_level, level });
             if (entry.reputation_locked) try writer.print("    Requires Reputation {d} (current: {d}).\n", .{ mission.required_reputation, reputation });
         } else if (entry.availability == .exclusive) {
             try writer.writeAll("    Obtain this contract through its Contact offer.\n");
+        } else if (entry.availability == .faction_blocked) {
+            try writer.print("    {s} is hostile to you; complete contracts for this faction to restore access.\n", .{client.name});
         } else if (entry.availability == .unavailable) {
             try writer.writeAll("    Finish or fail the active contract, or cancel the current preparation, before selecting another.\n");
         }
     }
     try writer.writeAll("\nUse prepare <id> for standard contracts; use the relevant Contact offer for exclusive contracts.\n");
+}
+
+/// Writes the seven fictional organizations and the player's derived standing with each.
+pub fn printFactions(writer: anytype, reputation: u32, missions: []const Mission) !void {
+    try writer.writeAll("FACTION NETWORK\n");
+    for (faction_data.all()) |entry| {
+        const standing = faction.playerStanding(entry.id, reputation, missions);
+        try writer.print("  [{s}] {s} — {s} | Security {d}/5\n", .{
+            standing.label(), entry.name, entry.archetype, entry.security_rating,
+        });
+    }
+    try writer.writeAll("\nUse faction <id> to inspect a dossier. Standing is derived from Reputation and completed contracts.\n");
+}
+
+/// Writes one faction dossier and its authored relationships with the other organizations.
+pub fn printFaction(writer: anytype, id: FactionId, reputation: u32, missions: []const Mission) !void {
+    const entry = faction_data.find(id) orelse return;
+    const standing = faction.playerStanding(id, reputation, missions);
+    try writer.print("{s} [{s}]\n{s}\n\nStanding: {s}\nArchetype: {s}\nSpecialty: {s}\nSecurity ({d}/5): {s}\nEconomic profile: {s}\n\nRELATIONSHIPS\n", .{
+        entry.name, id.slug(), entry.description, standing.label(), entry.archetype,
+        entry.specialty, entry.security_rating, entry.security_style, entry.economic_style,
+    });
+    for (faction_data.all()) |other| {
+        if (other.id == id) continue;
+        const relation = faction_data.relationship(id, other.id);
+        try writer.print("  {s}: {s}\n", .{ other.name, relation.label() });
+    }
 }
 
 /// Writes the Contacts unlocked by the player's Reputation.
