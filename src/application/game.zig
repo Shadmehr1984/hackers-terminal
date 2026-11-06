@@ -603,8 +603,9 @@ pub fn runCommandWithSaveDirectory(
                 session.completeObjective(.decrypt_file);
                 session.markOptionalObjectivesUnavailableForEvent(.decrypt_file);
                 if (rival_simulation.resolveAfterDecryption(mission.id, &session.objective_tracker)) |rival_id| {
-                    const rival = rival_simulation.find(rival_id).?;
-                    try writer.print("[RIVAL AHEAD] {s} reached the optional intelligence first. The main contract remains unaffected.\n", .{rival.name});
+                    if (rival_simulation.find(rival_id)) |rival| {
+                        try writer.print("[RIVAL AHEAD] {s} reached the optional intelligence first. The main contract remains unaffected.\n", .{rival.name});
+                    }
                 }
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
                 if (!already_decrypted) _ = try detection.apply(writer, player, active, session, 10);
