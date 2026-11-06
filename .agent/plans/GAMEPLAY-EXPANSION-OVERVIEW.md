@@ -2,7 +2,7 @@
 
 **Program ID:** EXPANSION-001  
 **Owner direction:** Approved for planning on 2026-11-05  
-**Implementation authorization:** HT-007 specifically authorized and completed; HT-008 design approved and implementation completed on `main` on 2026-11-05 (CI run #679 passed); all other features require explicit owner authorization  
+**Implementation authorization:** HT-007 specifically authorized and completed; HT-008 design approved and implementation completed on `main` on 2026-11-05 (CI run #679 passed); HT-010 implementation is explicitly authorized and in progress on `main`; all other features require explicit owner authorization  
 **Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation is complete; HT-009 implementation is complete on `main` (Runtime-only; CI #733 passed); all other features remain subject to explicit authorization
 
 ## Purpose
@@ -48,7 +48,7 @@ Each feature has a stable ID. The matching phase document contains its goal, des
 | HT-007 | Mission Modifiers | Phase 1 | Contract metadata, Detection model |
 | HT-008 | Hidden Objectives | Phase 1 | Implemented: bounded 32-entry objective tracker; stable IDs; Node/File/Action discovery |
 | HT-009 | Multi-stage Operations | Phase 1 | Implemented: linear 3-stage operation, typed objective carry-over, per-stage rewards, Runtime-only state; CI #733 passed |
-| HT-010 | Factions | Phase 2 | Reputation, Contracts, Contacts |
+| HT-010 | Factions | Phase 2 | Reputation, Contracts, Contacts — design accepted in ADR 0012; implementation in progress |
 | HT-011 | Rival Hackers | Phase 2 | Factions, contract availability/results |
 | HT-012 | Information Market | Phase 2 | Contacts, mission intelligence, economy |
 | HT-013 | Hacker Specializations | Phase 4 | Progression, Detection, topology, equipment |
