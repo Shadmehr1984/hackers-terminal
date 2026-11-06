@@ -1,7 +1,7 @@
 # Phase 2 — World, Intelligence, and Relationships
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-010 In Progress on main; remaining Phase 2 features are Planned  
+**Status:** HT-010 and HT-010.1 Implemented on main (final CI #42224233431 passed Debug, ReleaseSafe, and ReleaseFast); remaining Phase 2 features are Planned  
 **Goal:** Make the fictional cyber-world feel populated by organizations, competitors, information brokers, and persistent discoveries.
 
 ## Shared baseline and constraints
@@ -32,11 +32,11 @@ Faction domain types and catalog, contract metadata, availability rules, termina
 - Save V3 and all older readers remain unchanged.
 
 ### Acceptance criteria
-- [ ] Factions have distinct authored identities and mechanically meaningful differences.
-- [ ] Contract/faction relationships are explicit and validated.
-- [ ] Availability/relationship calculations are deterministic and testable.
-- [ ] Existing Reputation and Contact unlock thresholds are not silently rebalanced.
-- [ ] No new save fields are added without a migration decision.
+- [x] Factions have distinct authored identities and mechanically meaningful differences.
+- [x] Contract/faction relationships are explicit and validated.
+- [x] Availability/relationship calculations are deterministic and testable.
+- [x] Existing Reputation and Contact unlock thresholds are not silently rebalanced.
+- [x] No new save fields are added without a migration decision.
 
 ### Dependencies
 HT-006 Contract Board; existing Reputation/Contacts.

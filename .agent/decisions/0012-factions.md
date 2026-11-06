@@ -1,6 +1,6 @@
 # ADR 0012 — Factions and derived standing
 
-- **Status:** Accepted; implementation in progress
+- **Status:** Accepted; implemented on main
 - **Date:** 2026-11-06
 - **Feature:** HT-010 — Factions
 - **Decision owner:** Project owner
@@ -38,3 +38,10 @@ Hacker's Terminal needs a more populated fictional world and contract availabili
 - Mission definitions expose a faction-link validation method.
 - Unit tests cover catalog validity, stable IDs, symmetric relationships, standing thresholds/outcomes, faction-based availability, and terminal presentation.
 - CI must verify Zig 0.13.0 formatting, build, full tests, and agent documentation checks.
+
+
+## Implementation and final review
+
+- Implemented on main, including the separately approved Corporate Ghost recovery contract and faction-aware Operation presentation.
+- Optional-objective reward accumulation and Contract Board reward ceilings use checked arithmetic; overflow is reported without partial payout or wrapped display.
+- Final review remediation and repository verification: GitHub Actions #42224233431 passed formatting, build, all tests, and agent-doc checks in Debug, ReleaseSafe, and ReleaseFast.

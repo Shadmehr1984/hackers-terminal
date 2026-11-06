@@ -2,8 +2,8 @@
 
 **Program ID:** EXPANSION-001  
 **Owner direction:** Approved for planning on 2026-11-05  
-**Implementation authorization:** HT-007 specifically authorized and completed; HT-008 design approved and implementation completed on `main` on 2026-11-05 (CI run #679 passed); HT-010 implementation is explicitly authorized and in progress on `main`; all other features require explicit owner authorization  
-**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11 (CI passed); HT-008 design approved and recorded in ADR 0010; HT-008 implementation is complete; HT-009 implementation is complete on `main` (Runtime-only; CI #733 passed); all other features remain subject to explicit authorization
+**Implementation authorization:** HT-007, HT-008, HT-009, HT-010, and HT-010.1 are explicitly authorized and implemented on `main`; HT-010 final review CI #42224233431 passed Debug, ReleaseSafe, and ReleaseFast. All other features require explicit owner authorization  
+**Status:** Planning baseline recorded; HT-007 implementation merged to `main` via PR #11; HT-008 and HT-009 implemented; HT-010 and HT-010.1 implemented on `main` with final review CI #42224233431 passing Debug, ReleaseSafe, and ReleaseFast; all other features remain subject to explicit authorization
 
 ## Purpose
 
@@ -14,9 +14,9 @@ This is primarily a planning artifact, not blanket implementation authorization.
 ## Current baseline verified during planning
 
 - Zig 0.13.0; fictional, local, offline, single-player terminal game.
-- Four built-in contracts: `job-01` through `job-04`; Ghost Signal is Reputation-gated and appended to preserve existing mission indices.
+- Five built-in contracts: `job-01` through `job-05`; Ghost Signal remains the exclusive Fixer offer at index 3, and Corporate Ghost is appended at index 4 as the standard Nexus Dynamics contract.
 - Static `Mission` definitions live in `src/domain/mission.zig`; authored contracts/topologies/objectives live in `src/catalog/mission_data.zig`.
-- `MissionSession` and `MissionPreparation` are runtime-only in `src/domain/mission_state.zig`; HT-007 adds the modifier snapshot and one-time completion-payout guard. At the planning baseline, objective completion used an eight-bit mask; HT-008 replaces it with a fixed-capacity 32-entry tracker keyed by stable mission-local IDs.
+- `MissionSession` and `MissionPreparation` are runtime-only in `src/domain/mission_state.zig`; objective completion uses a fixed-capacity 32-entry tracker keyed by stable mission-local IDs. Mission modifiers and multi-stage Operation state remain runtime-only.
 - `src/domain/mission_modifier.zig` defines the three approved typed modifiers; each current mission authors a static allowlist.
 - `src/application/game.zig` coordinates commands and state transitions; `src/application/commands.zig` currently parses a command plus its first argument; `src/presentation/terminal.zig` owns terminal output.
 - `src/domain/player.zig` owns player/equipment state; `src/application/shop.zig` owns shop transactions; `src/domain/progression.zig` owns XP/level/mission rewards and Reputation tiers; `src/domain/contacts.zig` owns the two current Contact definitions and unlock/service pricing.
@@ -48,7 +48,7 @@ Each feature has a stable ID. The matching phase document contains its goal, des
 | HT-007 | Mission Modifiers | Phase 1 | Contract metadata, Detection model |
 | HT-008 | Hidden Objectives | Phase 1 | Implemented: bounded 32-entry objective tracker; stable IDs; Node/File/Action discovery |
 | HT-009 | Multi-stage Operations | Phase 1 | Implemented: linear 3-stage operation, typed objective carry-over, per-stage rewards, Runtime-only state; CI #733 passed |
-| HT-010 | Factions | Phase 2 | Reputation, Contracts, Contacts — design accepted in ADR 0012; implementation in progress |
+| HT-010 | Factions | Phase 2 | Implemented: seven factions, derived standing, client access locks, Corporate Ghost recovery contract; final review CI #42224233431 passed |
 | HT-011 | Rival Hackers | Phase 2 | Factions, contract availability/results |
 | HT-012 | Information Market | Phase 2 | Contacts, mission intelligence, economy |
 | HT-013 | Hacker Specializations | Phase 4 | Progression, Detection, topology, equipment |
