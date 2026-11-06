@@ -23,6 +23,7 @@ HACKERS_TERMINAL_SAVE_V3
 <mission_1_completed: 0|1>
 <mission_2_completed: 0|1>
 <mission_3_completed: 0|1>
+<mission_4_completed: 0|1>
 ```
 
 Utility ownership bit 0 represents Silent Boots; bit 1 represents Signal Scrubber. Equipped code 0 means none, 1 means Silent Boots, and 2 means Signal Scrubber. The loader clears an equipped selection and upgrade levels when the corresponding ownership bit is absent.

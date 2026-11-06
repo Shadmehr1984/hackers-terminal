@@ -7,20 +7,28 @@ const ObjectiveState = @import("../src/domain/mission_objectives.zig").Objective
 test "built-in objective catalogs have stable IDs and hidden optional entries" {
     const missions = mission_data.defaultMissions();
     const expected = [_]MissionObjectiveKind{ .scan_target, .authenticate, .decrypt_file, .extract_file };
-    for (missions) |mission| {
+    for (missions, 0..) |mission, mission_index| {
         try std.testing.expect(mission.hasValidObjectives());
-        try std.testing.expectEqual(expected.len + 2, mission.objectives.len);
+        const extra_required: usize = if (mission_index == 4) 1 else 0;
+        try std.testing.expectEqual(expected.len + extra_required + 2, mission.objectives.len);
         for (expected, 0..) |kind, index| {
             try std.testing.expectEqual(kind, mission.objectives[index].kind);
             try std.testing.expect(!mission.objectives[index].optional);
             try std.testing.expect(mission.objectives[index].id.len > 0);
         }
-        try std.testing.expectEqual(MissionObjectiveKind.analyze_metadata, mission.objectives[4].kind);
-        try std.testing.expect(mission.objectives[4].optional);
-        try std.testing.expect(!mission.objectives[4].hidden);
-        try std.testing.expect(mission.objectives[5].optional);
-        try std.testing.expect(mission.objectives[5].hidden);
-        try std.testing.expect(mission.objectives[5].discovery_trigger != null);
+        const optional_index: usize = if (mission_index == 4) 5 else 4;
+        const hidden_index = optional_index + 1;
+        if (mission_index == 4) {
+            try std.testing.expectEqual(MissionObjectiveKind.analyze_metadata, mission.objectives[4].kind);
+            try std.testing.expectEqualStrings("verify-trail", mission.objectives[4].id);
+            try std.testing.expect(!mission.objectives[4].optional);
+        }
+        try std.testing.expectEqual(MissionObjectiveKind.analyze_metadata, mission.objectives[optional_index].kind);
+        try std.testing.expect(mission.objectives[optional_index].optional);
+        try std.testing.expect(!mission.objectives[optional_index].hidden);
+        try std.testing.expect(mission.objectives[hidden_index].optional);
+        try std.testing.expect(mission.objectives[hidden_index].hidden);
+        try std.testing.expect(mission.objectives[hidden_index].discovery_trigger != null);
     }
 }
 

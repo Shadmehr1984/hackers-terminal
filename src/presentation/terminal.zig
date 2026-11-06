@@ -211,7 +211,7 @@ pub fn printFaction(writer: anytype, id: FactionId, reputation: u32, missions: [
     const entry = faction_data.find(id) orelse return;
     const standing = faction.playerStanding(id, reputation, missions);
     try writer.print("{s} [{s}]\n{s}\n\nStanding: {s}\nArchetype: {s}\nSpecialty: {s}\nSecurity ({d}/5): {s}\nEconomic profile: {s}\n\nRELATIONSHIPS\n", .{
-        entry.name, id.slug(), entry.description, standing.label(), entry.archetype,
+        entry.name,      id.slug(),             entry.description,    standing.label(),     entry.archetype,
         entry.specialty, entry.security_rating, entry.security_style, entry.economic_style,
     });
     for (faction_data.all()) |other| {

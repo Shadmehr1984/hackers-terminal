@@ -40,13 +40,15 @@ test "maximum reward includes every optional objective bonus only" {
     try std.testing.expectEqual(@as(u32, 600), board.maximumReward(missions[1]));
     try std.testing.expectEqual(@as(u32, 925), board.maximumReward(missions[2]));
     try std.testing.expectEqual(@as(u32, 1275), board.maximumReward(missions[3]));
+    try std.testing.expectEqual(@as(u32, 1400), board.maximumReward(missions[4]));
 }
 
-test "built-in contracts have distinct intended board categories" {
+test "built-in contracts retain their intended board categories" {
     const missions = mission_data.defaultMissions();
-    try std.testing.expectEqual(@as(usize, 4), missions.len);
+    try std.testing.expectEqual(@as(usize, 5), missions.len);
     try std.testing.expectEqualStrings("Data Recovery", missions[0].category.label());
     try std.testing.expectEqualStrings("Intelligence", missions[1].category.label());
     try std.testing.expectEqualStrings("Extraction", missions[2].category.label());
     try std.testing.expectEqualStrings("Infiltration", missions[3].category.label());
+    try std.testing.expectEqualStrings("Infiltration", missions[4].category.label());
 }

@@ -148,8 +148,9 @@ test "Fixer Ghost Signal offer requires level and reputation and prepares append
     var preparation = MissionPreparation{};
     var capture = Capture{};
 
-    try std.testing.expectEqual(@as(usize, 4), missions.len);
+    try std.testing.expectEqual(@as(usize, 5), missions.len);
     try std.testing.expectEqualStrings("job-04", missions[3].id);
+    try std.testing.expectEqualStrings("job-05", missions[4].id);
     try run(&capture, "prepare job-04", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(preparation.mission_index == null);
     try run(&capture, "deal ghost-signal", &player, &missions, &active, &session, &preparation);
