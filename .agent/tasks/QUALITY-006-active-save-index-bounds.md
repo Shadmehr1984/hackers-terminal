@@ -58,4 +58,4 @@ An in-range active index pointing to a mission marked completed in the same save
 - [x] `zig build test` (CI, Debug and ReleaseSafe)
 - [x] `sh scripts/check-agent-docs.sh` (CI, Debug and ReleaseSafe)
 - [x] Inspect actual GitHub Actions result for the resulting `main` commit.
-- [ ] Self-review against `.agent/review-checklist.md`; state whether an independent reviewer was available.
+- [x] Self-review against `.agent/review-checklist.md` completed; no independent reviewer was available.
