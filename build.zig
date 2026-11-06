@@ -27,7 +27,7 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
-    if (builtin.zig_version.minor >= 14) {
+    if (builtin.zig_version.minor >= 17) {
         run_cmd.addPassthruArgs();
     } else if (b.args) |args| {
         run_cmd.addArgs(args);
