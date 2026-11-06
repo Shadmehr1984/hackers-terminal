@@ -9,7 +9,7 @@
 
 ## Goal
 
-Introduce five fictional hacker competitors who contest one optional intelligence opportunity per authored contract. Their presence adds readable pressure and side-content consequences without blocking primary contract completion or changing the existing economy, Detection, Reputation rules, or save format.
+Introduce five fictional hacker competitors who contest one optional intelligence opportunity per authored contract. Their presence adds readable pressure and side-content consequences without blocking primary contract completion or changing the existing economy, Detection, Reputation formula, or save format. If a rival wins an optional opportunity, the existing all-optional Reputation bonus may be forfeited because that objective remains unavailable.
 
 ## Accepted roster and authored contests
 
