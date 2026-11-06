@@ -448,7 +448,7 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
         if (objective.hidden) continue;
         try writer.print("  {s}{s}\n", .{ if (objective.optional) "[OPTIONAL] " else "", objective.description });
     }
-    try printRivalBriefing(writer, mission.id);
+    try printRivalBriefing(writer, mission.id, .contesting);
     if (mission.topology) |topology| {
         try writer.writeAll("\nKNOWN TOPOLOGY\nNodes: ");
         for (topology.nodes, 0..) |node, index| {
