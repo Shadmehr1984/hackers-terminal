@@ -480,8 +480,7 @@ test "failed Fixer output does not charge or consume the service" {
     try std.testing.expectEqual(@as(?usize, 0), active);
 }
 
-
-test "Detection compromise state is not committed when failure output fails" {
+test Detection compromise state is not committed when failure output fails" {
     var player = Player{ .balance = 125 };
     var active: ?usize = 0;
     var session = MissionSession{ .detection_level = 95 };
@@ -498,8 +497,7 @@ test "Detection compromise state is not committed when failure output fails" {
     try std.testing.expectEqual(@as(?usize, 0), active);
 }
 
-
-test "failed Detection output during Extraction preserves the objective and active contract" {
+test failed Detection output during Extraction preserves the objective and active contract" {
     var player = Player{ .balance = 125 };
     var missions = mission_data.defaultMissions();
     var active: ?usize = 0;
@@ -528,8 +526,7 @@ test "failed Detection output during Extraction preserves the objective and acti
     try std.testing.expectEqual(@as(u32, 125), player.balance);
 }
 
-
-test "failed contract launch output preserves preparation and does not activate a session" {
+test failed contract launch output preserves preparation and does not activate a session" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
     var active: ?usize = null;
