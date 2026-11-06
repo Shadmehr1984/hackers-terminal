@@ -87,6 +87,10 @@ test "rivals commands list five dossiers and inspect one without exposing puzzle
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "mirror-fragment") == null);
 
     capture.len = 0;
+    _ = try game.runCommand(&capture, "board", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Rival: Patchwork | CONTESTING") != null);
+
+    capture.len = 0;
     _ = try game.runCommand(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "RIVAL INTELLIGENCE: Patchwork") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "maintenance-side signal") != null);
