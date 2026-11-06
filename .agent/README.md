@@ -15,9 +15,9 @@ Read the root AGENTS.md first; it is the mandatory project contract.
 
 The implementation is grouped by responsibility; consult `../docs/architecture.md` and `conventions.md` for the maintained module map:
 
-- `../src/domain/`: player, mission, mission session, topology, progression, and Contacts rules.
+- `../src/domain/`: player, mission, mission session, topology, progression, Contacts, faction, and rival rules.
 - `../src/application/`: game orchestration, command parsing, Detection handling, and shop operations.
-- `../src/catalog/`: built-in mission definitions.
+- `../src/catalog/`: built-in mission, faction, operation, and rival definitions.
 - `../src/presentation/`: terminal output.
 - `../src/persistence/`: save/load and compatibility.
 - `../src/main.zig`: composition root and interactive loop.
