@@ -96,5 +96,5 @@ CI runs this check in addition to Zig formatting, compilation, and unit tests. I
 2. Run `rival patchwork` and inspect its faction, specialty, contested contract, and counterplay.
 3. Run `board` and `prepare job-01`; confirm the rival warning appears before launch.
 4. In Cold Storage, reach `maintenance` before decrypting and confirm the hidden optional objective is discoverable; after decryption, Patchwork must be OUTPACED.
-5. After decryption but before extraction, run `board`; confirm the active rival status is reflected there. In a fresh run, decrypt before visiting `maintenance`; confirm Patchwork becomes RIVAL_AHEAD and only the hidden optional objective is unavailable.
+5. After decryption but before extraction, run `board` and `briefing`; confirm the active rival status and outcome-specific message are reflected. In a fresh run, decrypt before visiting `maintenance`; confirm Patchwork becomes RIVAL_AHEAD and only the hidden optional objective is unavailable.
 6. Verify the required objectives and primary contract remain completable and no Detection/reward/save behavior changes.
