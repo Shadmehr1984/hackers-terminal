@@ -13,6 +13,18 @@ const TestWriter = struct {
     pub fn print(_: @This(), comptime _: []const u8, _: anytype) error{}!void {}
 };
 
+const FailOnPrintWriter = struct {
+    calls: *usize,
+    fail_on: usize,
+
+    pub fn writeAll(_: @This(), _: []const u8) error{OutputFailure}!void {}
+
+    pub fn print(self: @This(), comptime _: []const u8, _: anytype) error{OutputFailure}!void {
+        self.calls.* += 1;
+        if (self.calls.* == self.fail_on) return error.OutputFailure;
+    }
+};
+
 fn run(writer: anytype, line: []const u8, player: *Player, missions: []Mission, active: *?usize, session: *MissionSession, preparation: *MissionPreparation) !void {
     _ = try game.runCommand(writer, line, player, missions, active, session, preparation);
 }
@@ -419,4 +431,51 @@ test "modified extraction with incomplete required objectives does not pay rewar
     try std.testing.expectEqual(@as(u32, 0), player.xp);
     try std.testing.expectEqual(@as(u32, 0), player.reputation);
     try std.testing.expectEqual(@as(?ModifierId, .security_sweep), session.modifier);
+}
+
+
+test "failed movement output leaves topology and Detection state unchanged" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    const setup_writer = TestWriter{};
+
+    try run(setup_writer, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try run(setup_writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    session.detection_level = 20;
+
+    var print_calls: usize = 0;
+    const failing_writer = FailOnPrintWriter{ .calls = &print_calls, .fail_on = 2 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(failing_writer, "move service", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqualStrings("entry", session.current_node.?);
+    try std.testing.expectEqual(@as(u32, 0), session.traversal_count);
+    try std.testing.expectEqual(@as(u8, 20), session.detection_level);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+}
+
+test "failed Fixer output does not charge or consume the service" {
+    var player = Player{ .reputation = 3 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{ .detection_level = 35 };
+    var preparation = MissionPreparation{};
+    const starting_balance = player.balance;
+
+    var print_calls: usize = 0;
+    const failing_writer = FailOnPrintWriter{ .calls = &print_calls, .fail_on = 1 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(failing_writer, "deal scrub-detection", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(starting_balance, player.balance);
+    try std.testing.expectEqual(@as(u8, 35), session.detection_level);
+    try std.testing.expect(!session.fixer_service_used);
+    try std.testing.expectEqual(@as(?usize, 0), active);
 }
