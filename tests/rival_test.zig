@@ -74,7 +74,11 @@ test "rivals commands list five dossiers and inspect one without exposing puzzle
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "RIVAL NETWORK") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Ghost Operator") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Redshift") != null);
-    try std.testing.expectEqual(@as(usize, 5), std.mem.count(u8, capture.output(), "Contest:"));
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Ghost Operator") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Null Byte") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Glasswire") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Patchwork") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Redshift") != null);
 
     capture.len = 0;
     _ = try game.runCommand(&capture, "rival null-byte", &player, &missions, &active, &session, &preparation);
@@ -99,5 +103,5 @@ test "decrypting before discovering contested optional evidence lets the rival c
     try std.testing.expectEqual(@as(?usize, 0), active);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[RIVAL AHEAD] Patchwork") != null);
     try std.testing.expect(!missions[0].completed);
-    try std.testing.expectEqual(@as(u32, 0), player.balance - 250);
+    try std.testing.expectEqual(@as(u32, 250), player.balance);
 }
