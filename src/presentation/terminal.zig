@@ -244,8 +244,13 @@ pub fn printRival(
     const state = rival_simulation.status(entry, missions, level, reputation, active_mission_id, tracker);
     const faction_profile = faction_data.find(entry.faction);
     const faction_name = if (faction_profile) |profile| profile.name else entry.faction.slug();
-    try writer.print("{s} [{s}]\nFaction: {s}\nStatus: {s}\nSpecialty: {s}\nApproach: {s}\nContested contract: {s}\nOptional evidence: hidden until discovered\n\n", .{
-        entry.name, id.slug(), faction_name, state.label(), entry.specialty, entry.approach, entry.mission_id,
+    const evidence_status = switch (state) {
+        .rival_ahead => "secured by rival for this run",
+        .outpaced => "contest closed",
+        .dormant, .contesting => "hidden until discovered",
+    };
+    try writer.print("{s} [{s}]\nFaction: {s}\nStatus: {s}\nSpecialty: {s}\nApproach: {s}\nContested contract: {s}\nOptional evidence: {s}\n\n", .{
+        entry.name, id.slug(), faction_name, state.label(), entry.specialty, entry.approach, entry.mission_id, evidence_status,
     });
     try writer.writeAll("Known activity:\n");
     try writer.writeAll(entry.briefing_hint);
