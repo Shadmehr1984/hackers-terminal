@@ -220,9 +220,11 @@ fn retryOperationStage(
     const operation = operation_data.find(preparation.operation_state.operation_id) orelse return;
     const stage = preparation.operation_state.currentStage(operation) orelse return;
     if (findMissionIndex(missions, stage.mission_id)) |index| {
-        prepareOperationStage(preparation, player, index);
+        var next_preparation = preparation.*;
+        prepareOperationStage(&next_preparation, player, index);
         try writer.print("[STAGE RETRY] {s} is ready again; prior facts retained.\n", .{missions[index].name});
-        try terminal.printPreparation(writer, missions[index], player, preparation.selected_utility, null);
+        try terminal.printPreparation(writer, missions[index], player, next_preparation.selected_utility, null);
+        preparation.* = next_preparation;
     }
 }
 
