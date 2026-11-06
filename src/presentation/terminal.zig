@@ -168,12 +168,17 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
             mission.xp_reward,
             entry.availability.label(),
         });
-        const client = faction_data.find(mission.client_faction).?;
+        const client = faction_data.find(mission.client_faction);
+        const client_name = if (client) |entry_data| entry_data.name else mission.client_faction.slug();
+        const client_security = if (client) |entry_data| entry_data.security_rating else 0;
         const standing = entry.player_standing;
-        try writer.print("    Client: {s} | Your standing: {s} | Security: {d}/5\n", .{ client.name, standing.label(), client.security_rating });
+        try writer.print("    Client: {s} | Your standing: {s} | Security: {d}/5\n", .{ client_name, standing.label(), client_security });
         if (mission.target_owner_faction) |owner_id| {
-            const owner = faction_data.find(owner_id).?;
-            try writer.print("    Target owner: {s}\n", .{owner.name});
+            if (faction_data.find(owner_id)) |owner| {
+                try writer.print("    Target owner: {s}\n", .{owner.name});
+            } else {
+                try writer.print("    Target owner: unknown ({s})\n", .{owner_id.slug()});
+            }
         }
         if (entry.availability == .locked) {
             if (entry.level_locked) try writer.print("    Requires level {d} (current: {d}).\n", .{ mission.required_level, level });
