@@ -51,8 +51,8 @@ pub const ModifierId = enum {
     pub fn fromCommandId(value: []const u8) ?ModifierId {
         if (comptime builtin.zig_version.minor >= 16) {
             const enum_info = @typeInfo(ModifierId).@"enum";
-            inline for (enum_info.field_values) |field_value| {
-                const id: ModifierId = @fromBackingInt(@intCast(field_value));
+            inline for (enum_info.field_names) |field_name| {
+                const id: ModifierId = @field(ModifierId, field_name);
                 if (std.mem.eql(u8, value, id.commandId())) return id;
             }
         } else {

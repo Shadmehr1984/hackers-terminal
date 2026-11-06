@@ -41,8 +41,8 @@ test "hardened encryption exposes the approved incorrect decryption cost" {
 test "all modifiers share the approved completion bonus and disclose effects" {
     if (comptime builtin.zig_version.minor >= 16) {
         const enum_info = @typeInfo(ModifierId).@"enum";
-        inline for (enum_info.field_values) |field_value| {
-            const id: ModifierId = @fromBackingInt(@intCast(field_value));
+        inline for (enum_info.field_names) |field_name| {
+            const id: ModifierId = @field(ModifierId, field_name);
             const bonus = id.completionBonus();
             try std.testing.expectEqual(@as(u32, 50), bonus.cash);
             try std.testing.expectEqual(@as(u32, 25), bonus.xp);
