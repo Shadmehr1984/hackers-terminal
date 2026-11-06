@@ -127,8 +127,8 @@ test "optional reward accumulation rejects u32 overflow" {
         discovery_trigger: ?@import("../src/domain/mission_objectives.zig").DiscoveryTrigger = null,
     };
     const objectives = [_]Objective{
-        .{ .id = "large", .bonus_reward = std.math.maxInt(u32) },
-        .{ .id = "overflow", .bonus_reward = 1 },
+        .{ .id = "large", .kind = .analyze, .bonus_reward = std.math.maxInt(u32) },
+        .{ .id = "overflow", .kind = .analyze, .bonus_reward = 1 },
     };
     var tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
     try std.testing.expect(tracker.initialize(&objectives));

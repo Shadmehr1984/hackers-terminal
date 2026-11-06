@@ -170,7 +170,6 @@ test "writer failure does not commit mission payout or completion guard" {
 }
 
 test "optional objective accumulation overflow leaves payout state unchanged" {
-    const MissionObjective = @import("../src/domain/mission.zig").MissionObjective;
     const missions = mission_data.defaultMissions();
     var mission = missions[0];
     var objectives: [6]MissionObjective = undefined;
