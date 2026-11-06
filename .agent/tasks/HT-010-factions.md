@@ -29,7 +29,7 @@ Introduce seven fictional organizations with distinct identities, security profi
 - Each completed contract adds 2 to its client faction.
 - Each completed contract subtracts 2 from its target-owner faction and from a distinct opposing faction.
 - Score bands: Hostile (<= -2), Wary (-1), Neutral (0..2), Trusted (3..5), Allied (>= 6).
-- A contract whose client faction is Hostile to the player is faction-locked on the Contract Board and cannot be prepared/launched. The same check applies to exclusive contact contract access and operation start.
+- A contract whose client faction is Hostile to the player is faction-locked on the Contract Board and cannot be prepared/launched. The same check applies to exclusive contact contract access and operation start. Operation start validates every stage once; an active operation is preauthorized so standing changes from earlier stages cannot strand the player mid-operation.
 - Existing global Reputation thresholds, mission rewards, Detection costs, Contact prices, and progression rules are unchanged.
 
 ## Built-in contract affiliations
