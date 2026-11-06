@@ -11,7 +11,10 @@ Derived from the current source tree; re-check source before relying on this map
 | src/application/detection.zig | Detection costs, warnings, compromise failure, and penalty | Command parsing or mission catalog data |
 | src/domain/progression.zig | XP thresholds, player levels, Reputation tiers, and mission reward application | Command dispatch or terminal I/O policy |
 | src/domain/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and the single source of truth for pure utility Detection-cost profiles | Persistence and terminal I/O |
-| src/domain/contacts.zig | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing | Game command dispatch, terminal output, or persistence |\n| src/domain/faction_id.zig | Stable typed faction identities and command-facing slugs | Authored faction profiles, player state, or terminal I/O |\n| src/domain/faction.zig | Faction standing and relationship types; pure standing derivation from Reputation and completed mission affiliations | Catalog data, command dispatch, persistence, or terminal I/O |\n| src/catalog/faction_data.zig | Seven authored faction profiles and symmetric static inter-faction relationships | Player standing mutation or command dispatch |
+| src/domain/contacts.zig | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing | Game command dispatch, terminal output, or persistence |
+| src/domain/faction_id.zig | Stable typed faction identities and command-facing slugs | Authored faction profiles, player state, or terminal I/O |
+| src/domain/faction.zig | Faction standing and relationship types; pure standing derivation from Reputation and completed mission affiliations | Catalog data, command dispatch, persistence, or terminal I/O |
+| src/catalog/faction_data.zig | Seven authored faction profiles and symmetric static inter-faction relationships | Player standing mutation or command dispatch |
 | src/domain/contract_board.zig | Pure derived contract availability, faction access, and reward-range query; no I/O or persistence |
 | src/domain/mission.zig | Mission, category, optional topology reference, level/Reputation requirements, difficulty, stable-ID objective definitions, and static allowed-modifier metadata | Built-in catalog or runtime mutation |
 | src/domain/mission_objectives.zig | Fixed-capacity objective tracker, typed discovery triggers, objective lifecycle transitions, and reward queries | Terminal I/O, command dispatch, or persistence |
@@ -29,7 +32,8 @@ Derived from the current source tree; re-check source before relying on this map
 | docs/ | User, architecture, save, and developer documentation | Substitute for executable tests |
 
 ## Dependency direction
-- player.zig, faction_id.zig, and mission.zig are foundational and independent of high-level orchestration.\n- faction.zig may depend on the mission data contract to derive standing; mission.zig depends only on faction_id.zig, never on faction Catalog or orchestration. faction_data.zig owns authored profiles and static relationships.
+- player.zig, faction_id.zig, and mission.zig are foundational and independent of high-level orchestration.
+- faction.zig may depend on the mission data contract to derive standing; mission.zig depends only on faction_id.zig, never on faction Catalog or orchestration. faction_data.zig owns authored profiles and static relationships.
 - topology.zig is foundational and independent; mission.zig references its topology type.
 - mission_data.zig depends on mission and topology types.
 - mission_state.zig models transient state and should not depend on terminal output or persistence.
