@@ -3,6 +3,7 @@ const terminal = @import("../src/terminal.zig");
 const Player = @import("../src/player.zig").Player;
 const MissionSession = @import("../src/mission_state.zig").MissionSession;
 const mission_data = @import("../src/mission_data.zig");
+const FactionId = @import("../src/domain/faction_id.zig").FactionId;
 
 const Capture = struct {
     buffer: [4096]u8 = undefined,
@@ -77,6 +78,20 @@ test "contract board marks incomplete contracts unavailable while another is bus
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "UNAVAILABLE") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Finish or fail the active contract") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "EXCLUSIVE") == null);
+}
+
+test "faction terminal views show all organizations and relationship details" {
+    const missions = mission_data.defaultMissions();
+    var capture = Capture{};
+    try terminal.printFactions(&capture, 0, &missions);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "FACTION NETWORK") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Nexus Dynamics") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Helix Consortium") != null);
+
+    capture.len = 0;
+    try terminal.printFaction(&capture, FactionId.black_veil, 0, &missions);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Black Veil [black-veil]") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Helix Consortium: Rivals") != null);
 }
 
 test "objective output hides undiscovered objectives but retains revealed unavailable ones" {
