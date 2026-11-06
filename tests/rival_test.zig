@@ -110,4 +110,9 @@ test "decrypting before discovering contested optional evidence lets the rival c
     try std.testing.expectEqual(@as(u32, 0), player.xp);
     try std.testing.expectEqual(@as(u32, 0), player.reputation);
     try std.testing.expectEqual(@as(u8, 10), session.detection_level);
+
+    session.completeObjective(.scan_target);
+    session.completeObjective(.authenticate);
+    session.completeObjective(.extract_file);
+    try std.testing.expect(session.allObjectivesComplete(missions[0].objectives));
 }
