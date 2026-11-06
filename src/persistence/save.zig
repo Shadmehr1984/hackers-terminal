@@ -128,11 +128,7 @@ fn validateSave(data: []const u8, mission_count: usize) ?SaveFormat {
     };
     if (field_index < fixed_fields) return null;
     const completion_flags = field_index - fixed_fields;
-    if (completion_flags != mission_count and
-        !(mission_count > 0 and completion_flags + 1 == mission_count))
-    {
-        return null;
-    }
+    if (completion_flags > mission_count) return null;
     return format;
 }
 
