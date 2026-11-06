@@ -39,7 +39,7 @@ The owner approved planning for the next 20 gameplay ideas on 2026-11-05. HT-006
 | Phase | Scope | Plan | Status |
 |---|---|---|---|
 | 1 | Contract Board, Mission Modifiers, Hidden Objectives, Multi-stage Operations (HT-006–HT-009) | [Phase 1](plans/PHASE-1-MISSION-CONTENT.md) | HT-006 Implemented; HT-007 Implemented and Merged (PR #11); HT-008 Implemented on `main` (CI #679 passed); HT-009 Implemented on `main` (Runtime-only; CI #733 passed) |
-| 2 | Factions, Rival Hackers, Information Market, Contact Development, Data Archive (HT-010–HT-012, HT-022, HT-025) | [Phase 2](plans/PHASE-2-WORLD-AND-RELATIONSHIPS.md) | Planned |
+| 2 | Factions, Rival Hackers, Information Market, Contact Development, Data Archive (HT-010–HT-012, HT-022, HT-025) | [Phase 2](plans/PHASE-2-WORLD-AND-RELATIONSHIPS.md) | HT-010 In Progress on `main`; remaining Phase 2 features Planned |
 | 3 | Security Profiles, Countermeasures, Security Agent Behaviors and Memory (HT-016–HT-017, HT-023–HT-024) | [Phase 3](plans/PHASE-3-SECURITY-SYSTEMS.md) | Planned |
 | 4 | Specializations, Level/Unlocks, Tool Collection, Operational Costs, Recurring Contracts, Achievements, Challenges (HT-013–HT-015, HT-018–HT-021) | [Phase 4](plans/PHASE-4-PROGRESSION-AND-REPLAYABILITY.md) | Planned |
 
