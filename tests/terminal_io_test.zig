@@ -1,5 +1,5 @@
 const std = @import("std");
-const terminal_io = @import("../src/application/terminal_io.zig");
+const terminal_io = @import("terminal_io");
 
 const MemoryReader = struct {
     reader: std.Io.Reader,
@@ -24,7 +24,7 @@ const MemoryReader = struct {
         const remaining = self.input[self.offset..];
         if (remaining.len == 0) return error.EndOfStream;
 
-        var count = @min(remaining.len, @intFromEnum(limit));
+        var count = @min(remaining.len, @backingInt(limit));
         if (self.fail_after) |fail_after| {
             if (self.offset >= fail_after) return error.ReadFailed;
             count = @min(count, fail_after - self.offset);
