@@ -11,7 +11,11 @@ const mission_data = @import("catalog/mission_data.zig");
 
 pub fn main() !void {
     var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = general_purpose_allocator.deinit();
+    defer {
+        if (general_purpose_allocator.deinit() == .leak) {
+            std.debug.print("[MEMORY LEAK] GeneralPurposeAllocator detected leaked allocations.\\n", .{});
+        }
+    }
     const allocator = general_purpose_allocator.allocator();
 
     var stdout = std.io.getStdOut().writer();
