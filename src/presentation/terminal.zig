@@ -169,7 +169,7 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
             entry.availability.label(),
         });
         const client = faction_data.find(mission.client_faction).?;
-        const standing = faction.playerStanding(mission.client_faction, reputation, missions);
+        const standing = entry.player_standing;
         try writer.print("    Client: {s} | Your standing: {s} | Security: {d}/5\n", .{ client.name, standing.label(), client.security_rating });
         if (mission.target_owner_faction) |owner_id| {
             const owner = faction_data.find(owner_id).?;
