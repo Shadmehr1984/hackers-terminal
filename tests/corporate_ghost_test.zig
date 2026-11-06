@@ -18,6 +18,7 @@ const Capture = struct {
     fn output(self: *const Capture) []const u8 {
         return self.buffer[0..self.len];
     }
+
     pub fn writeAll(self: *@This(), bytes: []const u8) error{NoSpaceLeft}!void {
         if (bytes.len > self.buffer.len - self.len) return error.NoSpaceLeft;
         @memcpy(self.buffer[self.len .. self.len + bytes.len], bytes);
@@ -118,7 +119,10 @@ test "Corporate Ghost remains faction-locked until Quiet Exit, then completes it
         ObjectiveState.completed,
         session.objective_tracker.stateOf("analyze-metadata").?,
     );
-    try std.testing.expectEqual(ObjectiveState.completed, session.objective_tracker.stateOf("mirror-fragment").?);
+    try std.testing.expectEqual(
+        ObjectiveState.completed,
+        session.objective_tracker.stateOf("mirror-fragment").?,
+    );
     try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move exit-relay", &player, &missions, &active, &session, &preparation);
     try run(&capture, "extract access-ledger.enc", &player, &missions, &active, &session, &preparation);

@@ -124,5 +124,5 @@ test "Broker contact and offers hide intelligence for faction-locked contracts" 
     capture.len = 0;
     try terminal.printContact(&capture, .broker, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Corporate Ghost") == null);
-    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "intel-job-01") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "intel-job-03") != null);
 }

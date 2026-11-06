@@ -306,9 +306,9 @@ pub fn printOffers(
     if (contacts.isUnlocked(.broker, player.reputation)) {
         for (missions) |mission| {
             if (mission.completed or
-                    progression.playerLevel(player) < mission.required_level or
-                    player.reputation < mission.required_reputation or
-                    faction.playerStanding(mission.client_faction, player.reputation, missions) == .hostile) continue;
+                progression.playerLevel(player) < mission.required_level or
+                player.reputation < mission.required_reputation or
+                faction.playerStanding(mission.client_faction, player.reputation, missions) == .hostile) continue;
             found = true;
             try writer.print("  intel-{s} — {s} clues ($50)\n", .{ mission.id, mission.name });
         }
