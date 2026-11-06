@@ -672,27 +672,39 @@ pub fn runCommandWithSaveDirectory(
             } else if (!player.equipment.has_decryptor) {
                 try writer.writeAll("Missing tool: decryptor. Visit the shop.\n");
             } else if (std.mem.eql(u8, arg, mission.decryption_key)) {
-                const already_decrypted = session.isDecrypted();
-                session.markDecrypted();
-                try reportObjectiveDiscoveries(writer, session.discoverAction(.decrypt_file, mission.objectives));
-                session.completeObjective(.decrypt_file);
-                session.markOptionalObjectivesUnavailableForEvent(.decrypt_file);
+                var next_player = player.*;
+                var next_active = active.*;
+                var next_session = session.*;
+                const already_decrypted = next_session.isDecrypted();
+                next_session.markDecrypted();
+                try reportObjectiveDiscoveries(writer, next_session.discoverAction(.decrypt_file, mission.objectives));
+                next_session.completeObjective(.decrypt_file);
+                next_session.markOptionalObjectivesUnavailableForEvent(.decrypt_file);
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
                 const compromised = if (!already_decrypted)
-                    try detection.apply(writer, player, active, session, 10)
+                    try detection.apply(writer, &next_player, &next_active, &next_session, 10)
                 else
                     false;
                 if (!compromised) {
                     if (rival_data.forMission(mission.id)) |rival| {
-                        if (rival_simulation.resolveAfterDecryption(rival, &session.objective_tracker)) {
+                        if (rival_simulation.resolveAfterDecryption(rival, &next_session.objective_tracker)) {
                             try writer.print("[RIVAL AHEAD] {s} reached the optional intelligence first. The main contract remains unaffected.\n", .{rival.name});
                         }
                     }
                 }
+                player.* = next_player;
+                active.* = next_active;
+                session.* = next_session;
             } else {
+                var next_player = player.*;
+                var next_active = active.*;
+                var next_session = session.*;
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
-                const failure_cost: u8 = if (session.modifier) |modifier| (if (modifier == .hardened_encryption) 15 else 10) else 10;
-                _ = try detection.apply(writer, player, active, session, failure_cost);
+                const failure_cost: u8 = if (next_session.modifier) |modifier| (if (modifier == .hardened_encryption) 15 else 10) else 10;
+                _ = try detection.apply(writer, &next_player, &next_active, &next_session, failure_cost);
+                player.* = next_player;
+                active.* = next_active;
+                session.* = next_session;
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "analyze")) {
@@ -713,14 +725,20 @@ pub fn runCommandWithSaveDirectory(
                 if (!available) {
                     try writer.writeAll("No optional metadata analysis is available for this contract.\n");
                 } else {
-                    const already_analyzed = session.isObjectiveComplete(.analyze_metadata);
-                    try reportObjectiveDiscoveries(writer, session.discoverAction(.analyze_metadata, mission.objectives));
-                    if (!session.hasIncompleteObjective(.analyze_metadata)) {
+                    var next_player = player.*;
+                    var next_active = active.*;
+                    var next_session = session.*;
+                    const already_analyzed = next_session.isObjectiveComplete(.analyze_metadata);
+                    try reportObjectiveDiscoveries(writer, next_session.discoverAction(.analyze_metadata, mission.objectives));
+                    if (!next_session.hasIncompleteObjective(.analyze_metadata)) {
                         try writer.writeAll("Metadata has already been analyzed.\n");
                     } else {
-                        session.completeObjective(.analyze_metadata);
+                        next_session.completeObjective(.analyze_metadata);
                         try writer.writeAll("[ANALYSIS COMPLETE] Metadata references recovered; matching objectives completed.\n");
-                        if (!already_analyzed) _ = try detection.apply(writer, player, active, session, 5);
+                        if (!already_analyzed) _ = try detection.apply(writer, &next_player, &next_active, &next_session, 5);
+                        player.* = next_player;
+                        active.* = next_active;
+                        session.* = next_session;
                     }
                 }
             }
