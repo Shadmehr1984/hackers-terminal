@@ -155,7 +155,7 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32, rep
 }
 
 /// Writes every catalog contract with derived availability and reward range.
-pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32, reputation: u32, another_contract_busy: bool) !void {
+pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32, reputation: u32, another_contract_busy: bool, active_mission_id: ?[]const u8, tracker: ?*const Tracker) !void {
     try writer.writeAll("CONTRACT BOARD\n");
     for (missions) |mission| {
         const entry = contract_board.evaluate(mission, .{
@@ -203,7 +203,7 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
             try writer.writeAll("    Finish or fail the active contract, or cancel the current preparation, before selecting another.\n");
         }
         if (rival_data.forMission(mission.id)) |rival| {
-            const rival_status = rival_simulation.status(rival, missions, level, reputation, null, null);
+            const rival_status = rival_simulation.status(rival, missions, level, reputation, active_mission_id, tracker);
             try writer.print("    Rival: {s} | {s} — optional intelligence may be contested before decryption.\n", .{ rival.name, rival_status.label() });
         }
     }
