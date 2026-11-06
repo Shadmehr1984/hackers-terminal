@@ -19,6 +19,7 @@ const faction = @import("../domain/faction.zig");
 const FactionId = @import("../domain/faction_id.zig").FactionId;
 const RivalId = @import("../domain/rival.zig").RivalId;
 const rival_simulation = @import("../domain/rival_simulation.zig");
+const rival_data = @import("../catalog/rival_data.zig");
 
 /// Re-exports the configured in-game penalty for a Detection compromise.
 pub const detection_failure_penalty: u32 = detection.failure_penalty;
@@ -602,8 +603,8 @@ pub fn runCommandWithSaveDirectory(
                 try reportObjectiveDiscoveries(writer, session.discoverAction(.decrypt_file, mission.objectives));
                 session.completeObjective(.decrypt_file);
                 session.markOptionalObjectivesUnavailableForEvent(.decrypt_file);
-                if (rival_simulation.resolveAfterDecryption(mission.id, &session.objective_tracker)) |rival_id| {
-                    if (rival_simulation.find(rival_id)) |rival| {
+                if (rival_data.forMission(mission.id)) |rival| {
+                    if (rival_simulation.resolveAfterDecryption(rival, &session.objective_tracker)) {
                         try writer.print("[RIVAL AHEAD] {s} reached the optional intelligence first. The main contract remains unaffected.\n", .{rival.name});
                     }
                 }
