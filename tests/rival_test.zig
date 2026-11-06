@@ -84,6 +84,11 @@ test "rivals commands list five dossiers and inspect one without exposing puzzle
     _ = try game.runCommand(&capture, "rival null-byte", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Null Byte [null-byte]") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "cloudburst") == null);
+
+    capture.len = 0;
+    _ = try game.runCommand(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "RIVAL INTELLIGENCE: Patchwork") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "maintenance-side signal") != null);
 }
 
 test "decrypting before discovering contested optional evidence lets the rival claim only that opportunity" {
@@ -104,4 +109,7 @@ test "decrypting before discovering contested optional evidence lets the rival c
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[RIVAL AHEAD] Patchwork") != null);
     try std.testing.expect(!missions[0].completed);
     try std.testing.expectEqual(@as(u32, 250), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
+    try std.testing.expectEqual(@as(u8, 10), session.detection_level);
 }
