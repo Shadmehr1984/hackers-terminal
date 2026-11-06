@@ -37,9 +37,15 @@ pub const ObjectiveProgress = struct {
     state: ObjectiveState = .undiscovered,
 };
 
+fn emptyObjectiveProgress() [max_objectives]ObjectiveProgress {
+    var entries: [max_objectives]ObjectiveProgress = undefined;
+    for (&entries) |*entry| entry.* = .{};
+    return entries;
+}
+
 /// Fixed-capacity, allocation-free objective state for a single mission run.
 pub const Tracker = struct {
-    entries: [max_objectives]ObjectiveProgress = [_]ObjectiveProgress{.{}} ** max_objectives,
+    entries: [max_objectives]ObjectiveProgress = emptyObjectiveProgress(),
     count: u8 = 0,
 
     /// Initializes progress from a catalog slice. Invalid catalogs are rejected atomically.
@@ -68,7 +74,7 @@ pub const Tracker = struct {
 
             next.entries[index] = .{
                 .id = objective.id,
-                .kind = @intCast(@intFromEnum(objective.kind)),
+                .kind = @as(u8, @bitCast(objective.kind)),
                 .optional = objective.optional,
                 .bonus_reward = objective.bonus_reward,
                 .revealed = !objective.hidden,
