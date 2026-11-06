@@ -46,30 +46,46 @@ Real organizations, real political groups, player alliances, branching story.
 
 ## HT-011 — Rival Hackers
 
+**Status:** In Progress on `main`; approved design in [ADR 0014](../decisions/0014-rival-hackers.md), implementation handoff in [HT-011 task brief](../tasks/HT-011-rival-hackers.md).
+
 ### Goal
-Add a small cast of fictional competitors who can contest contracts and leave clues of their activity.
+Add five fictional competitors who contest optional intelligence opportunities and leave readable traces.
 
-### Design direction
-- Rivals are local scripted/simulated actors, not network users or autonomous external agents.
-- Use bounded event schedules or deterministic state transitions (e.g. rival accepted, rival completed, rival failed, rival left a trace).
-- Rival activity should create opportunities and readable consequences, not randomly steal progress or punish the player without warning.
-- Rival presence may be tied to faction affiliation and selected contract availability.
+### Accepted design
+- Impact: Medium; exactly five rivals.
+- Ghost Operator / Ghost Protocol / job-03 / relay-trace.
+- Null Byte / Null Syndicate / job-04 / mirror-fragment.
+- Glasswire / Black Veil / job-02 / routing-header.
+- Patchwork / Iron Meridian / job-01 / maintenance-telemetry.
+- Redshift / Helix Consortium / job-05 / mirror-fragment.
+- Statuses: DORMANT, CONTESTING, RIVAL_AHEAD, OUTPACED.
+- After successful decryption, a rival claims its linked hidden optional objective only if the player has not discovered it. Existing discovery triggers provide the counterplay.
+- Rival identity and counterplay are disclosed on the board, in Preparation, and in active Briefing.
 
-### Likely scope
-Rival definitions/state, local simulation rules, Contract Board integration, optional archive events, terminal presentation, tests/docs.
+### Hard constraints
+- The rival event affects only its linked hidden optional objective for the current runtime session.
+- It never changes required objectives, blocks extraction, removes/locks the primary contract, or mutates other mission state.
+- No Detection, cash, XP, Reputation, faction-standing, or base reward changes.
+- Rival profiles are static; contest outcomes use the existing runtime objective tracker.
+- Save V3 and all older readers remain unchanged.
+- All actors/events remain fictional, local, deterministic, and offline.
 
 ### Acceptance criteria
-- [ ] Rivals have stable identities and distinct, testable behavior profiles.
-- [ ] Every player-visible rival action has a deterministic trigger or injectable schedule.
-- [ ] Rival events are disclosed in the board/briefing before materially affecting a contract.
-- [ ] Rivals never mutate the player's active mission state unexpectedly.
-- [ ] No multiplayer, network access, or real external account is introduced.
+- [ ] Five unique validated rival profiles and stable command IDs.
+- [ ] Deterministic derivation of all four rival statuses.
+- [ ] `rivals` and `rival <id>` terminal commands.
+- [ ] Contract Board, Preparation, and Briefing disclose rival activity and counterplay.
+- [ ] Rival claims an undiscovered linked optional objective after successful decryption.
+- [ ] Discovering the linked objective first prevents the rival claim.
+- [ ] Main contract and all required objectives remain completable.
+- [ ] No economy, Detection, Reputation, faction, or Save format changes.
+- [ ] Focused tests, documentation, code review, and CI pass.
 
 ### Dependencies
 HT-006 Contract Board and HT-010 Factions.
 
 ### Out of scope
-Live multiplayer, online leaderboards, unbounded autonomous simulation.
+Live multiplayer, online leaderboards, autonomous external agents, real networking, branching narrative, and persistent rival scores.
 
 ## HT-012 — Information Market
 
