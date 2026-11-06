@@ -32,9 +32,11 @@ pub fn printShop(writer: anytype) !void {
 pub fn buyItem(writer: anytype, player: *Player, item: []const u8) !void {
     if (std.mem.eql(u8, item, "decryptor")) {
         if (player.equipment.has_decryptor) try writer.writeAll("You already own a decryptor.\n") else if (player.balance < decryptor_price) try writer.writeAll("Insufficient funds.\n") else {
-            player.balance -= decryptor_price;
-            player.equipment.has_decryptor = true;
+            var next_player = player.*;
+            next_player.balance -= decryptor_price;
+            next_player.equipment.has_decryptor = true;
             try writer.writeAll("Purchase complete: decryptor installed.\n");
+            player.* = next_player;
         }
         return;
     }
@@ -43,9 +45,11 @@ pub fn buyItem(writer: anytype, player: *Player, item: []const u8) !void {
         return;
     };
     if (player.equipment.owns(utility)) try writer.writeAll("You already own this utility.\n") else if (player.balance < utility_price) try writer.writeAll("Insufficient funds.\n") else {
-        player.balance -= utility_price;
-        player.equipment.setOwned(utility);
+        var next_player = player.*;
+        next_player.balance -= utility_price;
+        next_player.equipment.setOwned(utility);
         try writer.print("Purchase complete: {s} acquired at level 0. Use 'equip {s}' to activate it.\n", .{ utility.label(), utility.commandName() });
+        player.* = next_player;
     }
 }
 /// Attempts to equip an owned utility.
@@ -55,8 +59,10 @@ pub fn equipItem(writer: anytype, player: *Player, item: []const u8) !void {
         return;
     };
     if (!player.equipment.owns(utility)) try writer.writeAll("You do not own this utility.\n") else if (player.equipment.isEquipped(utility)) try writer.writeAll("This utility is already equipped.\n") else {
-        player.equipment.equipped_utility = utility;
+        var next_player = player.*;
+        next_player.equipment.equipped_utility = utility;
         try writer.print("{s} equipped. It is now your active utility.\n", .{utility.label()});
+        player.* = next_player;
     }
 }
 /// Attempts to purchase the next upgrade tier for a utility.
@@ -79,7 +85,9 @@ pub fn upgradeItem(writer: anytype, player: *Player, item: []const u8) !void {
         try writer.writeAll("Insufficient funds.\n");
         return;
     }
-    player.balance -= price;
-    player.equipment.setLevel(utility, current_level + 1);
+    var next_player = player.*;
+    next_player.balance -= price;
+    next_player.equipment.setLevel(utility, current_level + 1);
     try writer.print("{s} upgraded to level {d} for ${d}.\n", .{ utility.label(), current_level + 1, price });
+    player.* = next_player;
 }
