@@ -11,7 +11,7 @@ There is no client/server split, real networking layer, database, plugin system,
 ```text
 src/
 ├── main.zig                 # Composition root and interactive loop
-├── domain/                  # Player, mission/session, topology, progression, and Contact rules
+├── domain/                  # Player, faction, mission/session, topology, progression, and Contact rules
 ├── application/              # Command coordination and gameplay services
 ├── catalog/                  # Built-in mission definitions
 ├── presentation/             # Terminal output
@@ -35,16 +35,16 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/catalog/mission_data.zig` | Four built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is appended at index 3 |
 | `src/catalog/operation_data.zig` | Static authored operation sequences; currently contains the three-stage `blackout-protocol` |
 | `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
-| `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, Contacts, offers, history, and topology map |
+| `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, faction dossiers, Contacts, offers, history, and topology map |
 | `src/application/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/application/commands.zig` | Parses an input line into a command name and its first argument |
-| `src/application/game.zig` | Coordinates the shared preparation-aware command dispatcher, Contact commands, offer transactions, and game-state transitions |
+| `src/application/game.zig` | Coordinates the shared preparation-aware command dispatcher, faction access, Contact commands, offer transactions, and game-state transitions |
 | `src/application/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
 | `src/domain/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
 | `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
 | `src/domain/faction_id.zig` and `src/domain/faction.zig` | Stable faction IDs, standing/relationship types, and pure standing derivation from Reputation plus completed contract outcomes |
 | `src/catalog/faction_data.zig` | Seven fictional faction profiles and static symmetric inter-faction relationships |
-| `tests/` | Unit and integration tests for commands, mission state, topology validation/allocation failures, equipment, save migrations and malformed input, Detection, progression, Contacts, and offers |
+| `tests/` | Unit and integration tests for commands, missions, factions, Contract Board, operations, mission state, topology, equipment, save migrations, Detection, progression, Contacts, and offers |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
@@ -68,6 +68,12 @@ A mission stores its static contract definition and completion state:
 Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives may be required or optional. Required objectives gate contract completion; optional objectives never block it and can grant configured bonus cash. Successful scan, authentication, decryption, extraction, and metadata-analysis commands complete their matching objective.
 
 The four built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array. Ghost Signal is appended at index 3 so the original mission indices remain stable. Each contract has its own static graph from `src/domain/topology.zig`: Cold Storage has an exposed short corridor and a maintenance detour; Paper Trail branches from an indexing hub into mail and records systems; Quiet Exit uses a relay chain with a decoy branch and controlled exit; Ghost Signal uses an abandoned relay with a mirrored-traffic branch.
+
+### Faction data
+
+Faction IDs are stable enum values. The static Catalog contains seven authored profiles, each with a distinct archetype, security style/rating, economic behavior, and specialty. A separate symmetric relationship table describes allied, cooperative, rival, hostile, and neutral relationships; omitted pairs are Neutral.
+
+The player standing is calculated on demand from persisted global Reputation and the existing completed-contract flags. Each completed contract contributes +2 to its client faction and -2 to its target owner and any distinct opposing faction. The score maps to Hostile, Wary, Neutral, Trusted, or Allied. Contract Board availability and all contract launch paths use the same hostile-client rule. This data is static or derived and is not added to Save V3.
 
 ### `Player`
 
