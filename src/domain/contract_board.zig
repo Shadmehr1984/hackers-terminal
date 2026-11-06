@@ -1,4 +1,5 @@
 const Mission = @import("mission.zig").Mission;
+const faction = @import("faction.zig");
 
 /// Derived availability state; none of these values are persisted.
 pub const Availability = enum {
@@ -7,6 +8,7 @@ pub const Availability = enum {
     completed,
     exclusive,
     unavailable,
+    faction_blocked,
 
     /// Returns the stable terminal label.
     pub fn label(self: Availability) []const u8 {
@@ -16,6 +18,7 @@ pub const Availability = enum {
             .completed => "COMPLETED",
             .exclusive => "EXCLUSIVE",
             .unavailable => "UNAVAILABLE",
+            .faction_blocked => "FACTION LOCKED",
         };
     }
 };
@@ -25,6 +28,7 @@ pub const Context = struct {
     level: u32,
     reputation: u32,
     another_contract_busy: bool = false,
+    missions: []const Mission = &.{},
 };
 
 /// A read-only result for one catalog entry.
@@ -34,6 +38,8 @@ pub const Entry = struct {
     reputation_locked: bool,
     minimum_reward: u32,
     maximum_reward: u32,
+    faction_locked: bool,
+    player_standing: faction.Standing,
 };
 
 /// Calculates the visible cash reward ceiling without leaking undiscovered hidden rewards.
@@ -49,12 +55,16 @@ pub fn maximumReward(mission: Mission) u32 {
 pub fn evaluate(mission: Mission, context: Context) Entry {
     const level_locked = context.level < mission.required_level;
     const reputation_locked = context.reputation < mission.required_reputation;
+    const player_standing = faction.playerStanding(mission.client_faction, context.reputation, context.missions);
+    const faction_locked = player_standing == .hostile;
     const availability: Availability = if (mission.completed)
         .completed
     else if (context.another_contract_busy)
         .unavailable
     else if (level_locked or reputation_locked)
         .locked
+    else if (faction_locked)
+        .faction_blocked
     else if (mission.requires_contact_offer)
         .exclusive
     else
