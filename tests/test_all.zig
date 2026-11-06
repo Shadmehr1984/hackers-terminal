@@ -16,4 +16,5 @@ test {
     _ = @import("operation_test.zig");
     _ = @import("faction_test.zig");
     _ = @import("corporate_ghost_test.zig");
+    _ = @import("rival_test.zig");
 }
