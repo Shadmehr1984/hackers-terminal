@@ -20,6 +20,7 @@ const FactionId = @import("../domain/faction_id.zig").FactionId;
 const RivalId = @import("../domain/rival.zig").RivalId;
 const rival_simulation = @import("../domain/rival_simulation.zig");
 const rival_data = @import("../catalog/rival_data.zig");
+const ObjectiveTracker = @import("../domain/mission_objectives.zig").Tracker;
 
 /// Re-exports the configured in-game penalty for a Detection compromise.
 pub const detection_failure_penalty: u32 = detection.failure_penalty;
@@ -277,7 +278,7 @@ pub fn runCommandWithSaveDirectory(
         try terminal.printContractBoard(writer, missions, level, player.reputation, active.* != null or preparation.mission_index != null);
     } else if (std.mem.eql(u8, command, "rivals")) {
         const active_id: ?[]const u8 = if (active.*) |index| missions[index].id else null;
-        const tracker = if (active.* != null) &session.objective_tracker else null;
+        const tracker: ?*const ObjectiveTracker = if (active.* != null) &session.objective_tracker else null;
         try terminal.printRivals(writer, missions, progression.playerLevel(player.*), player.reputation, active_id, tracker);
     } else if (std.mem.eql(u8, command, "rival")) {
         if (RivalId.parse(arg)) |rival_id| {
