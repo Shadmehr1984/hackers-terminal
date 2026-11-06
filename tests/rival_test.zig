@@ -171,3 +171,48 @@ test "active briefing reports when the player outpaces the rival before decrypti
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "You found the contested intelligence first.") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "may be contested before decrypting") == null);
 }
+
+
+test "all five rival contests honor their authored node file and action discovery triggers" {
+    const missions = mission_data.defaultMissions();
+    for (rival_data.all()) |entry| {
+        var selected_mission: ?@TypeOf(missions[0]) = null;
+        for (missions) |mission| {
+            if (std.mem.eql(u8, mission.id, entry.mission_id)) {
+                selected_mission = mission;
+                break;
+            }
+        }
+        const mission = selected_mission orelse return error.TestUnexpectedResult;
+        var contested_objective: ?@TypeOf(mission.objectives[0]) = null;
+        for (mission.objectives) |objective| {
+            if (std.mem.eql(u8, objective.id, entry.objective_id)) {
+                contested_objective = objective;
+                break;
+            }
+        }
+        const objective = contested_objective orelse return error.TestUnexpectedResult;
+        const trigger = objective.discovery_trigger orelse return error.TestUnexpectedResult;
+
+        var player_first_tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
+        try std.testing.expect(player_first_tracker.initialize(mission.objectives));
+        switch (trigger) {
+            .node => |node_id| try std.testing.expectEqual(@as(usize, 1), player_first_tracker.discoverNode(node_id, mission.objectives)),
+            .file => |file_id| try std.testing.expectEqual(@as(usize, 1), player_first_tracker.discoverFile(file_id, mission.objectives)),
+            .action => |action| try std.testing.expectEqual(@as(usize, 1), player_first_tracker.discoverAction(action, mission.objectives)),
+        }
+        try std.testing.expect(!rival_simulation.resolveAfterDecryption(entry, &player_first_tracker));
+        try std.testing.expectEqual(
+            @import("../src/domain/mission_objectives.zig").ObjectiveState.discovered,
+            player_first_tracker.stateOf(entry.objective_id).?,
+        );
+
+        var rival_first_tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
+        try std.testing.expect(rival_first_tracker.initialize(mission.objectives));
+        try std.testing.expect(rival_simulation.resolveAfterDecryption(entry, &rival_first_tracker));
+        try std.testing.expectEqual(
+            @import("../src/domain/mission_objectives.zig").ObjectiveState.unavailable,
+            rival_first_tracker.stateOf(entry.objective_id).?,
+        );
+    }
+}
