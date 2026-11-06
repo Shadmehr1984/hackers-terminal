@@ -497,3 +497,33 @@ test "Detection compromise state is not committed when failure output fails" {
     try std.testing.expectEqual(@as(u32, 125), player.balance);
     try std.testing.expectEqual(@as(?usize, 0), active);
 }
+
+
+test "failed Detection output during Extraction preserves the objective and active contract" {
+    var player = Player{ .balance = 125 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{
+        .progress = .decrypted,
+        .detection_level = 95,
+        .current_node = "vault",
+    };
+    var preparation = MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+    session.completeObjective(.scan_target);
+    session.completeObjective(.authenticate);
+    session.completeObjective(.decrypt_file);
+
+    var print_calls: usize = 0;
+    const failing_writer = FailOnPrintWriter{ .calls = &print_calls, .fail_on = 1 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(failing_writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(@as(?usize, 0), active);
+    try std.testing.expectEqual(@as(u8, 95), session.detection_level);
+    try std.testing.expect(!session.isObjectiveComplete(.extract_file));
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(@as(u32, 125), player.balance);
+}
