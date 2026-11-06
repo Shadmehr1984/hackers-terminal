@@ -16,7 +16,7 @@ Derived from the current source tree; re-check source before relying on this map
 | src/domain/faction.zig | Faction standing and relationship types; pure standing derivation from Reputation and completed mission affiliations | Catalog data, command dispatch, persistence, or terminal I/O |
 | src/catalog/faction_data.zig | Seven authored faction profiles and symmetric static inter-faction relationships | Player standing mutation or command dispatch |
 | src/domain/contract_board.zig | Pure derived contract availability, faction access, and reward-range query; no I/O or persistence |
-| src/domain/mission.zig | Mission, category, optional topology reference, level/Reputation requirements, difficulty, stable-ID objective definitions, and static allowed-modifier metadata | Built-in catalog or runtime mutation |
+| src/domain/mission.zig | Mission, category, static faction affiliations, optional topology reference, level/Reputation requirements, difficulty, stable-ID objective definitions, and static allowed-modifier metadata | Built-in catalog or runtime mutation |
 | src/domain/mission_objectives.zig | Fixed-capacity objective tracker, typed discovery triggers, objective lifecycle transitions, and reward queries | Terminal I/O, command dispatch, or persistence |
 | src/domain/operation.zig | Static linear Operation/Stage definitions, typed carry-over facts, and catalog validation | Runtime mutation, command dispatch, terminal I/O, or persistence |
 | src/domain/operation_state.zig | Bounded runtime-only operation stage/fact lifecycle, retry/reset, and reward-eligibility snapshot | Serialization, mission catalog mutation, or terminal I/O |
