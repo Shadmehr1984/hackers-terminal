@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-The default application CI remains pinned to Zig 0.17.1 during the staged TOOLCHAIN-001 migration to Zig 0.17.1. Do not change the default CI pin until filesystem, language/facade compatibility, and full-application checks are complete. The new `src/application/terminal_io.zig` is Zig 0.16+ only and is tested separately with Zig 0.17.1.
+The project and primary CI target exactly Zig 0.17.1. The process entry point uses `std.process.Init`/`std.Io`, persistence uses `std.Io.Dir`, and the legacy `std.io`/`std.fs` application paths have been removed. Do not downgrade the toolchain or reintroduce pre-0.17 APIs.
 
 ## Build, run, formatting, and tests
 
@@ -14,7 +14,7 @@ zig build test
 # Direct equivalent: zig test test_root.zig
 ```
 
-CI runs formatting, build, and tests on pushes and pull requests targeting main in Debug, ReleaseSafe, and ReleaseFast using the current Zig 0.17.1 baseline. The separate `Zig 0.17.1 Migration Validation` workflow checks only migrated files and the isolated `std.Io` layer until later phases make the full repository compatible.
+Primary CI runs formatting, build, terminal-entry smoke test with argument passthrough, the complete aggregate test suite, and agent-doc validation on pushes and pull requests targeting `main` in Debug, ReleaseSafe, and ReleaseFast with Zig 0.17.1. The separate `Zig 0.17.1 Migration Validation` workflow retains focused save, modifier, facade, build, and aggregate-test checks.
 
 ## Transactional command output
 
@@ -42,25 +42,21 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/operation_test.zig` covers Operation catalog/state transitions, stage progression and retry, unchanged V3 save behavior, preauthorization, and preservation of outgoing facts when the transition-output writer fails.
 - `tests/rival_test.zig` covers the five-rival catalog, deterministic status transitions, rival commands/dossiers, and all five authored Node/File/Action discovery-trigger contests in both player-first and rival-first outcomes.
 - `tests/contract_board_test.zig` covers visible reward ceilings and checked overflow rejection.
-- `tests/terminal_input_test.zig` covers the 511/512-byte command-input boundary and is included in the Zig 0.17.1 aggregate suite.
-- `tests/terminal_io_test.zig` is a Zig 0.17.1-only suite covering `std.Io` line reading, oversized-line draining, next-command alignment, read/write failure propagation, and process stream adapter construction. It is intentionally excluded from `tests/test_all.zig` while Zig 0.13 remains supported.
-- `tests/save_io_test.zig` is a Zig 0.17.1-only suite covering exact V3 bytes, persistence round-trip, missing-save status, the 4096/4097-byte read boundary, and staging-failure preservation. `save_io_test_root.zig` provides a repository-root import context for this focused test harness.
-- `tests/test_all.zig` is the aggregate test list that imports the cross-version test modules.
+- `tests/terminal_input_test.zig` covers the 511/512-byte command-input boundary and is included in the aggregate suite.
+- `tests/terminal_io_test.zig` covers `std.Io` line reading, oversized-line draining, next-command alignment, read/write failure propagation, and process stream adapter construction. It is registered in `tests/test_all.zig`.
+- `tests/save_io_test.zig` covers exact V3 bytes, persistence round-trip, missing-save status, the 4096/4097-byte read boundary, and staging-failure preservation. It is registered in `tests/test_all.zig`; `save_io_test_root.zig` remains available for focused diagnostic runs.
+- `tests/test_all.zig` is the aggregate test list and imports all unit/integration test modules, including terminal I/O, save I/O, and facade API tests.
 - `test_root.zig` is the repository-root module used to run the aggregate suite while keeping all test files under `tests/`.
 
-Run the complete cross-version unit-test suite with:
+Run the complete aggregate unit-test suite with:
 
 ```sh
 zig test test_root.zig
 ```
 
-The default CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/`, and `tests/`, then builds the game and runs the root test module through `zig build test`. The Zig 0.17.1-only terminal I/O tests are run separately with the explicit module mapping below:
+Primary CI checks formatting in `test_root.zig`, `build.zig`, `src/`, and `tests/`, builds the game, smoke-tests `zig build run` with argument passthrough, and runs the complete root test module through `zig build test`. The aggregate includes terminal I/O and save I/O tests.
 
-```sh
-zig test --dep terminal_io -Mroot=tests/terminal_io_test.zig -Mterminal_io=src/application/terminal_io.zig
-```
-
-Run that command with Zig 0.17.1. It cannot be added to the Zig 0.13 aggregate test root because `std.Io` does not exist in that toolchain. The save backend is tested separately with:
+The focused save harness remains available for diagnostics with:
 
 ```sh
 zig test save_io_test_root.zig
