@@ -32,7 +32,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 
 ## Contract Board
 
-Use `board` to inspect every catalog contract without changing the existing `missions` command. Entries remain in catalog order and show category, difficulty, base-to-maximum cash reward, XP, and one derived state: `AVAILABLE`, `LOCKED`, `COMPLETED`, `EXCLUSIVE`, or `UNAVAILABLE`. Locked entries explain each unmet level/Reputation requirement. Exclusive entries must be obtained through their Contact offer. While another contract is active or being prepared, other incomplete entries remain visible as unavailable; completed entries remain completed. The Board does not reveal puzzle clues or answers and does not save any additional state.
+Use `board` to inspect every catalog contract without changing the existing `missions` command. Entries remain in catalog order and show category, difficulty, base-to-maximum cash reward, XP, and one derived state: `AVAILABLE`, `LOCKED`, `COMPLETED`, `EXCLUSIVE`, `UNAVAILABLE`, or `FACTION LOCKED`. Locked entries explain each unmet level/Reputation requirement. Exclusive entries must be obtained through their Contact offer. While another contract is active or being prepared, other incomplete entries remain visible as unavailable; completed entries remain completed. The Board does not reveal puzzle clues or answers and does not save any additional state.
 
 Use `board` for the full catalog overview; `missions` remains the original compact list.
 
