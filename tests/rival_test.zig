@@ -219,7 +219,7 @@ test "all five rival contests honor their authored node file and action discover
         try std.testing.expect(rival_first_tracker.initialize(mission.objectives));
         try std.testing.expect(rival_simulation.resolveAfterDecryption(entry, &rival_first_tracker));
         try std.testing.expectEqual(
-            @import("../src/domain/mission_objectives.zig").ObjectiveState.unavailable,
+            ObjectiveState.unavailable,
             rival_first_tracker.stateOf(entry.objective_id).?,
         );
     }
