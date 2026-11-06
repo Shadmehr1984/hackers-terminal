@@ -33,7 +33,7 @@ Production modules are grouped by responsibility under `src/domain/`, `src/appli
 - `src/domain/faction_id.zig` and `src/domain/faction.zig`: stable faction identities, relationship/standing types, and pure standing derivation from Reputation plus completed contract affiliations.
 - `src/catalog/faction_data.zig`: seven authored fictional faction profiles and static symmetric inter-faction relationships.
 - `src/domain/player.zig`: player profile, typed equipment ownership, utility slot, upgrade levels, and pure risk modifier calculations.
-- `src/domain/mission.zig`: mission/contract data types, categories, optional topology reference, level/Reputation requirements, difficulty classification, and typed objective definitions.
+- `src/domain/mission.zig`: mission/contract data types, static faction affiliations, categories, optional topology reference, level/Reputation requirements, difficulty classification, and typed objective definitions.
 - `src/domain/mission_objectives.zig`: fixed-capacity per-objective state tracker, typed discovery triggers, and allocation-free objective lifecycle rules.
 - `src/domain/contract_board.zig`: pure derived Contract Board availability, faction access, and reward-range calculations; no persistence or terminal I/O.
 - `src/domain/operation.zig` and `src/domain/operation_state.zig`: static linear operation contracts, typed facts, and bounded runtime-only lifecycle.
