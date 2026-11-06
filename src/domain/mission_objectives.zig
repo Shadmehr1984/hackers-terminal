@@ -74,7 +74,7 @@ pub const Tracker = struct {
 
             next.entries[index] = .{
                 .id = objective.id,
-                .kind = @as(u8, @bitCast(objective.kind)),
+                .kind = @intFromEnum(objective.kind),
                 .optional = objective.optional,
                 .bonus_reward = objective.bonus_reward,
                 .revealed = !objective.hidden,

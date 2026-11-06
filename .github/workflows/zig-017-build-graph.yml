@@ -36,10 +36,8 @@ jobs:
 
       # The full repository formatter/build is intentionally deferred until
       # compatibility facades and filesystem APIs are migrated in later phases.
-      - name: Format migrated files and show objective tracker diff
-        run: |
-          zig fmt build.zig src/main.zig src/application/terminal_input.zig src/application/terminal_io.zig src/application/game.zig src/persistence/save.zig src/domain/mission_objectives.zig tests/terminal_input_test.zig tests/terminal_io_test.zig tests/save_test_support.zig tests/save_io_test.zig tests/equipment_test.zig tests/operation_test.zig
-          git diff -- src/domain/mission_objectives.zig
+      - name: Check migrated-file formatting
+        run: zig fmt --check build.zig src/main.zig src/application/terminal_input.zig src/application/terminal_io.zig src/application/game.zig tests/terminal_input_test.zig tests/terminal_io_test.zig tests/save_test_support.zig tests/save_io_test.zig tests/operation_test.zig save_io_test_root.zig
 
       - name: Test terminal I/O compatibility layer
         run: zig test --dep terminal_io -Mroot=tests/terminal_io_test.zig -Mterminal_io=src/application/terminal_io.zig
