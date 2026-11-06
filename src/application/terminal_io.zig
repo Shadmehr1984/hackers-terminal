@@ -26,8 +26,8 @@ pub const ProcessWriter = struct {
 pub fn readLine(reader: *std.Io.Reader, output: anytype) !?[]u8 {
     const maybe_line = reader.takeDelimiter('\n') catch |err| switch (err) {
         error.StreamTooLong => {
-            reader.discardDelimiterInclusive('\n') catch |drain_err| switch (drain_err) {
-                error.EndOfStream => {},
+            _ = reader.discardDelimiterInclusive('\n') catch |drain_err| switch (drain_err) {
+                error.EndOfStream => 0,
                 else => return drain_err,
             };
             try output.writeAll("Input too long. Command discarded.\n");
