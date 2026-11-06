@@ -229,11 +229,45 @@ pub fn loadGameFromBytes(data: []const u8, player: *Player, missions: []Mission)
     return null;
 }
 
-/// Loads the default save file into the supplied player and mission state.
-pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
-    const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch return null;
+/// Describes the outcome of attempting to load the default save file.
+pub const LoadStatus = enum {
+    loaded,
+    missing,
+    invalid,
+    io_error,
+};
+
+/// Returns the active mission and an explicit status so callers can distinguish
+/// a first run from an unreadable or malformed existing save.
+pub const LoadResult = struct {
+    active: ?usize,
+    status: LoadStatus,
+};
+
+/// Loads the default save file and reports why no state was restored when applicable.
+pub fn loadGameWithStatus(allocator: std.mem.Allocator, player: *Player, missions: []Mission) LoadResult {
+    const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch |err| {
+        return .{
+            .active = null,
+            .status = if (err == error.FileNotFound) .missing else .io_error,
+        };
+    };
     defer file.close();
-    const data = file.readToEndAlloc(allocator, 4096) catch return null;
+    const data = file.readToEndAlloc(allocator, 4096) catch {
+        return .{ .active = null, .status = .io_error };
+    };
     defer allocator.free(data);
-    return loadGameFromBytes(data, player, missions);
+    if (validateSave(data, missions.len) == null) {
+        return .{ .active = null, .status = .invalid };
+    }
+    return .{
+        .active = loadGameFromBytes(data, player, missions),
+        .status = .loaded,
+    };
+}
+
+/// Loads the default save file into the supplied player and mission state.
+/// Kept as a compatibility wrapper for existing callers.
+pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
+    return loadGameWithStatus(allocator, player, missions).active;
 }
