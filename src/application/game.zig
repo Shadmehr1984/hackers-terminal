@@ -294,6 +294,13 @@ fn launchPreparedMission(
     preparation.* = next_preparation;
 }
 
+/// Checks the one completion error that receives a player-facing recovery message.
+/// The anyerror parameter keeps generic Writer instantiations from making the
+/// non-reward error path statically unreachable.
+fn isRewardOverflow(err: anyerror) bool {
+    return err == error.RewardOverflow;
+}
+
 /// Parses and dispatches one game command using the default test/legacy save context.
 pub fn runCommand(
     writer: anytype,
@@ -792,12 +799,12 @@ pub fn runCommandWithSaveContext(
                     const reward_eligible = !next_preparation.operation_state.active or next_preparation.operation_state.current_stage_reward_eligible;
                     try writer.print("[EXTRACTED] {s}\n", .{next_mission.encrypted_file});
                     if (reward_eligible) {
-                        progression.completeMission(writer, &next_player, next_mission, &next_session) catch |err| switch (err) {
-                            error.RewardOverflow => {
+                        progression.completeMission(writer, &next_player, next_mission, &next_session) catch |err| {
+                            if (isRewardOverflow(err)) {
                                 try writer.writeAll("[REWARD ERROR] Reward totals exceed the supported player limits. The contract remains active and no payout was applied.\n");
                                 return true;
-                            },
-                            else => return err,
+                            }
+                            return err;
                         };
                     } else {
                         try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\n");
