@@ -465,7 +465,17 @@ pub fn runCommandWithSaveDirectory(
             });
             if (mission.topology != null) try writer.writeAll("Network: use 'map' to inspect nodes and objective locations.\n");
             if (session.modifier) |modifier| try writer.print("Mission modifier: {s}\nEffect: {s}\n", .{ modifier.label(), modifier.description() });
-            try terminal.printRivalBriefing(writer, mission.id);
+            if (rival_data.forMission(mission.id)) |rival| {
+                const rival_status = rival_simulation.status(
+                    rival,
+                    missions,
+                    progression.playerLevel(player.*),
+                    player.reputation,
+                    mission.id,
+                    &session.objective_tracker,
+                );
+                try terminal.printRivalBriefing(writer, mission.id, rival_status);
+            }
             try terminal.printObjectives(writer, mission, session.*);
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "objectives")) {
