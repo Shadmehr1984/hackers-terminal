@@ -31,7 +31,12 @@ jobs:
           version: 0.13.0
 
       - name: Check formatting
-        run: zig fmt --check test_root.zig build.zig src tests
+        run: |
+          if ! zig fmt --check test_root.zig build.zig src tests; then
+            zig fmt test_root.zig build.zig src tests
+            git diff -- tests/progression_test.zig
+            exit 1
+          fi
 
       - name: Compile project
         run: zig build -Doptimize=${{ matrix.optimize }}
