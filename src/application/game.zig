@@ -561,8 +561,8 @@ pub fn runCommandWithSaveDirectory(
                 !isMissionUnlocked(mission, player.*) or
                 (!preparation.operation_state.active and !hasFactionAccess(mission, missions, player.reputation)))
             {
-                preparation.clear();
                 try writer.writeAll("The prepared contract is no longer available. Preparation cleared.\n");
+                preparation.clear();
             } else if (preparation.selected_utility) |utility| {
                 if (!player.equipment.owns(utility)) {
                     try writer.writeAll("Selected utility is no longer owned. Choose another loadout.\n");
