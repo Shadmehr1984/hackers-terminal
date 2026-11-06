@@ -73,13 +73,13 @@ Every built-in contract has a client faction and a target-owner faction. The Con
 
 Your standing with a faction is derived, not separately saved. Start with global Reputation, add 2 for each completed contract commissioned by that faction, and subtract 2 for each completed contract whose target owner or opposing faction is that faction. The resulting score maps to Hostile (at or below -2), Wary (-1), Neutral (0–2), Trusted (3–5), or Allied (6+). Replaying a completed contract does not add another outcome because the existing completion flag is used.
 
-A contract is faction-locked when its client faction is Hostile toward you. The Contract Board displays FACTION LOCKED, and preparation, exclusive Contact access, and operation start reject access. Completing contracts for that client faction can improve standing again. Existing Reputation gains, Contact unlock thresholds, rewards, Detection costs, and prices are unchanged. Faction standing uses existing persisted Reputation and contract-completion flags; Save V3 and older formats are unchanged.
+A contract is faction-locked when its client faction is Hostile toward you. The Contract Board displays FACTION LOCKED, and preparation, Broker intelligence listing/purchases, exclusive Contact access, and operation start reject access. Completing contracts for that client faction can improve standing again. Existing Reputation gains, Contact unlock thresholds, rewards, Detection costs, and prices are unchanged. Faction standing uses existing persisted Reputation and contract-completion flags; Save V3 and older formats are unchanged.
 
 Faction security ratings/styles are authored intelligence to help compare contract profiles. They do not independently change Detection costs or rewards in this feature.
 
 ## Contracts
 
-The game currently defines five contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer; the fifth, Corporate Ghost, is a standard Nexus Dynamics contract.
+The game currently defines five contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer; the fifth, Corporate Ghost, is a standard contract commissioned by Nexus Dynamics against a Null Syndicate-owned target.
 
 | ID | Contract | Category | Difficulty | Fictional target | Required level | Required Reputation | Cash reward | XP reward |
 | --- | --- | --- | --- | ---: | ---: | ---: |
