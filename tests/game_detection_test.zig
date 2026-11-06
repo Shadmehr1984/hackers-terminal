@@ -26,6 +26,18 @@ const FailOnPrintWriter = struct {
     }
 };
 
+const FailOnWriteWriter = struct {
+    calls: *usize,
+    fail_on: usize,
+
+    pub fn writeAll(self: @This(), _: []const u8) error{OutputFailure}!void {
+        self.calls.* += 1;
+        if (self.calls.* == self.fail_on) return error.OutputFailure;
+    }
+
+    pub fn print(_: @This(), comptime _: []const u8, _: anytype) error{}!void {}
+};
+
 fn run(writer: anytype, line: []const u8, player: *Player, missions: []Mission, active: *?usize, session: *MissionSession, preparation: *MissionPreparation) !void {
     _ = try game.runCommand(writer, line, player, missions, active, session, preparation);
 }
@@ -547,8 +559,7 @@ test failed contract launch output preserves preparation and does not activate a
     try std.testing.expect(session.current_node == null);
 }
 
-
-test "scan output failure preserves scan progress, objective state, and Detection" {
+test scan output failure preserves scan progress, objective state, and Detection" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
     missions[0].topology = null;
@@ -579,7 +590,7 @@ test "authentication output failure preserves authentication and Detection state
     try std.testing.expect(session.initializeObjectives(missions[0].objectives));
 
     var calls: usize = 0;
-    const writer = FailOnPrintWriter{ .calls = &calls, .fail_on = 1 };
+    const writer = FailOnWriteWriter{ .calls = &calls, .fail_on = 1 };
     try std.testing.expectError(
         error.OutputFailure,
         run(writer, "brute orion42", &player, &missions, &active, &session, &preparation),
@@ -601,7 +612,7 @@ test "decryption output failure preserves decryption and Detection state" {
     try std.testing.expect(session.initializeObjectives(missions[0].objectives));
 
     var calls: usize = 0;
-    const writer = FailOnPrintWriter{ .calls = &calls, .fail_on = 1 };
+    const writer = FailOnWriteWriter{ .calls = &calls, .fail_on = 1 };
     try std.testing.expectError(
         error.OutputFailure,
         run(writer, "decrypt midnight", &player, &missions, &active, &session, &preparation),
@@ -622,7 +633,7 @@ test "analysis output failure preserves objective and Detection state" {
     try std.testing.expect(session.initializeObjectives(missions[0].objectives));
 
     var calls: usize = 0;
-    const writer = FailOnPrintWriter{ .calls = &calls, .fail_on = 1 };
+    const writer = FailOnWriteWriter{ .calls = &calls, .fail_on = 1 };
     try std.testing.expectError(
         error.OutputFailure,
         run(writer, "analyze ledger.enc", &player, &missions, &active, &session, &preparation),
@@ -632,8 +643,7 @@ test "analysis output failure preserves objective and Detection state" {
     try std.testing.expect(!session.isObjectiveComplete(.analyze_metadata));
 }
 
-
-test "Extraction payout writer failure does not commit objective completion or rewards" {
+test Extraction payout writer failure does not commit objective completion or rewards" {
     var player = Player{ .balance = 75 };
     var missions = mission_data.defaultMissions();
     missions[0].topology = null;
