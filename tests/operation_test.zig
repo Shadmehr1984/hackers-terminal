@@ -14,6 +14,14 @@ const TestWriter = struct {
     pub fn print(_: *@This(), comptime _: []const u8, _: anytype) !void {}
 };
 
+const FailOnOperationIntelWriter = struct {
+    pub fn writeAll(_: *@This(), _: []const u8) !void {}
+
+    pub fn print(_: *@This(), comptime format: []const u8, _: anytype) error{OutputFailure}!void {
+        if (std.mem.indexOf(u8, format, "[OPERATION INTEL]") != null) return error.OutputFailure;
+    }
+};
+
 fn run(
     writer: *TestWriter,
     command: []const u8,
@@ -109,6 +117,46 @@ test "operation start validates every stage before changing state and blocks sta
     try run(&writer, "cancel", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(preparation.operation_state.active);
     try std.testing.expectEqual(@as(?usize, 0), preparation.mission_index);
+}
+
+test "operation fact is not committed when its transition output fails" {
+    var player = Player{ .xp = 250 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var setup_writer = TestWriter{};
+
+    try run(&setup_writer, "operation-start blackout-protocol", &player, &missions, &active, &session, &preparation);
+    try run(&setup_writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+
+    try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
+    session.completeObjective(.analyze_metadata);
+    session.progress = .decrypted;
+    session.current_node = "vault";
+    for (missions[0].objectives) |objective| {
+        if (!objective.optional and objective.kind != .extract_file) session.completeObjective(objective.kind);
+    }
+
+    var failing_writer = FailOnOperationIntelWriter{};
+    try std.testing.expectError(
+        error.OutputFailure,
+        game.runCommand(&failing_writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expect(missions[0].completed);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+    try std.testing.expect(preparation.operation_state.active);
+    try std.testing.expectEqual(@as(u8, 0), preparation.operation_state.stage_index);
+    try std.testing.expect(!preparation.operation_state.hasFact(.maintenance_telemetry));
+
+    // The completed stage can be retried without receiving its payout twice.
+    var retry_writer = TestWriter{};
+    try run(&retry_writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(preparation.operation_state.hasFact(.maintenance_telemetry));
+    try std.testing.expectEqual(@as(u8, 1), preparation.operation_state.stage_index);
+    try std.testing.expectEqual(@as(?usize, 1), preparation.mission_index);
 }
 
 test "successful stage grants its fact and reveals only the next authored objective" {
