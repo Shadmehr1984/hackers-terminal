@@ -33,6 +33,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, duplicate-payout protection, and atomic rejection when optional-reward accumulation overflows.
 - `tests/contacts_test.zig` covers Reputation tier thresholds, Contact unlocks, optional-objective Reputation bonuses, paid intelligence, Fixer service pricing/usage, and the Ghost Signal offer.
 - `tests/terminal_test.zig` covers faction-aware Operation list/details/status output, active-operation preauthorization messaging, and safe Contract Board reward-overflow reporting.
+- `tests/rival_test.zig` covers the five-rival catalog, deterministic status transitions, rival commands/dossiers, and post-decryption optional-objective contests.
 - `tests/contract_board_test.zig` covers visible reward ceilings and checked overflow rejection.
 - `tests/test_all.zig` is the aggregate test list that imports the test modules.
 - `test_root.zig` is the repository-root module used to run the aggregate suite while keeping all test files under `tests/`.
@@ -87,3 +88,13 @@ sh scripts/check-agent-docs.sh
 ```
 
 CI runs this check in addition to Zig formatting, compilation, and unit tests. It verifies required guidance files and key links/sections; it does not prove code correctness or replace the Zig checks.
+
+
+### HT-011 smoke checks
+
+1. Run `rivals` and confirm exactly five profiles and stable IDs are shown.
+2. Run `rival patchwork` and inspect its faction, specialty, contested contract, and counterplay.
+3. Run `board` and `prepare job-01`; confirm the rival warning appears before launch.
+4. In Cold Storage, reach `maintenance` before decrypting and confirm the hidden optional objective is discoverable; after decryption, Patchwork must be OUTPACED.
+5. In a fresh run, decrypt before visiting `maintenance`; confirm Patchwork becomes RIVAL_AHEAD and only the hidden optional objective is unavailable.
+6. Verify the required objectives and primary contract remain completable and no Detection/reward/save behavior changes.
