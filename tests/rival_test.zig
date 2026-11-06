@@ -1,6 +1,8 @@
 const std = @import("std");
 const game = @import("../src/game.zig");
 const rival = @import("../src/domain/rival.zig");
+const Mission = @import("../src/domain/mission.zig").Mission;
+const MissionObjective = @import("../src/domain/mission.zig").MissionObjective;
 const rival_data = @import("../src/catalog/rival_data.zig");
 const rival_simulation = @import("../src/domain/rival_simulation.zig");
 const faction_data = @import("../src/catalog/faction_data.zig");
@@ -176,23 +178,26 @@ test "active briefing reports when the player outpaces the rival before decrypti
 test "all five rival contests honor their authored node file and action discovery triggers" {
     const missions = mission_data.defaultMissions();
     for (rival_data.all()) |entry| {
-        var selected_mission: ?@TypeOf(missions[0]) = null;
+        var selected_mission: ?Mission = null;
         for (missions) |mission| {
             if (std.mem.eql(u8, mission.id, entry.mission_id)) {
                 selected_mission = mission;
                 break;
             }
         }
-        const mission = selected_mission orelse return error.TestUnexpectedResult;
-        var contested_objective: ?@TypeOf(mission.objectives[0]) = null;
+        try std.testing.expect(selected_mission != null);
+        const mission = selected_mission.?;
+        var contested_objective: ?MissionObjective = null;
         for (mission.objectives) |objective| {
             if (std.mem.eql(u8, objective.id, entry.objective_id)) {
                 contested_objective = objective;
                 break;
             }
         }
-        const objective = contested_objective orelse return error.TestUnexpectedResult;
-        const trigger = objective.discovery_trigger orelse return error.TestUnexpectedResult;
+        try std.testing.expect(contested_objective != null);
+        const objective = contested_objective.?;
+        try std.testing.expect(objective.discovery_trigger != null);
+        const trigger = objective.discovery_trigger.?;
 
         var player_first_tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
         try std.testing.expect(player_first_tracker.initialize(mission.objectives));
