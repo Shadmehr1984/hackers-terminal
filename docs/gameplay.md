@@ -283,3 +283,20 @@ Some contracts contain optional objectives that are not listed during preparatio
 Hidden objectives never block contract completion. Once discovered, they are completed by the same authored gameplay event kind as other objectives. Any authored hidden cash reward is paid only on successful contract completion and only when the objective was completed. The current built-in hidden objectives carry a zero cash reward, preserving existing contract payout values until reward amounts are explicitly approved; completing all optional objectives can still earn the existing Reputation bonus. An optional objective whose discovery trigger or completion event has irreversibly passed becomes unavailable; this includes hidden objectives that were never discovered and discovered optional objectives that were not completed before the contract ends. Unavailable objectives grant no cash and prevent the all-optional Reputation bonus. As before, the additional Reputation is granted only when every authored optional objective, visible or hidden, is completed.
 
 Objective identity is a stable mission-local ID, separate from its event kind. This allows multiple objectives to react independently to the same event. A run tracks at most 32 objectives using fixed-capacity runtime state. Objective discovery and progress reset on a fresh run, retry, compromise, or session reset and are not saved. Save V3 and older save readers are unchanged.
+
+
+## Rival hackers (HT-011)
+
+Five fictional competitors contest optional intelligence in the existing contract catalog:
+
+| Rival | Faction | Contract | Contested optional evidence |
+|---|---|---|---|
+| Ghost Operator | Ghost Protocol | job-03 | `relay-trace` |
+| Null Byte | Null Syndicate | job-04 | `mirror-fragment` |
+| Glasswire | Black Veil | job-02 | `routing-header` |
+| Patchwork | Iron Meridian | job-01 | `maintenance-telemetry` |
+| Redshift | Helix Consortium | job-05 | `mirror-fragment` |
+
+The rival is disclosed on the Contract Board and in Preparation/Briefing, including the relevant counterplay hint. The contest resolves deterministically after successful decryption: if the linked hidden objective is still undiscovered, it becomes unavailable for that run and the rival is marked RIVAL_AHEAD. If the player discovered it first, the rival is OUTPACED. DORMANT means the associated contract is still progression/faction locked; CONTESTING means the opportunity remains unresolved.
+
+Counterplay uses the existing discovery trigger: reach the maintenance or mirror node, inspect the routing-header file, or perform the scan that reveals the relay trace before decrypting. The rival can affect only that hidden optional objective. Required objectives, extraction, primary contract availability, Detection, cash, XP, Reputation, faction standing, and base rewards are unchanged. Rival profiles are static and rival contest state is runtime-only; no Save V3 change is made.
