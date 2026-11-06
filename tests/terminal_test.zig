@@ -112,7 +112,7 @@ test "objective output hides undiscovered objectives but retains revealed unavai
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[!] [OPTIONAL] Recover the maintenance telemetry signature") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "(+$0)") == null);
 }
- 
+
 test "Broker contact and offers hide intelligence for faction-locked contracts" {
     const player = Player{ .reputation = 2, .xp = 250 };
     var missions = mission_data.defaultMissions();

@@ -11,8 +11,13 @@ const mission_data = @import("../src/catalog/mission_data.zig");
 const Capture = struct {
     buffer: [32768]u8 = undefined,
     len: usize = 0,
-    fn clear(self: *Capture) void { self.len = 0; }
-    fn output(self: *const Capture) []const u8 { return self.buffer[0..self.len]; }
+    fn clear(self: *Capture) void {
+        self.len = 0;
+    }
+
+    fn output(self: *const Capture) []const u8 {
+        return self.buffer[0..self.len];
+    }
     pub fn writeAll(self: *@This(), bytes: []const u8) error{NoSpaceLeft}!void {
         if (bytes.len > self.buffer.len - self.len) return error.NoSpaceLeft;
         @memcpy(self.buffer[self.len .. self.len + bytes.len], bytes);
@@ -24,7 +29,15 @@ const Capture = struct {
     }
 };
 
-fn run(capture: *Capture, line: []const u8, player: *Player, missions: []Mission, active: *?usize, session: *MissionSession, preparation: *MissionPreparation) !void {
+fn run(
+    capture: *Capture,
+    line: []const u8,
+    player: *Player,
+    missions: []Mission,
+    active: *?usize,
+    session: *MissionSession,
+    preparation: *MissionPreparation,
+) !void {
     _ = try game.runCommand(capture, line, player, missions, active, session, preparation);
 }
 
@@ -39,7 +52,10 @@ test "Corporate Ghost remains faction-locked until Quiet Exit, then completes it
     var preparation = MissionPreparation{};
     var capture = Capture{};
 
-    try std.testing.expectEqual(faction.Standing.hostile, faction.playerStanding(.nexus_dynamics, player.reputation, &missions));
+    try std.testing.expectEqual(
+        faction.Standing.hostile,
+        faction.playerStanding(.nexus_dynamics, player.reputation, &missions),
+    );
     try run(&capture, "prepare job-05", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(preparation.mission_index == null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Contract access denied") != null);
@@ -63,7 +79,10 @@ test "Corporate Ghost remains faction-locked until Quiet Exit, then completes it
     try run(&capture, "extract manifest.enc", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(missions[2].completed);
     try std.testing.expectEqual(@as(u32, 3), player.reputation);
-    try std.testing.expectEqual(faction.Standing.wary, faction.playerStanding(.nexus_dynamics, player.reputation, &missions));
+    try std.testing.expectEqual(
+        faction.Standing.wary,
+        faction.playerStanding(.nexus_dynamics, player.reputation, &missions),
+    );
     try std.testing.expect(missions[0].completed);
     try std.testing.expect(missions[1].completed);
 
@@ -84,12 +103,21 @@ test "Corporate Ghost remains faction-locked until Quiet Exit, then completes it
     try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
     try run(&capture, "decrypt auditlog", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move mirror-node", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(ObjectiveState.discovered, session.objective_tracker.stateOf("mirror-fragment").?);
+    try std.testing.expectEqual(
+        ObjectiveState.discovered,
+        session.objective_tracker.stateOf("mirror-fragment").?,
+    );
     try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move audit-hub", &player, &missions, &active, &session, &preparation);
     try run(&capture, "analyze access-ledger.enc", &player, &missions, &active, &session, &preparation);
-    try std.testing.expectEqual(ObjectiveState.completed, session.objective_tracker.stateOf("verify-trail").?);
-    try std.testing.expectEqual(ObjectiveState.completed, session.objective_tracker.stateOf("analyze-metadata").?);
+    try std.testing.expectEqual(
+        ObjectiveState.completed,
+        session.objective_tracker.stateOf("verify-trail").?,
+    );
+    try std.testing.expectEqual(
+        ObjectiveState.completed,
+        session.objective_tracker.stateOf("analyze-metadata").?,
+    );
     try std.testing.expectEqual(ObjectiveState.completed, session.objective_tracker.stateOf("mirror-fragment").?);
     try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move exit-relay", &player, &missions, &active, &session, &preparation);
