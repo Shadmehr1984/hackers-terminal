@@ -76,5 +76,7 @@ pub fn evaluate(mission: Mission, context: Context) Entry {
         .reputation_locked = reputation_locked,
         .minimum_reward = mission.reward,
         .maximum_reward = maximumReward(mission),
+        .faction_locked = faction_locked,
+        .player_standing = player_standing,
     };
 }
