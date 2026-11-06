@@ -204,7 +204,13 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
         }
         if (rival_data.forMission(mission.id)) |rival| {
             const rival_status = rival_simulation.status(rival, missions, level, reputation, active_mission_id, tracker);
-            try writer.print("    Rival: {s} | {s} — optional intelligence may be contested before decryption.\n", .{ rival.name, rival_status.label() });
+            const contest_note = switch (rival_status) {
+                .dormant => "contest dormant until contract access is available",
+                .contesting => "optional intelligence may be contested before decryption",
+                .rival_ahead => "rival secured the optional intelligence this run",
+                .outpaced => "contest closed",
+            };
+            try writer.print("    Rival: {s} | {s} — {s}.\n", .{ rival.name, rival_status.label(), contest_note });
         }
     }
     try writer.writeAll("\nUse prepare <id> for standard contracts; use the relevant Contact offer for exclusive contracts.\n");
