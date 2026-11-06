@@ -34,7 +34,7 @@ The project owner approved these five feature areas on 2026-11-05. Implement the
 
 ## Gameplay Expansion Program — EXPANSION-001
 
-The owner approved planning for the next 20 gameplay ideas on 2026-11-05. HT-006 is implemented and merged. HT-007 is implemented and merged to `main` via PR #11; CI has passed. HT-008 was implemented directly on `main` on 2026-11-05 after explicit owner authorization; final implementation CI run #679 passed. HT-009 design and Runtime-only persistence were approved in ADR 0011; implementation was explicitly authorized and completed directly on `main` on 2026-11-06; GitHub Actions run #733 passed.
+The owner approved planning for the next 20 gameplay ideas on 2026-11-05. HT-006 is implemented and merged. HT-007 is implemented and merged to `main` via PR #11; CI has passed. HT-008 was implemented directly on `main` on 2026-11-05 after explicit owner authorization; final implementation CI run #679 passed. HT-009 design and Runtime-only persistence were approved in ADR 0011; implementation was explicitly authorized and completed directly on `main` on 2026-11-06; GitHub Actions run #733 passed. HT-010 seven-faction design and derived standing were explicitly approved on 2026-11-06 and are in progress on `main` under ADR 0012 and task brief HT-010.
 
 | Phase | Scope | Plan | Status |
 |---|---|---|---|
