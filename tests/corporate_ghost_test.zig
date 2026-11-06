@@ -101,15 +101,15 @@ test "Corporate Ghost remains faction-locked until Quiet Exit, then completes it
     try run(&capture, "move auth-core", &player, &missions, &active, &session, &preparation);
     try run(&capture, "connect relay-05.local", &player, &missions, &active, &session, &preparation);
     try run(&capture, "brute vaultkeeper", &player, &missions, &active, &session, &preparation);
-    try run(&capture, "move audit-hub", &player, &missions, &active, &session, &preparation);
-    try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
-    try run(&capture, "decrypt auditlog", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move mirror-node", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(
         @as(?ObjectiveState, .discovered),
         session.objective_tracker.stateOf("mirror-fragment"),
     );
     try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
+    capture.clear();
+    try run(&capture, "decrypt auditlog", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[RIVAL AHEAD]") == null);
     try run(&capture, "move audit-hub", &player, &missions, &active, &session, &preparation);
     try run(&capture, "analyze access-ledger.enc", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "matching objectives completed") != null);
