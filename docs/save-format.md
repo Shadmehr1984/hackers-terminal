@@ -2,7 +2,7 @@
 
 ## Location and lifecycle
 
-The game uses one local save file: `saves/player.sav`. The directory is created by `saveGame` when the player runs `save`. New data is written to `saves/player.sav.tmp`; only after the complete payload is written and the file is closed is it renamed to `saves/player.sav`. This prevents a failed write from truncating the previous save. The loader starts with defaults when the file is missing or unreadable. The `saves/` directory is ignored by Git.
+The game uses one local save file: `saves/player.sav`. The directory is created by `saveGame` when the player runs `save`. New data is written to `saves/player.sav.tmp`; only after the complete payload is written and the file is closed is it renamed to `saves/player.sav`. This prevents a failed write from truncating the previous save. A missing save is treated as a first run. An unreadable or malformed existing save is reported to the player before the game continues with defaults; the original file is preserved until the player explicitly saves. The `saves/` directory is ignored by Git.
 
 ## V3 format (current)
 
@@ -81,7 +81,7 @@ The first line must be a valid unsigned numeric balance, followed by reputation 
 
 ## Failure behavior and caveats
 
-- If the file cannot be opened or read, loading returns no active mission and the game continues with defaults.
+- A missing file is a normal first-run state. An existing file that cannot be opened/read produces an I/O warning; a malformed or unsupported file produces a validation warning. In both cases the game continues with defaults and does not overwrite the file automatically.
 - Unknown non-numeric format markers, truncated payloads, blank positional fields, malformed or out-of-range numeric fields (including active mission indices outside the current catalog), invalid boolean flags, and unsupported completion-flag counts are rejected before mutating player or mission state.
 - A recognized save is parsed and validated in full before the loaded player and mission-completion state are committed. A rejected save leaves every caller-owned field unchanged.
 - Current mission catalogs accept any completion-flag count up to the catalog size for backward compatibility; omitted trailing mission flags default to incomplete. Extra flags are rejected.
