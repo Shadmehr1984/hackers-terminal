@@ -22,7 +22,8 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 
 - `tests/commands_test.zig` covers command parsing.
 - `tests/mission_state_test.zig` covers mission-session state transitions.
-- `tests/mission_data_test.zig` covers built-in mission difficulty assignments, player-facing labels, and mission-specific topology definitions.
+- `tests/mission_data_test.zig` covers built-in mission difficulty assignments, player-facing labels, mission-specific topology definitions, and Corporate Ghost's catalog metadata.
+- `tests/corporate_ghost_test.zig` covers the Nexus Hostile lock, the Quiet Exit Reputation recovery route, and a complete Corporate Ghost run including hidden-objective discovery and rewards.
 - `tests/topology_test.zig` covers graph lookup, bidirectional adjacency, graph validation, and both allocation-failure points in reachability traversal.
 - `tests/equipment_test.zig` covers utility ownership, purchases, equipping, upgrade tiers, shared Detection-cost profiles, V3/V2/V1/legacy save migration, and truncated/malformed save input.
 - `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, optional rewards, and session reset behavior.
@@ -64,7 +65,9 @@ Preserve existing behavior unless a task explicitly requests a gameplay change. 
 10. Extract `ledger.enc` at `vault`; verify the required objectives permit completion and the optional bonus is included only if analysis was completed.
 11. Save and restart; persistent progress should be restored while temporary objective and location state starts at the contract entry node, with a traversal count of zero.
 12. After earning Reputation 1, inspect `contacts`, `contact broker`, and `offers`; purchase `deal intel-job-02` only after meeting its level requirement and verify it reveals clues but not answers.
-13. After earning Reputation 3 and reaching level 3, inspect `contact fixer`, use `deal ghost-signal` to prepare job-04, and verify the appended contract starts at its entry node. In an active contract with Detection above zero, verify `deal scrub-detection` reduces exposure once and cannot be repeated in that contract.
+13. After earning Reputation 3 and reaching level 3, inspect `contact fixer`, use `deal ghost-signal` to prepare job-04, and verify the exclusive contract starts at its entry node.
+14. Complete job-01 and job-02 without optional-objective Reputation bonuses; verify Corporate Ghost is FACTION LOCKED at Nexus Hostile. Complete job-03, then verify Nexus becomes Wary and `prepare job-05` succeeds. Follow the gateway → identity-control → audit → vault route, optionally visit `mirror-node`, analyze `access-ledger.enc`, and extract it at `exit-relay`.
+15. In an active contract with Detection above zero, verify `deal scrub-detection` reduces exposure once and cannot be repeated in that contract.
 
 Back up `saves/player.sav` before testing save migration or clean-profile progression.
 

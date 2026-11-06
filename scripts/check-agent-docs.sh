@@ -20,6 +20,8 @@ AGENTS.md
 .agent/decisions/0012-factions.md
 .agent/tasks/HT-005-reputation-contacts.md
 .agent/tasks/HT-010-factions.md
+.agent/tasks/HT-010.1-corporate-ghost.md
+.agent/decisions/0013-corporate-ghost.md
 docs/gameplay.md
 docs/commands.md
 docs/save-format.md
@@ -42,6 +44,8 @@ grep -q 'ADR 0007' .agent/decisions/0007-reputation-contacts.md
 grep -q 'Acceptance criteria' .agent/tasks/HT-005-reputation-contacts.md
 grep -q 'seven fictional organizations' .agent/tasks/HT-010-factions.md
 grep -q 'derived standing' .agent/decisions/0012-factions.md
+grep -q 'Corporate Ghost' .agent/tasks/HT-010.1-corporate-ghost.md
+grep -q 'Nexus Dynamics' .agent/decisions/0013-corporate-ghost.md
 
 # Guard the mandatory code-review standard against accidental truncation.
 grep -q '## 3. Correctness — 40%' .agent/review-checklist.md

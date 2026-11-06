@@ -40,8 +40,9 @@ Introduce seven fictional organizations with distinct identities, security profi
 | job-02 Paper Trail | Black Veil | Nexus Dynamics |
 | job-03 Quiet Exit | Ghost Protocol | Iron Meridian |
 | job-04 Ghost Signal | Helix Consortium | Null Syndicate |
+| job-05 Corporate Ghost | Nexus Dynamics | Null Syndicate |
 
-These affiliations are static catalog metadata and do not alter the existing puzzle, rewards, mission order, or save indices.
+These affiliations are static catalog metadata and do not alter existing puzzle content or save indices. HT-010.1 appends Corporate Ghost at index 4 with Nexus Dynamics as client and Null Syndicate as target owner; it does not change the first four contracts.
 
 ## Current behavior and ownership
 
@@ -65,6 +66,9 @@ These affiliations are static catalog metadata and do not alter the existing puz
 - [x] Faction dossier/list terminal views are available.
 - [x] Contract preparation, exclusive contract access, and operation start enforce hostile-standing restrictions.
 - [x] Save V3/V2/V1/legacy formats remain unchanged.
+- [ ] HT-010.1 Corporate Ghost is appended at index 4 with the approved Nexus Dynamics / Null Syndicate affiliation and preserves earlier contract indices.
+- [ ] The new contract is faction-locked at Nexus Hostile standing and becomes available after Quiet Exit raises standing to Wary.
+- [ ] Its seven-node topology, five required objectives, visible optional objective, and hidden mirror-node objective are validated and covered by end-to-end tests.
 - [ ] Catalog validation and focused regression tests pass in CI.
 - [ ] Formatting, build, complete tests, and agent-doc checks pass in CI.
 - [ ] Comprehensive change review against .agent/review-checklist.md is complete.

@@ -29,7 +29,7 @@ Hacker's Terminal needs a more populated fictional world and contract availabili
 - Completing or replaying a contract deterministically changes derived faction standing based on the existing completion flag. Replaying a previously completed contract cannot add another standing effect.
 - The Contract Board can present a new FACTION LOCKED availability reason.
 - The player can inspect the faction network and individual faction dossiers from the terminal.
-- Future contracts must author valid faction links and should add focused tests for their intended client/owner relationship.
+- Future contracts must author valid faction links and should add focused tests for their intended client/owner relationship. HT-010.1 adds Corporate Ghost as a fifth contract with Nexus Dynamics as client and Null Syndicate as target owner; see ADR 0013 for its accepted content and progression details.
 - Future features may extend faction mechanics only with explicit owner approval; this ADR does not authorize HT-011, HT-012, or other roadmap features.
 
 ## Validation
