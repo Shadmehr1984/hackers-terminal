@@ -17,7 +17,9 @@ AGENTS.md
 .agent/decisions/0005-equipment-and-save-v3.md
 .agent/decisions/0006-mission-preparation.md
 .agent/decisions/0007-reputation-contacts.md
+.agent/decisions/0012-factions.md
 .agent/tasks/HT-005-reputation-contacts.md
+.agent/tasks/HT-010-factions.md
 docs/gameplay.md
 docs/commands.md
 docs/save-format.md
@@ -38,6 +40,8 @@ grep -q 'review-checklist.md' .agent/README.md
 grep -q 'V2' .agent/decisions/0004-save-compatibility.md
 grep -q 'ADR 0007' .agent/decisions/0007-reputation-contacts.md
 grep -q 'Acceptance criteria' .agent/tasks/HT-005-reputation-contacts.md
+grep -q 'seven fictional factions' .agent/tasks/HT-010-factions.md
+grep -q 'derived standing' .agent/decisions/0012-factions.md
 
 # Guard the mandatory code-review standard against accidental truncation.
 grep -q '## 3. Correctness — 40%' .agent/review-checklist.md
