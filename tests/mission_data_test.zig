@@ -1,4 +1,5 @@
 const std = @import("std");
+const FactionId = @import("../src/domain/faction_id.zig").FactionId;
 const mission_data = @import("../src/mission_data.zig");
 const MissionDifficulty = @import("../src/mission.zig").MissionDifficulty;
 const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
@@ -41,8 +42,8 @@ test "each built-in mission has a valid distinct topology" {
     try std.testing.expect(!missions[4].requires_contact_offer);
     try std.testing.expectEqual(@as(u32, 1200), missions[4].reward);
     try std.testing.expectEqual(@as(u32, 275), missions[4].xp_reward);
-    try std.testing.expect(missions[4].client_faction == .nexus_dynamics);
-    try std.testing.expect(missions[4].target_owner_faction.? == .null_syndicate);
+    try std.testing.expectEqual(FactionId.nexus_dynamics, missions[4].client_faction);
+    try std.testing.expectEqual(@as(?FactionId, .null_syndicate), missions[4].target_owner_faction);
     try std.testing.expect(missions[4].topology.?.containsNode("mirror-node"));
     try std.testing.expect(missions[4].topology.?.areAdjacent("mirror-node", "data-vault"));
     try std.testing.expectEqual(@as(usize, 7), missions[4].objectives.len);

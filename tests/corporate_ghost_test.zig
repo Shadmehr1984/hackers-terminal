@@ -39,7 +39,8 @@ fn run(
     session: *MissionSession,
     preparation: *MissionPreparation,
 ) !void {
-    _ = try game.runCommand(capture, line, player, missions, active, session, preparation);
+    const keep_running = try game.runCommand(capture, line, player, missions, active, session, preparation);
+    try std.testing.expect(keep_running);
 }
 
 test "Corporate Ghost remains faction-locked until Quiet Exit, then completes its full route" {
