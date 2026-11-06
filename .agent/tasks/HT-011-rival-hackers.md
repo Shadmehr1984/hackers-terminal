@@ -1,6 +1,6 @@
 # HT-011 — Rival Hackers
 
-- **Status:** In Progress
+- **Status:** Completed
 - **Owner authorization:** Explicitly authorized on 2026-11-06 after reading the project and agent documentation.
 - **Implementation branch:** `main`
 - **Approved impact:** Medium
@@ -77,7 +77,7 @@ Domain rules do not import application or terminal modules. The command parser r
 - [x] Architecture, gameplay, commands, save, development, and agent handoff docs are synchronized.
 - [x] Agent-doc structure checks pass.
 - [x] Zig formatting, build, and full tests pass in CI Debug, ReleaseSafe, and ReleaseFast.
-- [ ] Mandatory code review is completed and all findings are resolved or explicitly recorded.
+- [x] Mandatory code review is completed and all findings are resolved or explicitly recorded.
 
 ## Verification plan
 
@@ -86,7 +86,7 @@ Domain rules do not import application or terminal modules. The command parser r
 - [x] `zig build test`
 - [x] `sh scripts/check-agent-docs.sh`
 - [x] Inspect actual GitHub Actions result for the final main commit.
-- [ ] Review the complete diff against `.agent/review-checklist.md`; report self-review/independent-review availability accurately.
+- [x] Review the complete diff against `.agent/review-checklist.md`; report self-review/independent-review availability accurately.
 
 ## Progress log
 
@@ -114,3 +114,74 @@ Domain rules do not import application or terminal modules. The command parser r
 - 2026-11-06: Final GitHub Actions run #976 for exact `main` SHA `1c5b180b6fb5c6cd969281e2ac6685bba5cba4a1` completed successfully (run ID `42251930547`). Debug, ReleaseSafe, and ReleaseFast all passed formatting, project compilation, the complete Zig test suite, and agent-documentation structure validation. The run conclusion is `success`: https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42251930547. Zig remains unavailable locally, so verification is based on CI. HT-011 remains In Progress solely because the mandatory review-coverage limitation is unresolved: the prior review was a self-review, not an independent second review, and not every historical agent handoff/test file was inspected. Request owner acceptance of this limitation or authorization for a broader review before marking the task complete.
 
 - 2026-11-06: Owner approved the broader review remediations. F-01: topology movement now stages Player, active-contract, and MissionSession changes in local copies and commits only after movement, discovery, Detection warning, and compromise output all succeed; Fixer Detection service similarly stages balance, exposure, and one-use state until its confirmation output succeeds. Added writer-failure regression tests for both paths in `tests/game_detection_test.zig`. F-02: reconciled the HT-008 acceptance checklist, corrected the duplicate incomplete self-review checkbox in QUALITY-006, and added QUALITY-005 to the task index. F-03: corrected the traversal-counter known-issue note because current Detection rules terminate a run far before u32 overflow. Added the output-atomicity invariant to `.agent/conventions.md` and test coverage notes to `docs/development.md`. Commits: `e94e3a0` (state staging), `bb135ed` (regression tests), `e169eda` (HT-008 checklist), `4bbc614` (QUALITY-006 checklist), `2b72860` (task index), `e028fb8` (known constraints), `891c98c` (convention), and `28cbaa7` (development docs). Zig is not installed locally; run formatting, build, full tests, and agent-doc validation in CI before considering these changes verified. HT-011 remains In Progress pending CI and final review of the resulting diff.
+
+
+## Final code review and acceptance record
+
+**Review date:** 2026-11-06  
+**Repository / branch:** Shadmehr1984/hackers-terminal / main  
+**Reviewed implementation commit:** 64f7a77fdff5a2947abae9370355de3a26505db6  
+**Review mode:** Repository-wide static self-review; read-only during review. No independent second reviewer was available.
+
+### Executive summary
+
+The broader review inventoried all 119 repository files and covered the application, domain, catalog, presentation, tests, build/CI configuration, user documentation, and Agent documentation, including historical handoffs. No confirmed Blocker or Major correctness/security issue remained. Three findings were recorded: one robustness suggestion and two documentation/maintenance nits. All three were addressed in the approved remediation commits listed in the progress log. The review did not claim manual gameplay, local Zig execution, SAST, dependency audit, or benchmark coverage.
+
+### Findings and disposition
+
+| ID | Severity | Location | Finding | Disposition |
+|---|---|---|---|---|
+| F-01 | [SUGGESTION] | src/application/game.zig:121-126, 440-445 | Move and Fixer state could be mutated before all corresponding output succeeded, leaving partial state after writer failure. | Resolved: stage candidate state and commit only after output succeeds; writer-failure regression tests added. |
+| F-02 | [NIT] | .agent/tasks/HT-008-hidden-objectives.md, .agent/tasks/QUALITY-006-active-save-index-bounds.md, .agent/tasks/README.md | Acceptance/review checklists and task index were inconsistent with completed work. | Resolved: reconcile HT-008 criteria, QUALITY-006 review checkbox, and QUALITY-005 index entry. |
+| F-03 | [NIT] | .agent/known-issues.md:12 | Traversal-counter overflow warning did not reflect the current Detection limits, which terminate a run far earlier. | Resolved: replace the misleading warning with the actual current invariant and a future-change caveat. |
+
+**Detailed F-01 evidence:** if a Writer failed while printing the movement/Detection or Fixer confirmation output, the old flow could leave topology, Detection, balance, or one-use service state changed despite the command failing. The implementation now stages Player, active-contract, and MissionSession values locally and commits only after all relevant output succeeds. Tests inject output failures and assert the original state is preserved.
+
+**Blockers:** None.  
+**Unresolved NEEDS-VERIFICATION findings:** None from this review. This does not mean every optional assurance activity was performed.
+
+### Positive observations
+
+- Save V3 writer and V2/V1/legacy readers remain unchanged.
+- Rival behavior remains deterministic and runtime-only; no real networking, shell execution, host scanning, or credential collection was introduced.
+- Regression tests cover writer-failure atomicity for extraction, Operation transitions, movement, and Fixer service.
+- A catalog-driven test exercises all five rival discovery triggers in player-first and rival-first outcomes.
+- CI exercises Debug, ReleaseSafe, and ReleaseFast and includes formatting, compilation, tests, and Agent-documentation structure validation.
+
+### Coverage and category matrix
+
+The review inventoried 119 unique repository files: 39 source files, 20 test/root files, 49 Agent files, 5 main documentation files, and the remaining top-level/build/CI/script files. These area counts are an inventory description and may overlap where root/Agent documentation belongs to more than one review area. Historical Agent handoffs were included in the expanded pass. The review used the project's full checklist; no independent reviewer was available.
+
+| Category | Coverage | Notes |
+|---|---|---|
+| Correctness | Reviewed | State transitions, failure paths, mission/objective progression, and regressions. |
+| OWASP Security | Partially reviewed | Static review of the offline boundary and relevant input/state handling; no external SAST/security scanner. |
+| Architecture / Design | Reviewed | Module boundaries, dependency direction, persistence invariants, and task/ADR consistency. |
+| Performance | Partially reviewed | Static reasoning only; no benchmark or profiling run. |
+| Zig-specific scan | Reviewed | Formatting/build/test evidence plus static safety, ownership, error, and integer review; no local Zig executable. |
+| Maintainability / Observability | Reviewed | Diagnostics, contracts, test quality, known issues, and documentation consistency. |
+| Tests | Reviewed | Test modules, aggregate registration, regression coverage, and CI test results. No manual playthrough. |
+| CI | Reviewed | Workflow definition and exact GitHub Actions run #988 for the reviewed implementation SHA. |
+
+### Verification matrix
+
+| Check | Execution | Result / evidence |
+|---|---|---|
+| zig fmt --check test_root.zig build.zig src tests | GitHub Actions | Passed in Debug, ReleaseSafe, ReleaseFast; run #988. |
+| zig build | GitHub Actions | Passed in Debug, ReleaseSafe, ReleaseFast; run #988. |
+| zig build test | GitHub Actions | Passed in Debug, ReleaseSafe, ReleaseFast; run #988. |
+| sh scripts/check-agent-docs.sh | GitHub Actions | Passed in Debug, ReleaseSafe, ReleaseFast; run #988. |
+| Exact reviewed SHA | GitHub Actions | 64f7a77fdff5a2947abae9370355de3a26505db6; run ID 42254566536, conclusion success. |
+
+Run: https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42254566536
+
+### Limitations and next actions
+
+- This was a self-review, not an independent second review.
+- Zig was unavailable in the editing environment; no local Zig command is claimed.
+- Manual gameplay/playtesting, SAST, dependency auditing, and performance benchmarking were not performed.
+- No unresolved required code-review remediation remains. Optional assurance activities may be scheduled separately; they are not blockers for this task's accepted scope.
+
+### Final acceptance
+
+HT-011's implementation, regression coverage, documentation, repository-wide review, and CI verification are complete for the reviewed implementation SHA. The final handoff update is documentation-only; its own push-triggered CI run must still be inspected after this commit.
