@@ -246,6 +246,49 @@ fn applyTraversalDetection(
     return false;
 }
 
+/// Launches a prepared contract using staged session/preparation state.
+fn launchPreparedMission(
+    writer: anytype,
+    player: Player,
+    mission: Mission,
+    index: usize,
+    preparation: *MissionPreparation,
+    active: *?usize,
+    session: *MissionSession,
+    utility: ?UtilityEquipment,
+) !void {
+    var next_session = session.*;
+    var next_active: ?usize = index;
+    var next_preparation = preparation.*;
+
+    if (utility) |selected| {
+        next_session.startWithModifier(
+            .{ .utility = selected, .level = player.equipment.level(selected) },
+            next_preparation.selected_modifier,
+        );
+    } else {
+        next_session.startWithModifier(.{}, next_preparation.selected_modifier);
+    }
+
+    if (!next_session.initializeObjectives(mission.objectives)) {
+        try writer.writeAll("Contract catalog contains invalid objective definitions; launch rejected.\n");
+        return;
+    }
+
+    next_preparation.clear();
+    try reportObjectiveDiscoveries(writer, revealIncomingOperationObjective(next_preparation, &next_session, mission));
+    if (mission.topology) |topology| next_session.current_node = topology.entry_node;
+    if (next_session.current_node) |node| {
+        try reportObjectiveDiscoveries(writer, next_session.discoverNode(node, mission.objectives));
+    }
+    try writer.print("Contract launched: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
+    if (next_session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
+
+    active.* = next_active;
+    session.* = next_session;
+    preparation.* = next_preparation;
+}
+
 /// Parses and dispatches one game command, applying validation and state transitions.
 pub fn runCommand(
     writer: anytype,
@@ -512,34 +555,10 @@ pub fn runCommandWithSaveDirectory(
                 if (!player.equipment.owns(utility)) {
                     try writer.writeAll("Selected utility is no longer owned. Choose another loadout.\n");
                 } else {
-                    session.startWithModifier(.{ .utility = utility, .level = player.equipment.level(utility) }, preparation.selected_modifier);
-                    if (!session.initializeObjectives(mission.objectives)) {
-                        session.reset();
-                        try writer.writeAll("Contract catalog contains invalid objective definitions; launch rejected.\n");
-                        return true;
-                    }
-                    active.* = index;
-                    preparation.clear();
-                    try reportObjectiveDiscoveries(writer, revealIncomingOperationObjective(preparation.*, session, mission));
-                    if (mission.topology) |topology| session.current_node = topology.entry_node;
-                    if (session.current_node) |node| try reportObjectiveDiscoveries(writer, session.discoverNode(node, mission.objectives));
-                    try writer.print("Contract launched: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
-                    if (session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
+                    try launchPreparedMission(writer, player.*, mission, index, preparation, active, session, utility);
                 }
             } else {
-                session.startWithModifier(.{}, preparation.selected_modifier);
-                if (!session.initializeObjectives(mission.objectives)) {
-                    session.reset();
-                    try writer.writeAll("Contract catalog contains invalid objective definitions; launch rejected.\n");
-                    return true;
-                }
-                active.* = index;
-                preparation.clear();
-                try reportObjectiveDiscoveries(writer, revealIncomingOperationObjective(preparation.*, session, mission));
-                if (mission.topology) |topology| session.current_node = topology.entry_node;
-                if (session.current_node) |node| try reportObjectiveDiscoveries(writer, session.discoverNode(node, mission.objectives));
-                try writer.print("Contract launched: {s}\nTarget: {s}\n", .{ mission.name, mission.target });
-                if (session.current_node) |node| try writer.print("Starting node: {s}\n", .{node});
+                try launchPreparedMission(writer, player.*, mission, index, preparation, active, session, null);
             }
         }
     } else if (std.mem.eql(u8, command, "scan")) {
