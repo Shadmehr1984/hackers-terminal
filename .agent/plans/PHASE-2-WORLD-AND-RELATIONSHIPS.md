@@ -16,13 +16,20 @@ Use fictional organizations and deterministic local simulation only. Avoid addin
 Introduce fictional organizations with distinct identities, security styles, contract pools, and competing interests.
 
 ### Design direction
-- Start with a small authored set (e.g. megacorporation, independent collective, underground information syndicate, civic watchdog); final names and lore require owner review.
+- Accepted roster: Nexus Dynamics, Ghost Protocol, Black Veil, Aegis Initiative, Iron Meridian, Null Syndicate, and Helix Consortium. Their full authored profiles are in .agent/tasks/HT-010-factions.md and src/catalog/faction_data.zig.
 - Contracts may identify a client, target owner, or opposing faction.
 - Relationships should preferably be derived from completed contract outcomes and current Reputation before adding another persisted score.
 - Conflicting interests may change which contracts are offered, but must not create branching narrative.
 
 ### Likely scope
 Faction domain types and catalog, contract metadata, availability rules, terminal presentation, tests/docs; persistence only if separately approved.
+
+### Accepted design baseline (ADR 0012)
+- Seven stable faction identities with distinct authored security/economic profiles.
+- Static symmetric faction-to-faction relationships; unspecified pairs are Neutral.
+- Player standing is derived from global Reputation and completed contract outcomes; no independent score is persisted.
+- Hostile standing toward a contract client blocks board availability and contract selection.
+- Save V3 and all older readers remain unchanged.
 
 ### Acceptance criteria
 - [ ] Factions have distinct authored identities and mechanically meaningful differences.
