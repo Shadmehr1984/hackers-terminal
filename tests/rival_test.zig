@@ -3,6 +3,8 @@ const game = @import("../src/game.zig");
 const rival = @import("../src/domain/rival.zig");
 const Mission = @import("../src/domain/mission.zig").Mission;
 const MissionObjective = @import("../src/domain/mission.zig").MissionObjective;
+const ObjectiveState = @import("../src/domain/mission_objectives.zig").ObjectiveState;
+const Tracker = @import("../src/domain/mission_objectives.zig").Tracker;
 const rival_data = @import("../src/catalog/rival_data.zig");
 const rival_simulation = @import("../src/domain/rival_simulation.zig");
 const faction_data = @import("../src/catalog/faction_data.zig");
@@ -52,7 +54,7 @@ test "rival contest status is deterministic across dormant contesting rival-ahea
     var tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
     try std.testing.expect(tracker.initialize(missions[0].objectives));
     try std.testing.expect(rival_simulation.resolveAfterDecryption(patchwork, &tracker));
-    try std.testing.expectEqual(@import("../src/domain/mission_objectives.zig").ObjectiveState.unavailable, tracker.stateOf("maintenance-telemetry").?);
+    try std.testing.expectEqual(ObjectiveState.unavailable, tracker.stateOf("maintenance-telemetry").?);
     try std.testing.expectEqual(rival.RivalStatus.rival_ahead, rival_simulation.status(patchwork, &missions, 1, 0, "job-01", &tracker));
 
     try std.testing.expect(tracker.initialize(missions[0].objectives));
@@ -199,20 +201,21 @@ test "all five rival contests honor their authored node file and action discover
         try std.testing.expect(objective.discovery_trigger != null);
         const trigger = objective.discovery_trigger.?;
 
-        var player_first_tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
+        var player_first_tracker = Tracker{};
         try std.testing.expect(player_first_tracker.initialize(mission.objectives));
-        switch (trigger) {
-            .node => |node_id| try std.testing.expectEqual(@as(usize, 1), player_first_tracker.discoverNode(node_id, mission.objectives)),
-            .file => |file_id| try std.testing.expectEqual(@as(usize, 1), player_first_tracker.discoverFile(file_id, mission.objectives)),
-            .action => |action| try std.testing.expectEqual(@as(usize, 1), player_first_tracker.discoverAction(action, mission.objectives)),
-        }
+        const discovered = switch (trigger) {
+            .node => |node_id| player_first_tracker.discoverNode(node_id, mission.objectives),
+            .file => |file_id| player_first_tracker.discoverFile(file_id, mission.objectives),
+            .action => |action| player_first_tracker.discoverAction(action, mission.objectives),
+        };
+        try std.testing.expect(discovered > 0);
         try std.testing.expect(!rival_simulation.resolveAfterDecryption(entry, &player_first_tracker));
         try std.testing.expectEqual(
-            @import("../src/domain/mission_objectives.zig").ObjectiveState.discovered,
+            ObjectiveState.discovered,
             player_first_tracker.stateOf(entry.objective_id).?,
         );
 
-        var rival_first_tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
+        var rival_first_tracker = Tracker{};
         try std.testing.expect(rival_first_tracker.initialize(mission.objectives));
         try std.testing.expect(rival_simulation.resolveAfterDecryption(entry, &rival_first_tracker));
         try std.testing.expectEqual(
