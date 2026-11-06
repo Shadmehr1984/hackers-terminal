@@ -606,13 +606,18 @@ pub fn runCommandWithSaveDirectory(
                 try reportObjectiveDiscoveries(writer, session.discoverAction(.decrypt_file, mission.objectives));
                 session.completeObjective(.decrypt_file);
                 session.markOptionalObjectivesUnavailableForEvent(.decrypt_file);
-                if (rival_data.forMission(mission.id)) |rival| {
-                    if (rival_simulation.resolveAfterDecryption(rival, &session.objective_tracker)) {
-                        try writer.print("[RIVAL AHEAD] {s} reached the optional intelligence first. The main contract remains unaffected.\n", .{rival.name});
+                try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
+                const compromised = if (!already_decrypted)
+                    try detection.apply(writer, player, active, session, 10)
+                else
+                    false;
+                if (!compromised) {
+                    if (rival_data.forMission(mission.id)) |rival| {
+                        if (rival_simulation.resolveAfterDecryption(rival, &session.objective_tracker)) {
+                            try writer.print("[RIVAL AHEAD] {s} reached the optional intelligence first. The main contract remains unaffected.\n", .{rival.name});
+                        }
                     }
                 }
-                try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
-                if (!already_decrypted) _ = try detection.apply(writer, player, active, session, 10);
             } else {
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
                 const failure_cost: u8 = if (session.modifier) |modifier| (if (modifier == .hardened_encryption) 15 else 10) else 10;
