@@ -106,11 +106,13 @@ The audit was performed against the current `main` head listed above. Earlier co
 - Full application compilation on 0.17.1 remains deferred until the `std.fs` persistence work in Phase 3 and language/facade compatibility work in Phase 4 are complete.
 
 ### Phase 3 — Filesystem and persistence
-- [ ] Migrate `std.fs` directory/file APIs and file read/write calls.
-- [ ] Preserve temporary-file write → close → rename ordering and cleanup on failure.
-- [ ] Preserve LoadStatus behavior and bounded read behavior.
-- [ ] Test Save V3 output and V3/V2/V1/legacy load compatibility.
-- [ ] Verify failure paths leave previous save and caller-owned state unchanged.
+- [ ] Introduce a version-gated `SaveContext`: Zig 0.13 carries `std.fs.Dir`; Zig 0.17.1 carries `std.Io` plus `std.Io.Dir`. Pass it explicitly from the process boundary through `main` and `game`.
+- [ ] Factor the V3 serializer into one generic writer function so legacy and `std.Io.Writer` backends produce identical bytes.
+- [ ] Migrate create-path, create/open/read/delete/rename operations to `std.Io.Dir`/`std.Io.File`; use `std.testing.io` in Zig 0.17.1 tests.
+- [ ] Preserve the exact `saves/player.sav.tmp` staging path, truncate behavior, flush → close → rename ordering, and error cleanup. Do not replace the explicit staging seam with `File.Atomic`, because failure-injection tests intentionally target the stable temp path.
+- [ ] Preserve the 4096-byte load limit, including acceptance of exactly 4096 bytes; use a 4097-byte bounded read and reject content beyond 4096.
+- [ ] Preserve `LoadStatus` distinctions (`missing`, `invalid`, `io_error`) and ensure parsing remains transactional.
+- [ ] Test V3 byte layout/round-trip, V3/V2/V1/legacy fixtures, replacement, staging failure, missing/oversized files, and operation-save behavior on both toolchains where supported.
 - [ ] Commit as `refactor: migrate filesystem and save I/O`.
 
 ### Phase 4 — Language and standard-library compatibility
@@ -203,3 +205,12 @@ The next agent must:
 - CI run #1051 (`42301770858`) on commit `7e0ed496dd02a9aadf72de9151f1daf344c0aadd` passed all three Zig 0.13.0 optimization modes, including the new aggregate input-boundary tests.
 - Zig 0.17.1 run #9 (`42301770875`) completed successfully: exact version assertion, migrated-file formatting, all 7 terminal I/O tests, and build-graph re-evaluation passed.
 - The full Zig 0.17.1 application build has not yet been claimed. It depends on the remaining filesystem and language/facade migrations.
+
+
+### 2026-11-07 — Phase 3 filesystem/persistence plan
+- The filesystem API migration uses `SaveContext` rather than hidden global I/O. This keeps `std.Io` explicit in production and preserves the existing caller-supplied directory test seam.
+- Serialization stays in one generic writer path. The Zig 0.13 adapter uses its existing file writer; the Zig 0.17.1 adapter uses `file.writer(io, &buffer).interface`, explicitly flushes, then closes before rename.
+- The save file remains V3 with the same field order and numeric encodings. V3/V2/V1/Legacy parsing code is not redesigned.
+- The existing temp filename is deliberately retained. `std.Io.File.Atomic` was considered but rejected for this phase because the tests inject staging failures by creating `saves/player.sav.tmp`; switching to an opaque atomic-file temporary would weaken that test seam and alter cleanup observability.
+- The current read cap is 4096 bytes. The 0.17.1 bounded read uses `.limited(4097)` so a 4096-byte file remains valid while a 4097-byte file is rejected as `error.StreamTooLong`.
+- Verified 0.17 filesystem references: Zig 0.16.0 official release notes map `std.fs.Dir` to `std.Io.Dir` and document the `rename` API; the Zig 0.17 API probe guide records `createDirPath`, `readFileAlloc`, `createFile`, `deleteFile`, and the 4,097-byte bounded-read behavior. The CI workflow will be the final authority for the exact 0.17.1 compiler.
