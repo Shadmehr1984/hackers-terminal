@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Audit complete; implementation not started**
+- Status: **Phase 1 build-graph migration implemented; Zig 0.17.1 execution verification pending**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`
@@ -36,6 +36,7 @@ The audit was performed against the current `main` head listed above. Earlier co
 - `build.zig:23-28`: test artifact uses `.root_source_file = b.path("test_root.zig")`.
 - `build.zig:16-19`: run arguments are forwarded by inspecting `b.args` and calling `run_cmd.addArgs(args)`.
 - Migration work: move executable and test roots to the 0.17 module-based build API; replace argument passthrough with the supported 0.17 mechanism. Confirm how `zig build run -- <args>` behaves because the new passthrough mechanism intentionally changes what build scripts can inspect.
+- Phase 1 implementation uses a compile-time `builtin.zig_version.minor >= 17` compatibility bridge: Zig 0.17+ receives `root_module` and `addPassthruArgs`; the existing 0.13.0 CI baseline retains the legacy root fields and `b.args`/`addArgs` branch until the final toolchain pin switch. This avoids knowingly breaking the default branch during the multi-phase migration. Remove the legacy branch only when CI is switched to 0.17.1.
 
 ### 3.2 Standard input/output and process entry point
 
@@ -86,10 +87,10 @@ The audit was performed against the current `main` head listed above. Earlier co
 - [ ] Owner reviews audit findings if further design decisions are needed.
 
 ### Phase 1 — Build-system migration
-- [ ] Change executable/test root modules to the 0.17.1 module API.
-- [ ] Replace `b.args`/`addArgs` with supported passthrough-argument handling.
-- [ ] Verify `zig build`, `zig build run`, `zig build run -- <args>`, and `zig build test`.
-- [ ] Keep CI on the old pin until the complete migration is ready, unless a deliberate temporary CI strategy is documented.
+- [x] Change executable/test root modules to the 0.17.1 module API (compile-time version-gated while 0.13 CI remains active).
+- [x] Replace the 0.17+ run-argument forwarding path with `addPassthruArgs`; preserve the 0.13 compatibility path until CI is switched.
+- [ ] Verify `zig build`, `zig build run`, `zig build run -- <args>`, and `zig build test` with Zig 0.17.1.
+- [ ] Verify the legacy compatibility branch with the still-pinned 0.13.0 CI run.
 - [ ] Commit as `build: migrate build graph to Zig 0.17.1`.
 
 ### Phase 2 — Terminal/process I/O
@@ -173,4 +174,11 @@ The next agent must:
 - Confirmed current baseline: Zig 0.13.0 in build/CI/agent docs.
 - Identified build graph, process I/O, filesystem, enum conversion, test-writer, and CI migration points listed above.
 - No production code, tests, or CI files changed during the audit.
-- Implementation has not started; no 0.17.1 build/test result is claimed.
+
+### 2026-11-07 — Phase 1 implementation
+- Changed `build.zig` to create explicit root modules for the executable and aggregate test artifact when running Zig 0.17+.
+- Changed 0.17+ run argument forwarding to `addPassthruArgs()`; retained the 0.13 path conditionally so the current default-branch CI remains usable during the staged migration.
+- Kept target/optimization options, install behavior, `run` step, aggregate test root, and test step dependencies unchanged.
+- Official API references consulted: [Zig 0.17.1 language reference](https://ziglang.org/documentation/0.17.1/) and [official Build System guide](https://ziglang.org/intro/build-system/). The 0.17.1 build-system module shape is `root_module = b.createModule(...)`; `addPassthruArgs()` is the 0.17+ replacement for inspecting `b.args` in the build script.
+- Local Zig executable is unavailable in this environment; no local compile, run, formatting, or test result is claimed.
+- Pending: inspect GitHub Actions on this commit for the 0.13.0 compatibility branch; validate the 0.17.1 branch with an actual 0.17.1 runner before marking Phase 1 complete.
