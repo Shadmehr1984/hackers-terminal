@@ -1,6 +1,7 @@
 test {
     _ = @import("commands_test.zig");
     _ = @import("terminal_input_test.zig");
+    _ = @import("terminal_io_test.zig");
     _ = @import("mission_state_test.zig");
     _ = @import("mission_data_test.zig");
     _ = @import("mission_objectives_test.zig");

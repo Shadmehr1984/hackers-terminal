@@ -1,5 +1,5 @@
 const std = @import("std");
-const terminal_io = @import("terminal_io");
+const terminal_io = @import("../src/application/terminal_io.zig");
 
 const MemoryReader = struct {
     reader: std.Io.Reader,
