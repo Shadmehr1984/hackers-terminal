@@ -1,6 +1,6 @@
 # QUALITY-006 — Reject out-of-range active Save indices atomically
 
-- Status: Implemented pending CI verification
+- Status: Implemented
 - Origin: Follow-up to the comprehensive code review of commit `60e8ad971118ec9c50b369c23616fddb8312a2af`
 - Owner approval: Explicitly approved on 2026-11-06.
 
@@ -24,7 +24,9 @@ An in-range active index pointing to a mission marked completed in the same save
 - [x] Verify rejection preserves Player balance, Reputation, XP, decryptor, utility ownership/equipment/level, and all mission completion flags.
 - [x] Preserve Save V3 field order, version markers, writer behavior, and all legacy migration rules.
 - [x] Update `docs/save-format.md` and this handoff brief.
-- [ ] Zig formatting, build, full tests, agent-doc check, and CI verification.
+- [x] Zig formatting, build, full tests, and agent-doc check passed in both Debug and ReleaseSafe CI jobs.
+- [x] Actual GitHub Actions run [#799](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42212869142) completed with `success` for commit `553cf4e488621afb5610d02b72e5583b8226a0a0`.
+- [x] Self-review against `.agent/review-checklist.md` completed; no independent reviewer was available.
 
 ## Scope
 
@@ -51,9 +53,9 @@ An in-range active index pointing to a mission marked completed in the same save
 
 ## Verification
 
-- [ ] `zig fmt --check test_root.zig build.zig src tests`
-- [ ] `zig build`
-- [ ] `zig build test`
-- [ ] `sh scripts/check-agent-docs.sh`
-- [ ] Inspect actual GitHub Actions result for the resulting `main` commit.
+- [x] `zig fmt --check test_root.zig build.zig src tests` (CI, Debug and ReleaseSafe)
+- [x] `zig build` (CI, Debug and ReleaseSafe)
+- [x] `zig build test` (CI, Debug and ReleaseSafe)
+- [x] `sh scripts/check-agent-docs.sh` (CI, Debug and ReleaseSafe)
+- [x] Inspect actual GitHub Actions result for the resulting `main` commit.
 - [ ] Self-review against `.agent/review-checklist.md`; state whether an independent reviewer was available.
