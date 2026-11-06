@@ -87,35 +87,35 @@ Avoid creating a generic event framework or introducing unnecessary allocations.
 
 ### Model and safety
 - [x] Each objective has a stable mission-local ID distinct from its event kind.
-- [ ] Two objectives sharing one event kind can be independently discovered and completed.
-- [ ] Per-session state supports up to 32 objectives; 33+ authored objectives are rejected safely.
-- [ ] No bit shifts, indexing, or enum assumptions can overflow or alias objective state.
-- [ ] Existing five objective kinds remain correctly supported.
+- [x] Two objectives sharing one event kind can be independently discovered and completed.
+- [x] Per-session state supports up to 32 objectives; 33+ authored objectives are rejected safely.
+- [x] No bit shifts, indexing, or enum assumptions can overflow or alias objective state.
+- [x] Existing five objective kinds remain correctly supported.
 
 ### Discovery and visibility
-- [ ] Node, file, and action triggers are typed, deterministic, idempotent, and independently tested.
-- [ ] Hidden objectives are absent from all pre-discovery player-facing output.
-- [ ] Discovery reveals the objective and produces clear feedback exactly once.
-- [ ] Invalid actions, rejected commands, and unrelated events do not reveal objectives.
+- [x] Node, file, and action triggers are typed, deterministic, idempotent, and independently tested.
+- [x] Hidden objectives are absent from all pre-discovery player-facing output.
+- [x] Discovery reveals the objective and produces clear feedback exactly once.
+- [x] Invalid actions, rejected commands, and unrelated events do not reveal objectives.
 
 ### Completion and lifecycle
-- [ ] Discovered objectives complete only on their configured event and only once.
-- [ ] Hidden objectives never block required contract completion.
-- [ ] Unavailable objectives cannot be completed or rewarded.
-- [ ] Optional cash and all-optional Reputation behavior is explicit and tested, including undiscovered/unavailable objectives.
-- [ ] Retry, compromise, cancel, fresh accept, and restored-save behavior reset runtime objective state correctly.
-- [ ] Repeated events/completion paths never duplicate rewards.
+- [x] Discovered objectives complete only on their configured event and only once.
+- [x] Hidden objectives never block required contract completion.
+- [x] Unavailable objectives cannot be completed or rewarded.
+- [x] Optional cash and all-optional Reputation behavior is explicit and tested, including undiscovered/unavailable objectives.
+- [x] Retry, compromise, cancel, fresh accept, and restored-save behavior reset runtime objective state correctly.
+- [x] Repeated events/completion paths never duplicate rewards.
 
 ### Compatibility and quality
-- [ ] Existing mission outcomes and visible objective behavior remain correct.
-- [ ] Save V3 writer and V2/V1/legacy readers remain unchanged and covered by tests.
-- [ ] No real-world system interaction is introduced.
-- [ ] Zig 0.13.0 formatting, build, and full test suite pass.
-- [ ] Documentation and agent handoffs are synchronized.
-- [ ] Code review findings are addressed; independent review availability is recorded honestly.
-- [ ] Actual GitHub Actions CI on the final main commit passes before status becomes Implemented.
+- [x] Existing mission outcomes and visible objective behavior remain correct.
+- [x] Save V3 writer and V2/V1/legacy readers remain unchanged and covered by tests.
+- [x] No real-world system interaction is introduced.
+- [x] Zig 0.13.0 formatting, build, and full test suite pass.
+- [x] Documentation and agent handoffs are synchronized.
+- [x] Code review findings are addressed; independent review availability is recorded honestly.
+- [x] Actual GitHub Actions CI on the final main commit passes before status becomes Implemented.
 
-## Implementation milestones
+Verification note: the original acceptance checklist was reconciled against the implemented tracker, catalog validation, discovery/reward integration, regression tests, compatibility coverage, and the recorded CI run. The review was a self-review; no independent reviewer was available.\n\n## Implementation milestones
 
 1. **[x] Audit and model:** re-audited current main, tests, event flow, objective rendering, rewards, and reset lifecycle; finalized type/data shape and capacity validation.
 2. **[x] State engine:** implemented bounded objective state and pure transitions; preserved existing behavior with focused tests.
