@@ -171,7 +171,7 @@ test "contract board reports reward overflow without aborting or displaying a wr
     };
     missions[0].objectives = &objectives;
     var capture = Capture{};
-    try terminal.printContractBoard(&capture, &missions, 1, 0, false);
+    try terminal.printContractBoard(&capture, &missions, 1, 0, false, null, null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[job-01] Cold Storage — REWARD ERROR") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "maximum cash reward exceeds the supported range") != null);
 }
