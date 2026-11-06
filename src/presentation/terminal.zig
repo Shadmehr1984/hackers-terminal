@@ -164,7 +164,7 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
             .another_contract_busy = another_contract_busy,
             .missions = missions,
         }) catch {
-            try writer.print("  [{s}] {s} — REWARD ERROR | maximum cash reward exceeds the supported range; no estimate shown.\\n", .{
+            try writer.print("  [{s}] {s} — REWARD ERROR | maximum cash reward exceeds the supported range; no estimate shown.\n", .{
                 mission.id,
                 mission.name,
             });
