@@ -115,7 +115,9 @@ Avoid creating a generic event framework or introducing unnecessary allocations.
 - [x] Code review findings are addressed; independent review availability is recorded honestly.
 - [x] Actual GitHub Actions CI on the final main commit passes before status becomes Implemented.
 
-Verification note: the original acceptance checklist was reconciled against the implemented tracker, catalog validation, discovery/reward integration, regression tests, compatibility coverage, and the recorded CI run. The review was a self-review; no independent reviewer was available.\n\n## Implementation milestones
+Verification note: the original acceptance checklist was reconciled against the implemented tracker, catalog validation, discovery/reward integration, regression tests, compatibility coverage, and the recorded CI run. The review was a self-review; no independent reviewer was available.
+
+## Implementation milestones
 
 1. **[x] Audit and model:** re-audited current main, tests, event flow, objective rendering, rewards, and reset lifecycle; finalized type/data shape and capacity validation.
 2. **[x] State engine:** implemented bounded objective state and pure transitions; preserved existing behavior with focused tests.
