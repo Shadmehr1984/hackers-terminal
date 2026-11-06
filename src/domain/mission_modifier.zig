@@ -49,7 +49,7 @@ pub const ModifierId = enum {
 
     /// Resolves a stable command argument to a modifier ID.
     pub fn fromCommandId(value: []const u8) ?ModifierId {
-        if (builtin.zig_version.minor >= 16) {
+        if (comptime builtin.zig_version.minor >= 16) {
             const enum_info = @typeInfo(ModifierId).@"enum";
             inline for (enum_info.field_values) |field_value| {
                 const id: ModifierId = @fromBackingInt(@intCast(field_value));

@@ -3,7 +3,7 @@ const std = @import("std");
 const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 
 test "exactly three stable modifier command IDs are defined" {
-    const field_count = if (builtin.zig_version.minor >= 16) @typeInfo(ModifierId).@"enum".field_names.len else @typeInfo(ModifierId).Enum.fields.len;
+    const field_count = if (comptime builtin.zig_version.minor >= 16) @typeInfo(ModifierId).@"enum".field_names.len else @typeInfo(ModifierId).Enum.fields.len;
     try std.testing.expectEqual(@as(usize, 3), field_count);
     try std.testing.expectEqualStrings("heightened-monitoring", ModifierId.heightened_monitoring.commandId());
     try std.testing.expectEqualStrings("security-sweep", ModifierId.security_sweep.commandId());
@@ -39,7 +39,7 @@ test "hardened encryption exposes the approved incorrect decryption cost" {
 }
 
 test "all modifiers share the approved completion bonus and disclose effects" {
-    if (builtin.zig_version.minor >= 16) {
+    if (comptime builtin.zig_version.minor >= 16) {
         const enum_info = @typeInfo(ModifierId).@"enum";
         inline for (enum_info.field_values) |field_value| {
             const id: ModifierId = @fromBackingInt(@intCast(field_value));
