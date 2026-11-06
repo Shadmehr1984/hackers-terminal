@@ -12,10 +12,13 @@ pub const FactionId = enum {
 
     /// Parses the stable command-facing faction identifier.
     pub fn parse(value: []const u8) ?FactionId {
-        inline for (@typeInfo(FactionId).Enum.fields) |field| {
-            const id: FactionId = @enumFromInt(field.value);
-            if (std.mem.eql(u8, value, id.slug())) return id;
-        }
+        if (std.mem.eql(u8, value, "nexus-dynamics")) return .nexus_dynamics;
+        if (std.mem.eql(u8, value, "ghost-protocol")) return .ghost_protocol;
+        if (std.mem.eql(u8, value, "black-veil")) return .black_veil;
+        if (std.mem.eql(u8, value, "aegis-initiative")) return .aegis_initiative;
+        if (std.mem.eql(u8, value, "iron-meridian")) return .iron_meridian;
+        if (std.mem.eql(u8, value, "null-syndicate")) return .null_syndicate;
+        if (std.mem.eql(u8, value, "helix-consortium")) return .helix_consortium;
         return null;
     }
 
