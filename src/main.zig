@@ -13,7 +13,7 @@ pub fn main() !void {
     var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
     defer {
         if (general_purpose_allocator.deinit() == .leak) {
-            std.debug.print("[MEMORY LEAK] GeneralPurposeAllocator detected leaked allocations.\\n", .{});
+            std.debug.print("[MEMORY LEAK] GeneralPurposeAllocator detected leaked allocations.\n", .{});
         }
     }
     const allocator = general_purpose_allocator.allocator();
