@@ -131,7 +131,7 @@ test "reward overflow leaves player and completion guard unchanged" {
     try std.testing.expect(!xp_session.completion_reward_paid);
 }
 
-test "mission remains active and incomplete when payout overflows" {
+test "mission remains active and optional objective state is preserved when payout overflows" {
     var player = Player{ .balance = std.math.maxInt(u32) };
     var missions = mission_data.defaultMissions();
     var active: ?usize = null;
@@ -146,12 +146,52 @@ test "mission remains active and incomplete when payout overflows" {
     for (missions[0].objectives) |objective| {
         if (!objective.optional and objective.kind != .extract_file) session.completeObjective(objective.kind);
     }
+    try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
 
     _ = try game.runCommand(writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(@as(?usize, 0), active);
     try std.testing.expect(!missions[0].completed);
     try std.testing.expectEqual(std.math.maxInt(u32), player.balance);
     try std.testing.expect(!session.completion_reward_paid);
+    try std.testing.expectEqual(.discovered, session.objective_tracker.stateOf("maintenance-telemetry").?);
+    try std.testing.expectEqual(.discovered, session.objective_tracker.stateOf("analyze-metadata").?);
+}
+
+const FailOnSecondPrintWriter = struct {
+    print_count: usize = 0,
+
+    pub fn writeAll(_: *@This(), _: []const u8) error{OutputFailure}!void {}
+
+    pub fn print(self: *@This(), comptime _: []const u8, _: anytype) error{OutputFailure}!void {
+        self.print_count += 1;
+        if (self.print_count == 2) return error.OutputFailure;
+    }
+};
+
+test "mission optional objectives remain discovered when completion output fails" {
+    var player = Player{ .balance = 100 };
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionSession{ .progress = .decrypted, .current_node = "vault" };
+    var preparation = MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+    session.completeObjective(.scan_target);
+    session.completeObjective(.authenticate);
+    session.completeObjective(.decrypt_file);
+    try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
+    var writer = FailOnSecondPrintWriter{};
+
+    try std.testing.expectError(
+        error.OutputFailure,
+        game.runCommand(&writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(@as(?usize, 0), active);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expectEqual(@as(u32, 100), player.balance);
+    try std.testing.expect(!session.completion_reward_paid);
+    try std.testing.expectEqual(.discovered, session.objective_tracker.stateOf("maintenance-telemetry").?);
+    try std.testing.expectEqual(.discovered, session.objective_tracker.stateOf("analyze-metadata").?);
 }
 
 test "writer failure does not commit mission payout or completion guard" {
