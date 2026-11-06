@@ -15,6 +15,15 @@ const TestWriter = struct {
     pub fn print(_: @This(), comptime _: []const u8, _: anytype) error{}!void {}
 };
 
+const FailingWriter = struct {
+    pub fn writeAll(_: @This(), _: []const u8) error{OutputFailure}!void {
+        return error.OutputFailure;
+    }
+    pub fn print(_: @This(), comptime _: []const u8, _: anytype) error{OutputFailure}!void {
+        return error.OutputFailure;
+    }
+};
+
 fn run(line: []const u8, player: *Player, missions: []Mission, active: *?usize, session: *MissionSession, preparation: *MissionPreparation) !void {
     _ = try game.runCommand(TestWriter{}, line, player, missions, active, session, preparation);
 }
@@ -404,4 +413,24 @@ test "truncated and malformed saves are rejected without mutating live state" {
     try std.testing.expect(save.loadGameFromBytes(extra_completion_flags, &player, &missions) == null);
     try std.testing.expectEqual(@as(u32, 321), player.balance);
     try std.testing.expect(missions[0].completed);
+}
+
+
+test "shop purchases do not mutate inventory or balance when output fails" {
+    var player = Player{};
+    const starting_balance = player.balance;
+
+    try std.testing.expectError(
+        error.OutputFailure,
+        shop.buyItem(FailingWriter{}, &player, "decryptor"),
+    );
+    try std.testing.expectEqual(starting_balance, player.balance);
+    try std.testing.expect(!player.equipment.has_decryptor);
+
+    try std.testing.expectError(
+        error.OutputFailure,
+        shop.buyItem(FailingWriter{}, &player, "silent-boots"),
+    );
+    try std.testing.expectEqual(starting_balance, player.balance);
+    try std.testing.expect(!player.equipment.owns(.silent_boots));
 }
