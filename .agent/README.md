@@ -57,4 +57,4 @@ Keep this workspace concise and update it only when lasting decisions, constrain
 
 ## Active maintenance task
 
-- [TOOLCHAIN-001 — Zig 0.17.1 migration](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md): owner-approved, Phase 0 audit complete, implementation not started. Read the task brief and [ADR 0016](decisions/0016-zig-0.17.1.md) before continuing. The current build/CI baseline remains 0.13.0 until the migration is complete.
+- [TOOLCHAIN-001 — Zig 0.17.1 migration](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md): owner-approved, Phases 0–4 complete; Phase 5 (full aggregate tests and CI cutover) is next. Read the task brief and [ADR 0016](decisions/0016-zig-0.17.1.md) before continuing. The current build/CI baseline remains 0.13.0 until the migration is complete.

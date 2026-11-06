@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Phases 1–3 implementation complete; Zig 0.13.0 full CI and isolated Zig 0.17.1 terminal/save I/O checks pass. Phase 4 language/facade compatibility is next; full 0.17.1 application build remains pending Phases 4–5.**
+- Status: **Phases 1–4 implementation complete. Zig 0.13.0 CI passes Debug/ReleaseSafe/ReleaseFast; Zig 0.17.1 targeted terminal/save/facade checks and the full application build pass. Phase 5 (complete test infrastructure and CI cutover) is next; full aggregate tests under 0.17.1 remain pending.**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`
@@ -64,13 +64,13 @@ The audit was performed against the current `main` head listed above. Earlier co
 
 ### 3.5 Language and standard-library API scan
 
-- `src/domain/mission_modifier.zig:48-54`: `@enumFromInt` is used to reconstruct a modifier ID from enum metadata. The same pattern exists in `tests/mission_modifier_test.zig`. Zig 0.17.1 deprecates this builtin; replace it with the supported conversion only after verifying the enum backing type and safety semantics.
+- `src/domain/mission_modifier.zig` previously reconstructed enum values from reflected field metadata. Phase 4 replaced that with explicit matching of the three stable command IDs; the test now iterates a fixed enum list. Keep `@intFromEnum` where it encodes existing bit flags or stable numeric values, and preserve those values.
 - `@intFromEnum` appears in objective tracking, operation facts, equipment bit flags, save serialization, and tests. Audit each conversion and preserve stable numeric values where persisted or bit-packed.
 - `std.mem`, `std.fmt`, allocator usage, and the GPA setup appear throughout the codebase. Compile-driven migration must check changed signatures and semantics, not perform blind global replacements.
-- Zig 0.17.1 rejects legacy `pub usingnamespace` declarations in 13 compatibility facades; Phase 4 must replace them with explicit public exports without changing their API. Array repetition syntax (`**`) was removed from `src/domain/mission_objectives.zig` using an allocation-free initializer loop. Keep cross-version enum conversions on `@intFromEnum` until the final 0.13 CI cutover; the 0.17 formatter prefers `@backingInt` in some enum contexts, so shared files containing those conversions are excluded from the targeted 0.17 formatting list while the 0.13 formatter remains authoritative.
+- The 13 compatibility facades now expose explicit public exports and are covered by `facade_api_test_root.zig`; the focused facade test and full application compile pass under Zig 0.17.1. Array repetition syntax (`**`) was removed from `src/domain/mission_objectives.zig` using an allocation-free initializer loop. `@intFromEnum` remains supported by both toolchains in the current persisted/bit-packed conversions; do not change numeric encodings without explicit compatibility tests.
 - No `std.ArrayList` usage was found in the production/test scan.
 - No direct `std.process` or `std.Io` usage existed at the initial audit baseline. Phase 2 now adds a version-gated `std.process.Init` entry point and a 0.16+ `std.Io` adapter in `src/application/terminal_io.zig`.
-- Compatibility facades under `src/*.zig` must continue to compile and preserve their exports. A Zig 0.17.1 full-repository formatter probe identified legacy `pub usingnamespace` facade syntax as a compatibility blocker; migrate these in Phase 4 without changing exported names.
+- Compatibility facades under `src/*.zig` must continue to compile and preserve their exports. Phase 4 replaced legacy facade declarations with explicit exports; `facade_api_test_root.zig` checks their public API and the complete application now compiles with Zig 0.17.1.
 
 ### 3.6 CI and documentation
 
@@ -116,13 +116,18 @@ The audit was performed against the current `main` head listed above. Earlier co
 - [x] Implementation committed on `main`; final Phase 3 source commit: `49547d4734028acb01efaf78563b106043000e31`.
 - [x] Verify Zig 0.13.0 CI run #1059 (`42303650922`): Debug, ReleaseSafe, and ReleaseFast all passed format, compile, tests, and agent-doc structure checks.
 - [x] Verify Zig 0.17.1 migration workflow run #15 (`42303650865`): exact version assertion, migrated-file format checks, terminal I/O tests, save I/O tests, and build-graph evaluation all passed.
-- Full application compilation on 0.17.1 remains deferred until Phase 4 removes the legacy compatibility-facade/language blockers and Phase 5 migrates the complete test infrastructure.
+- Full application compilation with Zig 0.17.1 is now verified. Running the complete aggregate test suite under 0.17.1 remains Phase 5 work.
 
 ### Phase 4 — Language and standard-library compatibility
-- [ ] Replace deprecated enum conversion builtins with 0.17.1-supported equivalents after verifying backing-type semantics.
-- [ ] Resolve compile errors and deprecations in memory, formatting, allocator, and other stdlib APIs.
-- [ ] Preserve enum numeric values used by flags/save encoding and public compatibility facades.
-- [ ] Commit as `refactor: update Zig language and stdlib APIs`.
+- [x] Remove version-specific enum reflection conversion from modifier command lookup; use explicit stable command-ID matching and a fixed enum list in tests.
+- [x] Resolve language/stdlib and compatibility-facade compile blockers; the complete application compiles with Zig 0.17.1.
+- [x] Preserve numeric enum meanings used by flags/save encoding and verify facade exports through focused API tests.
+- [x] Verify the legacy Zig 0.13.0 build and aggregate test suite in Debug, ReleaseSafe, and ReleaseFast.
+- [x] Verify Zig 0.17.1 targeted formatting, terminal/save/modifier/facade tests, build graph, and full application build.
+- Implementation was delivered in focused commits, including `b0c06a5a91170aaa060b20cab2f6c57d42cd3703` and `538079fa718e3fa486f11d2778365a672543f35c`.
+- Zig 0.13.0 CI run `42305995360` on current main commit `538079fa718e3fa486f11d2778365a672543f35c` passed all three optimization modes, formatting, compile, aggregate tests, and agent-doc checks.
+- Zig 0.17.1 migration validation run `42305965641` passed on commit `8c4ec5cd15c7bef2860923d9407f837b97ba3f49`; its Git tree (`384805b2b48a14cb47ce9fff8a3b41a9715eb702`) is identical to current main commit `538079fa718e3fa486f11d2778365a672543f35c`. It passed exact-version assertion, migrated-file formatting, terminal/save/modifier/facade tests, build-graph evaluation, and full application compilation.
+- Full aggregate test-suite execution under Zig 0.17.1 remains Phase 5 work.
 
 ### Phase 5 — Tests and CI
 - [ ] Migrate test infrastructure and test doubles without losing failure injection.
@@ -231,3 +236,14 @@ The next agent must:
 - Cross-version enum serialization still uses `@intFromEnum`, which compiles under both toolchains. The targeted 0.17 formatter check intentionally excludes shared files that Zig 0.17 would rewrite to `@backingInt`; final formatting migration belongs in Phase 4/5 after the default toolchain switch.
 - CI run #1059 (`42303650922`) on the Phase 3 head passed all Zig 0.13.0 modes. Zig 0.17.1 run #15 (`42303650865`) passed all targeted terminal/save tests, formatting checks for migrated files, and build-graph evaluation.
 - Full application build under 0.17.1 remains pending until the compatibility facades and remaining language/stdlib blockers are resolved.
+
+
+### 2026-11-07 — Phase 4 language/facade compatibility
+- Replaced modifier lookup's reflected enum-to-integer conversion with explicit matching of the three stable command IDs. The modifier test now uses a fixed enum list for bonus/description assertions.
+- Confirmed the compatibility facade exports through the isolated facade API test; the complete application now compiles under Zig 0.17.1.
+- Kept `@intFromEnum` in existing equipment bit flags, objective kinds, operation facts, and save serialization. Both Zig 0.13.0 and 0.17.1 compile these uses; preserve their numeric meanings.
+- The earlier Zig 0.17.1 formatting/test failure was traced to an accidentally duplicated `builtin` import and stale reflected-enum test block. The test was corrected and the targeted 0.17.1 workflow passed on a Git tree identical to current `main`.
+- Current main: `538079fa718e3fa486f11d2778365a672543f35c`; tree: `384805b2b48a14cb47ce9fff8a3b41a9715eb702`.
+- Zig 0.13.0 CI run `42305995360`: all three optimization modes passed formatting, compile, aggregate tests, and agent-doc validation.
+- Zig 0.17.1 validation run `42305965641`: exact version, targeted formatting, terminal/save/modifier/facade tests, build graph, and full application compilation passed.
+- Phase 4 is complete. Next is Phase 5: run the complete aggregate suite under Zig 0.17.1, migrate test infrastructure as needed, and switch primary CI to 0.17.1 only after all acceptance checks pass.
