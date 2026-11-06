@@ -310,7 +310,7 @@ test "same event kind completes independently discovered objectives and rewards 
     try std.testing.expectEqual(@as(usize, 2), tracker.complete(@intFromEnum(@as(@TypeOf(objectives[0].kind), .analyze))));
     try std.testing.expectEqual(ObjectiveState.completed, tracker.stateOf("visible-analysis").?);
     try std.testing.expectEqual(ObjectiveState.completed, tracker.stateOf("hidden-analysis").?);
-    try std.testing.expectEqual(@as(u32, 75), tracker.optionalReward());
+    try std.testing.expectEqual(@as(u32, 75), try tracker.optionalReward());
     try std.testing.expect(tracker.allOptionalComplete());
     try std.testing.expectEqual(@as(usize, 0), tracker.complete(@intFromEnum(@as(@TypeOf(objectives[0].kind), .analyze))));
 }
@@ -336,7 +336,7 @@ test "undiscovered optional objectives prevent reputation bonus and can become u
     try std.testing.expectEqual(ObjectiveState.unavailable, tracker.stateOf("secret").?);
     try std.testing.expect(!tracker.markUnavailable("secret"));
     try std.testing.expect(!tracker.allOptionalComplete());
-    try std.testing.expectEqual(@as(u32, 0), tracker.optionalReward());
+    try std.testing.expectEqual(@as(u32, 0), try tracker.optionalReward());
 }
 
 test "tracker rejects catalogs above the 32 objective capacity" {
