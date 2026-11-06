@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   io-compatibility:
-    name: Zig 0.17.1 terminal I/O checks
+    name: Zig 0.17.1 terminal and save I/O checks
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -37,7 +37,7 @@ jobs:
       # The full repository formatter/build is intentionally deferred until
       # compatibility facades and filesystem APIs are migrated in later phases.
       - name: Check migrated-file formatting
-        run: zig fmt --check build.zig src/main.zig src/application/terminal_input.zig src/application/terminal_io.zig tests/terminal_input_test.zig tests/terminal_io_test.zig
+        run: zig fmt --check build.zig src/main.zig src/application/terminal_input.zig src/application/terminal_io.zig src/application/game.zig src/persistence/save.zig tests/terminal_input_test.zig tests/terminal_io_test.zig tests/save_test_support.zig tests/save_io_test.zig tests/equipment_test.zig tests/operation_test.zig
 
       - name: Test terminal I/O compatibility layer
         run: zig test --dep terminal_io -Mroot=tests/terminal_io_test.zig -Mterminal_io=src/application/terminal_io.zig

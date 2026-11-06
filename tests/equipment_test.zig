@@ -1,4 +1,5 @@
 const std = @import("std");
+const save_test_support = @import("save_test_support.zig");
 const Player = @import("../src/player.zig").Player;
 const UtilityEquipment = @import("../src/player.zig").UtilityEquipment;
 const shop = @import("../src/shop.zig");
@@ -274,12 +275,12 @@ test "save writes and replaces a V3 file in an isolated directory" {
     missions[3].completed = true;
     missions[4].completed = true;
 
-    try save.saveGameToDirectory(tmp.dir, player, &missions, null);
+    try save.saveGameToDirectory(save_test_support.context(tmp.dir), player, &missions, null);
     player.balance = 888;
     missions[0].completed = false;
-    try save.saveGameToDirectory(tmp.dir, player, &missions, null);
+    try save.saveGameToDirectory(save_test_support.context(tmp.dir), player, &missions, null);
 
-    const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
+    const data = try save_test_support.readSaveFile(tmp.dir, std.testing.allocator, "saves/player.sav");
     defer std.testing.allocator.free(data);
     try std.testing.expect(std.mem.startsWith(u8, data, "HACKERS_TERMINAL_SAVE_V3\n"));
     var restored_player = Player{};
@@ -293,7 +294,7 @@ test "save writes and replaces a V3 file in an isolated directory" {
     try std.testing.expect(!restored_missions[0].completed);
     try std.testing.expect(restored_missions[3].completed);
     try std.testing.expect(restored_missions[4].completed);
-    try std.testing.expectError(error.FileNotFound, tmp.dir.openFile("saves/player.sav.tmp", .{}));
+    try std.testing.expectError(error.FileNotFound, save_test_support.expectMissingFile(tmp.dir, "saves/player.sav.tmp"));
 }
 
 test "failed save staging leaves the previous save untouched" {
@@ -303,15 +304,15 @@ test "failed save staging leaves the previous save untouched" {
     var player = Player{};
     player.balance = 123;
     const missions = mission_data.defaultMissions();
-    try save.saveGameToDirectory(tmp.dir, player, &missions, null);
+    try save.saveGameToDirectory(save_test_support.context(tmp.dir), player, &missions, null);
 
-    try tmp.dir.makePath("saves/player.sav.tmp");
+    try save_test_support.makePath(tmp.dir, "saves/player.sav.tmp");
     player.balance = 999;
-    if (save.saveGameToDirectory(tmp.dir, player, &missions, null)) |_| {
+    if (save.saveGameToDirectory(save_test_support.context(tmp.dir), player, &missions, null)) |_| {
         return error.ExpectedSaveWriteFailure;
     } else |_| {}
 
-    const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
+    const data = try save_test_support.readSaveFile(tmp.dir, std.testing.allocator, "saves/player.sav");
     defer std.testing.allocator.free(data);
     var restored_player = Player{};
     var restored_missions = mission_data.defaultMissions();

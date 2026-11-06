@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 const Mission = @import("../domain/mission.zig").Mission;
 const MissionState = @import("../domain/mission_state.zig");
@@ -293,7 +294,7 @@ fn launchPreparedMission(
     preparation.* = next_preparation;
 }
 
-/// Parses and dispatches one game command, applying validation and state transitions.
+/// Parses and dispatches one game command using the default test/legacy save context.
 pub fn runCommand(
     writer: anytype,
     line: []const u8,
@@ -303,11 +304,15 @@ pub fn runCommand(
     session: *MissionSession,
     preparation: *MissionPreparation,
 ) !bool {
-    return runCommandWithSaveDirectory(writer, line, player, missions, active, session, preparation, std.fs.cwd());
+    const context = if (builtin.zig_version.minor >= 16)
+        save.SaveContext{ .io = std.testing.io, .dir = std.Io.Dir.cwd() }
+    else
+        save.SaveContext{ .dir = std.fs.cwd() };
+    return runCommandWithSaveContext(writer, line, player, missions, active, session, preparation, context);
 }
 
-/// Dispatches a command while allowing tests to isolate save-file writes.
-pub fn runCommandWithSaveDirectory(
+/// Dispatches a command while allowing tests and the process boundary to supply save I/O.
+pub fn runCommandWithSaveContext(
     writer: anytype,
     line: []const u8,
     player: *Player,
@@ -315,7 +320,7 @@ pub fn runCommandWithSaveDirectory(
     active: *?usize,
     session: *MissionSession,
     preparation: *MissionPreparation,
-    save_directory: std.fs.Dir,
+    save_context: save.SaveContext,
 ) !bool {
     const parsed = commands.parse(line) orelse return true;
     const command = parsed.name;
@@ -853,7 +858,7 @@ pub fn runCommandWithSaveDirectory(
     } else if (std.mem.eql(u8, command, "history")) {
         try terminal.printHistory(writer, missions);
     } else if (std.mem.eql(u8, command, "save")) {
-        save.saveGameToDirectory(save_directory, player.*, missions, if (preparation.operation_state.active) null else active.*) catch {
+        save.saveGameToDirectory(save_context, player.*, missions, if (preparation.operation_state.active) null else active.*) catch {
             try writer.writeAll("Save failed. Check filesystem permissions.\n");
             return true;
         };

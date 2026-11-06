@@ -26,7 +26,7 @@ fn mainLegacy() !void {
 
     var stdout = std.io.getStdOut().writer();
     var stdin = std.io.getStdIn().reader();
-    try runApplication(allocator, &stdout, &stdin);
+    try runApplication(allocator, &stdout, &stdin, save.SaveContext{ .dir = std.fs.cwd() });
 }
 
 /// Zig 0.16+ supplies process resources, including the allocator and I/O context.
@@ -38,13 +38,13 @@ fn mainWithIo(init: std.process.Init) !void {
     };
     var input_buffer: [terminal_input.buffer_capacity]u8 = undefined;
     var stdin = std.Io.File.stdin().readerStreaming(init.io, &input_buffer);
-    try runApplication(init.gpa, &stdout, &stdin.interface);
+    try runApplication(init.gpa, &stdout, &stdin.interface, save.SaveContext{ .io = init.io, .dir = std.Io.Dir.cwd() });
 }
 
-fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype) !void {
+fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype, save_context: save.SaveContext) !void {
     var player = Player{};
     var missions = mission_data.defaultMissions();
-    const load_result = save.loadGameWithStatus(allocator, &player, &missions);
+    const load_result = save.loadGameWithStatus(save_context, allocator, &player, &missions);
     const active_from_save = load_result.active;
 
     try terminal.printBanner(stdout);
@@ -102,7 +102,7 @@ fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype)
         const line = std.mem.trim(u8, raw_line, " \r\t");
         if (line.len == 0) continue;
 
-        const keep_running = try game.runCommand(stdout, line, &player, &missions, &active, &session, &preparation);
+        const keep_running = try game.runCommandWithSaveContext(stdout, line, &player, &missions, &active, &session, &preparation, save_context);
         if (!keep_running) break;
     }
 }

@@ -1,4 +1,5 @@
 const std = @import("std");
+const save_test_support = @import("save_test_support.zig");
 const mission_data = @import("../src/mission_data.zig");
 const operation_data = @import("../src/catalog/operation_data.zig");
 const operation_model = @import("../src/domain/operation.zig");
@@ -42,9 +43,9 @@ fn runWithSaveDirectory(
     active: *?usize,
     session: *MissionSession,
     preparation: *MissionPreparation,
-    save_directory: std.fs.Dir,
+    save_directory: save_test_support.Dir,
 ) !void {
-    _ = try game.runCommandWithSaveDirectory(writer, command, player, missions, active, session, preparation, save_directory);
+    _ = try game.runCommandWithSaveContext(writer, command, player, missions, active, session, preparation, save_test_support.context(save_directory));
 }
 
 test "blackout protocol validates against the built-in contract catalog" {
@@ -295,7 +296,7 @@ test "operation save uses the unchanged V3 layout with no active mission index" 
     // changing the live mission selection.
     try std.testing.expectEqual(@as(?usize, 0), active);
 
-    const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
+    const data = try save_test_support.readSaveFile(tmp.dir, std.testing.allocator, "saves/player.sav");
     defer std.testing.allocator.free(data);
     var lines = std.mem.tokenizeScalar(u8, data, '\n');
     try std.testing.expectEqualStrings("HACKERS_TERMINAL_SAVE_V3", lines.next().?);

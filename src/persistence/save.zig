@@ -1,38 +1,100 @@
+const builtin = @import("builtin");
 const std = @import("std");
-const Mission = @import("../domain/mission.zig").Mission;
-const Player = @import("../domain/player.zig").Player;
+pub const Mission = @import("../domain/mission.zig").Mission;
+pub const Player = @import("../domain/player.zig").Player;
 
-/// Writes the current player and mission completion state to the default save location.
-pub fn saveGame(player: Player, missions: []const Mission, active: ?usize) !void {
-    try saveGameToDirectory(std.fs.cwd(), player, missions, active);
+/// Filesystem capability passed from the process boundary into persistence.
+pub const SaveContext = if (builtin.zig_version.minor >= 16)
+    struct {
+        io: std.Io,
+        dir: std.Io.Dir,
+    }
+else
+    struct {
+        dir: std.fs.Dir,
+    };
+
+fn makeDirectoryPath(context: SaveContext, path: []const u8) !void {
+    if (builtin.zig_version.minor >= 16) {
+        try context.dir.createDirPath(context.io, path);
+    } else {
+        try context.dir.makePath(path);
+    }
+}
+
+fn deleteFile(context: SaveContext, path: []const u8) !void {
+    if (builtin.zig_version.minor >= 16) {
+        try context.dir.deleteFile(context.io, path);
+    } else {
+        try context.dir.deleteFile(path);
+    }
+}
+
+fn renameFile(context: SaveContext, old_path: []const u8, new_path: []const u8) !void {
+    if (builtin.zig_version.minor >= 16) {
+        try context.dir.rename(old_path, context.dir, new_path, context.io);
+    } else {
+        try context.dir.rename(old_path, new_path);
+    }
+}
+
+fn readSaveFile(context: SaveContext, allocator: std.mem.Allocator) ![]u8 {
+    if (builtin.zig_version.minor >= 16) {
+        return context.dir.readFileAlloc(context.io, "saves/player.sav", allocator, .limited(4097));
+    } else {
+        const file = try context.dir.openFile("saves/player.sav", .{});
+        defer file.close();
+        return file.readToEndAlloc(allocator, 4096);
+    }
+}
+
+/// Writes the current player and mission completion state to the supplied save context.
+pub fn saveGame(context: SaveContext, player: Player, missions: []const Mission, active: ?usize) !void {
+    try saveGameToDirectory(context, player, missions, active);
 }
 
 /// Writes through a temporary file and renames it into place.
-/// The directory parameter also allows filesystem behavior to be tested in isolation.
-pub fn saveGameToDirectory(dir: std.fs.Dir, player: Player, missions: []const Mission, active: ?usize) !void {
+/// The context also allows filesystem behavior to be tested in isolation.
+pub fn saveGameToDirectory(context: SaveContext, player: Player, missions: []const Mission, active: ?usize) !void {
     const save_path = "saves/player.sav";
     const temporary_path = "saves/player.sav.tmp";
 
-    try dir.makePath("saves");
-    errdefer dir.deleteFile(temporary_path) catch {};
+    try makeDirectoryPath(context, "saves");
+    errdefer deleteFile(context, temporary_path) catch {};
 
-    {
-        const file = try dir.createFile(temporary_path, .{ .truncate = true });
-        defer file.close();
-        var writer = file.writer();
-        const equipped: u8 = if (player.equipment.equipped_utility) |utility| @intFromEnum(utility) + 1 else 0;
-        try writer.print("HACKERS_TERMINAL_SAVE_V3\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n", .{
-            player.balance,                                        player.reputation,                      player.xp,
-            @as(u8, if (player.equipment.has_decryptor) 1 else 0), player.equipment.owned_utilities,       equipped,
-            player.equipment.silent_boots_level,                   player.equipment.signal_scrubber_level,
-        });
-        if (active) |index| try writer.print("{d}\n", .{index}) else try writer.writeAll("-1\n");
-        for (missions) |mission| try writer.print("{d}\n", .{@as(u8, if (mission.completed) 1 else 0)});
+    if (builtin.zig_version.minor >= 16) {
+        {
+            const file = try context.dir.createFile(context.io, temporary_path, .{ .truncate = true });
+            defer file.close(context.io);
+            var buffer: [1024]u8 = undefined;
+            var writer = file.writer(context.io, &buffer);
+            try writeSavePayload(&writer.interface, player, missions, active);
+            try writer.interface.flush();
+        }
+    } else {
+        {
+            const file = try context.dir.createFile(temporary_path, .{ .truncate = true });
+            defer file.close();
+            var writer = file.writer();
+            try writeSavePayload(&writer, player, missions, active);
+        }
     }
 
-    // Rename only after the complete new save has been written and closed.
+    // Rename only after the complete new save has been flushed and closed.
     // A failed write therefore leaves the previous player.sav untouched.
-    try dir.rename(temporary_path, save_path);
+    try renameFile(context, temporary_path, save_path);
+}
+
+/// Emits the stable V3 payload through either the legacy or std.Io writer adapter.
+fn writeSavePayload(writer: anytype, player: Player, missions: []const Mission, active: ?usize) !void {
+    const equipped: u8 = if (player.equipment.equipped_utility) |utility| @intFromEnum(utility) + 1 else 0;
+    try writer.print("HACKERS_TERMINAL_SAVE_V3\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n", .{
+        player.balance,                                        player.reputation,                      player.xp,
+        @as(u8, if (player.equipment.has_decryptor) 1 else 0), player.equipment.owned_utilities,       equipped,
+        player.equipment.silent_boots_level,                   player.equipment.signal_scrubber_level,
+    });
+    if (active) |index| try writer.print("{d}\n", .{index}) else try writer.writeAll("-1\n");
+    for (missions) |mission| try writer.print("{d}\n", .{@as(u8, if (mission.completed) 1 else 0)});
 }
 
 const SaveFormat = enum { v3, v2, v1, legacy };
@@ -244,18 +306,18 @@ pub const LoadResult = struct {
     status: LoadStatus,
 };
 
-/// Loads the default save file and reports why no state was restored when applicable.
-pub fn loadGameWithStatus(allocator: std.mem.Allocator, player: *Player, missions: []Mission) LoadResult {
-    const file = std.fs.cwd().openFile("saves/player.sav", .{}) catch |err| {
+/// Loads the save file and reports why no state was restored when applicable.
+pub fn loadGameWithStatus(context: SaveContext, allocator: std.mem.Allocator, player: *Player, missions: []Mission) LoadResult {
+    const data = readSaveFile(context, allocator) catch |err| {
         return .{
             .active = null,
             .status = if (err == error.FileNotFound) .missing else .io_error,
         };
     };
-    defer file.close();
-    const data = file.readToEndAlloc(allocator, 4096) catch {
+    if (data.len > 4096) {
+        allocator.free(data);
         return .{ .active = null, .status = .io_error };
-    };
+    }
     defer allocator.free(data);
     if (validateSave(data, missions.len) == null) {
         return .{ .active = null, .status = .invalid };
@@ -266,8 +328,7 @@ pub fn loadGameWithStatus(allocator: std.mem.Allocator, player: *Player, mission
     };
 }
 
-/// Loads the default save file into the supplied player and mission state.
-/// Kept as a compatibility wrapper for existing callers.
-pub fn loadGame(allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
-    return loadGameWithStatus(allocator, player, missions).active;
+/// Loads the save file into the supplied player and mission state.
+pub fn loadGame(context: SaveContext, allocator: std.mem.Allocator, player: *Player, missions: []Mission) ?usize {
+    return loadGameWithStatus(context, allocator, player, missions).active;
 }
