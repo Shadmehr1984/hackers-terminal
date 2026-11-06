@@ -94,10 +94,12 @@ fn handleDeal(
             } else if (player.balance < contacts.intel_price) {
                 try writer.print("Insufficient funds. Intelligence costs ${d}.\n", .{contacts.intel_price});
             } else {
-                player.balance -= contacts.intel_price;
+                var next_player = player.*;
+                next_player.balance -= contacts.intel_price;
                 try writer.print("[INTELLIGENCE PURCHASED] {s}\nPassword clue: {s}\nDecryption clue: {s}\nRemaining balance: ${d}\n", .{
-                    mission.name, mission.password_hint, mission.decryption_hint, player.balance,
+                    mission.name, mission.password_hint, mission.decryption_hint, next_player.balance,
                 });
+                player.* = next_player;
             }
             return;
         }
@@ -683,12 +685,13 @@ pub fn runCommandWithSaveDirectory(
                 try writer.print("Move to node '{s}' before extracting this file.\n", .{mission.topology.?.extract_node});
             } else {
                 const already_extracted = session.isObjectiveComplete(.extract_file);
-                try reportObjectiveDiscoveries(writer, session.discoverAction(.extract_file, mission.objectives));
-                session.completeObjective(.extract_file);
+                // Apply the potentially failing Detection output before mutating objective progress.
                 if (!already_extracted and try detection.apply(writer, player, active, session, 5)) {
                     try retryOperationStage(writer, player.*, missions, active.*, preparation);
                     return true;
                 }
+                try reportObjectiveDiscoveries(writer, session.discoverAction(.extract_file, mission.objectives));
+                session.completeObjective(.extract_file);
                 if (!session.allObjectivesComplete(mission.objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
