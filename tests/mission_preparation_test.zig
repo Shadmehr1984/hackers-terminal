@@ -37,6 +37,45 @@ fn run(capture: *Capture, line: []const u8, player: *Player, missions: []Mission
     _ = try game.runCommand(capture, line, player, missions, active, session, preparation);
 }
 
+test "hostile faction standing blocks preparation without mutating game state" {
+    var player = Player{};
+    player.reputation = 2;
+    var missions = mission_data.defaultMissions();
+    missions[0].completed = true;
+    missions[1].completed = true;
+    missions[2].client_faction = .nexus_dynamics;
+    missions[2].required_level = 1;
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "prepare job-03", &player, &missions, &active, &session, &preparation);
+
+    try std.testing.expect(preparation.mission_index == null);
+    try std.testing.expect(active == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Contract access denied") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "HOSTILE") != null);
+}
+
+test "faction commands expose the seven-faction network and dossier" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "factions", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Nexus Dynamics") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Helix Consortium") != null);
+
+    capture.clear();
+    try run(&capture, "faction black-veil", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Black Veil [black-veil]") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Helix Consortium: Rivals") != null);
+}
+
 test "preparation reveals contract intel but keeps puzzle clues and answers hidden" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
