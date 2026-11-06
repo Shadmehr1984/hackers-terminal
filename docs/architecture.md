@@ -41,7 +41,9 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/application/game.zig` | Coordinates the shared preparation-aware command dispatcher, Contact commands, offer transactions, and game-state transitions |
 | `src/application/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
 | `src/domain/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
-| `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |\n| `src/domain/faction_id.zig` and `src/domain/faction.zig` | Stable faction IDs, standing/relationship types, and pure standing derivation from Reputation plus completed contract outcomes |\n| `src/catalog/faction_data.zig` | Seven fictional faction profiles and static symmetric inter-faction relationships |
+| `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
+| `src/domain/faction_id.zig` and `src/domain/faction.zig` | Stable faction IDs, standing/relationship types, and pure standing derivation from Reputation plus completed contract outcomes |
+| `src/catalog/faction_data.zig` | Seven fictional faction profiles and static symmetric inter-faction relationships |
 | `tests/` | Unit and integration tests for commands, mission state, topology validation/allocation failures, equipment, save migrations and malformed input, Detection, progression, Contacts, and offers |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
