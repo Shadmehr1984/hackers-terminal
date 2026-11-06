@@ -68,7 +68,7 @@ pub const Mission = struct {
     difficulty: MissionDifficulty,
     category: MissionCategory = .data_recovery,
     /// Faction commissioning this contract; this identity is static catalog data.
-    client_faction: FactionId = .ghost_protocol,
+    client_faction: FactionId,
     /// Faction that owns the contract target, when applicable.
     target_owner_faction: ?FactionId = null,
     /// Additional faction whose interests are directly opposed by this contract.
