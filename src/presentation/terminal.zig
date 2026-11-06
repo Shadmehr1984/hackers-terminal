@@ -152,12 +152,18 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32, rep
 pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32, reputation: u32, another_contract_busy: bool) !void {
     try writer.writeAll("CONTRACT BOARD\n");
     for (missions) |mission| {
-        const entry = try contract_board.evaluate(mission, .{
+        const entry = contract_board.evaluate(mission, .{
             .level = level,
             .reputation = reputation,
             .another_contract_busy = another_contract_busy,
             .missions = missions,
-        });
+        }) catch {
+            try writer.print("  [{s}] {s} — REWARD ERROR | maximum cash reward exceeds the supported range; no estimate shown.\\n", .{
+                mission.id,
+                mission.name,
+            });
+            continue;
+        };
         try writer.print("  [{s}] {s} — {s} | {s} | ${d}-${d} + {d} XP | {s}\n", .{
             mission.id,
             mission.name,

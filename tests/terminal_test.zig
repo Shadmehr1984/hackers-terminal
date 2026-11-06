@@ -161,3 +161,17 @@ test "operation views expose faction locks and preserve active-operation preauth
     try terminal.printOperationStatus(&capture, player, preparation, &missions);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "current standing: HOSTILE | PREAUTHORIZED at operation start") != null);
 }
+
+test "contract board reports reward overflow without aborting or displaying a wrapped amount" {
+    const MissionObjective = @import("../src/domain/mission.zig").MissionObjective;
+    var missions = mission_data.defaultMissions();
+    const objectives = [_]MissionObjective{
+        .{ .id = "first", .kind = .analyze_metadata, .description = "First", .optional = true, .bonus_reward = std.math.maxInt(u32) },
+        .{ .id = "second", .kind = .analyze_metadata, .description = "Second", .optional = true, .bonus_reward = 1 },
+    };
+    missions[0].objectives = &objectives;
+    var capture = Capture{};
+    try terminal.printContractBoard(&capture, &missions, 1, 0, false);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[job-01] Cold Storage — REWARD ERROR") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "maximum cash reward exceeds the supported range") != null);
+}
