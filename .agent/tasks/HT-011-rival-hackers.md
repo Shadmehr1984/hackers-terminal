@@ -71,7 +71,7 @@ Domain rules do not import application or terminal modules. The command parser r
 - [ ] Successful decryption makes the linked hidden optional objective unavailable only when it remains undiscovered.
 - [ ] Discovering the optional evidence before decryption prevents the rival claim.
 - [ ] The rival event never changes required objectives or blocks primary contract completion.
-- [ ] No Detection, cash, XP, Reputation, base reward, or save serialization rule changes.
+- [ ] No direct Detection, cash, XP, or Reputation mutation and no change to base-reward or all-optional Reputation-bonus formulas; losing the contested optional objective may forfeit the existing bonus for that run.
 - [ ] No real networking, external actors, shell execution, or credential collection is introduced.
 - [ ] Focused tests are registered in `tests/test_all.zig`.
 - [ ] Architecture, gameplay, commands, save, development, and agent handoff docs are synchronized.
@@ -91,4 +91,4 @@ Domain rules do not import application or terminal modules. The command parser r
 ## Progress log
 
 - 2026-11-06: Read project instructions, agent workflow/conventions/review standard, phase-2 and master plans, gameplay/command/architecture/save docs, current source and test ownership. Confirmed the existing five hidden optional objectives provide deterministic, zero-cash rival contest hooks.
-- 2026-11-06: Added rival domain/catalog/simulation modules, game dispatch, Contract Board/Preparation/Briefing integration, five rival dossiers, and focused tests. Updated the aggregate test list and project/agent documentation. Static self-review and call-site audit completed; a stale Contract Board test call was corrected. No confirmed blocker remains in the inspected diff. The container has no Zig executable, and the connected GitHub status/PR-run endpoints returned no workflow run for the latest push; formatting, build, tests, and CI therefore remain unverified. Keep status In Progress until real CI evidence is available.
+- 2026-11-06: Added rival domain/catalog/simulation modules, game dispatch, Contract Board/Preparation/Briefing integration, five rival dossiers, and focused tests. Updated the aggregate test list and project/agent documentation. Static self-review and call-site audit found a missing `RivalId` import in `src/catalog/rival_data.zig`; fixed in commit `3dfe5c1e59279a621d90c016db8f351cf611ab09`. Also corrected the Contract Board test call and clarified that a rival claim can forfeit the pre-existing all-optional Reputation bonus without changing its formula. The container has no Zig executable, and the connected GitHub workflow/status endpoints have not exposed a run for the latest push; formatting, build, tests, and CI therefore remain unverified. Keep status In Progress until real CI evidence is available.
