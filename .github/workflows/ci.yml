@@ -40,7 +40,7 @@ jobs:
         run: zig build -Doptimize=${{ matrix.optimize }}
 
       - name: Smoke-test terminal entry point
-        run: printf 'exit\n' | zig build run -Doptimize=${{ matrix.optimize }}
+        run: printf 'exit\n' | zig build run -Doptimize=${{ matrix.optimize }} -- smoke-test
 
       - name: Compile and run Zig tests
         run: zig build test -Doptimize=${{ matrix.optimize }}

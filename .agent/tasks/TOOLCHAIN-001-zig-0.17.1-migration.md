@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Phases 1–4 implementation complete. Zig 0.13.0 CI passes Debug/ReleaseSafe/ReleaseFast; Zig 0.17.1 targeted terminal/save/facade checks and the full application build pass. Phase 5 (complete test infrastructure and CI cutover) is next; full aggregate tests under 0.17.1 remain pending.**
+- Status: **Phases 0–5 implementation complete. The project and primary CI now target Zig 0.17.1; formatting, build, run smoke test, and the full aggregate suite pass in Debug/ReleaseSafe/ReleaseFast. Phase 6 documentation synchronization and full mandatory code review are in progress.**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`

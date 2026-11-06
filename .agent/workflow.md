@@ -23,7 +23,7 @@ For non-trivial work, create a task brief from tasks/TEMPLATE.md. Define behavio
 - Never change save serialization incidentally.
 
 ## 5. Verify
-Use Zig 0.13.0:
+Use Zig 0.17.1:
 
 ```sh
 zig fmt --check test_root.zig build.zig src tests

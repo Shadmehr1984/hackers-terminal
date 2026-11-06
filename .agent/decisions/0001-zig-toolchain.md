@@ -1,6 +1,6 @@
 # ADR 0001: Pin the Zig Toolchain to 0.13.0
 
-- Status: Accepted
+- Status: Superseded by [ADR 0016](0016-zig-0.17.1.md); historical baseline only
 - Date: 2026-11-05
 
 ## Context
@@ -16,3 +16,8 @@ Keep Zig 0.13.0 as the project toolchain. Toolchain upgrades must be explicit, t
 
 
 > Historical note (2026-11-07): The owner approved replacing this toolchain pin with Zig 0.17.1 under [ADR 0016](0016-zig-0.17.1.md). This ADR remains the record of the original 0.13.0 decision; the repository stays on 0.13.0 until TOOLCHAIN-001 is fully migrated and verified.
+
+
+## Supersession
+
+The repository completed the owner-approved TOOLCHAIN-001 migration and now targets Zig 0.17.1. ADR 0016 is the active toolchain decision. This ADR is retained to explain the historical 0.13.0 baseline; do not use it as current build guidance.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Hacker's Terminal is being developed incrementally as a modular, single-player terminal game. Core player and mission data, persistence, terminal presentation, shop operations, command parsing, and game coordination live in focused Zig modules. The default CI baseline remains Zig 0.13.0 while TOOLCHAIN-001 stages the migration to Zig 0.17.1. The terminal I/O layer now has a separately tested, version-gated `std.Io` implementation; the complete 0.17.1 application build is deferred until filesystem and language/facade migrations are complete.
+Hacker's Terminal is a modular, single-player terminal game built with Zig 0.17.1. Core player and mission data, persistence, terminal presentation, shop operations, command parsing, and game coordination live in focused Zig modules. The process entry point and filesystem boundary use Zig 0.17.1 `std.Io`; Save V3 serialization and all legacy readers remain unchanged.
 
 There is no client/server split, real networking layer, database, plugin system, or external game service. All targets and hacking actions are fictional game content.
 
@@ -26,7 +26,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 
 | Path | Responsibility |
 | --- | --- |
-| `src/main.zig` | Version-gated application entry point, allocator/process I/O setup, save loading, welcome output, and shared interactive loop |
+| `src/main.zig` | Zig 0.17.1 process entry point, allocator/`std.Io` setup, save loading, welcome output, and shared interactive loop |
 | `src/application/terminal_input.zig` | Shared 512-byte input capacity, 511-byte accepted command limit, and overlength predicate |
 | `src/application/terminal_io.zig` | Zig 0.16+ immediate `std.Io` stdout adapter and delimiter-aware line reading with oversized-line draining |
 | `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
@@ -38,7 +38,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, per-objective runtime tracker, detection exposure, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
 | `src/catalog/mission_data.zig` | Five built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is at index 3 and Corporate Ghost is appended at index 4 |
 | `src/catalog/operation_data.zig` | Static authored operation sequences; currently contains the three-stage `blackout-protocol` |
-| `src/persistence/save.zig` | Shared V3 serialization and V3/V2/V1/legacy loading; version-gated `SaveContext` with Zig 0.13 `std.fs` and Zig 0.17.1 `std.Io` backends; explicit temp-write/flush/close/rename transaction |
+| `src/persistence/save.zig` | Shared V3 serialization and V3/V2/V1/legacy loading; single Zig 0.17.1 `std.Io`/`std.Io.Dir` SaveContext backend; explicit temp-write/flush/close/rename transaction |
 | `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, faction dossiers, faction-aware Operation list/details/status, Contacts, offers, history, and topology map |
 | `src/application/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/application/commands.zig` | Parses an input line into a command name and its first argument |

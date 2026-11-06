@@ -1,6 +1,6 @@
 # Hacker's Terminal
 
-**Hacker's Terminal** is a small, text-only hacking simulator written in **Zig 0.13.0**. It is a command-driven, single-player game in which you accept fictional contracts, investigate simulated hosts, solve authentication and decryption puzzles, earn rewards, and unlock harder missions.
+**Hacker's Terminal** is a small, text-only hacking simulator written in **Zig 0.17.1**. It is a command-driven, single-player game in which you accept fictional contracts, investigate simulated hosts, solve authentication and decryption puzzles, earn rewards, and unlock harder missions.
 
 > [!IMPORTANT]
 > This is a self-contained fictional game. It does not connect to real networks, scan real hosts, execute operating-system commands, or interact with external systems. Hostnames such as `vault-01.local` are game data only.
@@ -28,10 +28,10 @@
 
 ## Requirements
 
-- [Zig 0.13.0](https://ziglang.org/download/)
+- [Zig 0.17.1](https://ziglang.org/download/)
 - A terminal capable of running a command-line executable
 
-The project currently targets Zig 0.13.0. Other Zig versions are not guaranteed to be compatible.
+The project currently targets Zig 0.17.1. Other Zig versions are not guaranteed to be compatible.
 
 ## Build and run
 

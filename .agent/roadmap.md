@@ -3,7 +3,7 @@
 This roadmap records owner-approved feature direction and implementation order. Task briefs are the execution contracts for coding agents. A feature is not implemented merely because it is approved or has a task brief.
 
 ## Implemented foundation
-- Modular Zig 0.13.0 terminal game.
+- Modular Zig 0.17.1 terminal game.
 - Five built-in missions with descriptive difficulty metadata, including Reputation-gated Ghost Signal and faction-gated Corporate Ghost.
 - Required and optional objectives with live progress and optional cash bonuses.
 - Local save/load with V2, V1, and legacy compatibility.
@@ -61,6 +61,6 @@ The existing HT-001 through HT-005 program remains implemented. EXPANSION-001 is
 
 | ID | Work | Status |
 | --- | --- | --- |
-| TOOLCHAIN-001 | Upgrade the repository from Zig 0.13.0 to Zig 0.17.1 while preserving gameplay, save compatibility, and I/O failure guarantees | Owner-approved; Phases 0–3 implemented and targeted CI-verified; Phase 4 language/facade compatibility is next. Full 0.17.1 application build and final CI switch remain pending. See [task brief](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md) and [ADR 0016](decisions/0016-zig-0.17.1.md). |
+| TOOLCHAIN-001 | Upgrade the repository from Zig 0.13.0 to Zig 0.17.1 while preserving gameplay, save compatibility, and I/O failure guarantees | Implemented on `main`; build, process I/O, persistence, language/facades, aggregate tests, and primary CI now target Zig 0.17.1. See [task brief](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md) and [ADR 0016](decisions/0016-zig-0.17.1.md). |
 
 The migration target is 0.17.1, but the current default application build and CI baseline remains 0.13.0 until all migration phases are implemented and verified. The dedicated Zig 0.17.1 workflow currently verifies the isolated terminal and persistence adapters. Do not mark this task Implemented before the complete application/test build, final three-mode CI matrix, and full review pass.

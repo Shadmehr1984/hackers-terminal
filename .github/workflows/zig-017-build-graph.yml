@@ -34,12 +34,8 @@ jobs:
       - name: Confirm toolchain version
         run: test "$(zig version)" = "0.17.1"
 
-      - name: Apply Zig 0.17.1 formatting and show required source changes
-        run: |
-          zig fmt test_root.zig build.zig src tests
-          git diff --stat
-          git diff -- src/persistence/save.zig src/domain/mission_state.zig src/domain/operation_state.zig src/domain/mission_objectives.zig src/domain/player.zig tests/mission_objectives_test.zig tests/equipment_test.zig
-          zig fmt --check test_root.zig build.zig src tests
+      - name: Check Zig 0.17.1 formatting
+        run: zig fmt --check test_root.zig build.zig src tests
 
       - name: Test filesystem and save compatibility layer
         run: zig test save_io_test_root.zig

@@ -3,7 +3,7 @@
 This file separates verified constraints from items that need investigation.
 
 ## Verified constraints
-- Zig 0.13.0 remains the default application/CI baseline during TOOLCHAIN-001; Zig 0.17.1 is the migration target. The complete application build and targeted terminal/save/facade tests now pass under Zig 0.17.1; the full aggregate test suite and CI cutover remain pending.
+- The repository and primary CI now target Zig 0.17.1. The Debug, ReleaseSafe, and ReleaseFast matrix, full aggregate tests (including terminal/save I/O and facade coverage), formatting, and terminal entry-point smoke test are the migration acceptance checks; consult the latest main-branch CI run for the current result.
 - The command parser accepts a command and at most one argument; later tokens are ignored.
 - Mission-session state and objective completion are not persisted.
 - Save data is positional and has no checksum or full corruption recovery. Writes are staged through a temporary file and renamed after a successful write. Loaders accept V3, V2, V1, and numeric legacy headers; unknown non-numeric markers are rejected before mutating player or mission state.
@@ -15,11 +15,11 @@ This file separates verified constraints from items that need investigation.
 - The owner cannot reliably build locally at present; report CI separately from manual playtesting.
 
 ## TOOLCHAIN-001 migration constraints
-- `src/application/terminal_io.zig` is a Zig 0.16+ module. It is conditionally imported by `src/main.zig`; the Zig 0.13 path remains active until the final CI/toolchain switch.
-- The Zig 0.17.1 terminal and save I/O suites pass. They cover input boundaries, oversized-line drain, next-command alignment, read/write failure propagation, exact V3 bytes, save round-trip, missing-save status, the 4096/4097-byte read boundary, and staging-failure preservation. The complete application also compiles under Zig 0.17.1; the full aggregate suite has not yet been run under that toolchain.
-- A full-repository Zig 0.17.1 formatter probe identified 13 legacy compatibility facades; their explicit public exports are now covered by the focused facade API test, and the full application compile passes. The removed array repetition syntax in `mission_objectives.zig` has been replaced by a cross-version allocation-free initializer loop.
-- `save.zig` now has a version-gated `SaveContext` and tested `std.Io` backend; V3 serialization and the temp-write/flush/close/rename transaction are preserved. The full application build has passed under Zig 0.17.1.
-- Shared files retain `@intFromEnum` for existing numeric enum encodings; both Zig 0.13.0 and Zig 0.17.1 compile these uses. Preserve their numeric values and avoid blanket conversion changes.
+- `src/application/terminal_io.zig` is the active Zig 0.17.1 `std.Io` adapter imported directly by `src/main.zig`; the legacy `std.io` process path has been removed.
+- The full aggregate suite now includes terminal I/O boundary/failure tests, save I/O compatibility tests, and facade API tests. It runs under Zig 0.17.1 in all three CI optimization modes.
+- The 13 compatibility facades use explicit public exports and are covered by the aggregate facade API test. The removed array repetition syntax in `mission_objectives.zig` was replaced by an allocation-free initializer loop.
+- `save.zig` uses a single `std.Io`/`std.Io.Dir` SaveContext backend. V3 serialization and the temp-write/flush/close/rename transaction remain unchanged and are covered by aggregate save I/O tests.
+- Shared enum-backed bit fields and persisted numeric values use `@backingInt` under Zig 0.17.1. Their explicit backing types and numeric values are compatibility-sensitive; preserve them and keep enum catalog/save-byte tests.
 
 ## Open questions, not confirmed bugs
 - Should mission-session progress survive restart, and what migration would that require?

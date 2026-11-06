@@ -5,7 +5,7 @@ This file is the persistent source of project-specific instructions for AI codin
 ## Project identity and boundaries
 
 - Project: **Hacker's Terminal**, a single-player, command-driven terminal game.
-- Default application/CI baseline: **Zig 0.13.0** while the owner-approved TOOLCHAIN-001 migration to Zig 0.17.1 is in progress. The migration is explicitly authorized; follow `.agent/tasks/TOOLCHAIN-001-zig-0.17.1-migration.md` and keep the version-gated compatibility paths until final cutover. Do not independently change the default CI pin.
+- Default application/CI toolchain: **Zig 0.17.1**. TOOLCHAIN-001 is complete; keep the repository, local development instructions, and CI pinned to this exact version. Do not reintroduce legacy `std.fs`/`std.io` or pre-0.17 build-system APIs.
 - The game is fictional, local, offline, and self-contained.
 - Never add real network scanning, real host connections, shell-command execution, credential collection, or interaction with external systems. Hostnames and hacking actions are simulated game content only.
 - Preserve the text-terminal experience unless a task explicitly changes the product direction.
@@ -25,8 +25,8 @@ This file is the persistent source of project-specific instructions for AI codin
 
 Production modules are grouped by responsibility under `src/domain/`, `src/application/`, `src/catalog/`, `src/presentation/`, and `src/persistence/`. `src/main.zig` remains the composition root. The original top-level `src/*.zig` module paths are compatibility facades; new production code should import the grouped implementation paths directly.
 
-- `src/main.zig`: version-gated process entry point, allocator and standard I/O setup, explicit SaveContext creation, save loading, welcome output, and shared interactive input loop.
-- `src/application/terminal_input.zig` and `src/application/terminal_io.zig`: stable input-size policy and Zig 0.16+ `std.Io` terminal adapter.
+- `src/main.zig`: Zig 0.17.1 process entry point, allocator and `std.Io` setup, explicit SaveContext creation, save loading, welcome output, and shared interactive input loop.
+- `src/application/terminal_input.zig` and `src/application/terminal_io.zig`: stable input-size policy and Zig 0.17.1 `std.Io` terminal adapter.
 - `src/application/game.zig`: shared command dispatch and game-state validation/transitions.
 - `src/application/detection.zig`: Detection exposure costs, warnings, compromise failure, and bounded penalty.
 - `src/domain/progression.zig`: XP thresholds, player levels, Reputation tiers, and mission reward progression.
@@ -46,7 +46,7 @@ Production modules are grouped by responsibility under `src/domain/`, `src/appli
 - `src/application/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
 - The `board` command is a separate full Contract Board; preserve the existing `missions` command behavior.
 - `src/presentation/terminal.zig`: terminal presentation, including mission list, operation list/details/status, briefing-related output, and topology maps.
-- `src/persistence/save.zig`: shared V3 serialization and V3/V2/V1/legacy loading, with a version-gated `SaveContext` backend (`std.fs.Dir` on Zig 0.13; `std.Io`/`std.Io.Dir` on Zig 0.17.1).
+- `src/persistence/save.zig`: shared V3 serialization and V3/V2/V1/legacy loading, with a single `std.Io`/`std.Io.Dir` `SaveContext` backend.
 - `src/application/shop.zig`: equipment catalog, inventory, purchases, equipping, and utility upgrades.
 - `tests/`: unit tests, separate from production source.
 - `docs/`: user and developer documentation.
@@ -85,7 +85,7 @@ Read `docs/architecture.md` for the detailed module map and runtime flow, `docs/
 
 ## Tests, formatting, and verification
 
-Use Zig **0.13.0** and the repository's documented commands:
+Use Zig **0.17.1** and the repository's documented commands:
 
 ```sh
 zig fmt --check test_root.zig build.zig src tests
@@ -164,6 +164,6 @@ For a full repository review, inspect the whole current repository, not only a d
 A code review is read-only by default. Do not modify source, tests, documentation, CI, or repository state unless the owner separately authorizes fixes. Never claim tests, CI, or manual gameplay checks passed unless they were actually run and their results inspected.
 
 
-## Active toolchain migration
+## Current toolchain
 
-The owner approved TOOLCHAIN-001 to migrate this repository from Zig 0.13.0 to Zig 0.17.1. The current build and CI baseline remains 0.13.0 until the migration is complete; do not claim 0.17.1 compatibility prematurely. Before continuing, read `.agent/tasks/TOOLCHAIN-001-zig-0.17.1-migration.md` and ADR 0016. Follow its phased order, preserve Save V3/V2/V1/legacy behavior, terminal input limits and error handling, transactional writer-failure guarantees, and all gameplay behavior. Work only on `main` in focused commits. The task brief is the authoritative audit, acceptance checklist, progress log, and handoff. Update active toolchain instructions and CI together only in the designated final migration phase.
+The repository and CI now target Zig 0.17.1. `build.zig` uses explicit root modules and `addPassthruArgs`; the process entry point uses `std.process.Init` and `std.Io`; persistence uses an explicit `std.Io`/`std.Io.Dir` SaveContext. Keep the toolchain pinned to exactly 0.17.1 and preserve Save V3/V2/V1/legacy behavior, terminal input limits and error handling, transactional writer-failure guarantees, and all gameplay behavior. The completed TOOLCHAIN-001 task brief and ADR 0016 are the historical record of the migration and its verification.

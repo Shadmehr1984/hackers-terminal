@@ -119,7 +119,7 @@ Use the **final OWASP Top 10:2025** categories below as a threat-review lens. As
 
 ## 7. Zig-specific scan — mandatory order
 
-Target toolchain: **Zig 0.13.0**. Verify APIs and language semantics against this version. Do not flag valid 0.13.0 code merely because a newer Zig version uses a different API. In particular, `root_source_file` in the project's Zig 0.13 build API is valid; do not report it as obsolete based on newer versions.
+Target toolchain: **Zig 0.17.1**. Verify APIs and language semantics against this exact version. Do not use older examples as authority for current build, process I/O, filesystem, or enum APIs. The build uses `root_module = b.createModule(...)` and `addPassthruArgs`; process resources arrive through `std.process.Init`; filesystem operations use `std.Io.Dir` and `std.Io.File`.
 
 ### 7.1 `zig fmt`
 
@@ -129,9 +129,9 @@ Target toolchain: **Zig 0.13.0**. Verify APIs and language semantics against thi
 
 ### 7.2 ALWAYS FLAG
 
-These patterns must always be investigated and flagged when present unless the exact use is demonstrably safe and the justification is documented in the finding:
+These patterns must always be investigated and flagged when present unless the exact use is demonstrably safe and the justification is documented in the finding. For `@backingInt`, verify the enum declares the expected backing integer type and that its numeric value is intentionally stable where used in bit fields or persistence:
 
-- [ ] `@intCast`, `@truncate`, `@enumFromInt`, `@floatFromInt`, `@intFromFloat`, and other narrowing/conversion casts without a proven range/type guarantee at the cast site.
+- [ ] `@intCast`, `@truncate`, `@backingInt`, `@enumFromInt`, `@floatFromInt`, `@intFromFloat`, and other narrowing/conversion casts without a proven range/type guarantee at the cast site.
 - [ ] Optional unwrap `.?`, `orelse unreachable`, or optional pointer/value assumptions without a dominating proof/guard that the value is non-null.
 - [ ] `catch unreachable` on allocation or any operation that can fail under valid runtime conditions; `unreachable`, `@panic`, or `std.debug.panic` reachable from user-controlled data.
 - [ ] `@panic("OOM")` or equivalent panic-based allocation failure handling.
@@ -220,7 +220,7 @@ Investigate these in context; do not automatically label every occurrence a defe
 - [ ] **Save transactionality:** stage the full payload before replacing the previous save; failure must not truncate or corrupt the previous valid save.
 - [ ] **Save validation:** treat save bytes as untrusted; validate numeric ranges, booleans, indices, flags, lengths, and cross-field consistency before committing state.
 - [ ] **Tests layout:** tests stay under `tests/`; preserve `tests/test_all.zig` and `test_root.zig`; register every new test module in the aggregate.
-- [ ] **Build API:** target Zig 0.13.0 and current build API; do not apply newer-version advice blindly.
+- [ ] **Build API:** target Zig 0.17.1; use explicit root modules and `addPassthruArgs`, and do not reintroduce removed pre-0.17 build fields.
 - [ ] **Offline boundary:** no real networking, external host access, shell execution, or credential collection.
 
 ## 9. Maintainability and Observability
@@ -244,7 +244,7 @@ This is a mandatory cross-cutting pass.
 
 Inspect the actual repository workflow and the exact commit under review.
 
-- [ ] Confirm Zig version is exactly **0.13.0**.
+- [ ] Confirm Zig version is exactly **0.17.1**.
 - [ ] Inspect `build.zig`, test root, aggregate test list, and all relevant test modules.
 - [ ] Check formatting with `zig fmt --check test_root.zig build.zig src tests`.
 - [ ] Check compilation with `zig build`.
