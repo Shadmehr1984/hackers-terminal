@@ -45,3 +45,8 @@ Planning approved on 2026-11-05. HT-006 is implemented and merged. HT-007 implem
 - Implemented means code, focused tests, documentation, review, and relevant CI are complete.
 - All systems are fictional and local/offline. No real network activity, external hosts, shell commands, or credential collection.
 - Story branching remains deferred and is not part of these tasks.
+
+
+## Toolchain migration
+
+- [TOOLCHAIN-001 — Upgrade the Codebase to Zig 0.17.1](TOOLCHAIN-001-zig-0.17.1-migration.md) — Owner-approved; Phase 0 audit complete; implementation not started. Includes current-main inventory, phased execution plan, acceptance criteria, verification matrix, and agent handoff. See [ADR 0016](../decisions/0016-zig-0.17.1.md).

@@ -161,3 +161,8 @@ Every code review request must follow the complete `.agent/review-checklist.md` 
 For a full repository review, inspect the whole current repository, not only a diff. Account for every relevant source, test, build/configuration, workflow, and documentation file. Mark every item as reviewed, not applicable (with reason), partially reviewed, or not verified. Every finding requires exact file/line evidence and a concrete scenario or rationale. If evidence is unavailable, say "نمی‌دانم" and use `[NEEDS-VERIFICATION]`; never guess or overstate coverage.
 
 A code review is read-only by default. Do not modify source, tests, documentation, CI, or repository state unless the owner separately authorizes fixes. Never claim tests, CI, or manual gameplay checks passed unless they were actually run and their results inspected.
+
+
+## Active toolchain migration
+
+The owner approved TOOLCHAIN-001 to migrate this repository from Zig 0.13.0 to Zig 0.17.1. The current build and CI baseline remains 0.13.0 until the migration is complete; do not claim 0.17.1 compatibility prematurely. Before continuing, read `.agent/tasks/TOOLCHAIN-001-zig-0.17.1-migration.md` and ADR 0016. Follow its phased order, preserve Save V3/V2/V1/legacy behavior, terminal input limits and error handling, transactional writer-failure guarantees, and all gameplay behavior. Work only on `main` in focused commits. The task brief is the authoritative audit, acceptance checklist, progress log, and handoff. Update active toolchain instructions and CI together only in the designated final migration phase.

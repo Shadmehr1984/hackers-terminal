@@ -53,3 +53,8 @@ Task briefs are persistent handoff documents. Agents must read the relevant brie
 Whenever an owner requests a code review, every agent must read and follow the complete `review-checklist.md`; it is not a menu or optional sample. The standard's sequence, four weighted passes, all OWASP Top 10:2025 categories, Zig-specific scan order, project-specific checks, severity definitions, evidence rules, and final report sections are mandatory. For a full review, inspect the entire repository rather than only the diff. A review request alone never authorizes code changes. If a check is inapplicable, say why; if evidence is unavailable, mark it `NEEDS-VERIFICATION` and state what is missing. Never guess or claim unperformed verification.
 
 Keep this workspace concise and update it only when lasting decisions, constraints, or agreed plans change.
+
+
+## Active maintenance task
+
+- [TOOLCHAIN-001 — Zig 0.17.1 migration](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md): owner-approved, Phase 0 audit complete, implementation not started. Read the task brief and [ADR 0016](decisions/0016-zig-0.17.1.md) before continuing. The current build/CI baseline remains 0.13.0 until the migration is complete.

@@ -55,3 +55,12 @@ The existing HT-001 through HT-005 program remains implemented. EXPANSION-001 is
 - Status values: Planned, Design Approved, In Progress, Blocked, Implemented. Use Implemented only after code, tests, documentation, review, and the relevant CI checks are complete.
 - Discuss substantial scope changes with the project owner before proceeding.
 - Do not begin a later feature while an earlier feature has unresolved foundational decisions, unless the owner explicitly changes the order.
+
+
+## Toolchain and maintenance roadmap
+
+| ID | Work | Status |
+| --- | --- | --- |
+| TOOLCHAIN-001 | Upgrade the repository from Zig 0.13.0 to Zig 0.17.1 while preserving gameplay, save compatibility, and I/O failure guarantees | Owner-approved; Phase 0 audit complete; implementation not started. See [task brief](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md) and [ADR 0016](decisions/0016-zig-0.17.1.md). |
+
+The migration target is 0.17.1, but the current build and CI baseline remains 0.13.0 until all migration phases are implemented and verified. Do not mark this task Implemented before the final three-mode CI matrix and full review pass.
