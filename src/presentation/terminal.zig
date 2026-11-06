@@ -14,6 +14,10 @@ const operation_model = @import("../domain/operation.zig");
 const faction = @import("../domain/faction.zig");
 const FactionId = @import("../domain/faction_id.zig").FactionId;
 const faction_data = @import("../catalog/faction_data.zig");
+const rival_data = @import("../catalog/rival_data.zig");
+const rival_model = @import("../domain/rival.zig");
+const rival_simulation = @import("../domain/rival_simulation.zig");
+const Tracker = @import("../domain/mission_objectives.zig").Tracker;
 
 /// Writes the game banner.
 pub fn printBanner(writer: anytype) !void {
@@ -41,6 +45,8 @@ pub fn printHelp(writer: anytype) !void {
         \\  operation-start <id> Start an operation
         \\  operation-status     Show current operation stage and earned facts
         \\  board                Open the Contract Board
+        \\  rivals               List competing hacker dossiers and status
+        \\  rival <id>           Inspect a rival hacker dossier
         \\  factions             List all known organizations
         \\  faction <id>         Inspect a faction dossier and relationships
         \\  contacts             Show unlocked and locked contacts
@@ -196,8 +202,63 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
         } else if (entry.availability == .unavailable) {
             try writer.writeAll("    Finish or fail the active contract, or cancel the current preparation, before selecting another.\n");
         }
+        if (rival_data.forMission(mission.id)) |rival| {
+            const rival_status = rival_simulation.status(rival, missions, level, reputation, null, null);
+            try writer.print("    Rival: {s} | {s} — optional intelligence may be contested before decryption.\n", .{ rival.name, rival_status.label() });
+        }
     }
     try writer.writeAll("\nUse prepare <id> for standard contracts; use the relevant Contact offer for exclusive contracts.\n");
+}
+
+/// Writes the five fictional rival dossiers and their current derived contest states.
+pub fn printRivals(
+    writer: anytype,
+    missions: []const Mission,
+    level: u32,
+    reputation: u32,
+    active_mission_id: ?[]const u8,
+    tracker: ?*const Tracker,
+) !void {
+    try writer.writeAll("RIVAL NETWORK\n");
+    for (rival_data.all()) |entry| {
+        const state = rival_simulation.status(entry, missions, level, reputation, active_mission_id, tracker);
+        const faction_profile = faction_data.find(entry.faction);
+        const faction_name = if (faction_profile) |profile| profile.name else entry.faction.slug();
+        try writer.print("  [{s}] {s} — {s} | {s}\n", .{ state.label(), entry.name, entry.id.slug(), faction_name });
+        try writer.print("    Contest: {s} ({s})\n", .{ entry.mission_id, entry.objective_id });
+    }
+    try writer.writeAll("\nRival contests affect optional intelligence only; primary contract completion remains available.\nUse rival <id> for a dossier.\n");
+}
+
+/// Writes one rival's authored dossier and live contest state.
+pub fn printRival(
+    writer: anytype,
+    id: rival_model.RivalId,
+    missions: []const Mission,
+    level: u32,
+    reputation: u32,
+    active_mission_id: ?[]const u8,
+    tracker: ?*const Tracker,
+) !void {
+    const entry = rival_data.find(id) orelse return;
+    const state = rival_simulation.status(entry, missions, level, reputation, active_mission_id, tracker);
+    const faction_profile = faction_data.find(entry.faction);
+    const faction_name = if (faction_profile) |profile| profile.name else entry.faction.slug();
+    try writer.print("{s} [{s}]\nFaction: {s}\nStatus: {s}\nSpecialty: {s}\nApproach: {s}\nContested contract: {s}\nOptional evidence: {s}\n\n", .{
+        entry.name, id.slug(), faction_name, state.label(), entry.specialty, entry.approach, entry.mission_id, entry.objective_id,
+    });
+    try writer.writeAll("Known activity:\n");
+    try writer.writeAll(entry.briefing_hint);
+    try writer.writeAll("\n");
+}
+
+/// Discloses rival activity and counterplay before an affected contract is launched.
+pub fn printRivalBriefing(writer: anytype, mission_id: []const u8) !void {
+    if (rival_data.forMission(mission_id)) |entry| {
+        try writer.print("\nRIVAL INTELLIGENCE: {s} ({s})\n", .{ entry.name, entry.faction.slug() });
+        try writer.writeAll(entry.briefing_hint);
+        try writer.writeAll("\nIf you decrypt before uncovering this optional evidence, the rival may secure it first. The main contract is never blocked.\n");
+    }
 }
 
 /// Writes the seven fictional organizations and the player's derived standing with each.
@@ -369,6 +430,7 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
         if (objective.hidden) continue;
         try writer.print("  {s}{s}\n", .{ if (objective.optional) "[OPTIONAL] " else "", objective.description });
     }
+    try printRivalBriefing(writer, mission.id);
     if (mission.topology) |topology| {
         try writer.writeAll("\nKNOWN TOPOLOGY\nNodes: ");
         for (topology.nodes, 0..) |node, index| {
