@@ -174,7 +174,7 @@ Most user input errors are handled by printing a message and returning to the pr
 
 ## Current design constraints
 
-- The built-in mission catalog is hard-coded in `mission_data.zig` and contains four missions; `job-04` is appended after the original three.
+- The built-in mission catalog is hard-coded in `mission_data.zig` and contains five missions; `job-04` remains at index 3 and `job-05` is appended at index 4.
 - Mission difficulty is currently descriptive metadata; no mechanics are tied to it yet.
 - The current objective event kinds are scan target, authenticate, decrypt file, extract file, and metadata analysis. Per-objective progress is stored in a runtime-only fixed-capacity tracker of 32 entries, keyed by stable mission-local IDs. Hidden optional objectives use deterministic Node/File/Action discovery triggers; their definitions and progress are not serialized.
 - Detection is a runtime-only 0–100 meter. Its thresholds, action costs, failure penalty, and reset behavior are defined in the gameplay guide and implemented through `MissionSession` and `detection.zig`.
