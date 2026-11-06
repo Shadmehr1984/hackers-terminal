@@ -41,6 +41,8 @@ pub fn printHelp(writer: anytype) !void {
         \\  operation-start <id> Start an operation
         \\  operation-status     Show current operation stage and earned facts
         \\  board                Open the Contract Board
+        \\  factions             List all known organizations
+        \\  faction <id>         Inspect a faction dossier and relationships
         \\  contacts             Show unlocked and locked contacts
         \\  contact <id>         Inspect a contact and its offers
         \\  offers               List actionable contact offers
