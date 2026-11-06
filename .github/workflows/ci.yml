@@ -30,6 +30,11 @@ jobs:
         with:
           version: 0.13.0
 
+      - name: Diagnose Zig formatting (temporary)
+        run: |
+          zig fmt src/presentation/terminal.zig
+          git diff -- src/presentation/terminal.zig
+
       - name: Check formatting
         run: zig fmt --check test_root.zig build.zig src tests
 
