@@ -176,7 +176,6 @@ test "active briefing reports when the player outpaces the rival before decrypti
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "may be contested before decrypting") == null);
 }
 
-
 test "all five rival contests honor their authored node file and action discovery triggers" {
     const missions = mission_data.defaultMissions();
     for (rival_data.all()) |entry| {
