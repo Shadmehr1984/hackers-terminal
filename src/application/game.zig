@@ -275,7 +275,9 @@ pub fn runCommandWithSaveDirectory(
         try terminal.printStatus(writer, player.*, active.*, missions, level, progression.xpForNextLevel(level), session.*);
     } else if (std.mem.eql(u8, command, "board")) {
         const level = progression.playerLevel(player.*);
-        try terminal.printContractBoard(writer, missions, level, player.reputation, active.* != null or preparation.mission_index != null);
+        const active_id: ?[]const u8 = if (active.*) |index| missions[index].id else null;
+        const tracker: ?*const ObjectiveTracker = if (active.* != null) &session.objective_tracker else null;
+        try terminal.printContractBoard(writer, missions, level, player.reputation, active.* != null or preparation.mission_index != null, active_id, tracker);
     } else if (std.mem.eql(u8, command, "rivals")) {
         const active_id: ?[]const u8 = if (active.*) |index| missions[index].id else null;
         const tracker: ?*const ObjectiveTracker = if (active.* != null) &session.objective_tracker else null;
