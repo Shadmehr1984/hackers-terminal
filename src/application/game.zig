@@ -570,22 +570,34 @@ pub fn runCommandWithSaveDirectory(
                 if (!atMissionNode(mission, session.*, topology.scan_node)) {
                     try writer.print("Move to node '{s}' before scanning this target.\n", .{topology.scan_node});
                 } else {
-                    const already_scanned = session.isObjectiveComplete(.scan_target);
-                    session.markScanned();
-                    try reportObjectiveDiscoveries(writer, session.discoverAction(.scan_target, mission.objectives));
-                    session.completeObjective(.scan_target);
+                    var next_player = player.*;
+                    var next_active = active.*;
+                    var next_session = session.*;
+                    const already_scanned = next_session.isObjectiveComplete(.scan_target);
+                    next_session.markScanned();
+                    try reportObjectiveDiscoveries(writer, next_session.discoverAction(.scan_target, mission.objectives));
+                    next_session.completeObjective(.scan_target);
                     try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                     try writer.writeAll("A password challenge was identified.\n");
-                    if (!already_scanned) _ = try detection.apply(writer, player, active, session, 10);
+                    if (!already_scanned) _ = try detection.apply(writer, &next_player, &next_active, &next_session, 10);
+                    player.* = next_player;
+                    active.* = next_active;
+                    session.* = next_session;
                 }
             } else {
-                const already_scanned = session.isObjectiveComplete(.scan_target);
-                session.markScanned();
-                try reportObjectiveDiscoveries(writer, session.discoverAction(.scan_target, mission.objectives));
-                session.completeObjective(.scan_target);
+                var next_player = player.*;
+                var next_active = active.*;
+                var next_session = session.*;
+                const already_scanned = next_session.isObjectiveComplete(.scan_target);
+                next_session.markScanned();
+                try reportObjectiveDiscoveries(writer, next_session.discoverAction(.scan_target, mission.objectives));
+                next_session.completeObjective(.scan_target);
                 try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                 try writer.writeAll("A password challenge was identified.\n");
-                if (!already_scanned) _ = try detection.apply(writer, player, active, session, 10);
+                if (!already_scanned) _ = try detection.apply(writer, &next_player, &next_active, &next_session, 10);
+                player.* = next_player;
+                active.* = next_active;
+                session.* = next_session;
             }
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "connect")) {
@@ -597,17 +609,23 @@ pub fn runCommandWithSaveDirectory(
                 if (!atMissionNode(mission, session.*, topology.auth_node)) {
                     try writer.print("Move to node '{s}' before connecting.\n", .{topology.auth_node});
                 } else {
-                    session.connected = true;
+                    var next_session = session.*;
+                    next_session.connected = true;
                     try writer.print("Simulated session established with {s}.\n", .{arg});
+                    session.* = next_session;
                 }
             } else {
-                session.connected = true;
+                var next_session = session.*;
+                next_session.connected = true;
                 try writer.print("Simulated session established with {s}.\n", .{arg});
+                session.* = next_session;
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "disconnect")) {
-        session.connected = false;
+        var next_session = session.*;
+        next_session.connected = false;
         try writer.writeAll("Session closed.\n");
+        session.* = next_session;
     } else if (std.mem.eql(u8, command, "brute")) {
         if (active.*) |index| {
             const mission = missions[index];
@@ -618,16 +636,28 @@ pub fn runCommandWithSaveDirectory(
             } else if (!session.connected) {
                 try writer.writeAll("No session. Connect to the target first.\n");
             } else if (std.mem.eql(u8, arg, mission.password)) {
-                const already_authenticated = session.isAuthenticated();
-                session.markAuthenticated();
-                try reportObjectiveDiscoveries(writer, session.discoverAction(.authenticate, mission.objectives));
-                session.completeObjective(.authenticate);
-                session.markOptionalObjectivesUnavailableForEvent(.authenticate);
+                var next_player = player.*;
+                var next_active = active.*;
+                var next_session = session.*;
+                const already_authenticated = next_session.isAuthenticated();
+                next_session.markAuthenticated();
+                try reportObjectiveDiscoveries(writer, next_session.discoverAction(.authenticate, mission.objectives));
+                next_session.completeObjective(.authenticate);
+                next_session.markOptionalObjectivesUnavailableForEvent(.authenticate);
                 try writer.writeAll("[ACCESS GRANTED] Authentication challenge solved.\n");
-                if (!already_authenticated) _ = try detection.apply(writer, player, active, session, 5);
+                if (!already_authenticated) _ = try detection.apply(writer, &next_player, &next_active, &next_session, 5);
+                player.* = next_player;
+                active.* = next_active;
+                session.* = next_session;
             } else {
+                var next_player = player.*;
+                var next_active = active.*;
+                var next_session = session.*;
                 try writer.writeAll("[ACCESS DENIED] Incorrect password. Check the mission briefing.\n");
-                _ = try detection.apply(writer, player, active, session, session.loadout.incorrectAuthenticationDetectionCost());
+                _ = try detection.apply(writer, &next_player, &next_active, &next_session, next_session.loadout.incorrectAuthenticationDetectionCost());
+                player.* = next_player;
+                active.* = next_active;
+                session.* = next_session;
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "decrypt")) {
