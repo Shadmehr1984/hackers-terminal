@@ -139,21 +139,29 @@ test "operation fact is not committed when its transition output fails" {
         if (!objective.optional and objective.kind != .extract_file) session.completeObjective(objective.kind);
     }
 
+    const balance_before_extraction = player.balance;
+    const xp_before_extraction = player.xp;
     var failing_writer = FailOnOperationIntelWriter{};
     try std.testing.expectError(
         error.OutputFailure,
         game.runCommand(&failing_writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation),
     );
 
-    try std.testing.expect(missions[0].completed);
+    // Extraction, payout, mission completion, and the outgoing fact are one transaction.
+    try std.testing.expect(!missions[0].completed);
     try std.testing.expectEqual(@as(?usize, 0), active);
     try std.testing.expect(preparation.operation_state.active);
     try std.testing.expectEqual(@as(u8, 0), preparation.operation_state.stage_index);
     try std.testing.expect(!preparation.operation_state.hasFact(.maintenance_telemetry));
+    try std.testing.expect(!session.isObjectiveComplete(.extract_file));
+    try std.testing.expect(!session.completion_reward_paid);
+    try std.testing.expectEqual(balance_before_extraction, player.balance);
+    try std.testing.expectEqual(xp_before_extraction, player.xp);
 
-    // The completed stage can be retried without receiving its payout twice.
+    // Retrying the unchanged active stage performs the payout and grants the fact exactly once.
     var retry_writer = TestWriter{};
     try run(&retry_writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(missions[0].completed);
     try std.testing.expect(preparation.operation_state.hasFact(.maintenance_telemetry));
     try std.testing.expectEqual(@as(u8, 1), preparation.operation_state.stage_index);
     try std.testing.expectEqual(@as(?usize, 1), preparation.mission_index);
