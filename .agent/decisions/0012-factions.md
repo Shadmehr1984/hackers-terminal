@@ -19,7 +19,7 @@ Hacker's Terminal needs a more populated fictional world and contract availabili
    - Add 2 for each completed contract commissioned by the faction.
    - Subtract 2 for each completed contract whose target owner or distinct opposing faction is the faction.
    - Map score to Hostile (<= -2), Wary (-1), Neutral (0..2), Trusted (3..5), or Allied (>= 6).
-5. A Hostile standing toward a contract's client faction blocks that contract from selection. Contract Board, preparation, exclusive contact access, acceptance revalidation, and operation start must use the same deterministic rule.
+5. A Hostile standing toward a contract's client faction blocks that contract from selection. Contract Board, preparation, exclusive contact access, and operation start use the same deterministic rule. Operation start validates all stages once; an active operation is preauthorized so later standing changes cannot strand an in-progress sequence.
 6. Existing contracts receive explicit client and target-owner affiliations. Existing puzzle content, catalog order, rewards, XP, Reputation progression, Detection, and Contact rules remain unchanged.
 7. Faction profiles expose security rating/style, economic behavior, and specialty. These are intelligence for player decision-making; this ADR does not rebalance Detection or rewards.
 8. Faction standing is derived from data already persisted by Save V3. No faction score or additional faction field is serialized; Save V3, V2, V1, and legacy layouts remain unchanged.
