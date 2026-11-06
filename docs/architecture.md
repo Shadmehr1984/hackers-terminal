@@ -26,7 +26,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
-| `src/domain/contract_board.zig` | Pure derived availability, faction access, and reward-range calculations for the separate `board` command; no persistence or I/O |
+| `src/domain/contract_board.zig` | Pure derived availability, faction access, and checked reward-range calculations for the separate `board` command; reward overflow is propagated as an error; no persistence or I/O |
 | `src/domain/operation.zig` | Static linear operation/stage definitions, typed carry-over facts, and catalog validation |
 | `src/domain/operation_state.zig` | Bounded runtime-only stage/fact lifecycle, retry, and per-stage reward eligibility |
 | `src/domain/mission.zig` | Public `Mission` contract data type, static faction affiliations, allowed-modifier metadata, optional topology reference, level/Reputation requirements and contact-offer gating, difficulty/category, and typed objectives |
@@ -35,12 +35,12 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/catalog/mission_data.zig` | Five built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is at index 3 and Corporate Ghost is appended at index 4 |
 | `src/catalog/operation_data.zig` | Static authored operation sequences; currently contains the three-stage `blackout-protocol` |
 | `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
-| `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, faction dossiers, Contacts, offers, history, and topology map |
+| `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, faction dossiers, faction-aware Operation list/details/status, Contacts, offers, history, and topology map |
 | `src/application/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/application/commands.zig` | Parses an input line into a command name and its first argument |
 | `src/application/game.zig` | Coordinates the shared preparation-aware command dispatcher, faction access, Contact commands, offer transactions, and game-state transitions |
 | `src/application/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
-| `src/domain/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
+| `src/domain/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and checked mission reward progression |
 | `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
 | `src/domain/faction_id.zig` and `src/domain/faction.zig` | Stable faction IDs, standing/relationship types, and pure standing derivation from Reputation plus completed contract outcomes |
 | `src/catalog/faction_data.zig` | Seven fictional faction profiles and static symmetric inter-faction relationships |

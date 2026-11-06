@@ -45,8 +45,8 @@ test "hostile client standing blocks contract board availability deterministical
         .reputation = 2,
         .missions = &missions,
     };
-    const first = contract_board.evaluate(missions[2], context);
-    const second = contract_board.evaluate(missions[2], context);
+    const first = try contract_board.evaluate(missions[2], context);
+    const second = try contract_board.evaluate(missions[2], context);
     try std.testing.expectEqual(contract_board.Availability.faction_blocked, first.availability);
     try std.testing.expect(first.faction_locked);
     try std.testing.expectEqual(first.availability, second.availability);
@@ -78,12 +78,12 @@ test "Corporate Ghost faction lock clears after Quiet Exit improves Nexus standi
     missions[0].completed = true;
     missions[1].completed = true;
     try std.testing.expectEqual(faction.Standing.hostile, faction.playerStanding(.nexus_dynamics, 2, &missions));
-    const hostile = contract_board.evaluate(missions[4], .{ .level = 3, .reputation = 2, .missions = &missions });
+    const hostile = try contract_board.evaluate(missions[4], .{ .level = 3, .reputation = 2, .missions = &missions });
     try std.testing.expectEqual(contract_board.Availability.faction_blocked, hostile.availability);
     try std.testing.expect(hostile.faction_locked);
     missions[2].completed = true;
     try std.testing.expectEqual(faction.Standing.wary, faction.playerStanding(.nexus_dynamics, 3, &missions));
-    const restored = contract_board.evaluate(missions[4], .{ .level = 3, .reputation = 3, .missions = &missions });
+    const restored = try contract_board.evaluate(missions[4], .{ .level = 3, .reputation = 3, .missions = &missions });
     try std.testing.expectEqual(contract_board.Availability.available, restored.availability);
     try std.testing.expect(!restored.faction_locked);
 }

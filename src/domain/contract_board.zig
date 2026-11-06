@@ -1,3 +1,4 @@
+const std = @import("std");
 const Mission = @import("mission.zig").Mission;
 const faction = @import("faction.zig");
 
@@ -43,16 +44,18 @@ pub const Entry = struct {
 };
 
 /// Calculates the visible cash reward ceiling without leaking undiscovered hidden rewards.
-pub fn maximumReward(mission: Mission) u32 {
+pub fn maximumReward(mission: Mission) error{RewardOverflow}!u32 {
     var result = mission.reward;
     for (mission.objectives) |objective| {
-        if (objective.optional and !objective.hidden) result += objective.bonus_reward;
+        if (objective.optional and !objective.hidden) {
+            result = std.math.add(u32, result, objective.bonus_reward) catch return error.RewardOverflow;
+        }
     }
     return result;
 }
 
 /// Derives availability without mutating the catalog or player state.
-pub fn evaluate(mission: Mission, context: Context) Entry {
+pub fn evaluate(mission: Mission, context: Context) error{RewardOverflow}!Entry {
     const level_locked = context.level < mission.required_level;
     const reputation_locked = context.reputation < mission.required_reputation;
     const player_standing = faction.playerStanding(mission.client_faction, context.reputation, context.missions);
@@ -75,7 +78,7 @@ pub fn evaluate(mission: Mission, context: Context) Entry {
         .level_locked = level_locked,
         .reputation_locked = reputation_locked,
         .minimum_reward = mission.reward,
-        .maximum_reward = maximumReward(mission),
+        .maximum_reward = try maximumReward(mission),
         .faction_locked = faction_locked,
         .player_standing = player_standing,
     };

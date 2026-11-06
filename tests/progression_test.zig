@@ -168,3 +168,29 @@ test "writer failure does not commit mission payout or completion guard" {
     try std.testing.expectEqual(@as(u32, 0), player.xp);
     try std.testing.expect(!session.completion_reward_paid);
 }
+
+test "optional objective accumulation overflow leaves payout state unchanged" {
+    const MissionObjective = @import("../src/domain/mission.zig").MissionObjective;
+    const missions = mission_data.defaultMissions();
+    var mission = missions[0];
+    var objectives: [6]MissionObjective = undefined;
+    for (mission.objectives, 0..) |objective, index| objectives[index] = objective;
+    objectives[4].bonus_reward = std.math.maxInt(u32);
+    objectives[5].bonus_reward = 1;
+    objectives[5].hidden = false;
+    objectives[5].discovery_trigger = null;
+    mission.objectives = &objectives;
+
+    var player = Player{ .balance = 100 };
+    var session = MissionSession{};
+    try std.testing.expect(session.startWithMission(.{}, null, mission.objectives));
+    session.completeObjective(.analyze_metadata);
+    try std.testing.expectError(
+        error.RewardOverflow,
+        progression.completeMission(TestWriter{}, &player, mission, &session),
+    );
+    try std.testing.expectEqual(@as(u32, 100), player.balance);
+    try std.testing.expectEqual(@as(u32, 0), player.reputation);
+    try std.testing.expectEqual(@as(u32, 0), player.xp);
+    try std.testing.expect(!session.completion_reward_paid);
+}

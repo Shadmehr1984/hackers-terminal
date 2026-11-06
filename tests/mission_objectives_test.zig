@@ -116,3 +116,22 @@ test "uncompleted optional objectives become unavailable only when the contract 
     try std.testing.expectEqual(ObjectiveState.unavailable, session.objective_tracker.stateOf("maintenance-telemetry").?);
     try std.testing.expect(session.objective_tracker.progressOf("maintenance-telemetry").?.revealed);
 }
+
+test "optional reward accumulation rejects u32 overflow" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { analyze },
+        optional: bool = true,
+        bonus_reward: u32,
+        hidden: bool = false,
+        discovery_trigger: ?@import("../src/domain/mission_objectives.zig").DiscoveryTrigger = null,
+    };
+    const objectives = [_]Objective{
+        .{ .id = "large", .bonus_reward = std.math.maxInt(u32) },
+        .{ .id = "overflow", .bonus_reward = 1 },
+    };
+    var tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
+    try std.testing.expect(tracker.initialize(&objectives));
+    try std.testing.expectEqual(@as(usize, 2), tracker.complete(@intFromEnum(@as(@TypeOf(objectives[0].kind), .analyze))));
+    try std.testing.expectError(error.RewardOverflow, tracker.optionalReward());
+}

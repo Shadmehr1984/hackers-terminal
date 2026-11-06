@@ -268,7 +268,7 @@ pub const MissionSession = struct {
     }
 
     /// Sums the bonus cash for optional objectives completed during this run.
-    pub fn optionalReward(self: MissionSession, _: []const MissionObjective) u32 {
+    pub fn optionalReward(self: MissionSession, _: []const MissionObjective) error{RewardOverflow}!u32 {
         return self.objective_tracker.optionalReward();
     }
 };

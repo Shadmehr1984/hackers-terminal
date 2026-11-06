@@ -49,7 +49,7 @@ pub fn completeMission(writer: anytype, player: *Player, mission: Mission, sessi
     if (session.completion_reward_paid) return;
     const run = session.*;
     const old_level = playerLevel(player.*);
-    const bonus_reward = run.optionalReward(mission.objectives);
+    const bonus_reward = try run.optionalReward(mission.objectives);
     const modifier_bonus = if (run.modifier) |modifier| modifier.completionBonus() else @import("mission_modifier.zig").CompletionBonus{ .cash = 0, .xp = 0 };
     const reputation_bonus: u32 = if (run.allOptionalObjectivesComplete(mission.objectives)) 1 else 0;
     const reputation_gain: u32 = 1 + reputation_bonus;

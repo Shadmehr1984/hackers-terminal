@@ -5,6 +5,7 @@ const MissionState = @import("../src/mission_state.zig");
 const MissionSession = MissionState.MissionSession;
 const mission_data = @import("../src/mission_data.zig");
 const FactionId = @import("../src/domain/faction_id.zig").FactionId;
+const operation_data = @import("../src/catalog/operation_data.zig");
 
 const Capture = struct {
     buffer: [4096]u8 = undefined,
@@ -125,4 +126,38 @@ test "Broker contact and offers hide intelligence for faction-locked contracts" 
     try terminal.printContact(&capture, .broker, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Corporate Ghost") == null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "intel-job-03") != null);
+}
+
+test "operation views expose faction locks and preserve active-operation preauthorization" {
+    var missions = mission_data.defaultMissions();
+    missions[0].client_faction = .nexus_dynamics;
+    missions[0].target_owner_faction = .null_syndicate;
+    missions[0].completed = true;
+    missions[1].completed = true;
+    missions[2].opposing_faction = .nexus_dynamics;
+    missions[2].completed = true;
+    const player = Player{ .reputation = 0, .xp = 250 };
+    var capture = Capture{};
+    var preparation = MissionState.MissionPreparation{};
+
+    try terminal.printOperations(&capture, player, &missions, preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "FACTION LOCKED") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "blocked by Nexus Dynamics") != null);
+
+    capture.len = 0;
+    try terminal.printOperationDetails(&capture, operation_data.blackout_protocol, player, &missions, false);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "client: Nexus Dynamics | standing: HOSTILE | FACTION LOCKED") != null);
+
+    try std.testing.expect(preparation.operation_state.start(operation_data.blackout_protocol, true));
+    capture.len = 0;
+    try terminal.printOperations(&capture, player, &missions, preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "IN PROGRESS | PREAUTHORIZED; current client standing: Nexus Dynamics (HOSTILE)") != null);
+
+    capture.len = 0;
+    try terminal.printOperationDetails(&capture, operation_data.blackout_protocol, player, &missions, true);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "client: Nexus Dynamics | standing: HOSTILE | PREAUTHORIZED") != null);
+
+    capture.len = 0;
+    try terminal.printOperationStatus(&capture, player, preparation, &missions);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "current standing: HOSTILE | PREAUTHORIZED at operation start") != null);
 }

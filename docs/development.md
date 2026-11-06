@@ -26,12 +26,14 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/corporate_ghost_test.zig` covers the Nexus Hostile lock, the Quiet Exit Reputation recovery route, and a complete Corporate Ghost run including hidden-objective discovery and rewards.
 - `tests/topology_test.zig` covers graph lookup, bidirectional adjacency, graph validation, and both allocation-failure points in reachability traversal.
 - `tests/equipment_test.zig` covers utility ownership, purchases, equipping, upgrade tiers, shared Detection-cost profiles, V3/V2/V1/legacy save migration, and truncated/malformed save input.
-- `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, optional rewards, and session reset behavior.
+- `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, checked optional-reward accumulation (including overflow), and session reset behavior.
 - `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, location-gated operations, modifier Detection costs, sweep cadence, and modifier failure boundaries.
 - `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, modifier command/eligibility, launch snapshots, cancellation, and one-time modifier rewards.
 - `tests/mission_modifier_test.zig` covers typed modifier IDs, exact metadata, Detection effect definitions, and the completion bonus.
-- `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, and duplicate-payout protection.
+- `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, duplicate-payout protection, and atomic rejection when optional-reward accumulation overflows.
 - `tests/contacts_test.zig` covers Reputation tier thresholds, Contact unlocks, optional-objective Reputation bonuses, paid intelligence, Fixer service pricing/usage, and the Ghost Signal offer.
+- `tests/terminal_test.zig` covers faction-aware Operation list/details/status output and active-operation preauthorization messaging.
+- `tests/contract_board_test.zig` covers visible reward ceilings and checked overflow rejection.
 - `tests/test_all.zig` is the aggregate test list that imports the test modules.
 - `test_root.zig` is the repository-root module used to run the aggregate suite while keeping all test files under `tests/`.
 

@@ -208,7 +208,7 @@ The threshold for reaching level `L` (where `L >= 2`) is:
 
 Completing a contract adds its configured XP reward. The game announces a level-up when the player's level increases. Since the second contract requires level 2 and awards 150 XP, completing the first contract unlocks it. Completing the second contract brings the player to 250 XP and level 3, unlocking Quiet Exit. Completing Quiet Exit without its optional-objective Reputation bonus raises Reputation from 2 to 3 while leaving both Nexus-owned completion flags unchanged; Nexus standing moves from Hostile to Wary, unlocking Corporate Ghost if its level and Reputation requirements are met. Ghost Signal remains an additional exclusive contract and requires Reputation 3.
 
-Each completed contract grants 1 Reputation. If every optional objective in that contract was also completed, the player gains 1 additional Reputation (2 total).
+Each completed contract grants 1 Reputation. If every optional objective in that contract was also completed, the player gains 1 additional Reputation (2 total). Optional-objective cash bonuses are accumulated with checked u32 arithmetic; if the total overflows, completion is rejected before player progression or the payout guard is committed. The Contract Board uses the same checked arithmetic for its visible maximum-reward estimate and propagates an overflow instead of displaying a wrapped value.
 
 ### Reputation tiers
 
@@ -257,7 +257,7 @@ Operations combine existing contracts into a deterministic linear sequence witho
 
 Use `operations` to list the catalog, `operation blackout-protocol` to inspect its stages and requirements, and `operation-start blackout-protocol` to prepare the first stage. Accept each prepared stage with the existing `accept <mission-id>` command. Successful extraction prepares the next stage automatically, but the player must explicitly accept it. `operation-status` shows the current stage and facts already earned.
 
-An operation validates the level and Reputation requirements of every stage before it starts. A completed contract can be replayed inside an operation, while standalone `prepare` still rejects completed contracts. While an operation is active, `prepare` and `cancel` cannot replace or abandon its current stage. Detection compromise resets the current stage and prepares it for retry; successful earlier-stage facts are retained, while partial progress from the failed stage is discarded.
+An operation validates the level, Reputation, and non-Hostile client-faction standing requirements of every stage before it starts. The Operation list and stage details show faction standing and FACTION LOCKED status using the same derived rule. Once started, the operation is preauthorized: later standing changes do not interrupt it, and the active Operation views explicitly label that preauthorization. A completed contract can be replayed inside an operation, while standalone `prepare` still rejects completed contracts. While an operation is active, `prepare` and `cancel` cannot replace or abandon its current stage. Detection compromise resets the current stage and prepares it for retry; successful earlier-stage facts are retained, while partial progress from the failed stage is discarded.
 
 ### Carry-over facts
 

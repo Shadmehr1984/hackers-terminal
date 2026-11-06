@@ -216,10 +216,12 @@ pub const Tracker = struct {
     }
 
     /// Sums optional cash rewards for objectives completed in this run.
-    pub fn optionalReward(self: Tracker) u32 {
+    pub fn optionalReward(self: Tracker) error{RewardOverflow}!u32 {
         var total: u32 = 0;
         for (self.entries[0..self.count]) |entry| {
-            if (entry.optional and entry.state == .completed) total += entry.bonus_reward;
+            if (entry.optional and entry.state == .completed) {
+                total = std.math.add(u32, total, entry.bonus_reward) catch return error.RewardOverflow;
+            }
         }
         return total;
     }

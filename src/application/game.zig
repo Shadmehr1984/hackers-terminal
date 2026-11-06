@@ -284,10 +284,12 @@ pub fn runCommandWithSaveDirectory(
         try terminal.printOperations(writer, player.*, missions, preparation.*);
     } else if (std.mem.eql(u8, command, "operation")) {
         if (operation_data.find(arg)) |operation| {
-            try terminal.printOperationDetails(writer, operation, player.*, missions);
+            const preauthorized = preparation.operation_state.active and
+                std.mem.eql(u8, preparation.operation_state.operation_id, operation.id);
+            try terminal.printOperationDetails(writer, operation, player.*, missions, preauthorized);
         } else try writer.writeAll("Unknown operation. Use operations.\n");
     } else if (std.mem.eql(u8, command, "operation-status")) {
-        try terminal.printOperationStatus(writer, preparation.*, missions);
+        try terminal.printOperationStatus(writer, player.*, preparation.*, missions);
     } else if (std.mem.eql(u8, command, "operation-start")) {
         if (active.* != null or preparation.mission_index != null or preparation.operation_state.active) {
             try writer.writeAll("Finish the current contract/preparation/operation first.\n");

@@ -152,7 +152,7 @@ pub fn printMissions(writer: anytype, missions: []const Mission, level: u32, rep
 pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32, reputation: u32, another_contract_busy: bool) !void {
     try writer.writeAll("CONTRACT BOARD\n");
     for (missions) |mission| {
-        const entry = contract_board.evaluate(mission, .{
+        const entry = try contract_board.evaluate(mission, .{
             .level = level,
             .reputation = reputation,
             .another_contract_busy = another_contract_busy,
@@ -425,30 +425,52 @@ pub fn printModifierOptions(writer: anytype, mission: Mission, selected: ?Modifi
     try writer.print("  Current selection: {s}\n", .{if (selected) |modifier| modifier.commandId() else "none"});
 }
 
+/// Returns the authored display name for a faction identity.
+fn factionName(id: FactionId) []const u8 {
+    if (faction_data.find(id)) |entry| return entry.name;
+    return id.slug();
+}
+
 /// Writes the authored operation catalog and derived availability.
 pub fn printOperations(writer: anytype, player: Player, missions: []const Mission, preparation: MissionPreparation) !void {
     try writer.writeAll("OPERATIONS\n");
     for (operation_data.all()) |operation| {
-        var available = true;
+        var requirements_locked = false;
+        var faction_blocker: ?FactionId = null;
         for (operation.stages) |stage| {
             const mission = operation_model.findMission(missions, stage.mission_id) orelse {
-                available = false;
-                break;
+                requirements_locked = true;
+                continue;
             };
             if (progression.playerLevel(player) < mission.required_level or player.reputation < mission.required_reputation) {
-                available = false;
+                requirements_locked = true;
+            }
+            if (faction.playerStanding(mission.client_faction, player.reputation, missions) == .hostile and faction_blocker == null) {
+                faction_blocker = mission.client_faction;
             }
         }
-        const status = if (preparation.operation_state.active and
-            std.mem.eql(u8, preparation.operation_state.operation_id, operation.id))
+        const in_progress = preparation.operation_state.active and
+            std.mem.eql(u8, preparation.operation_state.operation_id, operation.id);
+        const status = if (in_progress)
             "IN PROGRESS"
-        else if (available)
-            "AVAILABLE"
+        else if (faction_blocker != null)
+            "FACTION LOCKED"
+        else if (requirements_locked)
+            "LOCKED"
         else
-            "LOCKED";
-        try writer.print("  [{s}] {s} — {d} stages | {s}\n", .{
+            "AVAILABLE";
+        try writer.print("  [{s}] {s} — {d} stages | {s}", .{
             operation.id, operation.name, operation.stages.len, status,
         });
+        if (in_progress and faction_blocker != null) {
+            try writer.print(" | PREAUTHORIZED; current client standing: {s} ({s})", .{
+                factionName(faction_blocker.?),
+                faction.playerStanding(faction_blocker.?, player.reputation, missions).label(),
+            });
+        } else if (!in_progress and faction_blocker != null) {
+            try writer.print(" | blocked by {s}", .{factionName(faction_blocker.?)});
+        }
+        try writer.writeAll("\n");
     }
     if (preparation.operation_state.last_completed_operation_id.len > 0) {
         try writer.print("Last completed this session: {s}\n", .{preparation.operation_state.last_completed_operation_id});
@@ -456,21 +478,45 @@ pub fn printOperations(writer: anytype, player: Player, missions: []const Missio
     try writer.writeAll("Use operation <id> for details, then operation-start <id>.\n");
 }
 
-/// Writes an operation's ordered contracts and their progression requirements.
-pub fn printOperationDetails(writer: anytype, operation: operation_model.Operation, player: Player, missions: []const Mission) !void {
+/// Writes an operation's ordered contracts and their progression and faction requirements.
+/// preauthorized is true only for the operation that has already passed all start-time checks.
+pub fn printOperationDetails(
+    writer: anytype,
+    operation: operation_model.Operation,
+    player: Player,
+    missions: []const Mission,
+    preauthorized: bool,
+) !void {
     try writer.print("{s} ({s})\n{s}\nSTAGES\n", .{ operation.name, operation.id, operation.description });
     for (operation.stages, 0..) |stage, index| {
         const mission = operation_model.findMission(missions, stage.mission_id) orelse continue;
-        const level = progression.playerLevel(player);
-        const status = if (level < mission.required_level or player.reputation < mission.required_reputation) "LOCKED" else "AVAILABLE";
-        try writer.print("  {d}. {s} — {s} | requires level {d}, Reputation {d} | {s}\n", .{
-            index + 1, mission.id, mission.name, mission.required_level, mission.required_reputation, status,
+        const standing = faction.playerStanding(mission.client_faction, player.reputation, missions);
+        const faction_locked = standing == .hostile;
+        const requirements_locked = progression.playerLevel(player) < mission.required_level or
+            player.reputation < mission.required_reputation;
+        const status = if (faction_locked and preauthorized)
+            "PREAUTHORIZED"
+        else if (faction_locked)
+            "FACTION LOCKED"
+        else if (requirements_locked)
+            "LOCKED"
+        else
+            "AVAILABLE";
+        try writer.print("  {d}. {s} — {s} | requires level {d}, Reputation {d} | client: {s} | standing: {s} | {s}\n", .{
+            index + 1,
+            mission.id,
+            mission.name,
+            mission.required_level,
+            mission.required_reputation,
+            factionName(mission.client_faction),
+            standing.label(),
+            status,
         });
     }
 }
 
 /// Writes the current operation stage and its already-earned typed facts.
-pub fn printOperationStatus(writer: anytype, preparation: MissionPreparation, missions: []const Mission) !void {
+pub fn printOperationStatus(writer: anytype, player: Player, preparation: MissionPreparation, missions: []const Mission) !void {
     if (!preparation.operation_state.active) {
         if (preparation.operation_state.last_completed_operation_id.len > 0) {
             try writer.print("Last completed this session: {s}\n", .{preparation.operation_state.last_completed_operation_id});
@@ -482,12 +528,15 @@ pub fn printOperationStatus(writer: anytype, preparation: MissionPreparation, mi
     const operation = operation_data.find(preparation.operation_state.operation_id) orelse return;
     const stage = operation.stages[preparation.operation_state.stage_index];
     const mission = operation_model.findMission(missions, stage.mission_id) orelse return;
-    try writer.print("OPERATION: {s}\nStage: {d}/{d} — {s} ({s})\nEarned facts:", .{
+    const standing = faction.playerStanding(mission.client_faction, player.reputation, missions);
+    try writer.print("OPERATION: {s}\nStage: {d}/{d} — {s} ({s})\nClient access: {s} | current standing: {s} | PREAUTHORIZED at operation start\nEarned facts:", .{
         operation.name,
         @as(usize, preparation.operation_state.stage_index) + 1,
         operation.stages.len,
         stage.mission_id,
         mission.name,
+        factionName(mission.client_faction),
+        standing.label(),
     });
     var any = false;
     if (preparation.operation_state.hasFact(.maintenance_telemetry)) {
