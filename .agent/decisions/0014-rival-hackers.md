@@ -1,6 +1,6 @@
 # ADR 0014 — Rival Hackers
 
-- **Status:** Accepted; implementation in progress
+- **Status:** Accepted; implementation complete
 - **Date:** 2026-11-06
 - **Feature:** HT-011 — Rival Hackers
 - **Decision owner:** Project owner
