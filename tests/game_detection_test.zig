@@ -7,6 +7,7 @@ const MissionPreparation = MissionState.MissionPreparation;
 const Player = @import("../src/player.zig").Player;
 const Mission = @import("../src/mission.zig").Mission;
 const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
+const detection = @import("../src/application/detection.zig");
 
 const TestWriter = struct {
     pub fn writeAll(_: @This(), _: []const u8) error{}!void {}
@@ -476,5 +477,23 @@ test "failed Fixer output does not charge or consume the service" {
     try std.testing.expectEqual(starting_balance, player.balance);
     try std.testing.expectEqual(@as(u8, 35), session.detection_level);
     try std.testing.expect(!session.fixer_service_used);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+}
+
+
+test "Detection compromise state is not committed when failure output fails" {
+    var player = Player{ .balance = 125 };
+    var active: ?usize = 0;
+    var session = MissionSession{ .detection_level = 95 };
+    var print_calls: usize = 0;
+    const failing_writer = FailOnPrintWriter{ .calls = &print_calls, .fail_on = 1 };
+
+    try std.testing.expectError(
+        error.OutputFailure,
+        detection.apply(failing_writer, &player, &active, &session, 5),
+    );
+
+    try std.testing.expectEqual(@as(u8, 95), session.detection_level);
+    try std.testing.expectEqual(@as(u32, 125), player.balance);
     try std.testing.expectEqual(@as(?usize, 0), active);
 }
