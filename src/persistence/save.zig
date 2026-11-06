@@ -87,7 +87,7 @@ pub fn saveGameToDirectory(context: SaveContext, player: Player, missions: []con
 
 /// Emits the stable V3 payload through either the legacy or std.Io writer adapter.
 fn writeSavePayload(writer: anytype, player: Player, missions: []const Mission, active: ?usize) !void {
-    const equipped: u8 = if (player.equipment.equipped_utility) |utility| @intFromEnum(utility) + 1 else 0;
+    const equipped: u8 = if (player.equipment.equipped_utility) |utility| @as(u8, @bitCast(utility)) + 1 else 0;
     try writer.print("HACKERS_TERMINAL_SAVE_V3\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n", .{
         player.balance,                                        player.reputation,                      player.xp,
         @as(u8, if (player.equipment.has_decryptor) 1 else 0), player.equipment.owned_utilities,       equipped,

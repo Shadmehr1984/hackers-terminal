@@ -1,5 +1,5 @@
 const std = @import("std");
-const save = @import("save");
+const save = @import("../src/persistence/save.zig");
 
 fn readSave(context: save.SaveContext, allocator: std.mem.Allocator) ![]u8 {
     return context.dir.readFileAlloc(context.io, "saves/player.sav", allocator, .limited(4097));
@@ -10,7 +10,7 @@ test "Zig 0.17 save adapter writes and reloads the unchanged V3 payload" {
     defer tmp.cleanup();
     const context = save.SaveContext{ .io = std.testing.io, .dir = tmp.dir };
 
-    var player = save.Player{ .balance = 123 };
+    const player = save.Player{ .balance = 123 };
     var missions: [0]save.Mission = .{};
     try save.saveGameToDirectory(context, player, &missions, null);
 
