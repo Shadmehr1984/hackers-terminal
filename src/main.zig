@@ -7,6 +7,7 @@ const MissionPreparation = MissionState.MissionPreparation;
 const save = @import("persistence/save.zig");
 const game = @import("application/game.zig");
 const terminal_input = @import("application/terminal_input.zig");
+const terminal_io = if (builtin.zig_version.minor >= 16) @import("application/terminal_io.zig") else struct {};
 const progression = @import("domain/progression.zig");
 const terminal = @import("presentation/terminal.zig");
 const mission_data = @import("catalog/mission_data.zig");
@@ -30,7 +31,7 @@ fn mainLegacy() !void {
 
 /// Zig 0.16+ supplies process resources, including the allocator and I/O context.
 fn mainWithIo(init: std.process.Init) !void {
-    var stdout = ProcessWriter{
+    var stdout = terminal_io.ProcessWriter{
         .io = init.io,
         .file = std.Io.File.stdout(),
         .allocator = init.gpa,
@@ -39,24 +40,6 @@ fn mainWithIo(init: std.process.Init) !void {
     var stdin = std.Io.File.stdin().readerStreaming(init.io, &input_buffer);
     try runApplication(init.gpa, &stdout, &stdin.interface);
 }
-
-/// Immediate-output adapter: preserve the command layer's synchronous writer
-/// failure semantics while using the Zig 0.17 std.Io file API.
-const ProcessWriter = struct {
-    io: std.Io,
-    file: std.Io.File,
-    allocator: std.mem.Allocator,
-
-    pub fn writeAll(self: *const ProcessWriter, bytes: []const u8) !void {
-        try self.file.writeStreamingAll(self.io, bytes);
-    }
-
-    pub fn print(self: *const ProcessWriter, comptime format: []const u8, args: anytype) !void {
-        const output = try std.fmt.allocPrint(self.allocator, format, args);
-        defer self.allocator.free(output);
-        try self.writeAll(output);
-    }
-};
 
 fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype) !void {
     var player = Player{};
@@ -94,15 +77,8 @@ fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype)
     while (true) {
         try stdout.print("\n{s}@darknet:~$ ", .{player.handle});
         const maybe_line = if (builtin.zig_version.minor >= 16)
-            stdin.takeDelimiter('\n') catch |err| switch (err) {
-                error.StreamTooLong => {
-                    stdin.discardDelimiterInclusive('\n') catch |drain_err| switch (drain_err) {
-                        error.EndOfStream => {},
-                        else => return drain_err,
-                    };
-                    try stdout.writeAll("Input too long. Command discarded.\n");
-                    continue;
-                },
+            terminal_io.readLine(stdin, stdout) catch |err| switch (err) {
+                error.CommandDiscarded => continue,
                 else => return err,
             }
         else
@@ -123,10 +99,6 @@ fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype)
             };
         if (maybe_line == null) break;
         const raw_line = maybe_line.?;
-        if (terminal_input.isOverlong(raw_line)) {
-            try stdout.writeAll("Input too long. Command discarded.\n");
-            continue;
-        }
         const line = std.mem.trim(u8, raw_line, " \r\t");
         if (line.len == 0) continue;
 
