@@ -49,7 +49,20 @@ pub fn main() !void {
 
     while (true) {
         try stdout.print("\n{s}@darknet:~$ ", .{player.handle});
-        const maybe_line = try stdin.readUntilDelimiterOrEof(&input_buffer, '\n');
+        const maybe_line = stdin.readUntilDelimiterOrEof(&input_buffer, '\n') catch |err| switch (err) {
+            error.StreamTooLong => {
+                while (true) {
+                    _ = stdin.readUntilDelimiterOrEof(&input_buffer, '\n') catch |drain_err| switch (drain_err) {
+                        error.StreamTooLong => continue,
+                        else => break,
+                    };
+                    break;
+                }
+                try stdout.writeAll("Input too long. Command discarded.\n");
+                continue;
+            },
+            else => return err,
+        };
         if (maybe_line == null) break;
         const line = std.mem.trim(u8, maybe_line.?, " \r\t");
         if (line.len == 0) continue;
