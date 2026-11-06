@@ -619,7 +619,7 @@ pub fn runCommandWithSaveDirectory(
                         try writer.writeAll("Metadata has already been analyzed.\n");
                     } else {
                         session.completeObjective(.analyze_metadata);
-                        try writer.writeAll("[ANALYSIS COMPLETE] Hidden metadata reference recovered. Optional objective completed.\n");
+                        try writer.writeAll("[ANALYSIS COMPLETE] Metadata references recovered; matching objectives completed.\n");
                         if (!already_analyzed) _ = try detection.apply(writer, player, active, session, 5);
                     }
                 }

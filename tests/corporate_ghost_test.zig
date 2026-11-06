@@ -112,6 +112,7 @@ test "Corporate Ghost remains faction-locked until Quiet Exit, then completes it
     try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move audit-hub", &player, &missions, &active, &session, &preparation);
     try run(&capture, "analyze access-ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "matching objectives completed") != null);
     try std.testing.expectEqual(
         @as(?ObjectiveState, .completed),
         session.objective_tracker.stateOf("verify-trail"),

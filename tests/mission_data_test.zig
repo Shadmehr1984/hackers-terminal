@@ -50,12 +50,13 @@ test "each built-in mission has a valid distinct topology" {
     try std.testing.expect(!missions[4].requires_contact_offer);
     try std.testing.expectEqual(@as(u32, 1200), missions[4].reward);
     try std.testing.expectEqual(@as(u32, 275), missions[4].xp_reward);
+    try std.testing.expectEqual(@as(usize, 7), missions[4].objectives.len);
     try std.testing.expectEqual(@as(u32, 0), missions[4].objectives[6].bonus_reward);
     try std.testing.expectEqual(FactionId.nexus_dynamics, missions[4].client_faction);
     try std.testing.expectEqual(@as(?FactionId, .null_syndicate), missions[4].target_owner_faction);
     try std.testing.expect(missions[4].topology.?.containsNode("mirror-node"));
     try std.testing.expect(missions[4].topology.?.areAdjacent("mirror-node", "data-vault"));
-    try std.testing.expectEqual(@as(usize, 7), missions[4].objectives.len);
+
     try std.testing.expect(!std.mem.eql(u8, missions[0].topology.?.nodes[2].id, missions[1].topology.?.nodes[2].id) or
         !std.mem.eql(u8, missions[0].topology.?.nodes[2].label, missions[1].topology.?.nodes[2].label));
 }
