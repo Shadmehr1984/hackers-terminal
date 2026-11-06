@@ -682,7 +682,6 @@ pub fn runCommandWithSaveDirectory(
                 if (!session.allObjectivesComplete(mission.objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
-                    session.markUncompletedOptionalObjectivesUnavailable();
                     const reward_eligible = !preparation.operation_state.active or preparation.operation_state.current_stage_reward_eligible;
                     try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
                     if (reward_eligible) {
@@ -696,6 +695,8 @@ pub fn runCommandWithSaveDirectory(
                     } else {
                         try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\n");
                     }
+                    // Finalize optional objectives only after payout/output succeeds.
+                    session.markUncompletedOptionalObjectivesUnavailable();
                     missions[index].completed = true;
                     if (preparation.operation_state.active) {
                         const op = operation_data.find(preparation.operation_state.operation_id).?;
