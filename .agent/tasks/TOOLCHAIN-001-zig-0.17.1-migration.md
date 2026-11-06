@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Phase 1 build-graph migration implemented; Zig 0.17.1 execution verification pending**
+- Status: **Phase 1 build-graph migration implemented; targeted Zig 0.17.1 build-graph CI validation added, result pending**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`
@@ -90,8 +90,8 @@ The audit was performed against the current `main` head listed above. Earlier co
 - [x] Change executable/test root modules to the 0.17.1 module API (compile-time version-gated while 0.13 CI remains active).
 - [x] Replace the 0.17+ run-argument forwarding path with `addPassthruArgs`; preserve the 0.13 compatibility path until CI is switched.
 - [ ] Verify `zig build`, `zig build run`, `zig build run -- <args>`, and `zig build test` with Zig 0.17.1.
-- [ ] Verify the legacy compatibility branch with the still-pinned 0.13.0 CI run.
-- [ ] Commit as `build: migrate build graph to Zig 0.17.1`.
+- [x] Verify the legacy compatibility branch with the still-pinned 0.13.0 CI run (CI run #1040 passed all three optimization modes).
+- [ ] Verify the targeted Zig 0.17.1 build-graph workflow; then record the Phase 1 closeout commit.
 
 ### Phase 2 — Terminal/process I/O
 - [ ] Migrate entry point and stdout/stderr/stdin to the 0.17.1 process and I/O API.
@@ -181,4 +181,6 @@ The next agent must:
 - Kept target/optimization options, install behavior, `run` step, aggregate test root, and test step dependencies unchanged.
 - Official API references consulted: [Zig 0.17.1 language reference](https://ziglang.org/documentation/0.17.1/) and [official Build System guide](https://ziglang.org/intro/build-system/). The 0.17.1 build-system module shape is `root_module = b.createModule(...)`; `addPassthruArgs()` is the 0.17+ replacement for inspecting `b.args` in the build script.
 - Local Zig executable is unavailable in this environment; no local compile, run, formatting, or test result is claimed.
-- Pending: inspect GitHub Actions on this commit for the 0.13.0 compatibility branch; validate the 0.17.1 branch with an actual 0.17.1 runner before marking Phase 1 complete.
+- GitHub Actions run #1040 (`42299861705`) on commit `948c30844a6a6785254b618ff7ca8c1f69141aad` completed successfully: Debug, ReleaseSafe, and ReleaseFast each passed formatting, compile, tests, and agent-doc structure checks using Zig 0.13.0. This verifies only the legacy compatibility branch.
+- Added `.github/workflows/zig-017-build-graph.yml`, a narrow workflow pinned to Zig 0.17.1. It verifies the exact toolchain version and evaluates `build.zig` with `zig build --help`; it deliberately does not claim to compile application sources before later migration phases.
+- Local Zig executable remains unavailable. The targeted 0.17.1 workflow result is pending; Phase 1 must remain open until it passes.

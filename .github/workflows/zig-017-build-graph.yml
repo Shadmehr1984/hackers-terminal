@@ -1,0 +1,37 @@
+name: Zig 0.17.1 Build Graph Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "build.zig"
+      - ".github/workflows/zig-017-build-graph.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zig-017-build-graph-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-graph:
+    name: Evaluate build graph (Zig 0.17.1)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Install Zig 0.17.1
+        uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29
+        with:
+          version: 0.17.1
+
+      - name: Confirm toolchain version
+        run: test "$(zig version)" = "0.17.1"
+
+      # Evaluates build.zig and its build graph without compiling application
+      # sources, which are migrated in later TOOLCHAIN-001 phases.
+      - name: Evaluate build graph
+        run: zig build --help
