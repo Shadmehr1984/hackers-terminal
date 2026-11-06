@@ -158,13 +158,13 @@ test "mission remains active and optional objective state is preserved when payo
 }
 
 const FailOnSecondPrintWriter = struct {
-    print_count: usize = 0,
+    print_count: *usize,
 
-    pub fn writeAll(_: *@This(), _: []const u8) error{OutputFailure}!void {}
+    pub fn writeAll(_: @This(), _: []const u8) error{OutputFailure}!void {}
 
-    pub fn print(self: *@This(), comptime _: []const u8, _: anytype) error{OutputFailure}!void {
-        self.print_count += 1;
-        if (self.print_count == 2) return error.OutputFailure;
+    pub fn print(self: @This(), comptime _: []const u8, _: anytype) error{OutputFailure}!void {
+        self.print_count.* += 1;
+        if (self.print_count.* == 2) return error.OutputFailure;
     }
 };
 
@@ -179,7 +179,8 @@ test "mission optional objectives remain discovered when completion output fails
     session.completeObjective(.authenticate);
     session.completeObjective(.decrypt_file);
     try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
-    var writer = FailOnSecondPrintWriter{};
+    var print_count: usize = 0;
+    const writer = FailOnSecondPrintWriter{ .print_count = &print_count };
 
     try std.testing.expectError(
         error.OutputFailure,
