@@ -40,7 +40,9 @@ Prevent reward overflow and partial Save-load mutation, then close the four acti
 - Explicitly out of scope: gameplay balancing, new features, Save version migration, and unrelated refactoring.
 
 ## Verification
+
+- Final verification: [GitHub Actions run #796](https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42190560693) passed both Debug and ReleaseSafe, including formatting, build, all Zig tests, and agent documentation checks.
 - [x] Focused regression tests
-- [ ] Zig formatting, build, and complete test suite in Debug and ReleaseSafe via GitHub Actions (pending observable run result)
+- [x] Zig formatting, build, and complete test suite in Debug and ReleaseSafe via GitHub Actions (Run #796, commit `f096ad71e81e8b4848b14c861b95451dc1c1b00f`).
 - [x] Agent documentation check
 - [x] Self-review against the mandatory checklist completed; an independent second reviewer was not available.
