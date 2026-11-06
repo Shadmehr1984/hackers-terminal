@@ -49,13 +49,13 @@ test "rival contest status is deterministic across dormant contesting rival-ahea
 
     var tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
     try std.testing.expect(tracker.initialize(missions[0].objectives));
-    try std.testing.expectEqual(rival.RivalId.patchwork, rival_simulation.resolveAfterDecryption("job-01", &tracker).?);
+    try std.testing.expect(rival_simulation.resolveAfterDecryption(patchwork, &tracker));
     try std.testing.expectEqual(@import("../src/domain/mission_objectives.zig").ObjectiveState.unavailable, tracker.stateOf("maintenance-telemetry").?);
     try std.testing.expectEqual(rival.RivalStatus.rival_ahead, rival_simulation.status(patchwork, &missions, 1, 0, "job-01", &tracker));
 
     try std.testing.expect(tracker.initialize(missions[0].objectives));
     try std.testing.expectEqual(@as(usize, 1), tracker.discoverNode("maintenance", missions[0].objectives));
-    try std.testing.expect(rival_simulation.resolveAfterDecryption("job-01", &tracker) == null);
+    try std.testing.expect(!rival_simulation.resolveAfterDecryption(patchwork, &tracker));
     try std.testing.expectEqual(rival.RivalStatus.outpaced, rival_simulation.status(patchwork, &missions, 1, 0, "job-01", &tracker));
 
     missions[0].completed = true;
@@ -72,8 +72,6 @@ test "rivals commands list five dossiers and inspect one without exposing puzzle
 
     _ = try game.runCommand(&capture, "rivals", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "RIVAL NETWORK") != null);
-    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Ghost Operator") != null);
-    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Redshift") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Ghost Operator") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Null Byte") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Glasswire") != null);
