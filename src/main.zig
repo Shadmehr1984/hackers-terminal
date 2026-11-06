@@ -23,13 +23,19 @@ pub fn main() !void {
 
     var player = Player{};
     var missions = mission_data.defaultMissions();
-    const active_from_save = save.loadGame(allocator, &player, &missions);
+    const load_result = save.loadGameWithStatus(allocator, &player, &missions);
+    const active_from_save = load_result.active;
 
     try terminal.printBanner(stdout);
     try stdout.print("Welcome back, {s}.\nBalance: ${d} | Reputation: {d} | Level: {d} | XP: {d}\n", .{
         player.handle, player.balance, player.reputation, progression.playerLevel(player), player.xp,
     });
     try stdout.writeAll("Type 'help' to see commands.\n");
+    switch (load_result.status) {
+        .loaded, .missing => {},
+        .invalid => try stdout.writeAll("[SAVE WARNING] The existing save is malformed or unsupported. Default progress is active; preserve the save file before saving again.\n"),
+        .io_error => try stdout.writeAll("[SAVE WARNING] The existing save could not be read. Default progress is active; check file permissions and preserve the save file before saving again.\n"),
+    }
 
     var input_buffer: [512]u8 = undefined;
     var active: ?usize = active_from_save;
