@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Phase 1 complete (build graph evaluated successfully on Zig 0.17.1); Phase 2 terminal/process I/O in progress**
+- Status: **Phases 1–2 implementation complete; isolated Zig 0.17.1 terminal-I/O tests and Zig 0.13.0 full CI pass; Phase 3 filesystem/persistence is next. Full 0.17.1 application build remains deferred until Phases 3–4.**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`
@@ -67,9 +67,10 @@ The audit was performed against the current `main` head listed above. Earlier co
 - `src/domain/mission_modifier.zig:48-54`: `@enumFromInt` is used to reconstruct a modifier ID from enum metadata. The same pattern exists in `tests/mission_modifier_test.zig`. Zig 0.17.1 deprecates this builtin; replace it with the supported conversion only after verifying the enum backing type and safety semantics.
 - `@intFromEnum` appears in objective tracking, operation facts, equipment bit flags, save serialization, and tests. Audit each conversion and preserve stable numeric values where persisted or bit-packed.
 - `std.mem`, `std.fmt`, allocator usage, and the GPA setup appear throughout the codebase. Compile-driven migration must check changed signatures and semantics, not perform blind global replacements.
+- Zig 0.17.1 removes array repetition syntax (`**`) and rejects legacy `pub usingnamespace` declarations. The first full-repository formatter probe exposed these as Phase 4 blockers; use `@memset` for cross-version fixed buffers and preserve facade exports explicitly.
 - No `std.ArrayList` usage was found in the production/test scan.
-- No direct `std.process` or `std.Io` usage currently exists in the application source.
-- Compatibility facades under `src/*.zig` must continue to compile and preserve their exports.
+- No direct `std.process` or `std.Io` usage existed at the initial audit baseline. Phase 2 now adds a version-gated `std.process.Init` entry point and a 0.16+ `std.Io` adapter in `src/application/terminal_io.zig`.
+- Compatibility facades under `src/*.zig` must continue to compile and preserve their exports. A Zig 0.17.1 full-repository formatter probe identified legacy `pub usingnamespace` facade syntax as a compatibility blocker; migrate these in Phase 4 without changing exported names.
 
 ### 3.6 CI and documentation
 
@@ -94,11 +95,15 @@ The audit was performed against the current `main` head listed above. Earlier co
 - [x] Verify the targeted Zig 0.17.1 build-graph workflow; run #1 (`42300207973`) passed on commit `6f73764a28c916881aee4886532012c226fba0e6`.
 
 ### Phase 2 — Terminal/process I/O
-- [ ] Migrate entry point and stdout/stderr/stdin to the 0.17.1 process and I/O API.
-- [ ] Preserve prompt, formatted output, EOF, newline handling, input-size bound, oversized-input drain, and error propagation.
-- [ ] Preserve generic output/failure-injection seams.
-- [ ] Add focused tests for input boundaries and I/O failure paths where testable.
-- [ ] Commit as `refactor: migrate terminal I/O to Zig 0.17.1`.
+- [x] Migrate the entry point and stdin/stdout to a version-gated `std.process.Init` / `std.Io` path; retain the Zig 0.13 legacy entry point while CI remains pinned. The application has no direct stderr writer in the new path; process-level error reporting remains owned by the runtime.
+- [x] Preserve prompt/output call sites, EOF and newline handling, the 511-byte accepted command limit (512-byte buffer), oversized-line drain, and read/write error propagation.
+- [x] Preserve generic output/failure-injection seams with `ProcessWriter.writeAll` and `.print` adapting to immediate `std.Io.File.writeStreamingAll` calls.
+- [x] Add focused Zig 0.17.1 tests for 511/512-byte boundaries, newline and unterminated EOF, oversized-line draining, next-command alignment, drain read failure, and warning-output failure.
+- [x] Keep cross-version input-boundary tests in `tests/test_all.zig`; keep the `std.Io`-only tests in `tests/terminal_io_test.zig` and run them only with Zig 0.17.1.
+- [x] Implementation committed in focused commits, latest integration head at this phase: `7e0ed496dd02a9aadf72de9151f1daf344c0aadd`.
+- [x] Verify legacy application path with Zig 0.13.0 CI run #1051 (`42301770858`): Debug, ReleaseSafe, and ReleaseFast all passed formatting, compile, tests, and agent-doc structure checks.
+- [x] Verify isolated new I/O layer with Zig 0.17.1 workflow run #9 (`42301770875`): exact version check, migrated-file formatting, all seven `terminal_io_test.zig` tests, and build-graph re-evaluation passed.
+- Full application compilation on 0.17.1 remains deferred until the `std.fs` persistence work in Phase 3 and language/facade compatibility work in Phase 4 are complete.
 
 ### Phase 3 — Filesystem and persistence
 - [ ] Migrate `std.fs` directory/file APIs and file read/write calls.
@@ -186,3 +191,15 @@ The next agent must:
 - Targeted GitHub Actions run #1 (`42300207973`) completed successfully on commit `6f73764a28c916881aee4886532012c226fba0e6`: Zig 0.17.1 installed, exact version assertion passed, and `zig build --help` evaluated the build graph successfully.
 - Main CI run #1041 (`42300208078`) also completed successfully on the same commit: Debug, ReleaseSafe, and ReleaseFast each passed format, compile, tests, and agent-doc structure checks using Zig 0.13.0.
 - Phase 1 is closed for build-graph API validation only. Full 0.17.1 `zig build`, `zig build run`, `zig build test`, and argument-passthrough behavior remain acceptance checks for later phases/final validation. Local Zig executable remains unavailable.
+
+
+### 2026-11-07 — Phase 2 terminal/process I/O
+- Added `src/application/terminal_input.zig` with the shared 512-byte input-buffer capacity, 511-byte accepted line limit, and a pure overlength predicate. Added cross-version boundary tests to `tests/terminal_input_test.zig` and registered them in `tests/test_all.zig`.
+- Added `src/application/terminal_io.zig` for the Zig 0.16+ `std.Io` path. `ProcessWriter` implements the existing generic `writeAll`/`print` surface and uses immediate file writes so output failures remain synchronous with transactional command handlers.
+- `readLine` uses `std.Io.Reader.takeDelimiter`, rejects a 512-byte unterminated final line, drains an oversized line through its delimiter, and propagates read/write errors. It returns a dedicated `CommandDiscarded` signal only after the warning output succeeds.
+- Updated `src/main.zig` with a compile-time version-gated entry point: Zig 0.13 retains the legacy stream setup; Zig 0.16+ uses `std.process.Init`, `std.Io.File.stdin().readerStreaming`, and the new output adapter. The shared game loop and command dispatch remain unchanged.
+- Added seven isolated tests in `tests/terminal_io_test.zig`: 511-byte accepted line, oversized-line drain and next-command alignment, read failure during drain, output failure while reporting a discarded line, 511-byte unterminated EOF, 512-byte unterminated EOF rejection, and process stream adapter construction.
+- Zig 0.17.1 workflow command: `zig test --dep terminal_io -Mroot=tests/terminal_io_test.zig -Mterminal_io=src/application/terminal_io.zig`. Direct relative imports outside the root module path are rejected by Zig 0.17; the test uses an explicit module dependency.
+- CI run #1051 (`42301770858`) on commit `7e0ed496dd02a9aadf72de9151f1daf344c0aadd` passed all three Zig 0.13.0 optimization modes, including the new aggregate input-boundary tests.
+- Zig 0.17.1 run #9 (`42301770875`) completed successfully: exact version assertion, migrated-file formatting, all 7 terminal I/O tests, and build-graph re-evaluation passed.
+- The full Zig 0.17.1 application build has not yet been claimed. It depends on the remaining filesystem and language/facade migrations.

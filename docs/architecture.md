@@ -2,7 +2,7 @@
 
 ## Overview
 
-Hacker's Terminal is being developed incrementally as a modular, single-player terminal game. Core player and mission data, persistence, terminal presentation, shop operations, command parsing, and game coordination live in focused Zig modules. The application targets Zig 0.13.0 and runs locally without external services.
+Hacker's Terminal is being developed incrementally as a modular, single-player terminal game. Core player and mission data, persistence, terminal presentation, shop operations, command parsing, and game coordination live in focused Zig modules. The default CI baseline remains Zig 0.13.0 while TOOLCHAIN-001 stages the migration to Zig 0.17.1. The terminal I/O layer now has a separately tested, version-gated `std.Io` implementation; the complete 0.17.1 application build is deferred until filesystem and language/facade migrations are complete.
 
 There is no client/server split, real networking layer, database, plugin system, or external game service. All targets and hacking actions are fictional game content.
 
@@ -12,7 +12,9 @@ There is no client/server split, real networking layer, database, plugin system,
 src/
 ├── main.zig                 # Composition root and interactive loop
 ├── domain/                  # Player, faction, mission/session, topology, progression, and Contact rules
-├── application/              # Command coordination and gameplay services
+├── application/              # Command coordination, gameplay services, and terminal I/O adapters
+│   ├── terminal_input.zig    # Shared input-buffer and command-length policy
+│   └── terminal_io.zig       # Zig 0.16+ std.Io process stream adapter
 ├── catalog/                  # Built-in mission definitions
 ├── presentation/             # Terminal output
 └── persistence/              # Save/load and legacy compatibility
@@ -24,7 +26,9 @@ The former top-level module paths remain as thin compatibility facades so existi
 
 | Path | Responsibility |
 | --- | --- |
-| `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
+| `src/main.zig` | Version-gated application entry point, allocator/process I/O setup, save loading, welcome output, and shared interactive loop |
+| `src/application/terminal_input.zig` | Shared 512-byte input capacity, 511-byte accepted command limit, and overlength predicate |
+| `src/application/terminal_io.zig` | Zig 0.16+ immediate `std.Io` stdout adapter and delimiter-aware line reading with oversized-line draining |
 | `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
 | `src/domain/contract_board.zig` | Pure derived availability, faction access, and checked reward-range calculations for the separate `board` command; reward overflow is propagated as an error; no persistence or I/O |
 | `src/domain/operation.zig` | Static linear operation/stage definitions, typed carry-over facts, and catalog validation |
@@ -46,7 +50,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/catalog/faction_data.zig` | Seven fictional faction profiles and static symmetric inter-faction relationships |
 | `src/domain/rival.zig` / `src/domain/rival_simulation.zig` | Stable rival identities/statuses and deterministic optional-intelligence contest rules |
 | `src/catalog/rival_data.zig` | Five authored rival profiles and links to existing hidden optional objectives |
-| `tests/` | Unit and integration tests for commands, missions, factions, Contract Board, operations, mission state, topology, equipment, save migrations, Detection, progression, Contacts, and offers |
+| `tests/` | Cross-version unit/integration tests plus a Zig 0.17.1-only terminal I/O suite for input boundaries, draining, and I/O failures |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
@@ -127,11 +131,11 @@ On successful extraction, the current stage pays its ordinary contract rewards o
 
 ## Runtime flow
 
-1. `main` creates the allocator, standard input/output writers, and a default `Player`.
+1. `main` selects the legacy Zig 0.13 entry point or the Zig 0.16+ `std.process.Init` path; both feed the same application loop and default `Player`.
 2. `mission_data.defaultMissions()` supplies the built-in mission array.
 3. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
 4. `terminal.printBanner` and the welcome/status text are written to standard output.
-5. The application repeatedly prints the prompt and reads a line from standard input.
+5. The application repeatedly prints the prompt and reads a line from standard input. The new `std.Io` reader drains oversized lines through the delimiter and reports read failures; `ProcessWriter` writes synchronously to preserve output-failure semantics.
 6. Input is trimmed and passed to `game.runCommand`, together with runtime preparation state.
 7. `commands.parse` separates the command name and first argument without allocating memory.
 8. `game.runCommand` dispatches the parsed command, validates preparation and active game state, and performs the requested state transition.
