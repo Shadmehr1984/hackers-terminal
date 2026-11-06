@@ -1,7 +1,7 @@
 # Phase 2 — World, Intelligence, and Relationships
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-010 and HT-010.1 Implemented on main (final CI #42224233431 passed Debug, ReleaseSafe, and ReleaseFast); HT-011 implementation is In Progress on main; remaining Phase 2 features are Planned  
+**Status:** HT-010 and HT-010.1 Implemented on main (final CI #42224233431 passed Debug, ReleaseSafe, and ReleaseFast); HT-011 implementation is In Progress on main; HT-012 design is approved under ADR 0015 but implementation is not authorized; HT-022 and HT-025 remain Planned  
 **Goal:** Make the fictional cyber-world feel populated by organizations, competitors, information brokers, and persistent discoveries.
 
 ## Shared baseline and constraints
@@ -87,34 +87,67 @@ HT-006 Contract Board and HT-010 Factions.
 ### Out of scope
 Live multiplayer, online leaderboards, autonomous external agents, real networking, branching narrative, and persistent rival scores.
 
-## HT-012 — Information Market
+## HT-012 — Information Market / Information Warfare
+
+**Status:** Design Approved under [ADR 0015](../decisions/0015-information-market.md); detailed handoff in [HT-012 task brief](../tasks/HT-012-information-market.md). **Implementation is not authorized.**
 
 ### Goal
-Expand the existing Broker intel purchase into a small market for fictional intelligence with quality, price, and reliability trade-offs.
+Expand the existing $50 Broker mission-clue offer into a deterministic, multi-source information market and a deep information-warfare system. Players inspect and purchase reports, evaluate provenance and contradictions, perform multi-stage research, and respond to deception, exposure, and rival activity.
 
-### Design direction
-- Distinguish verified facts, partial intel, stale intel, and intentionally unreliable/false reports.
-- Offer categories such as topology hints, security profile summaries, faction dossiers, rival sightings, and hidden-objective leads.
-- Preserve the current rule that purchased clues do not reveal actual puzzle answers.
-- Prices and quality must be visible before purchase; invalid/unaffordable transactions must not charge the player.
-- Use authored or seeded market inventory, not live external feeds.
+### Owner-approved decisions
 
-### Likely scope
-Information item definitions/catalog, market transaction service, Contact integration, player balance handling, terminal output, tests/docs.
+| Area | Accepted decision | Required behavior |
+|---|---|---|
+| Fake intelligence | BOTH | Narrative consequences and gameplay consequences |
+| Research depth | DEEP | Multi-stage, evidence-driven projects with meaningful alternative paths/results |
+| Market | DYNAMIC | Stock/offers derive from relevant progression, faction/rival state, and authored events; deterministic for identical state |
+| Persistence | DERIVED (option C) | Restore only facts proven by existing persisted data; no new Save fields; otherwise runtime-only |
+| Fake information in Research | BOTH | May produce incomplete results or misleading results, according to authored evidence/deception |
+| Exposure | EVENT | Bounded authored Counter-Intelligence events; no direct Reputation/Standing mutation |
+| Rival participation | ACTIVE | Five HT-011 rivals perform bounded deterministic information actions |
+| Purchase policy | MIXED | Each report is REPEATABLE or ONE_TIME |
+| Freshness | EVENT-DRIVEN | Only report-relevant authored events affect freshness |
 
-### Acceptance criteria
-- [ ] Every information item has a typed category, price, and reliability/knowledge level.
-- [ ] Player can inspect an item before purchase and understands what is known versus uncertain.
-- [ ] Successful purchases deduct exactly the displayed amount; rejected purchases do not change balance/state.
-- [ ] Purchased intel is delivered to the correct game surface (briefing/archive) and does not leak protected answers.
-- [ ] Market stock/refresh is deterministic or seeded and testable.
+### Accepted system behavior
+
+- Five typed report categories: TOPOLOGY, SECURITY, FACTION, RIVAL, HIDDEN_OBJECTIVE.
+- Reports contain typed claims and explicit source/provenance; authored world truth, player-visible evidence, and research conclusions remain separate.
+- Source origin groups prevent multiple resold copies of the same underlying source from counting as independent corroboration.
+- Initial qualitative reliability labels: VERIFIED, PARTIAL, STALE, UNRELIABLE; reliability, completeness, freshness, and source credibility remain separate dimensions.
+- Cross-reference relations: SUPPORTS, CONTRADICTS, EXTENDS, UNRELATED.
+- Authored deception kinds: OMISSION, FABRICATION, MISATTRIBUTION. The player may be warned about uncertainty/risk but must not be shown the hidden false claim itself.
+- Dynamic stock is derived from Base, Conditional, and Event stock pools. It must be deterministic and must not use wall-clock time, online feeds, or uncontrolled randomness.
+- Deep Research has prerequisites, multiple stages, evidence requirements, costs, alternative paths, and authored outcomes. Incomplete evidence can produce partial/inconclusive results; false evidence can produce misleading results. Results remain qualified and revisable when authored rules permit.
+- Exposure creates bounded authored events (for example warnings, source unavailability, decoy reports, or intelligence reactions). It does not directly alter Reputation or faction Standing.
+- The five existing HT-011 rivals may gather intelligence, contest leads, publish decoys, claim eligible optional opportunities, or withdraw at explicit deterministic transition points.
+- Rival/deception effects are limited to optional intelligence opportunities. Required objectives, primary contract completion, extraction, Detection, and base reward formulas remain protected.
+- Existing Broker deal intel behavior and Fixer behavior remain compatible; Broker clues never reveal puzzle answers.
+- Save V3 writer and V2/V1/legacy readers remain unchanged. Balance loss alone is not proof of a report purchase; only provable existing progression/history can support derived restoration.
+
+### Provisional technical parameters (not fixed owner decisions)
+
+- A suggested Trust Score weighting is 40% reliability, 20% completeness, 20% freshness, 20% source credibility. Treat this as a tuning proposal, not statistical probability or immutable owner-approved balance.
+- Suggested price decomposition: base price + scarcity adjustment + risk premium + source premium. Coefficients, caps, bands, stock sizes, and thresholds require source/economy audit and tests.
+- Candidate source channels: Broker, Ghost Channels, Dead Drops, Rival Intelligence. These are source concepts, not approval to add Contact characters.
+- Candidate command names and module/file names are not fixed. The current parser accepts a command plus first argument token; preserve compatibility or separately design/test parser changes.
 
 ### Dependencies
-HT-006 Contract Board; HT-010 Factions; HT-025 Contact Development where services are exposed through Contacts.
+HT-006 Contract Board; HT-010 Factions; HT-011 Rival Hackers; existing Broker/Fixer, mission intelligence, economy, and HT-025 Contact Development integration. Coordinate data/provenance contracts with HT-022 Data Archive without implementing HT-022 as part of HT-012.
 
-### Out of scope
-Online marketplace, real data feeds, player trading, puzzle-answer sales.
+### Non-goals and hard constraints
+- No online marketplace, real data feeds, player-to-player trading, real network access, shell execution, credential collection, or external actors.
+- No new Contact characters without separate approval.
+- No puzzle-answer sales or direct puzzle-answer disclosure.
+- No required-objective denial, primary-contract lockout, or extraction denial.
+- No direct Reputation/Standing mutation from Exposure or rival information actions.
+- No Save V3 schema change or new persistent fields.
+- No generic branching narrative framework or full autonomous rival economy.
 
+### Acceptance criteria
+See the complete checklist in [HT-012 task brief](../tasks/HT-012-information-market.md), including data/secrecy, dynamic deterministic market, atomic purchases, provenance and cross-reference, event-driven freshness, both deception outcomes, deep Research, event-only Exposure, active rival participation, derived persistence, Broker/Fixer regression, and full QA/review.
+
+### Handoff and implementation gate
+The task brief defines Architecture, Market, Intelligence, Research, Counter-Intelligence/Rival, Integration/QA, and independent Review agent responsibilities. First perform a fresh source/event/persistence audit and resolve technical uncertainties. **No implementation, production-code edits, or Save changes are permitted until the owner separately authorizes implementation.**
 ## HT-025 — Contact Development
 
 ### Goal
