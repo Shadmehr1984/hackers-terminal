@@ -59,6 +59,9 @@ jobs:
       - name: Test compatibility facade exports
         run: zig test facade_api_test_root.zig
 
+      - name: Check full repository formatting
+        run: zig fmt --check test_root.zig build.zig src tests
+
       - name: Run the complete aggregate test suite
         run: zig test test_root.zig
 
