@@ -1,5 +1,4 @@
 const builtin = @import("builtin");
-const builtin = @import("builtin");
 const std = @import("std");
 const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 
@@ -40,24 +39,16 @@ test "hardened encryption exposes the approved incorrect decryption cost" {
 }
 
 test "all modifiers share the approved completion bonus and disclose effects" {
-    if (comptime builtin.zig_version.minor >= 16) {
-        const enum_info = @typeInfo(ModifierId).@"enum";
-        inline for (enum_info.field_values) |field_value| {
-            const id: ModifierId = @fromBackingInt(@intCast(field_value));
-            const bonus = id.completionBonus();
-            try std.testing.expectEqual(@as(u32, 50), bonus.cash);
-            try std.testing.expectEqual(@as(u32, 25), bonus.xp);
-            try std.testing.expect(id.label().len > 0);
-            try std.testing.expect(id.description().len > 0);
-        }
-    } else {
-        inline for (@typeInfo(ModifierId).Enum.fields) |field| {
-            const id: ModifierId = @enumFromInt(field.value);
-            const bonus = id.completionBonus();
-            try std.testing.expectEqual(@as(u32, 50), bonus.cash);
-            try std.testing.expectEqual(@as(u32, 25), bonus.xp);
-            try std.testing.expect(id.label().len > 0);
-            try std.testing.expect(id.description().len > 0);
-        }
+    const modifiers = [_]ModifierId{
+        .heightened_monitoring,
+        .security_sweep,
+        .hardened_encryption,
+    };
+    for (modifiers) |id| {
+        const bonus = id.completionBonus();
+        try std.testing.expectEqual(@as(u32, 50), bonus.cash);
+        try std.testing.expectEqual(@as(u32, 25), bonus.xp);
+        try std.testing.expect(id.label().len > 0);
+        try std.testing.expect(id.description().len > 0);
     }
 }
