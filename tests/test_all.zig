@@ -14,4 +14,5 @@ test {
     _ = @import("mission_modifier_test.zig");
     _ = @import("mission_objective_tracker_test.zig");
     _ = @import("operation_test.zig");
+    _ = @import("faction_test.zig");
 }
