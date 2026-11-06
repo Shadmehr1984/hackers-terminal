@@ -65,6 +65,18 @@ The decryptor costs $150. It is a persistent tool: once purchased, it remains ow
 
 Use `board` to open the full catalog overview. It displays each contract's category, difficulty, base-to-maximum cash reward (including all authored optional-objective bonuses), XP, and derived availability. States are `AVAILABLE`, `LOCKED`, `COMPLETED`, `EXCLUSIVE`, and `UNAVAILABLE`. Lock reasons show the exact unmet level and/or Reputation requirement. Exclusive contracts must be accepted through their Contact offer. If a contract is active or being prepared, other incomplete entries are shown as unavailable; completed entries retain their completed status. The original `missions` command remains unchanged as a compact list. Board availability is calculated from current game state and is not persisted. The Board never reveals puzzle clues or answers.
 
+## Factions
+
+The world contains seven fictional organizations: Nexus Dynamics, Ghost Protocol, Black Veil, Aegis Initiative, Iron Meridian, Null Syndicate, and Helix Consortium. Use factions to list them and faction <id> to inspect a dossier, security profile, economic behavior, specialty, and relationships with other groups.
+
+Every built-in contract has a client faction and a target-owner faction. The Contract Board shows these affiliations, the client's security rating, and your current standing. Faction-to-faction relationships are static Catalog data; pairs not explicitly listed are Neutral.
+
+Your standing with a faction is derived, not separately saved. Start with global Reputation, add 2 for each completed contract commissioned by that faction, and subtract 2 for each completed contract whose target owner or opposing faction is that faction. The resulting score maps to Hostile (at or below -2), Wary (-1), Neutral (0–2), Trusted (3–5), or Allied (6+). Replaying a completed contract does not add another outcome because the existing completion flag is used.
+
+A contract is faction-locked when its client faction is Hostile toward you. The Contract Board displays FACTION LOCKED, and preparation, exclusive Contact access, and operation start reject access. Completing contracts for that client faction can improve standing again. Existing Reputation gains, Contact unlock thresholds, rewards, Detection costs, and prices are unchanged. Faction standing uses existing persisted Reputation and contract-completion flags; Save V3 and older formats are unchanged.
+
+Faction security ratings/styles are authored intelligence to help compare contract profiles. They do not independently change Detection costs or rewards in this feature.
+
 ## Contracts
 
 The game currently defines four contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer.
