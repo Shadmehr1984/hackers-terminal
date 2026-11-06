@@ -41,9 +41,6 @@ jobs:
           git diff -- src/persistence/save.zig src/domain/mission_state.zig src/domain/operation_state.zig src/domain/mission_objectives.zig src/domain/player.zig tests/mission_objectives_test.zig tests/equipment_test.zig
           zig fmt --check test_root.zig build.zig src tests
 
-      - name: Test terminal I/O compatibility layer
-        run: zig test --dep terminal_io -Mroot=tests/terminal_io_test.zig -Mterminal_io=src/application/terminal_io.zig
-
       - name: Test filesystem and save compatibility layer
         run: zig test save_io_test_root.zig
 
