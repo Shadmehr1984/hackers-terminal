@@ -47,8 +47,8 @@ Derived from the current source tree; re-check source before relying on this map
 - main.zig is the composition root. Avoid circular imports.
 
 ## Zig and test conventions
-- The default CI baseline remains Zig 0.17.1 while TOOLCHAIN-001 stages migration to Zig 0.17.1. `terminal_io.zig` and the `std.Io` SaveContext backend are intentionally version-gated and Zig 0.17.1 only; do not remove the legacy entry point or change the default CI pin before the full migration closeout.
-- Keep cross-version tests free of Zig 0.17-only syntax. The `std.Io` terminal tests use an explicit module mapping; the save I/O tests use `save_io_test_root.zig` so nested imports remain inside the repository root. See `docs/development.md`.
+- The project and CI pin exactly Zig 0.17.1. `terminal_io.zig` and persistence use the native `std.Io` API; no Zig 0.13 compatibility branch remains.
+- Keep all test modules under `tests/` and register them in `tests/test_all.zig`, including terminal I/O, save I/O, and facade API coverage. Root harnesses may remain for focused diagnostic workflows. See `docs/development.md`.
 - Prefer explicit small functions and concrete structures over speculative abstractions.
 - Keep parsing allocation-free where practical; current parser accepts a command and first argument only.
 - Add tests under tests/ and register modules in tests/test_all.zig.

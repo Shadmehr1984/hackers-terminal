@@ -142,7 +142,7 @@ The audit was performed against the current `main` head listed above. Earlier co
 - [ ] Mark ADR 0001 superseded and retain the new accepted toolchain ADR.
 - [ ] Update roadmap/task status only after implementation, review, and CI are complete.
 - [ ] Perform the full mandatory repository review using `.agent/review-checklist.md`.
-- [ ] Inspect CI for the final `main` commit; report manual playtest separately.
+- [ ] Inspect CI for the final `main` commit after the documentation-guard correction; report manual playtest separately.
 - [ ] Commit final documentation/closeout if not already included in Phase 5.
 
 ## 5. Acceptance criteria

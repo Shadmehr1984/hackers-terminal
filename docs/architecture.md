@@ -14,7 +14,7 @@ src/
 ├── domain/                  # Player, faction, mission/session, topology, progression, and Contact rules
 ├── application/              # Command coordination, gameplay services, and terminal I/O adapters
 │   ├── terminal_input.zig    # Shared input-buffer and command-length policy
-│   └── terminal_io.zig       # Zig 0.16+ std.Io process stream adapter
+│   └── terminal_io.zig       # Zig 0.17.1 std.Io process stream adapter
 ├── catalog/                  # Built-in mission definitions
 ├── presentation/             # Terminal output
 └── persistence/              # Save/load and legacy compatibility
@@ -28,7 +28,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | --- | --- |
 | `src/main.zig` | Zig 0.17.1 process entry point, allocator/`std.Io` setup, save loading, welcome output, and shared interactive loop |
 | `src/application/terminal_input.zig` | Shared 512-byte input capacity, 511-byte accepted command limit, and overlength predicate |
-| `src/application/terminal_io.zig` | Zig 0.16+ immediate `std.Io` stdout adapter and delimiter-aware line reading with oversized-line draining |
+| `src/application/terminal_io.zig` | Zig 0.17.1 immediate `std.Io` stdout adapter and delimiter-aware line reading with oversized-line draining |
 | `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
 | `src/domain/contract_board.zig` | Pure derived availability, faction access, and checked reward-range calculations for the separate `board` command; reward overflow is propagated as an error; no persistence or I/O |
 | `src/domain/operation.zig` | Static linear operation/stage definitions, typed carry-over facts, and catalog validation |
@@ -50,7 +50,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/catalog/faction_data.zig` | Seven fictional faction profiles and static symmetric inter-faction relationships |
 | `src/domain/rival.zig` / `src/domain/rival_simulation.zig` | Stable rival identities/statuses and deterministic optional-intelligence contest rules |
 | `src/catalog/rival_data.zig` | Five authored rival profiles and links to existing hidden optional objectives |
-| `tests/` | Cross-version unit/integration tests plus a Zig 0.17.1-only terminal I/O suite for input boundaries, draining, and I/O failures |
+| `tests/` | Zig 0.17.1 unit/integration tests; the aggregate includes terminal I/O, save I/O, and facade API coverage |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
 | `.github/workflows/ci.yml` | Formatting, build, and test checks on pushes and pull requests targeting `main` |
@@ -131,16 +131,16 @@ On successful extraction, the current stage pays its ordinary contract rewards o
 
 ## Runtime flow
 
-1. `main` selects the legacy Zig 0.13 entry point or the Zig 0.16+ `std.process.Init` path; both feed the same application loop and default `Player`.
+1. `main` uses Zig 0.17.1 `std.process.Init` and `std.Io` resources to construct the application I/O and save context.
 2. `mission_data.defaultMissions()` supplies the built-in mission array.
 3. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
 4. `terminal.printBanner` and the welcome/status text are written to standard output.
 5. The application repeatedly prints the prompt and reads a line from standard input. The new `std.Io` reader drains oversized lines through the delimiter and reports read failures; `ProcessWriter` writes synchronously to preserve output-failure semantics.
-6. `main` passes an explicit version-gated `SaveContext` through `game` to persistence. The save module shares one V3 serializer and preserves the temporary-file flush → close → rename boundary.
-6. Input is trimmed and passed to `game.runCommand`, together with runtime preparation state.
-7. `commands.parse` separates the command name and first argument without allocating memory.
-8. `game.runCommand` dispatches the parsed command, validates preparation and active game state, and performs the requested state transition.
-9. The loop ends on `exit`, end-of-input, or an input/output error propagated by the relevant function.
+6. `main` passes an explicit `std.Io` `SaveContext` through `game` to persistence. The save module shares one V3 serializer and preserves the temporary-file flush → close → rename boundary.
+7. Input is trimmed and passed to `game.runCommandWithSaveContext`, together with runtime preparation state.
+8. `commands.parse` separates the command name and first argument without allocating memory.
+9. `game.runCommandWithSaveContext` dispatches the parsed command, validates preparation and active game state, and performs the requested state transition.
+10. The loop ends on `exit`, end-of-input, or an input/output error propagated by the relevant function.
 
 ## Mission state transitions
 

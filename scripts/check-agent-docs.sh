@@ -58,7 +58,8 @@ grep -q '## 4. Security — 20% — OWASP Top 10:2025' .agent/review-checklist.m
 grep -q '## 5. Architecture and Design — 30%' .agent/review-checklist.md
 grep -q '## 6. Performance — 10%' .agent/review-checklist.md
 grep -q '### 7.2 ALWAYS FLAG' .agent/review-checklist.md
-grep -q 'root_source_file' .agent/review-checklist.md
+grep -q 'root_module' .agent/review-checklist.md
+grep -q 'addPassthruArgs' .agent/review-checklist.md
 grep -q 'getOrPut' .agent/review-checklist.md
 grep -q 'std.heap.DebugAllocator' .agent/review-checklist.md
 grep -q 'OWASP Top 10:2025' .agent/review-checklist.md
