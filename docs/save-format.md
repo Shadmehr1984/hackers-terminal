@@ -91,3 +91,8 @@ The first line must be a valid unsigned numeric balance, followed by reputation 
 - Save files are local game data and should not be treated as trusted external input.
 
 When changing the player or mission schema, update both `saveGame` and `loadGame`, preserve older-format migration paths, and add compatibility tests.
+
+
+## HT-011 rival-state compatibility
+
+HT-011 adds static rival profiles and derives their contest outcome from the existing runtime mission-objective tracker. No rival identity, status, schedule, or contest result is serialized. A rival may mark one linked hidden optional objective unavailable during the active run; this state resets with the existing mission session. The Save V3 writer and V2/V1/legacy readers are unchanged.
