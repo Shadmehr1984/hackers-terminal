@@ -127,3 +127,26 @@ test "decrypting before discovering contested optional evidence lets the rival c
     session.completeObjective(.extract_file);
     try std.testing.expect(session.allObjectivesComplete(missions[0].objectives));
 }
+
+
+test "decryption compromise resets the run without awarding the rival side opportunity" {
+    var player = Player{};
+    player.equipment.has_decryptor = true;
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionState.MissionSession{
+        .progress = .authenticated,
+        .detection_level = 95,
+        .current_node = "vault",
+    };
+    var preparation = MissionState.MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+    var capture = Capture{};
+
+    _ = try game.runCommand(&capture, "decrypt midnight", &player, &missions, &active, &session, &preparation);
+
+    try std.testing.expect(active == null);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[RIVAL AHEAD]") == null);
+    try std.testing.expect(!missions[0].completed);
+}
