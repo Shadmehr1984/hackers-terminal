@@ -265,7 +265,6 @@ test "exclusive Ghost Signal offer is hidden while another contract is active or
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") != null);
 }
 
-
 test "Broker purchase does not charge the player when purchase output fails" {
     var player = Player{ .balance = 500, .reputation = 1, .xp = 100 };
     var missions = mission_data.defaultMissions();
