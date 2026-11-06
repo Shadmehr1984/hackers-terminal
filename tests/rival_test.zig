@@ -113,7 +113,7 @@ test "decrypting before discovering contested optional evidence lets the rival c
     _ = try game.runCommand(&capture, "decrypt midnight", &player, &missions, &active, &session, &preparation);
 
     try std.testing.expect(session.isDecrypted());
-    try std.testing.expectEqual(@import("../src/domain/mission_objectives.zig").ObjectiveState.unavailable, session.objective_tracker.stateOf("maintenance-telemetry").?);
+    try std.testing.expectEqual(ObjectiveState.unavailable, session.objective_tracker.stateOf("maintenance-telemetry").?);
     try std.testing.expectEqual(@as(?usize, 0), active);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[RIVAL AHEAD] Patchwork") != null);
 
