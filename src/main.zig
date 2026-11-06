@@ -58,10 +58,11 @@ pub fn main() !void {
         const maybe_line = stdin.readUntilDelimiterOrEof(&input_buffer, '\n') catch |err| switch (err) {
             error.StreamTooLong => {
                 while (true) {
-                    _ = stdin.readUntilDelimiterOrEof(&input_buffer, '\n') catch |drain_err| switch (drain_err) {
+                    const remaining = stdin.readUntilDelimiterOrEof(&input_buffer, '\n') catch |drain_err| switch (drain_err) {
                         error.StreamTooLong => continue,
-                        else => break,
+                        else => return drain_err,
                     };
+                    if (remaining == null) break;
                     break;
                 }
                 try stdout.writeAll("Input too long. Command discarded.\n");
