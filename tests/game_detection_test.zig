@@ -546,3 +546,88 @@ test failed contract launch output preserves preparation and does not activate a
     try std.testing.expectEqual(MissionState.MissionProgress.inactive, session.progress);
     try std.testing.expect(session.current_node == null);
 }
+
+
+test "scan output failure preserves scan progress, objective state, and Detection" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    missions[0].topology = null;
+    var active: ?usize = 0;
+    var session = MissionSession{ .progress = .accepted };
+    var preparation = MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+
+    var calls: usize = 0;
+    const writer = FailOnPrintWriter{ .calls = &calls, .fail_on = 1 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(writer, "scan vault-01.local", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(MissionState.MissionProgress.accepted, session.progress);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(!session.isObjectiveComplete(.scan_target));
+}
+
+test "authentication output failure preserves authentication and Detection state" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    missions[0].topology = null;
+    var active: ?usize = 0;
+    var session = MissionSession{ .progress = .scanned, .connected = true };
+    var preparation = MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+
+    var calls: usize = 0;
+    const writer = FailOnPrintWriter{ .calls = &calls, .fail_on = 1 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(writer, "brute orion42", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(MissionState.MissionProgress.scanned, session.progress);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(!session.isObjectiveComplete(.authenticate));
+}
+
+test "decryption output failure preserves decryption and Detection state" {
+    var player = Player{};
+    player.equipment.has_decryptor = true;
+    var missions = mission_data.defaultMissions();
+    missions[0].topology = null;
+    var active: ?usize = 0;
+    var session = MissionSession{ .progress = .authenticated };
+    var preparation = MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+
+    var calls: usize = 0;
+    const writer = FailOnPrintWriter{ .calls = &calls, .fail_on = 1 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(writer, "decrypt midnight", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(MissionState.MissionProgress.authenticated, session.progress);
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(!session.isObjectiveComplete(.decrypt_file));
+}
+
+test "analysis output failure preserves objective and Detection state" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    missions[0].topology = null;
+    var active: ?usize = 0;
+    var session = MissionSession{ .progress = .decrypted };
+    var preparation = MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+
+    var calls: usize = 0;
+    const writer = FailOnPrintWriter{ .calls = &calls, .fail_on = 1 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(writer, "analyze ledger.enc", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(@as(u8, 0), session.detection_level);
+    try std.testing.expect(!session.isObjectiveComplete(.analyze_metadata));
+}
