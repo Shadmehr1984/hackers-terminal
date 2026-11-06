@@ -116,6 +116,11 @@ test "decrypting before discovering contested optional evidence lets the rival c
     capture.len = 0;
     _ = try game.runCommand(&capture, "board", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Rival: Patchwork | RIVAL AHEAD") != null);
+
+    capture.len = 0;
+    _ = try game.runCommand(&capture, "briefing", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "The rival secured this optional intelligence for the current run.") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "may be contested before decrypting") == null);
     try std.testing.expect(!missions[0].completed);
     try std.testing.expectEqual(@as(u32, 250), player.balance);
     try std.testing.expectEqual(@as(u32, 0), player.xp);
@@ -149,4 +154,22 @@ test "decryption compromise resets the run without awarding the rival side oppor
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[RIVAL AHEAD]") == null);
     try std.testing.expect(!missions[0].completed);
+}
+
+
+test "active briefing reports when the player outpaces the rival before decryption" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = 0;
+    var session = MissionState.MissionSession{ .progress = .authenticated, .current_node = "maintenance" };
+    var preparation = MissionState.MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+    try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
+    var capture = Capture{};
+
+    _ = try game.runCommand(&capture, "briefing", &player, &missions, &active, &session, &preparation);
+
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Status: OUTPACED") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "You found the contested intelligence first.") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "may be contested before decrypting") == null);
 }
