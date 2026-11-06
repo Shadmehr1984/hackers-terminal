@@ -61,31 +61,31 @@ Domain rules do not import application or terminal modules. The command parser r
 
 ## Acceptance criteria
 
-- [ ] Exactly five unique rival profiles exist and validate against faction, mission, and hidden optional objective catalogs.
-- [ ] Each rival has a stable command slug, faction, specialty, approach, and briefing hint.
-- [ ] Status derivation covers DORMANT, CONTESTING, RIVAL_AHEAD, and OUTPACED deterministically.
-- [ ] `rivals` lists all five rivals and their status.
-- [ ] `rival <id>` shows one dossier; unknown IDs are rejected.
-- [ ] Contract Board shows the relevant rival and contest state.
-- [ ] Preparation discloses the rival and counterplay before the affected event; active Briefing reports the live contest outcome without stale pre-decryption advice.
-- [ ] Successful decryption makes the linked hidden optional objective unavailable only when it remains undiscovered.
-- [ ] Discovering the optional evidence before decryption prevents the rival claim.
-- [ ] The rival event never changes required objectives or blocks primary contract completion.
-- [ ] No direct Detection, cash, XP, or Reputation mutation and no change to base-reward or all-optional Reputation-bonus formulas; losing the contested optional objective may forfeit the existing bonus for that run.
-- [ ] No real networking, external actors, shell execution, or credential collection is introduced.
-- [ ] Focused tests are registered in `tests/test_all.zig`.
-- [ ] Architecture, gameplay, commands, save, development, and agent handoff docs are synchronized.
-- [ ] Agent-doc structure checks pass.
-- [ ] Zig formatting, build, and full tests pass in CI Debug, ReleaseSafe, and ReleaseFast.
+- [x] Exactly five unique rival profiles exist and validate against faction, mission, and hidden optional objective catalogs.
+- [x] Each rival has a stable command slug, faction, specialty, approach, and briefing hint.
+- [x] Status derivation covers DORMANT, CONTESTING, RIVAL_AHEAD, and OUTPACED deterministically.
+- [x] `rivals` lists all five rivals and their status.
+- [x] `rival <id>` shows one dossier; unknown IDs are rejected.
+- [x] Contract Board shows the relevant rival and contest state.
+- [x] Preparation discloses the rival and counterplay before the affected event; active Briefing reports the live contest outcome without stale pre-decryption advice.
+- [x] Successful decryption makes the linked hidden optional objective unavailable only when it remains undiscovered.
+- [x] Discovering the optional evidence before decryption prevents the rival claim.
+- [x] The rival event never changes required objectives or blocks primary contract completion.
+- [x] No direct Detection, cash, XP, or Reputation mutation and no change to base-reward or all-optional Reputation-bonus formulas; losing the contested optional objective may forfeit the existing bonus for that run.
+- [x] No real networking, external actors, shell execution, or credential collection is introduced.
+- [x] Focused tests are registered in `tests/test_all.zig`.
+- [x] Architecture, gameplay, commands, save, development, and agent handoff docs are synchronized.
+- [x] Agent-doc structure checks pass.
+- [x] Zig formatting, build, and full tests pass in CI Debug, ReleaseSafe, and ReleaseFast.
 - [ ] Mandatory code review is completed and all findings are resolved or explicitly recorded.
 
 ## Verification plan
 
-- [ ] `zig fmt --check test_root.zig build.zig src tests`
-- [ ] `zig build`
-- [ ] `zig build test`
-- [ ] `sh scripts/check-agent-docs.sh`
-- [ ] Inspect actual GitHub Actions result for the final main commit.
+- [x] `zig fmt --check test_root.zig build.zig src tests`
+- [x] `zig build`
+- [x] `zig build test`
+- [x] `sh scripts/check-agent-docs.sh`
+- [x] Inspect actual GitHub Actions result for the final main commit.
 - [ ] Review the complete diff against `.agent/review-checklist.md`; report self-review/independent-review availability accurately.
 
 ## Progress log
@@ -103,3 +103,8 @@ Domain rules do not import application or terminal modules. The command parser r
 - 2026-11-06: Continued static verification found two test-hardening opportunities before CI: the five-rival test should not assume a discovery event can reveal exactly one objective, so it now asserts that discovery occurred and checks the contested objective's state; the extraction-output failure writer now uses an explicit pointer-backed counter because command dispatch passes writer values through generic helpers. The rival test also uses the shared ObjectiveState alias consistently. These are verification-quality fixes, not gameplay changes. CI remains unobservable through the currently available status/run endpoints; do not claim a pass without the actual Actions result.
 
 - 2026-11-06: Fixed the formatting-only failure reported by CI run #968: removed the extra blank line between test declarations in `tests/rival_test.zig`. No test logic or gameplay behavior changed. Commit `5dc6c30434a2a467093daed7d490abf23d4dc27f`. Zig is not installed in the editing environment, so the formatter has not been run locally; the new push-triggered CI run must confirm formatting, compilation, tests, and agent-doc checks. Keep HT-011 In Progress until that run is inspected.
+
+
+- 2026-11-06: Inspected final GitHub Actions run #970 for the exact latest `main` SHA `68202103eed1aad50ba2ab6c2080c032a041ce3d`. All three jobs (Debug, ReleaseSafe, ReleaseFast) completed successfully; each passed formatting, compilation, Zig tests, and the agent-documentation structure check. Run: https://github.com/Shadmehr1984/hackers-terminal/actions/runs/42249759703. This is CI verification; Zig is not installed in the editing environment, so no local Zig command is claimed as executed.
+
+- 2026-11-06: Rechecked the post-review remediation paths and regression tests on the latest `main`: extraction now finalizes uncompleted optional objectives only after `progression.completeMission` has completed its checked reward calculations and output; the overflow and injected writer-failure tests assert the objective states, mission completion flag, balance, and payout guard remain unchanged on failure. The allocator deinit diagnostic is present. The catalog-driven rival test covers all five authored discovery triggers in both player-first and rival-first outcomes. Compared the final verification-hardening range (base `91d697f1be2d7b84225f48e47eb790bc6df83cfb` to head `68202103eed1aad50ba2ab6c2080c032a041ce3d`): 9 commits ahead, 0 behind; final range changes are confined to this task handoff and the two focused test files. The earlier code-review fixes are recorded in the preceding progress entries. Remaining limitation: the repository-wide checklist review did not fully inspect every historical agent handoff/test file, and no independent second reviewer was available. Keep the task In Progress until that review-coverage limitation is explicitly resolved or accepted by the owner.
