@@ -227,8 +227,16 @@ test "operation save uses the unchanged V3 layout with no active mission index" 
     var session = MissionSession{};
     var preparation = MissionPreparation{};
     var writer = TestWriter{};
-    try std.testing.expect(preparation.operation_state.start(operation_data.blackout_protocol, true));
+    try run(&writer, "operation-start blackout-protocol", &player, &missions, &active, &session, &preparation);
+    try run(&writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(preparation.operation_state.active);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+
     try runWithSaveDirectory(&writer, "save", &player, &missions, &active, &session, &preparation, tmp.dir);
+
+    // Saving an active operation omits the active mission from disk without
+    // changing the live mission selection.
+    try std.testing.expectEqual(@as(?usize, 0), active);
 
     const data = try tmp.dir.readFileAlloc(std.testing.allocator, "saves/player.sav", 4096);
     defer std.testing.allocator.free(data);
