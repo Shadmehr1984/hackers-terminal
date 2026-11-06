@@ -559,7 +559,7 @@ test "failed contract launch output preserves preparation and does not activate 
     try std.testing.expect(session.current_node == null);
 }
 
-test scan output failure preserves scan progress, objective state, and Detection" {
+test "scan output failure preserves scan progress, objective state, and Detection" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
     missions[0].topology = null;
