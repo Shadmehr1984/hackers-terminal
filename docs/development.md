@@ -44,6 +44,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/contract_board_test.zig` covers visible reward ceilings and checked overflow rejection.
 - `tests/terminal_input_test.zig` covers the 511/512-byte command-input boundary and is included in the cross-version aggregate suite.
 - `tests/terminal_io_test.zig` is a Zig 0.17.1-only suite covering `std.Io` line reading, oversized-line draining, next-command alignment, read/write failure propagation, and process stream adapter construction. It is intentionally excluded from `tests/test_all.zig` while Zig 0.13 remains supported.
+- `tests/save_io_test.zig` is a Zig 0.17.1-only suite covering exact V3 bytes, persistence round-trip, missing-save status, the 4096/4097-byte read boundary, and staging-failure preservation. `save_io_test_root.zig` provides a repository-root import context for this focused test harness.
 - `tests/test_all.zig` is the aggregate test list that imports the cross-version test modules.
 - `test_root.zig` is the repository-root module used to run the aggregate suite while keeping all test files under `tests/`.
 
@@ -59,15 +60,21 @@ The default CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/
 zig test --dep terminal_io -Mroot=tests/terminal_io_test.zig -Mterminal_io=src/application/terminal_io.zig
 ```
 
-Run that command with Zig 0.17.1. It cannot be added to the Zig 0.13 aggregate test root because `std.Io` does not exist in that toolchain.
+Run that command with Zig 0.17.1. It cannot be added to the Zig 0.13 aggregate test root because `std.Io` does not exist in that toolchain. The save backend is tested separately with:
+
+```sh
+zig test save_io_test_root.zig
+```
+
+The root harness keeps the actual save tests in `tests/` while allowing their imports to resolve within the repository module path.
 
 ## Terminal and save error handling
 
-The REPL discards an overlong input line (maximum 511 bytes) and continues instead of terminating. The Zig 0.16+ adapter uses `std.Io.Reader.takeDelimiter` and drains through the newline; output uses immediate `std.Io.File.writeStreamingAll` calls so writer failures are not delayed by buffering. Save loading distinguishes a missing first-run save from an unreadable or malformed existing save; the latter cases are reported without automatically replacing the file. Detection compromise, Extraction objective progress, Broker purchases, and shop mutations stage their relevant state until required output succeeds.
+The REPL discards an overlong input line (maximum 511 bytes) and continues instead of terminating. The Zig 0.16+ adapter uses `std.Io.Reader.takeDelimiter` and drains through the newline; output uses immediate `std.Io.File.writeStreamingAll` calls so writer failures are not delayed by buffering. Save loading receives an explicit version-gated `SaveContext`, distinguishes a missing first-run save from an unreadable or malformed existing save; the latter cases are reported without automatically replacing the file. Detection compromise, Extraction objective progress, Broker purchases, and shop mutations stage their relevant state until required output succeeds.
 
 ## Architecture workflow
 
-Keep modules focused and dependencies one-way. Production code is grouped under `src/domain/`, `src/application/`, `src/catalog/`, `src/presentation/`, and `src/persistence/`; `src/main.zig` remains the composition root and old top-level paths are compatibility facades. `main.zig` owns version-gated application setup and the shared input loop; `terminal_input.zig` owns the stable input-size policy; `terminal_io.zig` adapts Zig 0.16+ process streams; `game.zig` owns the shared command dispatcher; `detection.zig` owns exposure and compromise rules; `progression.zig` owns XP, Reputation tiers, and reward calculations; `contacts.zig` owns Contact unlock and service-price rules. `mission_state.zig` owns temporary mission-session progress, objective completion, current node, and traversal count. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
+Keep modules focused and dependencies one-way. Production code is grouped under `src/domain/`, `src/application/`, `src/catalog/`, `src/presentation/`, and `src/persistence/`; `src/main.zig` remains the composition root and old top-level paths are compatibility facades. `main.zig` owns version-gated application setup and the shared input loop; `terminal_input.zig` owns the stable input-size policy; `terminal_io.zig` adapts Zig 0.16+ process streams; `save.zig` owns the version-gated SaveContext and shared V3 serializer; `game.zig` owns the shared command dispatcher; `detection.zig` owns exposure and compromise rules; `progression.zig` owns XP, Reputation tiers, and reward calculations; `contacts.zig` owns Contact unlock and service-price rules. `mission_state.zig` owns temporary mission-session progress, objective completion, current node, and traversal count. `topology.zig` defines the static fictional graph model; `mission_data.zig` authors a separate graph for each built-in mission. Persistence, display, shop operations, and parsing remain in dedicated modules.
 
 Pure utility Detection-cost profiles are defined once on `UtilityEquipment` in `player.zig`. `Equipment` applies the profile for the currently equipped utility, while `MissionLoadout` applies it to the utility/level snapshot captured at mission launch. Keep those adapters free of duplicate cost tables.
 

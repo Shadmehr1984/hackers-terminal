@@ -5,7 +5,7 @@ This file is the persistent source of project-specific instructions for AI codin
 ## Project identity and boundaries
 
 - Project: **Hacker's Terminal**, a single-player, command-driven terminal game.
-- Language/toolchain: **Zig 0.13.0**. Do not silently upgrade the Zig version or use APIs from newer Zig releases.
+- Default application/CI baseline: **Zig 0.13.0** while the owner-approved TOOLCHAIN-001 migration to Zig 0.17.1 is in progress. The migration is explicitly authorized; follow `.agent/tasks/TOOLCHAIN-001-zig-0.17.1-migration.md` and keep the version-gated compatibility paths until final cutover. Do not independently change the default CI pin.
 - The game is fictional, local, offline, and self-contained.
 - Never add real network scanning, real host connections, shell-command execution, credential collection, or interaction with external systems. Hostnames and hacking actions are simulated game content only.
 - Preserve the text-terminal experience unless a task explicitly changes the product direction.
@@ -25,7 +25,8 @@ This file is the persistent source of project-specific instructions for AI codin
 
 Production modules are grouped by responsibility under `src/domain/`, `src/application/`, `src/catalog/`, `src/presentation/`, and `src/persistence/`. `src/main.zig` remains the composition root. The original top-level `src/*.zig` module paths are compatibility facades; new production code should import the grouped implementation paths directly.
 
-- `src/main.zig`: application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop.
+- `src/main.zig`: version-gated process entry point, allocator and standard I/O setup, explicit SaveContext creation, save loading, welcome output, and shared interactive input loop.
+- `src/application/terminal_input.zig` and `src/application/terminal_io.zig`: stable input-size policy and Zig 0.16+ `std.Io` terminal adapter.
 - `src/application/game.zig`: shared command dispatch and game-state validation/transitions.
 - `src/application/detection.zig`: Detection exposure costs, warnings, compromise failure, and bounded penalty.
 - `src/domain/progression.zig`: XP thresholds, player levels, Reputation tiers, and mission reward progression.
@@ -45,7 +46,7 @@ Production modules are grouped by responsibility under `src/domain/`, `src/appli
 - `src/application/commands.zig`: allocation-free parsing of command name and first argument; extra tokens are intentionally ignored for compatibility.
 - The `board` command is a separate full Contract Board; preserve the existing `missions` command behavior.
 - `src/presentation/terminal.zig`: terminal presentation, including mission list, operation list/details/status, briefing-related output, and topology maps.
-- `src/persistence/save.zig`: V3 persistence and compatibility with V2, V1, and legacy save formats.
+- `src/persistence/save.zig`: shared V3 serialization and V3/V2/V1/legacy loading, with a version-gated `SaveContext` backend (`std.fs.Dir` on Zig 0.13; `std.Io`/`std.Io.Dir` on Zig 0.17.1).
 - `src/application/shop.zig`: equipment catalog, inventory, purchases, equipping, and utility upgrades.
 - `tests/`: unit tests, separate from production source.
 - `docs/`: user and developer documentation.

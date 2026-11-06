@@ -38,7 +38,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, per-objective runtime tracker, detection exposure, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
 | `src/catalog/mission_data.zig` | Five built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is at index 3 and Corporate Ghost is appended at index 4 |
 | `src/catalog/operation_data.zig` | Static authored operation sequences; currently contains the three-stage `blackout-protocol` |
-| `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
+| `src/persistence/save.zig` | Shared V3 serialization and V3/V2/V1/legacy loading; version-gated `SaveContext` with Zig 0.13 `std.fs` and Zig 0.17.1 `std.Io` backends; explicit temp-write/flush/close/rename transaction |
 | `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, faction dossiers, faction-aware Operation list/details/status, Contacts, offers, history, and topology map |
 | `src/application/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/application/commands.zig` | Parses an input line into a command name and its first argument |
@@ -136,6 +136,7 @@ On successful extraction, the current stage pays its ordinary contract rewards o
 3. `save.loadGame` attempts to restore persistent progress from `saves/player.sav`.
 4. `terminal.printBanner` and the welcome/status text are written to standard output.
 5. The application repeatedly prints the prompt and reads a line from standard input. The new `std.Io` reader drains oversized lines through the delimiter and reports read failures; `ProcessWriter` writes synchronously to preserve output-failure semantics.
+6. `main` passes an explicit version-gated `SaveContext` through `game` to persistence. The save module shares one V3 serializer and preserves the temporary-file flush → close → rename boundary.
 6. Input is trimmed and passed to `game.runCommand`, together with runtime preparation state.
 7. `commands.parse` separates the command name and first argument without allocating memory.
 8. `game.runCommand` dispatches the parsed command, validates preparation and active game state, and performs the requested state transition.
@@ -204,4 +205,4 @@ Most user input errors are handled by printing a message and returning to the pr
 
 The root `AGENTS.md` is the mandatory instruction entry point for contributors and coding agents. The `.agent/` directory contains the workflow, module contracts, roadmap, known constraints, task template, review checklist, and accepted Architecture Decision Records. These documents describe development constraints; they do not replace source code as the authority for current runtime behavior.
 
-The accepted records capture the current Zig 0.13.0 toolchain, focused one-way module boundaries, runtime-only mission sessions, preservation of older save compatibility, and the typed equipment/save V3 decision.
+The accepted records capture the Zig 0.13.0 baseline and approved staged migration to Zig 0.17.1, focused one-way module boundaries, runtime-only mission sessions, preservation of older save compatibility, and the typed equipment/save V3 decision.

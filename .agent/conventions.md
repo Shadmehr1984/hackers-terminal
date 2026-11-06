@@ -31,7 +31,7 @@ Derived from the current source tree; re-check source before relying on this map
 | src/domain/mission_state.zig | Runtime preparation selection (utility, optional modifier, and OperationState), session progress, connection, per-objective tracker, detection, current node, traversal count, and per-run utility/modifier snapshots, and one-time completion payout guard | Serialization or user-facing output |
 | src/application/commands.zig | Allocation-free command/first-argument parsing | Gameplay validation and dispatch |
 | src/presentation/terminal.zig | Reusable terminal presentation, including faction-aware Operation availability and preauthorization status | Mutating game state or deciding rewards |
-| src/persistence/save.zig | Save/load serialization and legacy compatibility | Gameplay command handling |
+| src/persistence/save.zig | Shared V3 serialization, V3/V2/V1/legacy loading, version-gated SaveContext, and temp-file flush/close/rename transaction | Gameplay command handling or hidden global I/O |
 | src/application/shop.zig | Equipment catalog, inventory, purchases, equipping, and upgrades | Mission progression |
 | tests/ | Automated tests grouped by behavior/domain | Production implementation |
 | docs/ | User, architecture, save, and developer documentation | Substitute for executable tests |
@@ -47,8 +47,8 @@ Derived from the current source tree; re-check source before relying on this map
 - main.zig is the composition root. Avoid circular imports.
 
 ## Zig and test conventions
-- The default CI baseline remains Zig 0.13.0 while TOOLCHAIN-001 stages migration to Zig 0.17.1. `terminal_io.zig` is intentionally version-gated and Zig 0.16+ only; do not remove the legacy entry point or change the default CI pin before the full migration closeout.
-- Keep cross-version tests free of Zig 0.17-only syntax. The `std.Io` test suite is separate and uses the explicit module mapping documented in `docs/development.md`.
+- The default CI baseline remains Zig 0.13.0 while TOOLCHAIN-001 stages migration to Zig 0.17.1. `terminal_io.zig` and the `std.Io` SaveContext backend are intentionally version-gated and Zig 0.16+ only; do not remove the legacy entry point or change the default CI pin before the full migration closeout.
+- Keep cross-version tests free of Zig 0.17-only syntax. The `std.Io` terminal tests use an explicit module mapping; the save I/O tests use `save_io_test_root.zig` so nested imports remain inside the repository root. See `docs/development.md`.
 - Prefer explicit small functions and concrete structures over speculative abstractions.
 - Keep parsing allocation-free where practical; current parser accepts a command and first argument only.
 - Add tests under tests/ and register modules in tests/test_all.zig.

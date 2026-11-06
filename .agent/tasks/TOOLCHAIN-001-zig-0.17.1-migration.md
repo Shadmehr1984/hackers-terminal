@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Phases 1–2 implementation complete; isolated Zig 0.17.1 terminal-I/O tests and Zig 0.13.0 full CI pass; Phase 3 filesystem/persistence is next. Full 0.17.1 application build remains deferred until Phases 3–4.**
+- Status: **Phases 1–3 implementation complete; Zig 0.13.0 full CI and isolated Zig 0.17.1 terminal/save I/O checks pass. Phase 4 language/facade compatibility is next; full 0.17.1 application build remains pending Phases 4–5.**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`
@@ -67,7 +67,7 @@ The audit was performed against the current `main` head listed above. Earlier co
 - `src/domain/mission_modifier.zig:48-54`: `@enumFromInt` is used to reconstruct a modifier ID from enum metadata. The same pattern exists in `tests/mission_modifier_test.zig`. Zig 0.17.1 deprecates this builtin; replace it with the supported conversion only after verifying the enum backing type and safety semantics.
 - `@intFromEnum` appears in objective tracking, operation facts, equipment bit flags, save serialization, and tests. Audit each conversion and preserve stable numeric values where persisted or bit-packed.
 - `std.mem`, `std.fmt`, allocator usage, and the GPA setup appear throughout the codebase. Compile-driven migration must check changed signatures and semantics, not perform blind global replacements.
-- Zig 0.17.1 removes array repetition syntax (`**`) and rejects legacy `pub usingnamespace` declarations. The first full-repository formatter probe exposed these as Phase 4 blockers; use `@memset` for cross-version fixed buffers and preserve facade exports explicitly.
+- Zig 0.17.1 rejects legacy `pub usingnamespace` declarations in 13 compatibility facades; Phase 4 must replace them with explicit public exports without changing their API. Array repetition syntax (`**`) was removed from `src/domain/mission_objectives.zig` using an allocation-free initializer loop. Keep cross-version enum conversions on `@intFromEnum` until the final 0.13 CI cutover; the 0.17 formatter prefers `@backingInt` in some enum contexts, so shared files containing those conversions are excluded from the targeted 0.17 formatting list while the 0.13 formatter remains authoritative.
 - No `std.ArrayList` usage was found in the production/test scan.
 - No direct `std.process` or `std.Io` usage existed at the initial audit baseline. Phase 2 now adds a version-gated `std.process.Init` entry point and a 0.16+ `std.Io` adapter in `src/application/terminal_io.zig`.
 - Compatibility facades under `src/*.zig` must continue to compile and preserve their exports. A Zig 0.17.1 full-repository formatter probe identified legacy `pub usingnamespace` facade syntax as a compatibility blocker; migrate these in Phase 4 without changing exported names.
@@ -106,14 +106,17 @@ The audit was performed against the current `main` head listed above. Earlier co
 - Full application compilation on 0.17.1 remains deferred until the `std.fs` persistence work in Phase 3 and language/facade compatibility work in Phase 4 are complete.
 
 ### Phase 3 — Filesystem and persistence
-- [ ] Introduce a version-gated `SaveContext`: Zig 0.13 carries `std.fs.Dir`; Zig 0.17.1 carries `std.Io` plus `std.Io.Dir`. Pass it explicitly from the process boundary through `main` and `game`.
-- [ ] Factor the V3 serializer into one generic writer function so legacy and `std.Io.Writer` backends produce identical bytes.
-- [ ] Migrate create-path, create/open/read/delete/rename operations to `std.Io.Dir`/`std.Io.File`; use `std.testing.io` in Zig 0.17.1 tests.
-- [ ] Preserve the exact `saves/player.sav.tmp` staging path, truncate behavior, flush → close → rename ordering, and error cleanup. Do not replace the explicit staging seam with `File.Atomic`, because failure-injection tests intentionally target the stable temp path.
-- [ ] Preserve the 4096-byte load limit, including acceptance of exactly 4096 bytes; use a 4097-byte bounded read and reject content beyond 4096.
-- [ ] Preserve `LoadStatus` distinctions (`missing`, `invalid`, `io_error`) and ensure parsing remains transactional.
-- [ ] Test V3 byte layout/round-trip, V3/V2/V1/legacy fixtures, replacement, staging failure, missing/oversized files, and operation-save behavior on both toolchains where supported.
-- [ ] Commit as `refactor: migrate filesystem and save I/O`.
+- [x] Introduce a version-gated `SaveContext`: Zig 0.13 carries `std.fs.Dir`; Zig 0.17.1 carries `std.Io` plus `std.Io.Dir`. Pass it explicitly from the process boundary through `main` and `game`.
+- [x] Factor the V3 serializer into one generic writer function so legacy and `std.Io.Writer` backends produce identical bytes.
+- [x] Migrate create-path, create/open/read/delete/rename operations to `std.Io.Dir`/`std.Io.File`; use `std.testing.io` in Zig 0.17.1 tests.
+- [x] Preserve the exact `saves/player.sav.tmp` staging path, truncate behavior, flush → close → rename ordering, and error cleanup. Do not replace the explicit staging seam with `File.Atomic`, because failure-injection tests intentionally target the stable temp path.
+- [x] Preserve the 4096-byte load limit, including acceptance of exactly 4096 bytes; use a 4097-byte bounded read and reject content beyond 4096.
+- [x] Preserve `LoadStatus` distinctions (`missing`, `invalid`, `io_error`) and ensure parsing remains transactional.
+- [x] Cross-version CI continues to test V3 replacement, staging failure, and V3/V2/V1/legacy parser compatibility. The Zig 0.17.1 save adapter suite additionally tests exact V3 bytes, round-trip, missing file, the 4096/4097-byte boundary, and staging-failure preservation.
+- [x] Implementation committed on `main`; final Phase 3 source commit: `49547d4734028acb01efaf78563b106043000e31`.
+- [x] Verify Zig 0.13.0 CI run #1059 (`42303650922`): Debug, ReleaseSafe, and ReleaseFast all passed format, compile, tests, and agent-doc structure checks.
+- [x] Verify Zig 0.17.1 migration workflow run #15 (`42303650865`): exact version assertion, migrated-file format checks, terminal I/O tests, save I/O tests, and build-graph evaluation all passed.
+- Full application compilation on 0.17.1 remains deferred until Phase 4 removes the legacy compatibility-facade/language blockers and Phase 5 migrates the complete test infrastructure.
 
 ### Phase 4 — Language and standard-library compatibility
 - [ ] Replace deprecated enum conversion builtins with 0.17.1-supported equivalents after verifying backing-type semantics.
@@ -214,3 +217,17 @@ The next agent must:
 - The existing temp filename is deliberately retained. `std.Io.File.Atomic` was considered but rejected for this phase because the tests inject staging failures by creating `saves/player.sav.tmp`; switching to an opaque atomic-file temporary would weaken that test seam and alter cleanup observability.
 - The current read cap is 4096 bytes. The 0.17.1 bounded read uses `.limited(4097)` so a 4096-byte file remains valid while a 4097-byte file is rejected as `error.StreamTooLong`.
 - Verified 0.17 filesystem references: Zig 0.16.0 official release notes map `std.fs.Dir` to `std.Io.Dir` and document the `rename` API; the Zig 0.17 API probe guide records `createDirPath`, `readFileAlloc`, `createFile`, `deleteFile`, and the 4,097-byte bounded-read behavior. The CI workflow will be the final authority for the exact 0.17.1 compiler.
+
+
+### 2026-11-07 — Phase 3 filesystem/persistence implementation and verification
+- Added version-gated `save.SaveContext`: the Zig 0.13 branch carries `std.fs.Dir`; the Zig 0.17.1 branch carries both `std.Io` and `std.Io.Dir`. `main` supplies the context and `game` passes it to persistence rather than creating hidden global I/O dependencies.
+- Extracted the V3 payload writer into one generic `writeSavePayload` function shared by both toolchains. The serialized marker, positional field order, numeric values, and completion-flag order are unchanged.
+- The 0.17.1 path uses `Dir.createDirPath`, `createFile`, `File.writer`, `Writer.flush`, `File.close`, `Dir.rename`, `Dir.deleteFile`, and bounded file reading. The temporary filename remains exactly `saves/player.sav.tmp`.
+- The 0.17.1 reader uses `.limited(4097)` and rejects any returned data longer than 4096 bytes. This accepts a 4096-byte file for validation (status `invalid` when malformed) and reports a 4097-byte file as `io_error`.
+- Updated operation/equipment save tests to construct a `SaveContext` from the caller-supplied temporary directory. Added `tests/save_test_support.zig` for cross-version filesystem test helpers.
+- Added `tests/save_io_test.zig` and root-scoped harness `save_io_test_root.zig` because Zig 0.17 module path restrictions reject a named module rooted at `src/persistence` importing its sibling `../domain` files. The harness keeps the actual tests under `tests/` while giving the module root the repository root.
+- The Zig 0.17.1 save adapter tests verify exact V3 bytes, write/read round-trip, missing-save status, 4096/4097-byte read boundaries, and that a staging failure leaves the previous save intact.
+- A minimal Phase 4 syntax prerequisite was pulled forward: `mission_objectives.zig` no longer uses array repetition `**`; it initializes its fixed array with a small loop, preserving allocation-free behavior and Zig 0.13 compatibility.
+- Cross-version enum serialization still uses `@intFromEnum`, which compiles under both toolchains. The targeted 0.17 formatter check intentionally excludes shared files that Zig 0.17 would rewrite to `@backingInt`; final formatting migration belongs in Phase 4/5 after the default toolchain switch.
+- CI run #1059 (`42303650922`) on the Phase 3 head passed all Zig 0.13.0 modes. Zig 0.17.1 run #15 (`42303650865`) passed all targeted terminal/save tests, formatting checks for migrated files, and build-graph evaluation.
+- Full application build under 0.17.1 remains pending until the compatibility facades and remaining language/stdlib blockers are resolved.

@@ -61,6 +61,6 @@ The existing HT-001 through HT-005 program remains implemented. EXPANSION-001 is
 
 | ID | Work | Status |
 | --- | --- | --- |
-| TOOLCHAIN-001 | Upgrade the repository from Zig 0.13.0 to Zig 0.17.1 while preserving gameplay, save compatibility, and I/O failure guarantees | Owner-approved; Phase 0 audit complete; implementation not started. See [task brief](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md) and [ADR 0016](decisions/0016-zig-0.17.1.md). |
+| TOOLCHAIN-001 | Upgrade the repository from Zig 0.13.0 to Zig 0.17.1 while preserving gameplay, save compatibility, and I/O failure guarantees | Owner-approved; Phases 0–3 implemented and targeted CI-verified; Phase 4 language/facade compatibility is next. Full 0.17.1 application build and final CI switch remain pending. See [task brief](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md) and [ADR 0016](decisions/0016-zig-0.17.1.md). |
 
-The migration target is 0.17.1, but the current build and CI baseline remains 0.13.0 until all migration phases are implemented and verified. Do not mark this task Implemented before the final three-mode CI matrix and full review pass.
+The migration target is 0.17.1, but the current default application build and CI baseline remains 0.13.0 until all migration phases are implemented and verified. The dedicated Zig 0.17.1 workflow currently verifies the isolated terminal and persistence adapters. Do not mark this task Implemented before the complete application/test build, final three-mode CI matrix, and full review pass.
