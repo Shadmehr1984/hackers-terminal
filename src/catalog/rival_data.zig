@@ -83,7 +83,7 @@ pub fn validate(missions: []const @import("../domain/mission.zig").Mission) bool
         if (entry.name.len == 0 or entry.specialty.len == 0 or entry.approach.len == 0 or entry.briefing_hint.len == 0) return false;
         if (entry.mission_id.len == 0 or entry.objective_id.len == 0) return false;
         for (rivals[0..index]) |previous| {
-            if (previous.id == entry.id) return false;
+            if (previous.id == entry.id or std.mem.eql(u8, previous.mission_id, entry.mission_id)) return false;
         }
         var mission_found = false;
         for (missions) |mission| {
@@ -91,7 +91,7 @@ pub fn validate(missions: []const @import("../domain/mission.zig").Mission) bool
             mission_found = true;
             var objective_found = false;
             for (mission.objectives) |objective| {
-                if (std.mem.eql(u8, objective.id, entry.objective_id) and objective.optional and objective.hidden) {
+                if (std.mem.eql(u8, objective.id, entry.objective_id) and objective.optional and objective.hidden and objective.bonus_reward == 0) {
                     objective_found = true;
                     break;
                 }
