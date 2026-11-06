@@ -5,6 +5,7 @@ const MissionSession = @import("../domain/mission_state.zig").MissionSession;
 pub const failure_penalty: u32 = 50;
 
 /// Applies simulated Detection exposure and resets the active run if it reaches 100.
+/// State is committed only after every corresponding output write succeeds.
 pub fn apply(
     writer: anytype,
     player: *Player,
@@ -12,24 +13,35 @@ pub fn apply(
     session: *MissionSession,
     amount: u8,
 ) !bool {
-    const previous_band = session.detectionBand();
-    session.addDetection(amount);
-    const current_band = session.detectionBand();
+    var next_player = player.*;
+    var next_active = active.*;
+    var next_session = session.*;
+
+    const previous_band = next_session.detectionBand();
+    next_session.addDetection(amount);
+    const current_band = next_session.detectionBand();
     if (current_band != previous_band and current_band != .compromised) {
         try writer.print("[DETECTION WARNING] Exposure is now {d}/100 ({s}).\n", .{
-            session.detection_level, current_band.label(),
+            next_session.detection_level, current_band.label(),
         });
     }
-    if (session.detection_level >= 100) {
-        const penalty = @min(player.balance, failure_penalty);
-        player.balance -= penalty;
+    if (next_session.detection_level >= 100) {
+        const penalty = @min(next_player.balance, failure_penalty);
+        next_player.balance -= penalty;
         try writer.print(
             "[CONTRACT FAILED] Detection reached 100/100. The operation was compromised. ${d} penalty applied; remaining balance: {d}. You may accept this contract again.\n",
-            .{ penalty, player.balance },
+            .{ penalty, next_player.balance },
         );
-        active.* = null;
-        session.reset();
+        next_active = null;
+        next_session.reset();
+        player.* = next_player;
+        active.* = next_active;
+        session.* = next_session;
         return true;
     }
+
+    player.* = next_player;
+    active.* = next_active;
+    session.* = next_session;
     return false;
 }
