@@ -95,7 +95,18 @@ pub const Mission = struct {
         return tracker.initialize(self.objectives);
     }
 
-    /// Validates that faction links do not point back to the commissioning faction.\n    pub fn hasValidFactionLinks(self: Mission) bool {\n        if (self.target_owner_faction) |owner| {\n            if (owner == self.client_faction) return false;\n        }\n        if (self.opposing_faction) |opposing| {\n            if (opposing == self.client_faction) return false;\n        }\n        return true;\n    }\n\n    /// Reports whether this contract explicitly allows the supplied modifier.
+    /// Validates that faction links do not point back to the commissioning faction.
+    pub fn hasValidFactionLinks(self: Mission) bool {
+        if (self.target_owner_faction) |owner| {
+            if (owner == self.client_faction) return false;
+        }
+        if (self.opposing_faction) |opposing| {
+            if (opposing == self.client_faction) return false;
+        }
+        return true;
+    }
+
+    /// Reports whether this contract explicitly allows the supplied modifier.
     pub fn allowsModifier(self: Mission, modifier: ModifierId) bool {
         for (self.allowed_modifiers) |allowed| {
             if (allowed == modifier) return true;
