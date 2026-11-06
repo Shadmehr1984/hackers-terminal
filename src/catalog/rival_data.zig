@@ -1,5 +1,6 @@
 const std = @import("std");
 const Rival = @import("../domain/rival.zig").Rival;
+const Mission = @import("../domain/mission.zig").Mission;
 
 /// Five authored offline competitors and their deterministic optional-intel contests.
 const rivals = [_]Rival{
@@ -77,7 +78,7 @@ pub fn forMission(mission_id: []const u8) ?Rival {
 }
 
 /// Validates unique identities and complete references to the current catalogs.
-pub fn validate(missions: []const @import("../domain/mission.zig").Mission) bool {
+pub fn validate(missions: []const Mission) bool {
     if (rivals.len != 5) return false;
     for (rivals, 0..) |entry, index| {
         if (entry.name.len == 0 or entry.specialty.len == 0 or entry.approach.len == 0 or entry.briefing_hint.len == 0) return false;
