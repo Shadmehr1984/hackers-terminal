@@ -91,4 +91,4 @@ Domain rules do not import application or terminal modules. The command parser r
 ## Progress log
 
 - 2026-11-06: Read project instructions, agent workflow/conventions/review standard, phase-2 and master plans, gameplay/command/architecture/save docs, current source and test ownership. Confirmed the existing five hidden optional objectives provide deterministic, zero-cash rival contest hooks.
-- 2026-11-06: Added rival domain/catalog/simulation modules and began game/terminal integration. Verification is pending.
+- 2026-11-06: Added rival domain/catalog/simulation modules, game dispatch, Contract Board/Preparation/Briefing integration, five rival dossiers, and focused tests. Updated the aggregate test list and project/agent documentation. Static change review is underway; CI execution/result is not yet available through the connected GitHub actions/status endpoints.
