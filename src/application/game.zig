@@ -761,21 +761,31 @@ pub fn runCommandWithSaveDirectory(
             } else if (mission.topology != null and !atMissionNode(mission, session.*, mission.topology.?.extract_node)) {
                 try writer.print("Move to node '{s}' before extracting this file.\n", .{mission.topology.?.extract_node});
             } else {
-                const already_extracted = session.isObjectiveComplete(.extract_file);
-                // Apply the potentially failing Detection output before mutating objective progress.
-                if (!already_extracted and try detection.apply(writer, player, active, session, 5)) {
-                    try retryOperationStage(writer, player.*, missions, active.*, preparation);
+                var next_player = player.*;
+                var next_active = active.*;
+                var next_session = session.*;
+                var next_preparation = preparation.*;
+                var next_mission = mission;
+                const already_extracted = next_session.isObjectiveComplete(.extract_file);
+
+                if (!already_extracted and try detection.apply(writer, &next_player, &next_active, &next_session, 5)) {
+                    try retryOperationStage(writer, next_player, missions, next_active, &next_preparation);
+                    player.* = next_player;
+                    active.* = next_active;
+                    session.* = next_session;
+                    preparation.* = next_preparation;
                     return true;
                 }
-                try reportObjectiveDiscoveries(writer, session.discoverAction(.extract_file, mission.objectives));
-                session.completeObjective(.extract_file);
-                if (!session.allObjectivesComplete(mission.objectives)) {
+
+                try reportObjectiveDiscoveries(writer, next_session.discoverAction(.extract_file, next_mission.objectives));
+                next_session.completeObjective(.extract_file);
+                if (!next_session.allObjectivesComplete(next_mission.objectives)) {
                     try writer.writeAll("Contract objectives are incomplete. Review 'objectives'.\n");
                 } else {
-                    const reward_eligible = !preparation.operation_state.active or preparation.operation_state.current_stage_reward_eligible;
-                    try writer.print("[EXTRACTED] {s}\n", .{mission.encrypted_file});
+                    const reward_eligible = !next_preparation.operation_state.active or next_preparation.operation_state.current_stage_reward_eligible;
+                    try writer.print("[EXTRACTED] {s}\n", .{next_mission.encrypted_file});
                     if (reward_eligible) {
-                        progression.completeMission(writer, player, mission, session) catch |err| switch (err) {
+                        progression.completeMission(writer, &next_player, next_mission, &next_session) catch |err| switch (err) {
                             error.RewardOverflow => {
                                 try writer.writeAll("[REWARD ERROR] Reward totals exceed the supported player limits. The contract remains active and no payout was applied.\n");
                                 return true;
@@ -785,40 +795,47 @@ pub fn runCommandWithSaveDirectory(
                     } else {
                         try writer.writeAll("[REPLAY] Already completed; no rewards paid again.\n");
                     }
-                    // Finalize optional objectives only after payout/output succeeds.
-                    session.markUncompletedOptionalObjectivesUnavailable();
-                    missions[index].completed = true;
-                    if (preparation.operation_state.active) {
-                        const op = operation_data.find(preparation.operation_state.operation_id).?;
-                        const stage = preparation.operation_state.currentStage(op).?;
+
+                    next_session.markUncompletedOptionalObjectivesUnavailable();
+                    next_mission.completed = true;
+                    if (next_preparation.operation_state.active) {
+                        const op = operation_data.find(next_preparation.operation_state.operation_id).?;
+                        const stage = next_preparation.operation_state.currentStage(op).?;
                         if (stage.outgoing) |out| {
-                            if (session.objective_tracker.stateOf(out.objective_id) == .completed) {
-                                // Emit the transition record before mutating the carried operation facts.
+                            if (next_session.objective_tracker.stateOf(out.objective_id) == .completed) {
                                 try writer.print("[OPERATION INTEL] Fact secured: {s}.\n", .{operationFactLabel(out.fact)});
-                                preparation.operation_state.grantFact(out.fact);
+                                next_preparation.operation_state.grantFact(out.fact);
                             }
                         }
-                        const next = @as(usize, preparation.operation_state.stage_index) + 1;
+                        const next = @as(usize, next_preparation.operation_state.stage_index) + 1;
                         const next_eligible = if (next < op.stages.len)
                             !missions[findMissionIndex(missions, op.stages[next].mission_id).?].completed
                         else
                             false;
-                        const finished = preparation.operation_state.advance(op, next_eligible);
-                        active.* = null;
-                        preparation.clear();
-                        session.reset();
-                        if (finished) try writer.print("[OPERATION COMPLETE] {s}.\n", .{op.name}) else {
-                            const next_stage = op.stages[preparation.operation_state.stage_index];
+                        const finished = next_preparation.operation_state.advance(op, next_eligible);
+                        next_active = null;
+                        next_preparation.clear();
+                        next_session.reset();
+                        if (finished) {
+                            try writer.print("[OPERATION COMPLETE] {s}.\n", .{op.name});
+                        } else {
+                            const next_stage = op.stages[next_preparation.operation_state.stage_index];
                             const next_idx = findMissionIndex(missions, next_stage.mission_id).?;
-                            prepareOperationStage(preparation, player.*, next_idx);
+                            prepareOperationStage(&next_preparation, next_player, next_idx);
                             try writer.print("[STAGE COMPLETE] Next stage prepared: {s}. Accept it when ready.\n", .{missions[next_idx].name});
-                            try terminal.printPreparation(writer, missions[next_idx], player.*, preparation.selected_utility, null);
+                            try terminal.printPreparation(writer, missions[next_idx], next_player, next_preparation.selected_utility, null);
                         }
                     } else {
-                        active.* = null;
-                        session.reset();
+                        next_active = null;
+                        next_session.reset();
                     }
                 }
+
+                player.* = next_player;
+                active.* = next_active;
+                session.* = next_session;
+                preparation.* = next_preparation;
+                missions[index] = next_mission;
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "inventory")) {
