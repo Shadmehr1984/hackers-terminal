@@ -527,3 +527,25 @@ test "failed Detection output during Extraction preserves the objective and acti
     try std.testing.expect(!missions[0].completed);
     try std.testing.expectEqual(@as(u32, 125), player.balance);
 }
+
+
+test "failed contract launch output preserves preparation and does not activate a session" {
+    var player = Player{};
+    var missions = mission_data.defaultMissions();
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    try run(TestWriter{}, "prepare job-01", &player, &missions, &active, &session, &preparation);
+
+    var print_calls: usize = 0;
+    const failing_writer = FailOnPrintWriter{ .calls = &print_calls, .fail_on = 1 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(failing_writer, "accept job-01", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(@as(?usize, null), active);
+    try std.testing.expectEqual(@as(?usize, 0), preparation.mission_index);
+    try std.testing.expectEqual(MissionState.MissionProgress.inactive, session.progress);
+    try std.testing.expect(session.current_node == null);
+}
