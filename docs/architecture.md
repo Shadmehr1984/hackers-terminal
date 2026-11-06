@@ -26,13 +26,13 @@ The former top-level module paths remain as thin compatibility facades so existi
 | --- | --- |
 | `src/main.zig` | Application entry point, allocator and standard I/O setup, save loading, welcome output, and interactive input loop |
 | `src/domain/player.zig` | Player profile plus typed equipment ownership, utility-slot selection, upgrade levels, and pure Detection-cost profiles |
-| `src/domain/contract_board.zig` | Pure derived availability and reward-range calculations for the separate `board` command; no persistence or I/O |
+| `src/domain/contract_board.zig` | Pure derived availability, faction access, and reward-range calculations for the separate `board` command; no persistence or I/O |
 | `src/domain/operation.zig` | Static linear operation/stage definitions, typed carry-over facts, and catalog validation |
 | `src/domain/operation_state.zig` | Bounded runtime-only stage/fact lifecycle, retry, and per-stage reward eligibility |
-| `src/domain/mission.zig` | Public `Mission` contract data type, static allowed-modifier metadata, optional topology reference, level/Reputation requirements and contact-offer gating, `MissionDifficulty`, `MissionCategory`, and typed `MissionObjective` definitions |
+| `src/domain/mission.zig` | Public `Mission` contract data type, static faction affiliations, allowed-modifier metadata, optional topology reference, level/Reputation requirements and contact-offer gating, difficulty/category, and typed objectives |
 | `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
 | `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, per-objective runtime tracker, detection exposure, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
-| `src/catalog/mission_data.zig` | Four built-in mission definitions and their default ordering; Ghost Signal is appended at index 3 |
+| `src/catalog/mission_data.zig` | Four built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is appended at index 3 |
 | `src/catalog/operation_data.zig` | Static authored operation sequences; currently contains the three-stage `blackout-protocol` |
 | `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, Contacts, offers, history, and topology map |
@@ -41,7 +41,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/application/game.zig` | Coordinates the shared preparation-aware command dispatcher, Contact commands, offer transactions, and game-state transitions |
 | `src/application/detection.zig` | Detection exposure changes, warnings, compromise failure, and bounded penalty |
 | `src/domain/progression.zig` | Player level thresholds, reputation tiers, XP display thresholds, and mission reward progression |
-| `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
+| `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |\n| `src/domain/faction_id.zig` and `src/domain/faction.zig` | Stable faction IDs, standing/relationship types, and pure standing derivation from Reputation plus completed contract outcomes |\n| `src/catalog/faction_data.zig` | Seven fictional faction profiles and static symmetric inter-faction relationships |
 | `tests/` | Unit and integration tests for commands, mission state, topology validation/allocation failures, equipment, save migrations and malformed input, Detection, progression, Contacts, and offers |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
