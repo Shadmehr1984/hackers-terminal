@@ -131,7 +131,6 @@ test "reward overflow leaves player and completion guard unchanged" {
     try std.testing.expect(!xp_session.completion_reward_paid);
 }
 
-
 test "mission remains active and incomplete when payout overflows" {
     var player = Player{ .balance = std.math.maxInt(u32) };
     var missions = mission_data.defaultMissions();
@@ -154,7 +153,6 @@ test "mission remains active and incomplete when payout overflows" {
     try std.testing.expectEqual(std.math.maxInt(u32), player.balance);
     try std.testing.expect(!session.completion_reward_paid);
 }
-
 
 test "writer failure does not commit mission payout or completion guard" {
     const missions = mission_data.defaultMissions();
