@@ -106,23 +106,23 @@ test "Corporate Ghost remains faction-locked until Quiet Exit, then completes it
     try run(&capture, "decrypt auditlog", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move mirror-node", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(
-        ObjectiveState.discovered,
-        session.objective_tracker.stateOf("mirror-fragment").?,
+        @as(?ObjectiveState, .discovered),
+        session.objective_tracker.stateOf("mirror-fragment"),
     );
     try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move audit-hub", &player, &missions, &active, &session, &preparation);
     try run(&capture, "analyze access-ledger.enc", &player, &missions, &active, &session, &preparation);
     try std.testing.expectEqual(
-        ObjectiveState.completed,
-        session.objective_tracker.stateOf("verify-trail").?,
+        @as(?ObjectiveState, .completed),
+        session.objective_tracker.stateOf("verify-trail"),
     );
     try std.testing.expectEqual(
-        ObjectiveState.completed,
-        session.objective_tracker.stateOf("analyze-metadata").?,
+        @as(?ObjectiveState, .completed),
+        session.objective_tracker.stateOf("analyze-metadata"),
     );
     try std.testing.expectEqual(
-        ObjectiveState.completed,
-        session.objective_tracker.stateOf("mirror-fragment").?,
+        @as(?ObjectiveState, .completed),
+        session.objective_tracker.stateOf("mirror-fragment"),
     );
     try run(&capture, "move data-vault", &player, &missions, &active, &session, &preparation);
     try run(&capture, "move exit-relay", &player, &missions, &active, &session, &preparation);
