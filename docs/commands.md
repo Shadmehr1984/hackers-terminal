@@ -13,7 +13,9 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `operation <id>` | Operation ID | Inspect ordered contract stages and their level/Reputation requirements |
 | `operation-start <id>` | Operation ID | Start an operation and prepare its first stage |
 | `operation-status` | None | Show the current operation stage and earned carry-over facts |
-| `board` | None | Open the Contract Board with categories, reward ranges, faction affiliations, standing, and availability reasons |\n| `factions` | None | List all seven fictional organizations and your derived standing with each |\n| `faction <id>` | Faction ID | Inspect one faction dossier and its static relationships |
+| `board` | None | Open the Contract Board with categories, reward ranges, faction affiliations, standing, and availability reasons |
+| `factions` | None | List all seven fictional organizations and your derived standing with each |
+| `faction <id>` | Faction ID | Inspect one faction dossier and its static relationships |
 | `contacts` | None | Show both fictional contacts and their unlock status |
 | `contact <id>` | `broker` or `fixer` | Inspect a contact, its role, and relevant offers |
 | `offers` | None | List currently actionable contact offers |
