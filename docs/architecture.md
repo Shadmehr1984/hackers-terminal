@@ -56,6 +56,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 A mission stores its static contract definition and completion state:
 
 - `id`, `name`, and `target` identify the contract.
+- `client_faction` identifies the commissioning organization; `target_owner_faction` and optional `opposing_faction` identify affected interests. These are static catalog links, not persisted player state.
 - `difficulty` classifies the contract as `easy`, `medium`, or `hard`. Its `label()` method provides the player-facing title-case label.
 - `objectives` contains the static, ordered list of `MissionObjective` records. Each record has a stable mission-local `id`, a completion `MissionObjectiveKind`, player-facing description, optional reward metadata, and (for hidden objectives) a typed Node/File/Action discovery trigger.
 - `password` and `password_hint` define the authentication puzzle.
