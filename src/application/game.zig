@@ -703,8 +703,9 @@ pub fn runCommandWithSaveDirectory(
                         const stage = preparation.operation_state.currentStage(op).?;
                         if (stage.outgoing) |out| {
                             if (session.objective_tracker.stateOf(out.objective_id) == .completed) {
-                                preparation.operation_state.grantFact(out.fact);
+                                // Emit the transition record before mutating the carried operation facts.
                                 try writer.print("[OPERATION INTEL] Fact secured: {s}.\n", .{operationFactLabel(out.fact)});
+                                preparation.operation_state.grantFact(out.fact);
                             }
                         }
                         const next = @as(usize, preparation.operation_state.stage_index) + 1;
