@@ -264,11 +264,18 @@ pub fn printRival(
 }
 
 /// Discloses rival activity and counterplay before an affected contract is launched.
-pub fn printRivalBriefing(writer: anytype, mission_id: []const u8) !void {
+pub fn printRivalBriefing(writer: anytype, mission_id: []const u8, state: rival_model.RivalStatus) !void {
     if (rival_data.forMission(mission_id)) |entry| {
-        try writer.print("\nRIVAL INTELLIGENCE: {s} ({s})\n", .{ entry.name, entry.faction.slug() });
-        try writer.writeAll(entry.briefing_hint);
-        try writer.writeAll("\nThis is optional intelligence only; the primary contract remains completable.\n");
+        try writer.print("\nRIVAL INTELLIGENCE: {s} ({s})\nStatus: {s}\n", .{ entry.name, entry.faction.slug(), state.label() });
+        switch (state) {
+            .dormant, .contesting => {
+                try writer.writeAll(entry.briefing_hint);
+                try writer.writeAll("\n");
+            },
+            .rival_ahead => try writer.writeAll("The rival secured this optional intelligence for the current run. Required objectives and extraction remain available.\n"),
+            .outpaced => try writer.writeAll("You found the contested intelligence first. The rival can no longer claim this opportunity.\n"),
+        }
+        try writer.writeAll("This is optional intelligence only; the primary contract remains completable.\n");
     }
 }
 
