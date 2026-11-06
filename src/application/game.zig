@@ -17,6 +17,8 @@ const contacts = @import("../domain/contacts.zig");
 const operation_data = @import("../catalog/operation_data.zig");
 const faction = @import("../domain/faction.zig");
 const FactionId = @import("../domain/faction_id.zig").FactionId;
+const RivalId = @import("../domain/rival.zig").RivalId;
+const rival_simulation = @import("../domain/rival_simulation.zig");
 
 /// Re-exports the configured in-game penalty for a Detection compromise.
 pub const detection_failure_penalty: u32 = detection.failure_penalty;
@@ -272,6 +274,16 @@ pub fn runCommandWithSaveDirectory(
     } else if (std.mem.eql(u8, command, "board")) {
         const level = progression.playerLevel(player.*);
         try terminal.printContractBoard(writer, missions, level, player.reputation, active.* != null or preparation.mission_index != null);
+    } else if (std.mem.eql(u8, command, "rivals")) {
+        const active_id: ?[]const u8 = if (active.*) |index| missions[index].id else null;
+        const tracker = if (active.* != null) &session.objective_tracker else null;
+        try terminal.printRivals(writer, missions, progression.playerLevel(player.*), player.reputation, active_id, tracker);
+    } else if (std.mem.eql(u8, command, "rival")) {
+        if (RivalId.parse(arg)) |rival_id| {
+            const active_id: ?[]const u8 = if (active.*) |index| missions[index].id else null;
+            const tracker = if (active.* != null) &session.objective_tracker else null;
+            try terminal.printRival(writer, rival_id, missions, progression.playerLevel(player.*), player.reputation, active_id, tracker);
+        } else try writer.writeAll("Unknown rival. Use rivals to list valid IDs.\n");
     } else if (std.mem.eql(u8, command, "factions")) {
         try terminal.printFactions(writer, player.reputation, missions);
     } else if (std.mem.eql(u8, command, "faction")) {
@@ -449,6 +461,7 @@ pub fn runCommandWithSaveDirectory(
             });
             if (mission.topology != null) try writer.writeAll("Network: use 'map' to inspect nodes and objective locations.\n");
             if (session.modifier) |modifier| try writer.print("Mission modifier: {s}\nEffect: {s}\n", .{ modifier.label(), modifier.description() });
+            try terminal.printRivalBriefing(writer, mission.id);
             try terminal.printObjectives(writer, mission, session.*);
         } else try writer.writeAll("No active contract. Accept a mission first.\n");
     } else if (std.mem.eql(u8, command, "objectives")) {
@@ -589,6 +602,10 @@ pub fn runCommandWithSaveDirectory(
                 try reportObjectiveDiscoveries(writer, session.discoverAction(.decrypt_file, mission.objectives));
                 session.completeObjective(.decrypt_file);
                 session.markOptionalObjectivesUnavailableForEvent(.decrypt_file);
+                if (rival_simulation.resolveAfterDecryption(mission.id, &session.objective_tracker)) |rival_id| {
+                    const rival = rival_simulation.find(rival_id).?;
+                    try writer.print("[RIVAL AHEAD] {s} reached the optional intelligence first. The main contract remains unaffected.\n", .{rival.name});
+                }
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
                 if (!already_decrypted) _ = try detection.apply(writer, player, active, session, 10);
             } else {
