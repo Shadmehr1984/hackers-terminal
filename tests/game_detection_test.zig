@@ -433,7 +433,6 @@ test "modified extraction with incomplete required objectives does not pay rewar
     try std.testing.expectEqual(@as(?ModifierId, .security_sweep), session.modifier);
 }
 
-
 test "failed movement output leaves topology and Detection state unchanged" {
     var player = Player{};
     var missions = mission_data.defaultMissions();
