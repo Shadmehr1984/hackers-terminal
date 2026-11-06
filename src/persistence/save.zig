@@ -52,6 +52,14 @@ fn parseActiveCandidate(value: []const u8) ?usize {
     return std.fmt.parseInt(usize, value, 10) catch null;
 }
 
+fn isValidActiveCandidate(value: []const u8, mission_count: usize) bool {
+    const parsed = std.fmt.parseInt(i64, value, 10) catch return false;
+    if (parsed < -1) return false;
+    if (parsed == -1) return true;
+    const index = std.fmt.parseInt(usize, value, 10) catch return false;
+    return index < mission_count;
+}
+
 fn validateSave(data: []const u8, mission_count: usize) ?SaveFormat {
     const payload = if (std.mem.endsWith(u8, data, "\n")) data[0 .. data.len - 1] else data;
     var lines = std.mem.splitScalar(u8, payload, '\n');
@@ -86,9 +94,7 @@ fn validateSave(data: []const u8, mission_count: usize) ?SaveFormat {
                     if (level > 2) return null;
                 },
                 8 => {
-                    const active = std.fmt.parseInt(i64, value, 10) catch return null;
-                    if (active < -1) return null;
-                    if (active >= 0) _ = std.fmt.parseInt(usize, value, 10) catch return null;
+                    if (!isValidActiveCandidate(value, mission_count)) return null;
                 },
                 else => _ = parseFlag(value) orelse return null,
             },
@@ -96,9 +102,7 @@ fn validateSave(data: []const u8, mission_count: usize) ?SaveFormat {
                 0...2 => _ = std.fmt.parseInt(u32, value, 10) catch return null,
                 3 => _ = parseFlag(value) orelse return null,
                 4 => {
-                    const active = std.fmt.parseInt(i64, value, 10) catch return null;
-                    if (active < -1) return null;
-                    if (active >= 0) _ = std.fmt.parseInt(usize, value, 10) catch return null;
+                    if (!isValidActiveCandidate(value, mission_count)) return null;
                 },
                 else => _ = parseFlag(value) orelse return null,
             },
@@ -106,9 +110,7 @@ fn validateSave(data: []const u8, mission_count: usize) ?SaveFormat {
                 0...1 => _ = std.fmt.parseInt(u32, value, 10) catch return null,
                 2 => _ = parseFlag(value) orelse return null,
                 3 => {
-                    const active = std.fmt.parseInt(i64, value, 10) catch return null;
-                    if (active < -1) return null;
-                    if (active >= 0) _ = std.fmt.parseInt(usize, value, 10) catch return null;
+                    if (!isValidActiveCandidate(value, mission_count)) return null;
                 },
                 else => _ = parseFlag(value) orelse return null,
             },

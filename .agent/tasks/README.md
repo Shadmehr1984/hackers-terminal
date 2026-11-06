@@ -30,6 +30,7 @@ Planning approved on 2026-11-05. HT-006 is implemented and merged. HT-007 implem
 - [QUALITY-002 — Save, Topology, and Persistence Test Hardening](QUALITY-002-code-review-remediation.md) — Implemented: strict save marker handling, topology reachability validation, and filesystem persistence tests.
 - [QUALITY-003 — Active Save Validation and Status Output](QUALITY-003-code-review-remediation.md) — Implemented: persisted active-mission consistency validation and corrected status line endings with regression tests.
 - [QUALITY-004 — Idempotent Completed Authentication and Decryption](QUALITY-004-idempotent-completed-stages.md) — Implemented: incorrect retries after completed stages no longer increase Detection.
+- [QUALITY-006 — Atomic Active Save Index Bounds](QUALITY-006-active-save-index-bounds.md) — Implemented pending CI verification: out-of-range V3/V2/V1 active indices are rejected before state mutation.
 
 ## Handoff rules
 - HT-001 through HT-006 are complete. For EXPANSION-001, follow the dependency order and require individual owner authorization for each feature. Do not combine multiple features into one oversized change.

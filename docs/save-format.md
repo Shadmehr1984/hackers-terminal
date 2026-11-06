@@ -38,7 +38,7 @@ For the current four missions, indices map as follows:
 
 The fourth mission is appended at index 3; the original indices 0–2 are unchanged. Older V3/V2/V1/legacy saves with only three completion flags leave the appended mission incomplete by default. The V3 marker and player-field order are unchanged; the current writer emits four mission completion flags.
 
-An active mission index of `-1` means there is no active contract. A non-negative index is accepted only when it is in range and the mission is not already completed.
+An active mission index of `-1` means there is no active contract. A non-negative index must be within the current mission catalog; an out-of-range index rejects the save before any in-memory state is changed. An in-range index that points to a mission marked completed in the same save is not restored as active.
 
 ## Persisted and transient data
 
@@ -79,7 +79,7 @@ The first line must be a valid unsigned numeric balance, followed by reputation 
 ## Failure behavior and caveats
 
 - If the file cannot be opened or read, loading returns no active mission and the game continues with defaults.
-- Unknown non-numeric format markers, truncated payloads, blank positional fields, malformed or out-of-range numeric fields, invalid boolean flags, and unsupported completion-flag counts are rejected before mutating player or mission state.
+- Unknown non-numeric format markers, truncated payloads, blank positional fields, malformed or out-of-range numeric fields (including active mission indices outside the current catalog), invalid boolean flags, and unsupported completion-flag counts are rejected before mutating player or mission state.
 - A recognized save is parsed and validated in full before the loaded player and mission-completion state are committed. A rejected save leaves every caller-owned field unchanged.
 - Current mission catalogs accept any completion-flag count up to the catalog size for backward compatibility; omitted trailing mission flags default to incomplete. Extra flags are rejected.
 - The loader reads at most 4096 bytes.

@@ -215,6 +215,40 @@ test "active mission is validated against completion flags loaded from the same 
     try std.testing.expect(!incomplete_missions[1].completed);
 }
 
+test "out-of-range active mission indices reject every version without mutating live state" {
+    const invalid_active_saves = [_][]const u8{
+        "HACKERS_TERMINAL_SAVE_V3\n999\n8\n100\n1\n1\n1\n2\n2\n99\n0\n0\n0\n0\n",
+        "HACKERS_TERMINAL_SAVE_V2\n999\n8\n100\n1\n99\n0\n0\n0\n0\n",
+        "HACKERS_TERMINAL_SAVE_V1\n999\n8\n1\n99\n0\n0\n0\n0\n",
+    };
+
+    for (invalid_active_saves) |data| {
+        var player = Player{ .balance = 321, .reputation = 7, .xp = 99 };
+        player.equipment.has_decryptor = true;
+        player.equipment.setOwned(.silent_boots);
+        player.equipment.equipped_utility = .silent_boots;
+        player.equipment.silent_boots_level = 1;
+        var missions = mission_data.defaultMissions();
+        missions[0].completed = true;
+        missions[2].completed = true;
+
+        const active = save.loadGameFromBytes(data, &player, &missions);
+
+        try std.testing.expect(active == null);
+        try std.testing.expectEqual(@as(u32, 321), player.balance);
+        try std.testing.expectEqual(@as(u32, 7), player.reputation);
+        try std.testing.expectEqual(@as(u32, 99), player.xp);
+        try std.testing.expect(player.equipment.has_decryptor);
+        try std.testing.expect(player.equipment.owns(.silent_boots));
+        try std.testing.expect(player.equipment.isEquipped(.silent_boots));
+        try std.testing.expectEqual(@as(u2, 1), player.equipment.level(.silent_boots));
+        try std.testing.expect(missions[0].completed);
+        try std.testing.expect(!missions[1].completed);
+        try std.testing.expect(missions[2].completed);
+        try std.testing.expect(!missions[3].completed);
+    }
+}
+
 test "save writes and replaces a V3 file in an isolated directory" {
     var tmp = std.testing.tmpDir(.{});
     defer tmp.cleanup();
