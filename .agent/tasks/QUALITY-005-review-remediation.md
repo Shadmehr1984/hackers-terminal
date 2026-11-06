@@ -15,7 +15,7 @@ Prevent reward overflow and partial Save-load mutation, then close the four acti
 - [x] Cash, Reputation, and XP payout totals use checked arithmetic; overflow leaves player state and the payout guard unchanged.
 - [x] Mission completion is recorded only after a successful eligible payout.
 - [x] V3/V2/V1/legacy input is fully validated before any player or mission mutation; truncated/malformed input preserves all prior state.
-- [x] Existing V3 writer layout and V2/V1/legacy migrations remain compatible, including a missing appended mission flag.
+- [x] Existing V3 writer layout and V2/V1/legacy migrations remain compatible, including older saves that omit multiple trailing mission flags.
 - [x] Tests cover overflow for all three reward fields and truncated/malformed Save non-mutation.
 - [x] Operation save integration coverage invokes the actual game save command with an isolated directory and verifies active index -1.
 - [x] Known-issues documentation describes the 32-entry objective tracker accurately.
