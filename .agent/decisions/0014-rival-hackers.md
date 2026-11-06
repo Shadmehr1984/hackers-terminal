@@ -22,7 +22,7 @@ The game needs a small cast of fictional competitors to make the world feel acti
 4. Rival statuses are DORMANT, CONTESTING, RIVAL_AHEAD, and OUTPACED. They are derived from current progression, faction access, the active mission, and existing runtime objective state.
 5. Resolve the contest only after successful decryption. If the linked objective is still undiscovered, mark that optional objective unavailable for the current run. If it has been discovered, the player has outpaced the rival.
 6. Disclose rival identity and counterplay in the Contract Board, Preparation, and active Briefing before the event can occur.
-7. Rival activity must never block or remove a primary contract, mutate required objectives, change Detection, alter cash/XP/ Reputation rewards, or modify faction standing rules.
+7. Rival activity must never block or remove a primary contract, mutate required objectives, directly change Detection, cash, XP, or Reputation, or modify faction-standing/reward formulas. Because the contested item is an existing optional objective, losing it can forfeit the existing all-optional Reputation bonus; this is an intended side-opportunity consequence, not a changed reward rule.
 8. Rival profiles are static catalog data. Contest state uses the existing runtime objective tracker and is not persisted. Save V3 writer and V2/V1/legacy readers remain unchanged.
 9. Keep all actors and events fictional, local, deterministic, and offline. No real network activity, external actors, shell execution, or credential collection.
 
@@ -31,7 +31,7 @@ The game needs a small cast of fictional competitors to make the world feel acti
 - The player can inspect the five rival dossiers with `rivals` and `rival <id>`.
 - The current optional-objective tracker is the sole runtime source of contest outcomes; no parallel save or mission state is introduced.
 - A rival can reduce access to an optional objective, but primary mission completion remains possible.
-- Existing optional-objective Reputation eligibility remains governed by the current rule that every optional objective must be completed.
+- Existing optional-objective Reputation eligibility remains governed by the current rule that every optional objective must be completed; a rival-claimed objective therefore forfeits that existing bonus for the run.
 
 ## Validation
 
