@@ -1,5 +1,6 @@
 const std = @import("std");
 const Rival = @import("../domain/rival.zig").Rival;
+const RivalId = @import("../domain/rival.zig").RivalId;
 const Mission = @import("../domain/mission.zig").Mission;
 
 /// Five authored offline competitors and their deterministic optional-intel contests.
