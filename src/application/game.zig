@@ -118,12 +118,16 @@ fn handleDeal(
             try writer.print("Insufficient funds. The service costs ${d}.\n", .{cost});
         } else {
             const reduction = @min(contacts.detection_reduction, session.detection_level);
-            player.balance -= cost;
-            session.detection_level -= reduction;
-            session.fixer_service_used = true;
+            var next_player = player.*;
+            var next_session = session.*;
+            next_player.balance -= cost;
+            next_session.detection_level -= reduction;
+            next_session.fixer_service_used = true;
             try writer.print("[FIXER SERVICE] Detection reduced by {d}. Cost: ${d}. Remaining balance: ${d}.\n", .{
-                reduction, cost, player.balance,
+                reduction, cost, next_player.balance,
             });
+            player.* = next_player;
+            session.* = next_session;
         }
     } else if (std.mem.eql(u8, arg, "ghost-signal")) {
         if (!contacts.isUnlocked(.fixer, player.reputation)) {
@@ -438,11 +442,17 @@ pub fn runCommandWithSaveDirectory(
                         try writer.writeAll("That node is not directly connected to your current location.\n");
                     } else {
                         const node = topology.findNode(arg).?;
-                        session.current_node = node.id;
-                        session.traversal_count += 1;
+                        var next_player = player.*;
+                        var next_active = active.*;
+                        var next_session = session.*;
+                        next_session.current_node = node.id;
+                        next_session.traversal_count += 1;
                         try writer.print("[MOVED] {s} — {s}\n", .{ node.id, node.label });
-                        try reportObjectiveDiscoveries(writer, session.discoverNode(node.id, missions[index].objectives));
-                        _ = try applyTraversalDetection(writer, player, active, session);
+                        try reportObjectiveDiscoveries(writer, next_session.discoverNode(node.id, missions[index].objectives));
+                        _ = try applyTraversalDetection(writer, &next_player, &next_active, &next_session);
+                        player.* = next_player;
+                        active.* = next_active;
+                        session.* = next_session;
                     }
                 } else try writer.writeAll("Current location is unavailable. Restart the contract.\n");
             } else try writer.writeAll("This contract has no network map.\n");
