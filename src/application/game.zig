@@ -258,7 +258,7 @@ fn launchPreparedMission(
     utility: ?UtilityEquipment,
 ) !void {
     var next_session = session.*;
-    var next_active: ?usize = index;
+    const next_active: ?usize = index;
     var next_preparation = preparation.*;
 
     if (utility) |selected| {
