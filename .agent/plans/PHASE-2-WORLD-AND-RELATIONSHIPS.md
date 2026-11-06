@@ -1,7 +1,7 @@
 # Phase 2 — World, Intelligence, and Relationships
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** Planned; implementation not authorized  
+**Status:** HT-010 In Progress on main; remaining Phase 2 features are Planned  
 **Goal:** Make the fictional cyber-world feel populated by organizations, competitors, information brokers, and persistent discoveries.
 
 ## Shared baseline and constraints
