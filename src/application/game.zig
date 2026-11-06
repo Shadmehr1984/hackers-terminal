@@ -15,12 +15,25 @@ const progression = @import("../domain/progression.zig");
 const detection = @import("detection.zig");
 const contacts = @import("../domain/contacts.zig");
 const operation_data = @import("../catalog/operation_data.zig");
+const faction = @import("../domain/faction.zig");
+const FactionId = @import("../domain/faction_id.zig").FactionId;
 
 /// Re-exports the configured in-game penalty for a Detection compromise.
 pub const detection_failure_penalty: u32 = detection.failure_penalty;
 
 fn isMissionUnlocked(mission: Mission, player: Player) bool {
     return progression.playerLevel(player) >= mission.required_level and player.reputation >= mission.required_reputation;
+}
+
+fn hasFactionAccess(mission: Mission, missions: []const Mission, reputation: u32) bool {
+    return faction.playerStanding(mission.client_faction, reputation, missions) != .hostile;
+}
+
+fn printFactionLock(writer: anytype, mission: Mission, missions: []const Mission, reputation: u32) !void {
+    const standing = faction.playerStanding(mission.client_faction, reputation, missions);
+    try writer.print("Contract access denied: {s} is {s} toward you. Complete contracts for that faction to restore access.\n", .{
+        mission.client_faction.slug(), standing.label(),
+    });
 }
 
 fn printMissionLock(writer: anytype, mission: Mission, player: Player) !void {
@@ -72,6 +85,8 @@ fn handleDeal(
                 try writer.writeAll("That contract is already completed; no new intelligence is available.\n");
             } else if (!isMissionUnlocked(mission, player.*)) {
                 try printMissionLock(writer, mission, player.*);
+            } else if (!hasFactionAccess(mission, missions, player.reputation)) {
+                try printFactionLock(writer, mission, missions, player.reputation);
             } else if (player.balance < contacts.intel_price) {
                 try writer.print("Insufficient funds. Intelligence costs ${d}.\n", .{contacts.intel_price});
             } else {
@@ -125,6 +140,8 @@ fn handleDeal(
                 try writer.writeAll("Ghost Signal has already been completed.\n");
             } else if (!isMissionUnlocked(mission, player.*)) {
                 try printMissionLock(writer, mission, player.*);
+            } else if (!hasFactionAccess(mission, missions, player.reputation)) {
+                try printFactionLock(writer, mission, missions, player.reputation);
             } else {
                 preparation.mission_index = index;
                 preparation.selected_modifier = null;
@@ -255,6 +272,12 @@ pub fn runCommandWithSaveDirectory(
     } else if (std.mem.eql(u8, command, "board")) {
         const level = progression.playerLevel(player.*);
         try terminal.printContractBoard(writer, missions, level, player.reputation, active.* != null or preparation.mission_index != null);
+    } else if (std.mem.eql(u8, command, "factions")) {
+        try terminal.printFactions(writer, player.reputation, missions);
+    } else if (std.mem.eql(u8, command, "faction")) {
+        if (FactionId.parse(arg)) |faction_id| {
+            try terminal.printFaction(writer, faction_id, player.reputation, missions);
+        } else try writer.writeAll("Unknown faction. Use factions to list valid IDs.\n");
     } else if (std.mem.eql(u8, command, "missions")) {
         try terminal.printMissions(writer, missions, progression.playerLevel(player.*), player.reputation);
     } else if (std.mem.eql(u8, command, "operations")) {
@@ -277,6 +300,9 @@ pub fn runCommandWithSaveDirectory(
                     const mission = @import("../domain/operation.zig").findMission(missions, stage.mission_id).?;
                     if (!isMissionUnlocked(mission, player.*)) {
                         try printMissionLock(writer, mission, player.*);
+                        unlocked = false;
+                    } else if (!hasFactionAccess(mission, missions, player.reputation)) {
+                        try printFactionLock(writer, mission, missions, player.reputation);
                         unlocked = false;
                     }
                 }
@@ -322,6 +348,8 @@ pub fn runCommandWithSaveDirectory(
                     try writer.writeAll("This contract is already completed.\n");
                 } else if (!isMissionUnlocked(mission, player.*)) {
                     try printMissionLock(writer, mission, player.*);
+                } else if (!hasFactionAccess(mission, missions, player.reputation)) {
+                    try printFactionLock(writer, mission, missions, player.reputation);
                 } else if (mission.requires_contact_offer) {
                     try writer.writeAll("This contract is an exclusive contact offer. Use contact fixer, then deal ghost-signal.\n");
                 } else {
@@ -433,7 +461,10 @@ pub fn runCommandWithSaveDirectory(
             const mission = missions[index];
             if (!std.mem.eql(u8, mission.id, arg)) {
                 try writer.print("Prepared contract is {s}. Use accept {s} to launch it, or cancel to choose another.\n", .{ mission.id, mission.id });
-            } else if ((mission.completed and !preparation.operation_state.active) or !isMissionUnlocked(mission, player.*)) {
+            } else if ((mission.completed and !preparation.operation_state.active) or
+                !isMissionUnlocked(mission, player.*) or
+                !hasFactionAccess(mission, missions, player.reputation))
+            {
                 preparation.clear();
                 try writer.writeAll("The prepared contract is no longer available. Preparation cleared.\n");
             } else if (preparation.selected_utility) |utility| {
