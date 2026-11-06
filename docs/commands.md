@@ -150,3 +150,13 @@ Detection is temporary per-contract state, ranges from 0 to 100, and is displaye
 ### Hidden optional objectives
 
 Some optional objectives are hidden until a deterministic discovery trigger occurs. Reach the authored node with `move`, inspect the authored fictional evidence name with `inspect <filename>`, or perform the specified successful in-game action. Hidden descriptions and rewards are omitted from preparation, the initial briefing, and the Contract Board until discovery. Use `objectives` after discovery to see the objective and its current state. Hidden objectives never block extraction; completing all authored optional objectives, including hidden ones, is still required for the extra Reputation point.
+
+
+## Rival commands
+
+| Command | Description |
+|---|---|
+| `rivals` | List the five rival hackers, faction affiliations, contested contracts, and derived status. |
+| `rival <id>` | Inspect a rival dossier, specialty, approach, and current contest status. |
+
+Rival IDs: `ghost-operator`, `null-byte`, `glasswire`, `patchwork`, and `redshift`. The Contract Board and Preparation/Briefing also disclose rival activity and counterplay. Rival contests affect only one optional hidden-intelligence objective per contract; primary contract completion remains available.
