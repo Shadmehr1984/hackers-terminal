@@ -25,9 +25,9 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/mission_data_test.zig` covers built-in mission difficulty assignments, player-facing labels, mission-specific topology definitions, and Corporate Ghost's catalog metadata.
 - `tests/corporate_ghost_test.zig` covers the Nexus Hostile lock, the Quiet Exit Reputation recovery route, and a complete Corporate Ghost run including hidden-objective discovery and rewards.
 - `tests/topology_test.zig` covers graph lookup, bidirectional adjacency, graph validation, and both allocation-failure points in reachability traversal.
-- `tests/equipment_test.zig` covers utility ownership, purchases, equipping, upgrade tiers, shared Detection-cost profiles, V3/V2/V1/legacy save migration, and truncated/malformed save input.
+- `tests/equipment_test.zig` covers utility ownership, purchases, equipping, upgrade tiers, shared Detection-cost profiles, V3/V2/V1/legacy save migration, truncated/malformed save input, and purchase rollback when output fails.
 - `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, checked optional-reward accumulation (including overflow), and session reset behavior.
-- `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, location-gated operations, modifier Detection costs, sweep cadence, and modifier failure boundaries. It also verifies that movement and Fixer state changes are not committed when their output writer fails.
+- `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, location-gated operations, modifier Detection costs, sweep cadence, and modifier failure boundaries. It also verifies that movement, Detection compromise, and Extraction objective state are not committed when their output writer fails.
 - `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, modifier command/eligibility, launch snapshots, cancellation, and one-time modifier rewards.
 - `tests/mission_modifier_test.zig` covers typed modifier IDs, exact metadata, Detection effect definitions, and the completion bonus.
 - `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, duplicate-payout protection, atomic rejection when optional-reward accumulation overflows, and preservation of objective state on payout overflow or output failure.
@@ -46,6 +46,10 @@ zig test test_root.zig
 ```
 
 The CI workflow checks formatting in `test_root.zig`, `build.zig`, `src/`, and `tests/`, then builds the game and runs the root test module through `zig build test`.
+
+## Terminal and save error handling
+
+The REPL discards an overlong input line (maximum 511 bytes) and continues instead of terminating. Save loading distinguishes a missing first-run save from an unreadable or malformed existing save; the latter cases are reported without automatically replacing the file. Detection compromise, Extraction objective progress, Broker purchases, and shop mutations stage their relevant state until required output succeeds.
 
 ## Architecture workflow
 
