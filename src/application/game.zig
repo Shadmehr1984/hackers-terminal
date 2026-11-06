@@ -153,14 +153,16 @@ fn handleDeal(
             } else if (!hasFactionAccess(mission, missions, player.reputation)) {
                 try printFactionLock(writer, mission, missions, player.reputation);
             } else {
-                preparation.mission_index = index;
-                preparation.selected_modifier = null;
-                preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
+                var next_preparation = preparation.*;
+                next_preparation.mission_index = index;
+                next_preparation.selected_modifier = null;
+                next_preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
                     (if (player.equipment.owns(utility)) utility else null)
                 else
                     null;
                 try writer.writeAll("[FIXER CONTRACT OFFER ACCEPTED]\n");
-                try terminal.printPreparation(writer, mission, player.*, preparation.selected_utility, preparation.selected_modifier);
+                try terminal.printPreparation(writer, mission, player.*, next_preparation.selected_utility, next_preparation.selected_modifier);
+                preparation.* = next_preparation;
             }
             return;
         }
@@ -375,12 +377,14 @@ pub fn runCommandWithSaveDirectory(
                 }
                 if (unlocked) {
                     const first_index = findMissionIndex(missions, operation.stages[0].mission_id).?;
-                    if (preparation.operation_state.start(operation, !missions[first_index].completed)) {
-                        prepareOperationStage(preparation, player.*, first_index);
+                    var next_preparation = preparation.*;
+                    if (next_preparation.operation_state.start(operation, !missions[first_index].completed)) {
+                        prepareOperationStage(&next_preparation, player.*, first_index);
                         try writer.print("[OPERATION STARTED] {s}; first stage prepared: {s}.\n", .{
                             operation.name, missions[first_index].name,
                         });
-                        try terminal.printPreparation(writer, missions[first_index], player.*, preparation.selected_utility, null);
+                        try terminal.printPreparation(writer, missions[first_index], player.*, next_preparation.selected_utility, null);
+                        preparation.* = next_preparation;
                     }
                 } else {
                     try writer.writeAll("Operation requirements are not met; no state changed.\n");
@@ -420,12 +424,14 @@ pub fn runCommandWithSaveDirectory(
                 } else if (mission.requires_contact_offer) {
                     try writer.writeAll("This contract is an exclusive contact offer. Use contact fixer, then deal ghost-signal.\n");
                 } else {
-                    preparation.mission_index = index;
-                    preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
+                    var next_preparation = preparation.*;
+                    next_preparation.mission_index = index;
+                    next_preparation.selected_utility = if (player.equipment.equipped_utility) |utility|
                         (if (player.equipment.owns(utility)) utility else null)
                     else
                         null;
-                    try terminal.printPreparation(writer, mission, player.*, preparation.selected_utility, preparation.selected_modifier);
+                    try terminal.printPreparation(writer, mission, player.*, next_preparation.selected_utility, next_preparation.selected_modifier);
+                    preparation.* = next_preparation;
                 }
                 break;
             }
@@ -435,14 +441,14 @@ pub fn runCommandWithSaveDirectory(
         if (preparation.mission_index == null) {
             try writer.writeAll("No contract is being prepared. Use prepare <id> first.\n");
         } else if (std.mem.eql(u8, arg, "none")) {
-            preparation.selected_utility = null;
             try writer.writeAll("Preparation loadout set to no utility.\n");
+            preparation.selected_utility = null;
         } else if (parseUtility(arg)) |utility| {
             if (!player.equipment.owns(utility)) {
                 try writer.writeAll("You do not own that utility.\n");
             } else {
-                preparation.selected_utility = utility;
                 try writer.print("Preparation loadout set to {s} (level {d}).\n", .{ utility.label(), player.equipment.level(utility) });
+                preparation.selected_utility = utility;
             }
         } else try writer.writeAll("Unknown loadout. Use loadout silent-boots, loadout signal-scrubber, or loadout none.\n");
     } else if (std.mem.eql(u8, command, "modifier")) {
@@ -451,12 +457,14 @@ pub fn runCommandWithSaveDirectory(
             if (arg.len == 0) {
                 try terminal.printModifierOptions(writer, mission, preparation.selected_modifier);
             } else if (std.mem.eql(u8, arg, "none")) {
-                preparation.selected_modifier = null;
                 try writer.writeAll("Preparation modifier cleared.\n");
+                preparation.selected_modifier = null;
             } else if (ModifierId.fromCommandId(arg)) |modifier| {
-                if (preparation.selectModifier(mission, modifier)) {
+                var next_preparation = preparation.*;
+                if (next_preparation.selectModifier(mission, modifier)) {
                     try writer.print("Modifier selected: {s}. Its effects and completion bonus are shown below.\n", .{modifier.label()});
-                    try terminal.printModifierOptions(writer, mission, preparation.selected_modifier);
+                    try terminal.printModifierOptions(writer, mission, next_preparation.selected_modifier);
+                    preparation.* = next_preparation;
                 } else {
                     try writer.print("Modifier '{s}' is not available for this contract. No selection was changed.\n", .{arg});
                 }
@@ -470,8 +478,8 @@ pub fn runCommandWithSaveDirectory(
         if (preparation.operation_state.active) {
             try writer.writeAll("An operation cannot be cancelled.\n");
         } else if (preparation.mission_index != null) {
-            preparation.clear();
             try writer.writeAll("Mission preparation cancelled. No cost was charged.\n");
+            preparation.clear();
         } else if (active.* != null) {
             try writer.writeAll("An active contract cannot be abandoned or restarted.\n");
         } else try writer.writeAll("There is no mission preparation to cancel.\n");
@@ -504,12 +512,14 @@ pub fn runCommandWithSaveDirectory(
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "inspect")) {
         if (active.*) |index| {
-            const revealed = session.discoverFile(arg, missions[index].objectives);
+            var next_session = session.*;
+            const revealed = next_session.discoverFile(arg, missions[index].objectives);
             if (revealed == 0) {
                 try writer.writeAll("No undiscovered evidence matching that fictional file is available for this contract.\n");
             } else {
                 try writer.print("[EVIDENCE INSPECTED] {s}\n", .{arg});
                 try reportObjectiveDiscoveries(writer, revealed);
+                session.* = next_session;
             }
         } else try writer.writeAll("No active contract.\n");
     } else if (std.mem.eql(u8, command, "briefing")) {
