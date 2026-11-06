@@ -53,6 +53,17 @@ test "hostile client standing blocks contract board availability deterministical
     try std.testing.expectEqual(faction.Standing.hostile, first.player_standing);
 }
 
+test "faction IDs reject unknown command slugs" {
+    try std.testing.expect(FactionId.parse("nexus-dynamics") != null);
+    try std.testing.expect(FactionId.parse("unknown-faction") == null);
+}
+
+test "mission faction links reject a client that owns its own target" {
+    var missions = mission_data.defaultMissions();
+    missions[0].target_owner_faction = missions[0].client_faction;
+    try std.testing.expect(!missions[0].hasValidFactionLinks());
+}
+
 test "built-in contracts declare valid and distinct client and target owner factions" {
     const missions = mission_data.defaultMissions();
     for (missions) |mission| {
