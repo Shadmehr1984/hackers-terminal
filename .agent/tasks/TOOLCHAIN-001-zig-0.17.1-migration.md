@@ -36,7 +36,7 @@ The audit was performed against the current `main` head listed above. Earlier co
 - `build.zig:23-28`: test artifact uses `.root_source_file = b.path("test_root.zig")`.
 - `build.zig:16-19`: run arguments are forwarded by inspecting `b.args` and calling `run_cmd.addArgs(args)`.
 - Migration work: move executable and test roots to the 0.17 module-based build API; replace argument passthrough with the supported 0.17 mechanism. Confirm how `zig build run -- <args>` behaves because the new passthrough mechanism intentionally changes what build scripts can inspect.
-- Phase 1 implementation uses a compile-time `builtin.zig_version.minor >= 17` compatibility bridge: Zig 0.17+ receives `root_module` and `addPassthruArgs`; the existing 0.13.0 CI baseline retains the legacy root fields and `b.args`/`addArgs` branch until the final toolchain pin switch. This avoids knowingly breaking the default branch during the multi-phase migration. Remove the legacy branch only when CI is switched to 0.17.1.
+- Phase 1 implementation uses compile-time version gates: Zig 0.14+ receives the explicit `root_module` build API, while Zig 0.13 retains legacy root fields; Zig 0.17+ receives `addPassthruArgs`, while the 0.13 branch retains `b.args`/`addArgs` until the final toolchain pin switch. This avoids knowingly breaking the default branch during the multi-phase migration. Remove the legacy branch only when CI is switched to 0.17.1.
 
 ### 3.2 Standard input/output and process entry point
 

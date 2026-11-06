@@ -6,8 +6,8 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     // Keep the current 0.13.0 CI baseline usable while the rest of the
-    // repository is migrated. Zig 0.15+ requires an explicit root module.
-    const exe = if (builtin.zig_version.minor >= 17)
+    // repository is migrated. Zig 0.14+ uses an explicit root module.
+    const exe = if (builtin.zig_version.minor >= 14)
         b.addExecutable(.{
             .name = "hackers-terminal",
             .root_module = b.createModule(.{
@@ -27,7 +27,7 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
-    if (builtin.zig_version.minor >= 17) {
+    if (builtin.zig_version.minor >= 14) {
         run_cmd.addPassthruArgs();
     } else if (b.args) |args| {
         run_cmd.addArgs(args);
@@ -36,7 +36,7 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run Hacker's Terminal");
     run_step.dependOn(&run_cmd.step);
 
-    const unit_tests = if (builtin.zig_version.minor >= 17)
+    const unit_tests = if (builtin.zig_version.minor >= 14)
         b.addTest(.{
             .root_module = b.createModule(.{
                 .root_source_file = b.path("test_root.zig"),
