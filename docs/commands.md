@@ -13,7 +13,7 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 | `operation <id>` | Operation ID | Inspect ordered contract stages and their level/Reputation requirements |
 | `operation-start <id>` | Operation ID | Start an operation and prepare its first stage |
 | `operation-status` | None | Show the current operation stage and earned carry-over facts |
-| `board` | None | Open the Contract Board with categories, reward ranges, availability states, and reasons |
+| `board` | None | Open the Contract Board with categories, reward ranges, faction affiliations, standing, and availability reasons |\n| `factions` | None | List all seven fictional organizations and your derived standing with each |\n| `faction <id>` | Faction ID | Inspect one faction dossier and its static relationships |
 | `contacts` | None | Show both fictional contacts and their unlock status |
 | `contact <id>` | `broker` or `fixer` | Inspect a contact, its role, and relevant offers |
 | `offers` | None | List currently actionable contact offers |
@@ -33,6 +33,12 @@ Commands are entered at the game prompt. Command names are lowercase. Arguments 
 Use `board` to inspect every catalog contract without changing the existing `missions` command. Entries remain in catalog order and show category, difficulty, base-to-maximum cash reward, XP, and one derived state: `AVAILABLE`, `LOCKED`, `COMPLETED`, `EXCLUSIVE`, or `UNAVAILABLE`. Locked entries explain each unmet level/Reputation requirement. Exclusive entries must be obtained through their Contact offer. While another contract is active or being prepared, other incomplete entries remain visible as unavailable; completed entries remain completed. The Board does not reveal puzzle clues or answers and does not save any additional state.
 
 Use `board` for the full catalog overview; `missions` remains the original compact list.
+
+## Factions
+
+Use factions to list all seven organizations. Use faction <id> with one of nexus-dynamics, ghost-protocol, black-veil, aegis-initiative, iron-meridian, null-syndicate, or helix-consortium to inspect a dossier. The dossier includes identity, security profile, economic behavior, specialty, player standing, and relationships with the other factions.
+
+The Contract Board displays each contract's client faction, target owner, client security rating, and your derived standing. A Hostile standing (score <= -2) toward a contract's client faction marks it FACTION LOCKED. Preparation, exclusive contact offers, and operation start enforce the same restriction. Standing is calculated from global Reputation and completed contract affiliations; it is not stored separately. Save V3 and older formats are unchanged.
 
 ## Multi-stage Operations
 
