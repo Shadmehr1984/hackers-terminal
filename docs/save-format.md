@@ -51,7 +51,7 @@ An active mission index of `-1` means there is no active contract. A non-negativ
 | Scan, connection, authentication, and decryption state | No |
 | Objective discovery/completion state, Detection exposure, and Fixer service-use flag | No |
 | Active operation ID, stage index, typed carry-over facts, reward eligibility, and completion display marker | No (runtime-only) |
-| Reputation tiers, Contact unlocks, and Contact catalog | Derived from persisted Reputation/static catalog |
+| Reputation tiers, Contact unlocks, and Contact catalog | Derived from persisted Reputation/static catalog |\n| Faction profiles, inter-faction relationships, and player standing | Static Catalog / derived from Reputation and existing mission completion flags; not serialized |
 | Current topology node and traversal count | No |
 
 When the application restarts, an active contract may be restored, but temporary session state starts over at the mission topology's entry node. The player must repeat mission stages as needed. An active multi-stage operation is not restored: saving during an operation writes `-1` for the active mission index, while preserving player state and existing mission completion flags. After restart the operation begins again at stage one with its facts cleared; contracts completed before the restart may be replayed as operation stages without rewards. This behavior adds no fields and does not change the V3 layout.
