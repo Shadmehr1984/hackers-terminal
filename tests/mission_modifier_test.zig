@@ -1,8 +1,10 @@
+const builtin = @import("builtin");
 const std = @import("std");
 const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 
 test "exactly three stable modifier command IDs are defined" {
-    try std.testing.expectEqual(@as(usize, 3), @typeInfo(ModifierId).Enum.fields.len);
+    const field_count = if (builtin.zig_version.minor >= 16) @typeInfo(ModifierId).@"enum".field_names.len else @typeInfo(ModifierId).Enum.fields.len;
+    try std.testing.expectEqual(@as(usize, 3), field_count);
     try std.testing.expectEqualStrings("heightened-monitoring", ModifierId.heightened_monitoring.commandId());
     try std.testing.expectEqualStrings("security-sweep", ModifierId.security_sweep.commandId());
     try std.testing.expectEqualStrings("hardened-encryption", ModifierId.hardened_encryption.commandId());
@@ -37,12 +39,24 @@ test "hardened encryption exposes the approved incorrect decryption cost" {
 }
 
 test "all modifiers share the approved completion bonus and disclose effects" {
-    inline for (@typeInfo(ModifierId).Enum.fields) |field| {
-        const id: ModifierId = @enumFromInt(field.value);
-        const bonus = id.completionBonus();
-        try std.testing.expectEqual(@as(u32, 50), bonus.cash);
-        try std.testing.expectEqual(@as(u32, 25), bonus.xp);
-        try std.testing.expect(id.label().len > 0);
-        try std.testing.expect(id.description().len > 0);
+    if (builtin.zig_version.minor >= 16) {
+        const enum_info = @typeInfo(ModifierId).@"enum";
+        inline for (enum_info.field_values) |field_value| {
+            const id: ModifierId = @fromBackingInt(@intCast(field_value));
+            const bonus = id.completionBonus();
+            try std.testing.expectEqual(@as(u32, 50), bonus.cash);
+            try std.testing.expectEqual(@as(u32, 25), bonus.xp);
+            try std.testing.expect(id.label().len > 0);
+            try std.testing.expect(id.description().len > 0);
+        }
+    } else {
+        inline for (@typeInfo(ModifierId).Enum.fields) |field| {
+            const id: ModifierId = @enumFromInt(field.value);
+            const bonus = id.completionBonus();
+            try std.testing.expectEqual(@as(u32, 50), bonus.cash);
+            try std.testing.expectEqual(@as(u32, 25), bonus.xp);
+            try std.testing.expect(id.label().len > 0);
+            try std.testing.expect(id.description().len > 0);
+        }
     }
 }

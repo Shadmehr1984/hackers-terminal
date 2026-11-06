@@ -1,3 +1,5 @@
+const builtin = @import("builtin");
+
 /// Stable identifiers for the owner-approved mission modifiers.
 pub const ModifierId = enum {
     heightened_monitoring,
@@ -47,9 +49,17 @@ pub const ModifierId = enum {
 
     /// Resolves a stable command argument to a modifier ID.
     pub fn fromCommandId(value: []const u8) ?ModifierId {
-        inline for (@typeInfo(ModifierId).Enum.fields) |field| {
-            const id: ModifierId = @enumFromInt(field.value);
-            if (std.mem.eql(u8, value, id.commandId())) return id;
+        if (builtin.zig_version.minor >= 16) {
+            const enum_info = @typeInfo(ModifierId).@"enum";
+            inline for (enum_info.field_values) |field_value| {
+                const id: ModifierId = @fromBackingInt(@intCast(field_value));
+                if (std.mem.eql(u8, value, id.commandId())) return id;
+            }
+        } else {
+            inline for (@typeInfo(ModifierId).Enum.fields) |field| {
+                const id: ModifierId = @enumFromInt(field.value);
+                if (std.mem.eql(u8, value, id.commandId())) return id;
+            }
         }
         return null;
     }

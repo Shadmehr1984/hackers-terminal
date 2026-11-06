@@ -45,6 +45,9 @@ jobs:
       - name: Test filesystem and save compatibility layer
         run: zig test save_io_test_root.zig
 
+      - name: Test Zig 0.17 type reflection compatibility
+        run: zig test mission_modifier_test_root.zig
+
       - name: Re-evaluate build graph
         run: zig build --help
 
