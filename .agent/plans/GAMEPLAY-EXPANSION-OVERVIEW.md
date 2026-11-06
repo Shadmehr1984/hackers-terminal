@@ -50,7 +50,7 @@ Each feature has a stable ID. The matching phase document contains its goal, des
 | HT-009 | Multi-stage Operations | Phase 1 | Implemented: linear 3-stage operation, typed objective carry-over, per-stage rewards, Runtime-only state; CI #733 passed |
 | HT-010 | Factions | Phase 2 | Implemented: seven factions, derived standing, client access locks, Corporate Ghost recovery contract; final review CI #42224233431 passed |
 | HT-011 | Rival Hackers | Phase 2 | Factions, contract availability/results |
-| HT-012 | Information Market | Phase 2 | Contacts, mission intelligence, economy |
+| HT-012 | Information Market / Information Warfare | Phase 2 | Design approved under ADR 0015; Contacts, mission intelligence, economy, factions, HT-011 rivals; implementation not authorized |
 | HT-013 | Hacker Specializations | Phase 4 | Progression, Detection, topology, equipment |
 | HT-014 | Level & Unlock Expansion | Phase 4 | XP/level progression, Contract Board |
 | HT-015 | Tool Collection | Phase 4 | Equipment ownership/catalog/shop, mission actions |
@@ -105,7 +105,7 @@ Implement one feature/milestone at a time. This order is dependency-aware, not a
 - Multi-stage Operations must define failure, retry, stage reward, and partial-completion behavior. They are mechanical sequences, not branching stories.
 - Factions should use derived relationship state where possible. Do not add persisted faction scores before a separate save decision.
 - Rival Hackers must not simulate actual network traffic or external users. Their actions are local deterministic game events.
-- The Information Market must distinguish known facts, uncertain intelligence, and deliberately false intel; it must never reveal puzzle answers where the current design intends discovery.
+- HT-012's accepted design is recorded in ADR 0015 and its task brief: dynamic deterministic stock; five typed categories; claim provenance and source independence; both narrative/gameplay deception; deep multi-stage Research with partial and misleading outcomes; event-only Exposure; active bounded HT-011 rival participation; mixed repeatable/one-time purchases; event-driven freshness; and Derived persistence without Save V3 changes. Implementation still requires separate owner authorization. Numeric pricing/Trust Score parameters and exact commands/module names remain provisional pending source/economy audit.
 - Security Profiles, Countermeasures, Agent Behaviors, and Agent Memory form a dependency chain. Do not implement all four as one large system.
 - Agent Memory means in-game simulated security agents remembering events within the fictional game, not external AI agents, real processes, or cross-session model memory.
 - Specializations, level unlocks, tool collection, and operational costs must be balanced together. Avoid permanent build choices that make a save unwinnable.
@@ -164,7 +164,7 @@ The following require a feature-specific design and owner approval before implem
 - Multi-stage operation reward timing, retry model, and persistence.
 - Faction relationship representation and any save impact.
 - Rival simulation cadence and how rivals affect availability/results without frustrating the player.
-- Information quality/reliability model and market pricing.
+- HT-012 numeric Trust Score weights, price coefficients/caps, exposure thresholds, stock sizing, exact parser-compatible commands, and final module ownership (the core feature decisions are accepted in ADR 0015).
 - Specialization respec rules and balance.
 - Whether level cap/XP thresholds remain as-is or are deliberately redesigned.
 - Tool slots, stacking, charges, and consumable behavior.
