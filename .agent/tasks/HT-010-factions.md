@@ -1,6 +1,6 @@
 # HT-010 — Factions
 
-- **Status:** In Progress
+- **Status:** Implemented
 - **Owner authorization:** Explicitly authorized on 2026-11-06 with the seven-faction design baseline.
 - **Implementation branch:** main
 - **Persistence:** Derived from existing Reputation and mission-completion flags; Save V3 remains unchanged.
@@ -70,9 +70,9 @@ These affiliations are static catalog metadata and do not alter existing puzzle 
 - [x] The new contract is faction-locked at Nexus Hostile standing and becomes available after Quiet Exit raises standing to Wary.
 - [x] Its seven-node topology, five required objectives, visible optional objective, and hidden mirror-node objective are validated and covered by end-to-end tests.
 - [x] Catalog validation and focused regression tests pass in CI.
-- [ ] Formatting, build, complete tests, and agent-doc checks pass in CI.
-- [ ] Comprehensive change review against .agent/review-checklist.md is complete.
-- [ ] Final docs/handoff and CI result are recorded.
+- [x] Formatting, build, complete tests, and agent-doc checks pass in CI.
+- [x] Comprehensive change review against .agent/review-checklist.md is complete.
+- [x] Final docs/handoff and CI result are recorded.
 
 ## Constraints and non-goals
 
@@ -84,9 +84,19 @@ These affiliations are static catalog metadata and do not alter existing puzzle 
 
 ## Verification plan
 
-- [ ] zig fmt --check test_root.zig build.zig src tests
-- [ ] zig build
-- [ ] zig build test
-- [ ] sh scripts/check-agent-docs.sh
-- [ ] Inspect actual GitHub Actions result for the final main commit.
-- [ ] Self-review every applicable item in .agent/review-checklist.md; record independent-review availability.
+- [x] zig fmt --check test_root.zig build.zig src tests
+- [x] zig build
+- [x] zig build test
+- [x] sh scripts/check-agent-docs.sh
+- [x] Inspect actual GitHub Actions result for the final main commit.
+- [x] Self-review every applicable item in .agent/review-checklist.md; record independent-review availability.
+
+
+## Completion record
+
+- 2026-11-06: HT-010 and HT-010.1 are implemented on main. Final verification commit: 238f358bcedd2346d8b5fd893ef0754df1467376.
+- GitHub Actions run #42224233431 passed formatting, build, the complete Zig test suite, and agent-documentation checks in Debug, ReleaseSafe, and ReleaseFast.
+- Follow-up review items S-01 (faction-aware Operation views), S-02 (end-to-end faction/Contact/Operation access coverage), S-03 (checked optional reward accumulation), S-04 (README consistency), and S-05 (ReleaseFast CI coverage) were addressed.
+- Final self-review used the mandatory checklist. The 113-file repository inventory included 36 production Zig files, 18 test modules, 4 build/CI/script files, 54 documentation/agent files, and .gitignore. All production files and test modules were inventoried and statically scanned; key faction, Operation, payout, save, and command flows plus directly affected tests were inspected in detail. Historical task/ADR documents outside the HT-010 dependency chain were not individually re-read.
+- No independent reviewer was available. No local Zig toolchain, manual interactive playtest, SAST, dependency audit, or performance benchmark was available/performed.
+- One non-blocking hardening suggestion remains: the runtime traversal counter is u32 and could theoretically wrap after more than 4.29 billion successful moves (src/application/game.zig:426). No practical reproduction was attempted; this does not affect faction access or reward correctness.
