@@ -61,7 +61,7 @@ test "inactive status output uses line breaks" {
 test "contract board output shows category rewards status and lock reasons without puzzle intel" {
     const missions = mission_data.defaultMissions();
     var capture = Capture{};
-    try terminal.printContractBoard(&capture, &missions, 1, 0, false);
+    try terminal.printContractBoard(&capture, &missions, 1, 0, false, null, null);
     const output = capture.output();
     try std.testing.expect(std.mem.indexOf(u8, output, "CONTRACT BOARD") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "Data Recovery") != null);
@@ -76,7 +76,7 @@ test "contract board output shows category rewards status and lock reasons witho
 test "contract board marks incomplete contracts unavailable while another is busy" {
     const missions = mission_data.defaultMissions();
     var capture = Capture{};
-    try terminal.printContractBoard(&capture, &missions, 3, 3, true);
+    try terminal.printContractBoard(&capture, &missions, 3, 3, true, null, null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "UNAVAILABLE") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Finish or fail the active contract") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "EXCLUSIVE") == null);
