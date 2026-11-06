@@ -65,7 +65,7 @@ Add five fictional competitors who contest optional intelligence opportunities a
 ### Hard constraints
 - The rival event affects only its linked hidden optional objective for the current runtime session.
 - It never changes required objectives, blocks extraction, removes/locks the primary contract, or mutates other mission state.
-- No Detection, cash, XP, Reputation, faction-standing, or base reward changes.
+- No direct Detection, cash, XP, or Reputation mutation and no faction-standing/base-reward formula changes. A rival-claimed optional objective can forfeit the existing all-optional +1 Reputation bonus for that run; the reward rule itself is unchanged.
 - Rival profiles are static; contest outcomes use the existing runtime objective tracker.
 - Save V3 and all older readers remain unchanged.
 - All actors/events remain fictional, local, deterministic, and offline.
