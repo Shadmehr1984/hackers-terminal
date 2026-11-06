@@ -1,7 +1,8 @@
 const std = @import("std");
 const terminal = @import("../src/terminal.zig");
 const Player = @import("../src/player.zig").Player;
-const MissionSession = @import("../src/mission_state.zig").MissionSession;
+const MissionState = @import("../src/mission_state.zig");
+const MissionSession = MissionState.MissionSession;
 const mission_data = @import("../src/mission_data.zig");
 const FactionId = @import("../src/domain/faction_id.zig").FactionId;
 
@@ -110,4 +111,18 @@ test "objective output hides undiscovered objectives but retains revealed unavai
     try terminal.printObjectives(&capture, missions[0], session);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[!] [OPTIONAL] Recover the maintenance telemetry signature") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "(+$0)") == null);
+}
+ 
+test "Broker contact and offers hide intelligence for faction-locked contracts" {
+    const player = Player{ .reputation = 2, .xp = 250 };
+    var missions = mission_data.defaultMissions();
+    missions[0].completed = true;
+    missions[1].completed = true;
+    var capture = Capture{};
+    try terminal.printOffers(&capture, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "intel-job-05") == null);
+    capture.len = 0;
+    try terminal.printContact(&capture, .broker, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Corporate Ghost") == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "intel-job-01") != null);
 }

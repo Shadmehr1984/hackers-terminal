@@ -262,7 +262,7 @@ pub fn printContact(
             try writer.writeAll("Contract intelligence costs $50 and reveals clues, never puzzle answers.\nAvailable intelligence:\n");
             var found = false;
             for (missions) |mission| {
-                if (mission.completed or progression.playerLevel(player) < mission.required_level or player.reputation < mission.required_reputation) continue;
+                if (mission.completed or progression.playerLevel(player) < mission.required_level or player.reputation < mission.required_reputation or faction.playerStanding(mission.client_faction, player.reputation, missions) == .hostile) continue;
                 found = true;
                 try writer.print("  deal intel-{s} — {s}\n", .{ mission.id, mission.name });
             }
@@ -302,7 +302,7 @@ pub fn printOffers(
     var found = false;
     if (contacts.isUnlocked(.broker, player.reputation)) {
         for (missions) |mission| {
-            if (mission.completed or progression.playerLevel(player) < mission.required_level or player.reputation < mission.required_reputation) continue;
+            if (mission.completed or progression.playerLevel(player) < mission.required_level or player.reputation < mission.required_reputation or faction.playerStanding(mission.client_faction, player.reputation, missions) == .hostile) continue;
             found = true;
             try writer.print("  intel-{s} — {s} clues ($50)\n", .{ mission.id, mission.name });
         }
@@ -418,6 +418,7 @@ pub fn printModifierOptions(writer: anytype, mission: Mission, selected: ?Modifi
     }
     try writer.print("  Current selection: {s}\n", .{if (selected) |modifier| modifier.commandId() else "none"});
 }
+
 /// Writes the authored operation catalog and derived availability.
 pub fn printOperations(writer: anytype, player: Player, missions: []const Mission, preparation: MissionPreparation) !void {
     try writer.writeAll("OPERATIONS\n");

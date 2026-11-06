@@ -141,6 +141,35 @@ const quiet_exit_objectives: []const MissionObjective = &.{
     .{ .id = "relay-trace", .kind = .analyze_metadata, .description = "Correlate the relay trace revealed by the initial scan.", .optional = true, .bonus_reward = 0, .hidden = true, .discovery_trigger = .{ .action = .scan_target } },
 };
 
+const corporate_ghost_nodes = [_]Node{
+    .{ .id = "entry", .label = "External relay" },
+    .{ .id = "gateway", .label = "Hardened gateway" },
+    .{ .id = "auth-core", .label = "Identity control" },
+    .{ .id = "audit-hub", .label = "Audit archive" },
+    .{ .id = "data-vault", .label = "Encrypted data vault" },
+    .{ .id = "mirror-node", .label = "Traffic mirror" },
+    .{ .id = "exit-relay", .label = "Secure exit" },
+};
+const corporate_ghost_links = [_]Link{
+    .{ .from = "entry", .to = "gateway" },
+    .{ .from = "gateway", .to = "auth-core" },
+    .{ .from = "auth-core", .to = "audit-hub" },
+    .{ .from = "auth-core", .to = "mirror-node" },
+    .{ .from = "audit-hub", .to = "data-vault" },
+    .{ .from = "mirror-node", .to = "data-vault" },
+    .{ .from = "data-vault", .to = "exit-relay" },
+};
+const corporate_ghost_topology = Topology{
+    .nodes = &corporate_ghost_nodes,
+    .links = &corporate_ghost_links,
+    .entry_node = "entry",
+    .scan_node = "gateway",
+    .auth_node = "auth-core",
+    .decrypt_node = "data-vault",
+    .analyze_node = "audit-hub",
+    .extract_node = "exit-relay",
+};
+
 const ghost_signal_objectives: []const MissionObjective = &.{
     .{ .id = "scan-target", .kind = .scan_target, .description = "Survey signal-04.local and identify the dormant uplink." },
     .{ .id = "authenticate", .kind = .authenticate, .description = "Authenticate through the handshake relay." },
@@ -150,9 +179,19 @@ const ghost_signal_objectives: []const MissionObjective = &.{
     .{ .id = "mirror-fragment", .kind = .analyze_metadata, .description = "Analyze the mirrored relay fragment for a secondary origin marker.", .optional = true, .bonus_reward = 0, .hidden = true, .discovery_trigger = .{ .node = "mirror" } },
 };
 
+const corporate_ghost_objectives: []const MissionObjective = &.{
+    .{ .id = "scan-target", .kind = .scan_target, .description = "Survey relay-05.local and identify its hardened gateway." },
+    .{ .id = "authenticate", .kind = .authenticate, .description = "Authenticate through the identity-control service." },
+    .{ .id = "decrypt-file", .kind = .decrypt_file, .description = "Decrypt the access-ledger.enc evidence file." },
+    .{ .id = "extract-file", .kind = .extract_file, .description = "Recover access-ledger.enc from the secure exit." },
+    .{ .id = "verify-trail", .kind = .analyze_metadata, .description = "Verify the access trail and identify the unauthorized transfer route." },
+    .{ .id = "analyze-metadata", .kind = .analyze_metadata, .description = "Analyze the access ledger metadata for its concealed destination.", .optional = true, .bonus_reward = 200 },
+    .{ .id = "mirror-fragment", .kind = .analyze_metadata, .description = "Correlate the mirrored traffic fragment with the ledger's secondary destination.", .optional = true, .bonus_reward = 0, .hidden = true, .discovery_trigger = .{ .node = "mirror-node" } },
+};
+
 /// Returns the built-in contracts with their original order and configuration.
-/// job-04 is appended so persisted indices 0..2 retain their original meaning.
-pub fn defaultMissions() [4]Mission {
+/// job-05 is appended after the existing four contracts without shifting their indices.
+pub fn defaultMissions() [5]Mission {
     return .{
         .{
             .id = "job-01",
@@ -235,6 +274,27 @@ pub fn defaultMissions() [4]Mission {
             .required_level = 3,
             .required_reputation = 3,
             .requires_contact_offer = true,
+        },
+        .{
+            .id = "job-05",
+            .name = "Corporate Ghost",
+            .target = "relay-05.local",
+            .difficulty = .hard,
+            .category = .infiltration,
+            .client_faction = .nexus_dynamics,
+            .target_owner_faction = .null_syndicate,
+            .allowed_modifiers = &all_mission_modifiers,
+            .objectives = corporate_ghost_objectives,
+            .topology = &corporate_ghost_topology,
+            .password = "vaultkeeper",
+            .password_hint = "A secure room where valuable records are kept.",
+            .encrypted_file = "access-ledger.enc",
+            .decryption_hint = "A record that tracks who entered and when.",
+            .decryption_key = "auditlog",
+            .reward = 1200,
+            .xp_reward = 275,
+            .required_level = 2,
+            .required_reputation = 2,
         },
     };
 }

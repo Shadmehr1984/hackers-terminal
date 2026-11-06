@@ -72,3 +72,18 @@ test "built-in contracts declare valid and distinct client and target owner fact
         try std.testing.expect(mission.target_owner_faction.? != mission.client_faction);
     }
 }
+
+test "Corporate Ghost faction lock clears after Quiet Exit improves Nexus standing" {
+    var missions = mission_data.defaultMissions();
+    missions[0].completed = true;
+    missions[1].completed = true;
+    try std.testing.expectEqual(faction.Standing.hostile, faction.playerStanding(.nexus_dynamics, 2, &missions));
+    const hostile = contract_board.evaluate(missions[4], .{ .level = 3, .reputation = 2, .missions = &missions });
+    try std.testing.expectEqual(contract_board.Availability.faction_blocked, hostile.availability);
+    try std.testing.expect(hostile.faction_locked);
+    missions[2].completed = true;
+    try std.testing.expectEqual(faction.Standing.wary, faction.playerStanding(.nexus_dynamics, 3, &missions));
+    const restored = contract_board.evaluate(missions[4], .{ .level = 3, .reputation = 3, .missions = &missions });
+    try std.testing.expectEqual(contract_board.Availability.available, restored.availability);
+    try std.testing.expect(!restored.faction_locked);
+}
