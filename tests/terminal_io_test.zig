@@ -82,14 +82,14 @@ test "oversized line is drained before the following command" {
 }
 
 test "read failure while draining an oversized line propagates" {
-    var input: [518]u8 = undefined;
-    @memset(input[0..512], 'x');
-    input[512] = '\n';
-    @memcpy(input[513..], "exit\n");
+    var input: [606]u8 = undefined;
+    @memset(input[0..600], 'x');
+    input[600] = '\n';
+    @memcpy(input[601..], "exit\n");
 
     var buffer: [512]u8 = undefined;
     var reader = MemoryReader.init(&input, &buffer);
-    reader.fail_after = 514;
+    reader.fail_after = 550;
     var output = CaptureWriter{};
 
     try std.testing.expectError(error.ReadFailed, terminal_io.readLine(&reader.reader, &output));
