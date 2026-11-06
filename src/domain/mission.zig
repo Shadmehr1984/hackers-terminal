@@ -1,4 +1,5 @@
 const ModifierId = @import("mission_modifier.zig").ModifierId;
+const FactionId = @import("faction_id.zig").FactionId;
 const objective_runtime = @import("mission_objectives.zig");
 
 /// Re-exports the static topology type used by mission definitions.
@@ -66,6 +67,12 @@ pub const Mission = struct {
     target: []const u8,
     difficulty: MissionDifficulty,
     category: MissionCategory = .data_recovery,
+    /// Faction commissioning this contract; this identity is static catalog data.
+    client_faction: FactionId = .ghost_protocol,
+    /// Faction that owns the contract target, when applicable.
+    target_owner_faction: ?FactionId = null,
+    /// Additional faction whose interests are directly opposed by this contract.
+    opposing_faction: ?FactionId = null,
     /// Static catalog allowlist; an empty list means no modifiers are available.
     allowed_modifiers: []const ModifierId = &.{},
     objectives: []const MissionObjective,
@@ -88,7 +95,7 @@ pub const Mission = struct {
         return tracker.initialize(self.objectives);
     }
 
-    /// Reports whether this contract explicitly allows the supplied modifier.
+    /// Validates that faction links do not point back to the commissioning faction.\n    pub fn hasValidFactionLinks(self: Mission) bool {\n        if (self.target_owner_faction) |owner| {\n            if (owner == self.client_faction) return false;\n        }\n        if (self.opposing_faction) |opposing| {\n            if (opposing == self.client_faction) return false;\n        }\n        return true;\n    }\n\n    /// Reports whether this contract explicitly allows the supplied modifier.
     pub fn allowsModifier(self: Mission, modifier: ModifierId) bool {
         for (self.allowed_modifiers) |allowed| {
             if (allowed == modifier) return true;
