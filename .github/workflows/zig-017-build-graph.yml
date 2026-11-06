@@ -56,6 +56,9 @@ jobs:
       - name: Test compatibility facade exports
         run: zig test facade_api_test_root.zig
 
+      - name: Run the complete aggregate test suite
+        run: zig test test_root.zig
+
       - name: Re-evaluate build graph
         run: zig build --help
 
