@@ -415,8 +415,7 @@ test "truncated and malformed saves are rejected without mutating live state" {
     try std.testing.expect(missions[0].completed);
 }
 
-
-test "shop purchases do not mutate inventory or balance when output fails" {
+test shop purchases do not mutate inventory or balance when output fails" {
     var player = Player{};
     const starting_balance = player.balance;
 
