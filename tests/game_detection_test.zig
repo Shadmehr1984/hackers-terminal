@@ -631,3 +631,31 @@ test "analysis output failure preserves objective and Detection state" {
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
     try std.testing.expect(!session.isObjectiveComplete(.analyze_metadata));
 }
+
+
+test "Extraction payout writer failure does not commit objective completion or rewards" {
+    var player = Player{ .balance = 75 };
+    var missions = mission_data.defaultMissions();
+    missions[0].topology = null;
+    var active: ?usize = 0;
+    var session = MissionSession{ .progress = .decrypted };
+    var preparation = MissionPreparation{};
+    try std.testing.expect(session.initializeObjectives(missions[0].objectives));
+    session.completeObjective(.scan_target);
+    session.completeObjective(.authenticate);
+    session.completeObjective(.decrypt_file);
+    session.completeObjective(.analyze_metadata);
+
+    var calls: usize = 0;
+    const writer = FailOnPrintWriter{ .calls = &calls, .fail_on = 2 };
+    try std.testing.expectError(
+        error.OutputFailure,
+        run(writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation),
+    );
+
+    try std.testing.expectEqual(@as(?usize, 0), active);
+    try std.testing.expectEqual(@as(u32, 75), player.balance);
+    try std.testing.expect(!missions[0].completed);
+    try std.testing.expect(!session.isObjectiveComplete(.extract_file));
+    try std.testing.expect(!session.completion_reward_paid);
+}
