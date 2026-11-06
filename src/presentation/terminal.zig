@@ -225,7 +225,7 @@ pub fn printRivals(
         const faction_profile = faction_data.find(entry.faction);
         const faction_name = if (faction_profile) |profile| profile.name else entry.faction.slug();
         try writer.print("  [{s}] {s} — {s} | {s}\n", .{ state.label(), entry.name, entry.id.slug(), faction_name });
-        try writer.print("    Contest: {s} ({s})\n", .{ entry.mission_id, entry.objective_id });
+        try writer.print("    Contest: {s} | optional intelligence\n", .{entry.mission_id});
     }
     try writer.writeAll("\nRival contests affect optional intelligence only; primary contract completion remains available.\nUse rival <id> for a dossier.\n");
 }
@@ -244,8 +244,8 @@ pub fn printRival(
     const state = rival_simulation.status(entry, missions, level, reputation, active_mission_id, tracker);
     const faction_profile = faction_data.find(entry.faction);
     const faction_name = if (faction_profile) |profile| profile.name else entry.faction.slug();
-    try writer.print("{s} [{s}]\nFaction: {s}\nStatus: {s}\nSpecialty: {s}\nApproach: {s}\nContested contract: {s}\nOptional evidence: {s}\n\n", .{
-        entry.name, id.slug(), faction_name, state.label(), entry.specialty, entry.approach, entry.mission_id, entry.objective_id,
+    try writer.print("{s} [{s}]\nFaction: {s}\nStatus: {s}\nSpecialty: {s}\nApproach: {s}\nContested contract: {s}\nOptional evidence: hidden until discovered\n\n", .{
+        entry.name, id.slug(), faction_name, state.label(), entry.specialty, entry.approach, entry.mission_id,
     });
     try writer.writeAll("Known activity:\n");
     try writer.writeAll(entry.briefing_hint);
