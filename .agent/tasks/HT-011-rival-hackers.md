@@ -67,7 +67,7 @@ Domain rules do not import application or terminal modules. The command parser r
 - [ ] `rivals` lists all five rivals and their status.
 - [ ] `rival <id>` shows one dossier; unknown IDs are rejected.
 - [ ] Contract Board shows the relevant rival and contest state.
-- [ ] Preparation and active Briefing disclose the rival and counterplay before the affected event.
+- [ ] Preparation discloses the rival and counterplay before the affected event; active Briefing reports the live contest outcome without stale pre-decryption advice.
 - [ ] Successful decryption makes the linked hidden optional objective unavailable only when it remains undiscovered.
 - [ ] Discovering the optional evidence before decryption prevents the rival claim.
 - [ ] The rival event never changes required objectives or blocks primary contract completion.
