@@ -44,6 +44,8 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/domain/contacts.zig` | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing |
 | `src/domain/faction_id.zig` and `src/domain/faction.zig` | Stable faction IDs, standing/relationship types, and pure standing derivation from Reputation plus completed contract outcomes |
 | `src/catalog/faction_data.zig` | Seven fictional faction profiles and static symmetric inter-faction relationships |
+| `src/domain/rival.zig` / `src/domain/rival_simulation.zig` | Stable rival identities/statuses and deterministic optional-intelligence contest rules |
+| `src/catalog/rival_data.zig` | Five authored rival profiles and links to existing hidden optional objectives |
 | `tests/` | Unit and integration tests for commands, missions, factions, Contract Board, operations, mission state, topology, equipment, save migrations, Detection, progression, Contacts, and offers |
 | `test_root.zig` | Repository-root test module that imports the aggregate test suite |
 | `docs/` | User and developer documentation |
@@ -104,6 +106,14 @@ The session tracks the following related pieces of temporary state:
 Each `MissionObjective` carries a stable ID, event kind, visibility/discovery metadata, optional flag, and bonus reward. Visible objectives begin discovered; hidden objectives begin undiscovered. The tracker rejects catalogs with duplicate/empty IDs, invalid hidden-objective definitions, or more than 32 entries. Required completion, optional rewards, and all-optional Reputation checks operate on per-objective state, not enum ordinals.
 
 Progress is monotonic. Connection is independent because disconnecting must not revoke authentication or decryption already achieved. A newly accepted contract and a restored active contract start at `accepted`; completing a contract resets the session to `inactive`. Objective completion, detection exposure, the utility loadout snapshot, and the modifier snapshot are runtime-only and are cleared when a mission starts or resets. `heightened-monitoring` adds 2 after the adjusted successful movement cost; `security-sweep` adds 8 after every third successful traversal; `hardened-encryption` changes incorrect decryption exposure from 10 to 15. All modifier Detection events use `detection.apply` and its compromise path. Detection reaching 100 fails the active contract and applies a $50 penalty, capped at the player's current balance.
+
+## Rival hacker model
+
+HT-011 defines five fictional rivals in `src/catalog/rival_data.zig`. Their stable identities and status labels live in `src/domain/rival.zig`; `rival_simulation.zig` derives DORMANT, CONTESTING, RIVAL_AHEAD, and OUTPACED from player progression, faction access, and the existing active-run objective tracker.
+
+Each rival contests one existing hidden optional objective. After successful decryption, the rival claims that opportunity only if its objective is still undiscovered. Discovering it first outpaces the rival. The event changes no required objective, Detection, cash, XP, Reputation, faction standing, or base reward. The board and pre-launch/active Briefing disclose the rival and the authored counterplay hint.
+
+Rival profiles are static Catalog data and contest outcomes are represented by runtime-only objective state. No rival field or event state is serialized; Save V3 and legacy readers are unchanged. The `rivals` and `rival <id>` commands expose the roster and dossiers.
 
 ## Multi-stage operation model
 
