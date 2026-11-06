@@ -43,7 +43,6 @@ fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype,
         .io_error => try stdout.writeAll("[SAVE WARNING] The existing save could not be read. Default progress is active; check file permissions and preserve the save file before saving again.\n"),
     }
 
-    var legacy_input_buffer: [terminal_input.buffer_capacity]u8 = undefined;
     var active: ?usize = active_from_save;
     var session = MissionSession{};
     var preparation = MissionPreparation{};

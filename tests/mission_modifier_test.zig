@@ -1,4 +1,3 @@
-const builtin = @import("builtin");
 const std = @import("std");
 const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 

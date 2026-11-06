@@ -12,7 +12,9 @@ test {
     _ = @import("terminal_test.zig");
     _ = @import("contacts_test.zig");
     _ = @import("contract_board_test.zig");
-    _ = @import("mission_modifier_test.zig");\n    _ = @import("facade_api_test.zig");\n    _ = @import("save_io_test.zig");
+    _ = @import("mission_modifier_test.zig");
+    _ = @import("facade_api_test.zig");
+    _ = @import("save_io_test.zig");
     _ = @import("mission_objective_tracker_test.zig");
     _ = @import("operation_test.zig");
     _ = @import("faction_test.zig");

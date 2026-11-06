@@ -1,4 +1,3 @@
-const builtin = @import("builtin");
 const std = @import("std");
 const Mission = @import("../domain/mission.zig").Mission;
 const MissionState = @import("../domain/mission_state.zig");
