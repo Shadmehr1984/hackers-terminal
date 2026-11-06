@@ -14,7 +14,7 @@ zig build test
 # Direct equivalent: zig test test_root.zig
 ```
 
-CI runs formatting, build, and tests on pushes and pull requests targeting main.
+CI runs formatting, build, and tests on pushes and pull requests targeting main in Debug, ReleaseSafe, and ReleaseFast.
 
 ## Automated unit tests
 
@@ -32,7 +32,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/mission_modifier_test.zig` covers typed modifier IDs, exact metadata, Detection effect definitions, and the completion bonus.
 - `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, duplicate-payout protection, and atomic rejection when optional-reward accumulation overflows.
 - `tests/contacts_test.zig` covers Reputation tier thresholds, Contact unlocks, optional-objective Reputation bonuses, paid intelligence, Fixer service pricing/usage, and the Ghost Signal offer.
-- `tests/terminal_test.zig` covers faction-aware Operation list/details/status output and active-operation preauthorization messaging.
+- `tests/terminal_test.zig` covers faction-aware Operation list/details/status output, active-operation preauthorization messaging, and safe Contract Board reward-overflow reporting.
 - `tests/contract_board_test.zig` covers visible reward ceilings and checked overflow rejection.
 - `tests/test_all.zig` is the aggregate test list that imports the test modules.
 - `test_root.zig` is the repository-root module used to run the aggregate suite while keeping all test files under `tests/`.

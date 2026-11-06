@@ -7,6 +7,7 @@ const MissionSession = @import("../src/mission_state.zig").MissionSession;
 const MissionPreparation = @import("../src/mission_state.zig").MissionPreparation;
 const Player = @import("../src/player.zig").Player;
 const game = @import("../src/game.zig");
+const faction = @import("../src/domain/faction.zig");
 
 const TestWriter = struct {
     pub fn writeAll(_: *@This(), _: []const u8) !void {}
@@ -270,4 +271,39 @@ test "compromise on extraction also re-prepares the current operation stage" {
     try std.testing.expectEqual(@as(?usize, 0), preparation.mission_index);
     try std.testing.expectEqual(@as(u8, 0), session.detection_level);
     try std.testing.expect(!missions[0].completed);
+}
+
+test "operation remains preauthorized when an earlier stage makes a later client hostile" {
+    var player = Player{ .xp = 250, .reputation = 3 };
+    var missions = mission_data.defaultMissions();
+    missions[0].target_owner_faction = .black_veil;
+    missions[3].target_owner_faction = .black_veil;
+    missions[3].completed = true;
+    missions[4].target_owner_faction = .black_veil;
+    missions[4].completed = true;
+    try std.testing.expectEqual(faction.Standing.wary, faction.playerStanding(.black_veil, player.reputation, &missions));
+
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var writer = TestWriter{};
+
+    try run(&writer, "operation-start blackout-protocol", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(preparation.operation_state.active);
+    try run(&writer, "accept job-01", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?usize, 0), active);
+
+    session.progress = .decrypted;
+    session.current_node = "vault";
+    for (missions[0].objectives) |objective| {
+        if (!objective.optional and objective.kind != .extract_file) session.completeObjective(objective.kind);
+    }
+    try run(&writer, "extract ledger.enc", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(missions[0].completed);
+    try std.testing.expectEqual(faction.Standing.hostile, faction.playerStanding(.black_veil, player.reputation, &missions));
+    try std.testing.expectEqual(@as(?usize, 1), preparation.mission_index);
+
+    try run(&writer, "accept job-02", &player, &missions, &active, &session, &preparation);
+    try std.testing.expectEqual(@as(?usize, 1), active);
+    try std.testing.expect(preparation.operation_state.active);
 }

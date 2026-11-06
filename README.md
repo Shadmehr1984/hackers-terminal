@@ -9,6 +9,9 @@
 
 - Interactive terminal command loop and command parser
 - Five fictional contracts with target-specific clues and puzzle answers
+- Seven fictional factions with derived standing, symmetric relationships, and faction-locked contract access
+- A Contract Board with derived availability and reward ranges
+- Multi-stage Operations with ordered stages, carry-over facts, retry behavior, and start-time faction preauthorization
 - Mission difficulty labels: Easy, Medium, and Hard
 - Required and optional mission objectives with live completion tracking and bonus rewards
 - Mission progression gated by operator level and reputation
@@ -20,7 +23,7 @@
 - Player balance, reputation tiers, XP, and level progression
 - A shop with a required decryptor plus two optional utility tools, a single active utility slot, and two upgrade tiers per utility
 - Local save/load, including V3 equipment persistence and migration from V2, V1, and legacy saves
-- Zig formatting, build, and test checks in GitHub Actions
+- Zig formatting, build, and test checks in GitHub Actions for Debug, ReleaseSafe, and ReleaseFast
 
 ## Requirements
 
@@ -83,55 +86,20 @@ For a complete walkthrough, see [Gameplay](docs/gameplay.md). For exact command 
 
 ```text
 hackers-terminal/
-├── .agent/
-│   ├── decisions/
-│   ├── tasks/
-│   ├── README.md
-│   ├── conventions.md
-│   ├── known-issues.md
-│   ├── review-checklist.md
-│   ├── roadmap.md
-│   └── workflow.md
+├── .agent/                 # ADRs, task handoffs, plans, review checklist, workflow
 ├── .github/workflows/ci.yml
-├── docs/
-│   ├── architecture.md
-│   ├── commands.md
-│   ├── development.md
-│   ├── gameplay.md
-│   └── save-format.md
+├── docs/                   # Architecture, gameplay, commands, development, save format
 ├── scripts/check-agent-docs.sh
 ├── src/
-│   ├── application/
-│   │   ├── commands.zig
-│   │   ├── detection.zig
-│   │   ├── game.zig
-│   │   └── shop.zig
-│   ├── catalog/
-│   │   └── mission_data.zig
-│   ├── domain/
-│   │   ├── contacts.zig
-│   │   ├── mission.zig
-│   │   ├── mission_state.zig
-│   │   ├── player.zig
-│   │   ├── progression.zig
-│   │   └── topology.zig
-│   ├── persistence/
-│   │   └── save.zig
-│   ├── presentation/
-│   │   └── terminal.zig
-│   └── main.zig
-├── tests/
-│   ├── commands_test.zig
-│   ├── contacts_test.zig
-│   ├── equipment_test.zig
-│   ├── game_detection_test.zig
-│   ├── mission_data_test.zig
-│   ├── mission_objectives_test.zig
-│   ├── mission_preparation_test.zig
-│   ├── mission_state_test.zig
-│   ├── progression_test.zig
-│   ├── topology_test.zig
-│   └── test_all.zig
+│   ├── application/        # commands, detection, game, shop
+│   ├── catalog/            # faction_data, mission_data, operation_data
+│   ├── domain/             # contacts, contract_board, factions, missions,
+│   │                       # objectives, operations, player, progression, topology
+│   ├── persistence/        # save/load and legacy compatibility
+│   ├── presentation/       # terminal output
+│   ├── main.zig            # composition root
+│   └── *.zig               # thin compatibility facades for legacy imports
+├── tests/                  # 18 focused test modules, including test_all.zig
 ├── test_root.zig
 ├── AGENTS.md
 ├── build.zig
@@ -143,6 +111,9 @@ The `saves/` directory is created at runtime when the player saves. It is ignore
 ## Current scope and limitations
 
 - The game currently contains five built-in missions defined in `src/catalog/mission_data.zig`; `job-04` (Ghost Signal) remains the exclusive Fixer offer, and `job-05` (Corporate Ghost) is appended at index 4 with level 2 and Reputation 2 requirements plus Nexus Dynamics faction access.
+- Faction standing is derived from Reputation and completed contract affiliations; no per-faction score is saved. Hostile client standing blocks contract access, while an Operation that passed all stage checks at start remains preauthorized.
+- The authored `blackout-protocol` Operation sequences Cold Storage, Paper Trail, and Quiet Exit. Operation state and carry-over facts are runtime-only.
+- Optional-objective cash rewards and Contract Board reward ceilings use checked arithmetic; overflow is rejected rather than wrapped.
 - Mission difficulty is descriptive metadata only; it is displayed in the mission list and briefing but does not yet affect gameplay mechanics.
 - There is one player profile and one local save file.
 - The command parser accepts a command and at most one whitespace-delimited argument.

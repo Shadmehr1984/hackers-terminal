@@ -21,10 +21,11 @@ Make Operation list/details/status output reflect the same derived faction-acces
 - [ ] Active Operation status explains that its access was preauthorized at start, even if standing changes during the sequence.
 - [ ] Optional reward accumulation uses checked arithmetic and returns error.RewardOverflow rather than wrapping.
 - [ ] Contract Board maximum-reward calculation and evaluation propagate overflow; presentation does not display a wrapped amount.
-- [ ] Tests cover faction-locked Operation output, active preauthorization messaging, tracker overflow, Contract Board overflow, and atomic mission payout failure.
+- [x] Tests cover faction-locked Operation output, active preauthorization messaging, tracker overflow, Contract Board overflow, and atomic mission payout failure.
+- [x] End-to-end tests cover Operation start-time validation and preserve preauthorization when an earlier stage makes a later client's standing Hostile.
 - [ ] No Save V3 layout, mission catalog, Operation stage sequence, or gameplay reward values change.
-- [ ] Relevant user/agent documentation is synchronized.
-- [ ] Zig formatting, build, full tests, and agent-doc checks pass in CI for Debug and ReleaseSafe.
+- [x] README, user documentation, architecture/module contracts, and task handoffs are synchronized.
+- [ ] Zig formatting, build, full tests, and agent-doc checks pass in CI for Debug, ReleaseSafe, and ReleaseFast.
 - [ ] Comprehensive final review against every applicable item in .agent/review-checklist.md is recorded, including coverage and limitations.
 
 ## Likely scope
