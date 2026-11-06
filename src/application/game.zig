@@ -463,7 +463,7 @@ pub fn runCommandWithSaveDirectory(
                 try writer.print("Prepared contract is {s}. Use accept {s} to launch it, or cancel to choose another.\n", .{ mission.id, mission.id });
             } else if ((mission.completed and !preparation.operation_state.active) or
                 !isMissionUnlocked(mission, player.*) or
-                !hasFactionAccess(mission, missions, player.reputation))
+                (!preparation.operation_state.active and !hasFactionAccess(mission, missions, player.reputation)))
             {
                 preparation.clear();
                 try writer.writeAll("The prepared contract is no longer available. Preparation cleared.\n");
