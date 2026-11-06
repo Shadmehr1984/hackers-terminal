@@ -32,7 +32,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/domain/mission.zig` | Public `Mission` contract data type, static faction affiliations, allowed-modifier metadata, optional topology reference, level/Reputation requirements and contact-offer gating, difficulty/category, and typed objectives |
 | `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
 | `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, per-objective runtime tracker, detection exposure, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
-| `src/catalog/mission_data.zig` | Four built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is appended at index 3 |
+| `src/catalog/mission_data.zig` | Five built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is at index 3 and Corporate Ghost is appended at index 4 |
 | `src/catalog/operation_data.zig` | Static authored operation sequences; currently contains the three-stage `blackout-protocol` |
 | `src/persistence/save.zig` | Save/load persistence for player progress and mission completion state |
 | `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, faction dossiers, Contacts, offers, history, and topology map |
@@ -67,7 +67,7 @@ A mission stores its static contract definition and completion state:
 
 Difficulty is currently descriptive metadata only. It is displayed in the contract list and active briefing; it does not yet modify detection, rewards, puzzle rules, or mission requirements. Objectives may be required or optional. Required objectives gate contract completion; optional objectives never block it and can grant configured bonus cash. Successful scan, authentication, decryption, extraction, and metadata-analysis commands complete their matching objective.
 
-The four built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array. Ghost Signal is appended at index 3 so the original mission indices remain stable. Each contract has its own static graph from `src/domain/topology.zig`: Cold Storage has an exposed short corridor and a maintenance detour; Paper Trail branches from an indexing hub into mail and records systems; Quiet Exit uses a relay chain with a decoy branch and controlled exit; Ghost Signal uses an abandoned relay with a mirrored-traffic branch.
+The five built-in mission instances are returned by `mission_data.defaultMissions()` as a fixed-size array. Ghost Signal remains at index 3 and Corporate Ghost is appended at index 4, preserving all earlier indices. Each contract has its own static graph from `src/domain/topology.zig`: Cold Storage has an exposed short corridor and a maintenance detour; Paper Trail branches from an indexing hub into mail and records systems; Quiet Exit uses a relay chain with a decoy branch and controlled exit; Ghost Signal uses an abandoned relay with a mirrored-traffic branch; Corporate Ghost uses a hardened gateway, audit archive, encrypted data vault, hidden traffic-mirror branch, and secure exit.
 
 ### Faction data
 

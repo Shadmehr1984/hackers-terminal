@@ -56,7 +56,7 @@ Each stage pays its existing contract rewards only if that contract was not alre
 
 | Command | Arguments | Prerequisites | Effect |
 | --- | --- | --- | --- |
-| `prepare <id>` | Contract ID | No active or already prepared contract; both required level and Reputation are met and the contract is incomplete | Opens a pre-mission intelligence briefing without launching the contract |
+| `prepare <id>` | Contract ID | No active or already prepared contract; required level and Reputation are met, the contract is incomplete, and its client faction is not Hostile | Opens a pre-mission intelligence briefing without launching the contract |
 | `loadout <utility|none>` | Owned utility or `none` | Contract is being prepared; selected utility must be owned | Selects the utility for this run without changing persistent equipment |
 | `modifier` | None | Contract is being prepared | Lists allowed modifiers, exact effects, completion bonus, and current selection |
 | `modifier <id>` | `heightened-monitoring`, `security-sweep`, or `hardened-encryption` | Contract is being prepared; modifier must be allowed by that contract | Selects one modifier for this run; only one may be selected |
@@ -73,7 +73,7 @@ Each stage pays its existing contract rewards only if that contract was not alre
 | `analyze <filename>` | Exact encrypted filename | Active contract, successful decryption, and analysis node | Completes discovered metadata objectives and earns their bonuses at contract completion |
 | `extract <filename>` | Exact encrypted filename | Active contract, successful decryption, and extraction node | Completes the extraction objective; awards the contract only when all its objectives are complete |
 
-Preparation shows known contract intelligence, target, difficulty, rewards, objective outline, topology overview, and every allowed modifier with its exact effect and successful-completion bonus. Puzzle clues and answers remain undiscovered until the contract is launched. Preparation and its selected modifier are temporary and are not saved.
+Preparation shows known contract intelligence, target, difficulty, rewards, objective outline, topology overview, and every allowed modifier with its exact effect and successful-completion bonus. Faction-locked contracts are rejected before preparation. Puzzle clues and answers remain undiscovered until the contract is launched. Preparation and its selected modifier are temporary and are not saved.
 
 Mission difficulty is currently descriptive metadata. Mission objectives are defined per contract and their completion is tracked during the active session. Optional objectives do not block contract completion; their configured cash bonuses are added only when completed. The game does not perform real scanning, authentication, password attacks, decryption, or file extraction. These commands only advance the fictional mission state. Successful topology movement adds 5 Detection per traversal, including revisits, unless equipped Silent Boots reduce the cost to 4/3/2. `heightened-monitoring` adds another +2 after that adjusted cost; `security-sweep` adds +8 after every third successful traversal (revisits count, rejected moves do not). An incorrect password adds 15 Detection unless equipped Signal Scrubber reduces the cost to 12/9/6. Successful scan/authentication/decryption/analysis/extraction actions add detection exposure once; incorrect decryption-key attempts also add exposure; `hardened-encryption` changes an incorrect key attempt from +10 to +15, without changing the successful decryption cost. Connect, disconnect, invalid commands, and rejected prerequisites add none. At 100 detection, the contract fails and a $50 penalty (up to the available balance) is applied. The contract can be accepted again.
 
@@ -81,13 +81,13 @@ Mission difficulty is currently descriptive metadata. Mission objectives are def
 
 | Command | Arguments | Prerequisites | Effect |
 | --- | --- | --- | --- |
-| `deal intel-<mission-id>` | e.g. intel-job-02 | Information Broker unlocked at Reputation 1; target contract is unlocked and incomplete; at least $50 | Charges $50 and reveals that contract's password and decryption clues, not the answers |
+| `deal intel-<mission-id>` | e.g. intel-job-02 | Information Broker unlocked at Reputation 1; target contract meets level/Reputation requirements, is incomplete, has non-Hostile client standing, and at least $50 is available | Charges $50 and reveals that contract's password and decryption clues, not the answers |
 | `deal scrub-detection` | Fixed offer ID | Fixer unlocked at Reputation 3; active contract; Detection above zero; service unused this contract; enough funds | Reduces Detection by up to 10; costs $100 at Reputation 3–4 or $75 at Reputation 5+ |
 | `deal ghost-signal` | Fixed offer ID | Fixer unlocked; no active/prepared contract; level 3 and Reputation 3; job-04 incomplete. The offer is hidden while another contract is active or prepared. | Opens preparation for the exclusive Ghost Signal contract without a fee; direct prepare is rejected |
 
-Contact unlocks are derived from Reputation and are not separately saved. The Fixer service can be used once per active contract; its usage flag is temporary and resets when the contract starts or ends. Broker intelligence purchases are repeatable transactions and deduct $50 each time.
+Contact unlocks are derived from Reputation and are not separately saved. Broker intelligence is listed and purchasable only for contracts whose level, Reputation, and client-faction access requirements are met; a hostile faction lock cannot be bypassed through `deal intel-<mission-id>`. The Fixer service can be used once per active contract; its usage flag is temporary and resets when the contract starts or ends. Broker intelligence purchases are repeatable transactions and deduct $50 each time.
 
-A selected modifier grants an additional +$50 and +25 XP only when the contract is successfully completed. It grants nothing on failure, Detection compromise, cancellation, or incomplete objectives. All three modifiers are available for the four current built-in contracts.
+A selected modifier grants an additional +$50 and +25 XP only when the contract is successfully completed. It grants nothing on failure, Detection compromise, cancellation, or incomplete objectives. All three modifiers are available for the five current built-in contracts.
 
 ## Economy commands
 

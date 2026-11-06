@@ -38,7 +38,7 @@ Use `prepare <id>` to inspect an available, unlocked contract before committing 
 
 The selected utility defaults to the currently equipped utility if it is owned. Use `loadout silent-boots`, `loadout signal-scrubber`, or `loadout none` to choose a run-specific utility. A utility must already be owned. This selection does not change the player's persistent equipment slot; its current upgrade level is snapshotted when the contract launches.
 
-Use `modifier` to list the modifiers allowed by this contract, including their exact effects and completion bonuses. Choose at most one with `modifier <id>`, or clear it with `modifier none`. All three current modifiers are allowed on all four built-in contracts. A selection is displayed again in the preparation summary and copied into the active session when you accept.
+Use `modifier` to list the modifiers allowed by this contract, including their exact effects and completion bonuses. Choose at most one with `modifier <id>`, or clear it with `modifier none`. All three current modifiers are allowed on all five built-in contracts. A selection is displayed again in the preparation summary and copied into the active session when you accept.
 
 Use `accept <id>` to launch only the contract currently being prepared. The ID must match. Use `cancel` to leave preparation without cost and then prepare another contract. Only one preparation or active contract can exist at a time.
 
@@ -79,7 +79,7 @@ Faction security ratings/styles are authored intelligence to help compare contra
 
 ## Contracts
 
-The game currently defines four contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer.
+The game currently defines five contracts in `src/catalog/mission_data.zig`. The fourth contract, Ghost Signal, is an exclusive Fixer offer; the fifth, Corporate Ghost, is a standard Nexus Dynamics contract.
 
 | ID | Contract | Category | Difficulty | Fictional target | Required level | Required Reputation | Cash reward | XP reward |
 | --- | --- | --- | --- | ---: | ---: | ---: |
@@ -87,8 +87,9 @@ The game currently defines four contracts in `src/catalog/mission_data.zig`. The
 | `job-02` | Paper Trail | Intelligence | Medium | `archive-02.local` | 2 | 0 | $500 | 150 |
 | `job-03` | Quiet Exit | Extraction | Hard | `relay-03.local` | 3 | 0 | $800 | 200 |
 | `job-04` | Ghost Signal | Infiltration | Hard | `signal-04.local` | 3 | 3 | $1,100 | 250 |
+| `job-05` | Corporate Ghost | Infiltration | Hard | `relay-05.local` | 2 | 2 | $1,200 | 275 |
 
-A contract is available only when the player's level and Reputation meet its requirements and it has not already been completed. The first three contracts retain their original availability rules. Ghost Signal additionally requires Reputation 3. Only one active contract is allowed at a time.
+A contract is available only when the player's level and Reputation meet its requirements, its client faction is not Hostile, and it has not already been completed. The first four contracts retain their existing progression rules. Ghost Signal additionally requires Reputation 3 and its Fixer offer; Corporate Ghost requires level 2 and Reputation 2 and is faction-locked while Nexus Dynamics is Hostile. Only one active contract is allowed at a time.
 
 Difficulty is currently a descriptive rating shown by `missions` and `briefing`. It does not change mission mechanics or detection risk.
 
@@ -100,7 +101,7 @@ Every contract defines an ordered checklist of required and optional objectives.
 2. **Authenticate** — completed by solving the password challenge with `brute <password>`.
 3. **Decrypt evidence** — completed by a successful `decrypt <key>` after purchasing the decryptor.
 4. **Recover evidence** — completed by extracting the exact filename with `extract <filename>`.
-5. **Optional: analyze metadata** — after decryption, run `analyze <filename>` to inspect simulated metadata. This objective is not required to finish the contract and grants bonus cash: $75 for Cold Storage, $100 for Paper Trail, $125 for Quiet Exit, and $175 for Ghost Signal.
+5. **Optional: analyze metadata** — after decryption, run `analyze <filename>` to inspect simulated metadata. This objective is not required to finish the contract and grants bonus cash: $75 for Cold Storage, $100 for Paper Trail, $125 for Quiet Exit, $175 for Ghost Signal, and $200 for Corporate Ghost. Corporate Ghost also has a required metadata-verification objective and a hidden, zero-cash mirror-fragment objective discovered at `mirror-node`.
 
 The descriptions differ between contracts even though the current core objective types are shared. A contract is awarded after every required objective is complete. Optional objectives do not block completion; completed ones add their bonus cash to the contract payout. Completing every optional objective in a contract also grants one additional Reputation point. Completing only some optional objectives grants their cash bonuses but no Reputation bonus. Objective progress and detection exposure are temporary and reset when a contract starts or ends; neither is written to the save file.
 
@@ -116,6 +117,7 @@ Every successful traversal normally adds **5 Detection**, including revisiting a
 | Paper Trail | Indexing hub with separate mail-processing and records-access branches | Scan: `index`; authentication: `mail-gw`; decrypt/extract: `mail-store`; optional analysis: `records` |
 | Quiet Exit | Relay chain with a decoy branch and a controlled exit route | Scan: `relay-a`; authentication: `relay-core`; decrypt/analyze: `transfer`; extract: `exit` |
 | Ghost Signal | Abandoned relay with an optional mirrored-traffic branch | Scan: `uplink`; authentication: `handshake`; decrypt/analyze: `cache`; extract: `beacon` |
+| Corporate Ghost | Hardened gateway leading to an audit archive and encrypted vault, with a hidden traffic-mirror branch that rejoins before extraction | Scan: `gateway`; authentication: `auth-core`; analyze: `audit-hub`; decrypt: `data-vault`; extract: `exit-relay` |
 
 The relevant commands must be issued at their assigned nodes. For example, scanning Cold Storage from `entry` is rejected; first move to `service`. All topology and position data are local static game content. Current location and successful traversal count are session-only and are not written to any save version.
 
@@ -159,6 +161,7 @@ Use `briefing` after accepting a contract. The briefing displays the target, dif
 | Paper Trail | A reddish metal, followed by 17 | A small songbird often associated with a clear blue color | `mailbox.enc` |
 | Quiet Exit | A fixed point used for navigation in the northern sky | The time after normal business hours | `manifest.enc` |
 | Ghost Signal | A transparent shelter used to grow delicate plants | A sudden, brief fall of rain | `ghost-signal.enc` |
+| Corporate Ghost | A secure room where valuable records are kept | A record that tracks who entered and when | `access-ledger.enc` |
 
 <details>
 <summary>Puzzle solutions (spoilers)</summary>
@@ -169,6 +172,7 @@ Use `briefing` after accepting a contract. The briefing displays the target, dif
 | Paper Trail | `copper17` | `bluebird` |
 | Quiet Exit | `northstar` | `afterhours` |
 | Ghost Signal | `glasshouse` | `cloudburst` |
+| Corporate Ghost | `vaultkeeper` | `auditlog` |
 
 </details>
 
@@ -202,7 +206,7 @@ The threshold for reaching level `L` (where `L >= 2`) is:
 100 + (L - 2) * 150
 ```
 
-Completing a contract adds its configured XP reward. The game announces a level-up when the player's level increases. Since the second contract requires level 2 and awards 150 XP, completing the first contract unlocks it. Completing the second contract brings the player to 250 XP and level 3, unlocking the original final contract, Quiet Exit. Ghost Signal is an additional exclusive contract and also requires Reputation 3.
+Completing a contract adds its configured XP reward. The game announces a level-up when the player's level increases. Since the second contract requires level 2 and awards 150 XP, completing the first contract unlocks it. Completing the second contract brings the player to 250 XP and level 3, unlocking Quiet Exit. Completing Quiet Exit without its optional-objective Reputation bonus raises Reputation from 2 to 3 while leaving both Nexus-owned completion flags unchanged; Nexus standing moves from Hostile to Wary, unlocking Corporate Ghost if its level and Reputation requirements are met. Ghost Signal remains an additional exclusive contract and requires Reputation 3.
 
 Each completed contract grants 1 Reputation. If every optional objective in that contract was also completed, the player gains 1 additional Reputation (2 total).
 
@@ -225,7 +229,7 @@ Use `contacts` to see both characters and their unlock status, `contact broker` 
 
 - **Information Broker** unlocks at Reputation 1. The Broker sells contract-specific password and decryption clues for $50 using `deal intel-<mission-id>`. Offers appear only for unlocked, incomplete contracts. The purchase reveals clues, never the actual password or decryption key. Each purchase is a separate transaction.
 - **Fixer** unlocks at Reputation 3. The Fixer offers `deal scrub-detection` during an active contract. It reduces Detection by up to 10, can be used once per contract, and costs $100 at Trusted (Reputation 3–4) or $75 at Elite (Reputation 5+). It cannot raise Detection or be used when Detection is already zero.
-- The Fixer also offers `deal ghost-signal`, which opens preparation for `job-04` when the player meets both level 3 and Reputation 3 requirements and has no active/prepared contract. The offer is hidden while another contract is active or prepared. Direct `prepare job-04` is rejected; the contract must be opened through the Fixer offer. The offer has no fee; the contract is appended after the original three missions.
+- The Fixer also offers `deal ghost-signal`, which opens preparation for `job-04` when the player meets both level 3 and Reputation 3 requirements and has no active/prepared contract. The offer is hidden while another contract is active or prepared. Direct `prepare job-04` is rejected; the contract must be opened through the Fixer offer. The offer has no fee. Corporate Ghost (`job-05`) is a separate standard contract and can be prepared directly when Nexus standing is not Hostile.
 
 The Fixer service-use flag is runtime-only and resets when a contract starts or ends. Reputation, tiers, and Contact unlocks use the existing persisted Reputation value, so Save V3 remains unchanged.
 

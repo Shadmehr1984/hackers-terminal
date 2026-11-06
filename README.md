@@ -8,7 +8,7 @@
 ## Features
 
 - Interactive terminal command loop and command parser
-- Four fictional contracts with target-specific clues and puzzle answers
+- Five fictional contracts with target-specific clues and puzzle answers
 - Mission difficulty labels: Easy, Medium, and Hard
 - Required and optional mission objectives with live completion tracking and bonus rewards
 - Mission progression gated by operator level and reputation
@@ -142,7 +142,7 @@ The `saves/` directory is created at runtime when the player saves. It is ignore
 
 ## Current scope and limitations
 
-- The game currently contains four built-in missions defined in `src/catalog/mission_data.zig`; `job-04` (Ghost Signal) is appended and requires level 3 and Reputation 3.
+- The game currently contains five built-in missions defined in `src/catalog/mission_data.zig`; `job-04` (Ghost Signal) remains the exclusive Fixer offer, and `job-05` (Corporate Ghost) is appended at index 4 with level 2 and Reputation 2 requirements plus Nexus Dynamics faction access.
 - Mission difficulty is descriptive metadata only; it is displayed in the mission list and briefing but does not yet affect gameplay mechanics.
 - There is one player profile and one local save file.
 - The command parser accepts a command and at most one whitespace-delimited argument.

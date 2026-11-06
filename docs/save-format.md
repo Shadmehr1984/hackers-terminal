@@ -27,7 +27,7 @@ HACKERS_TERMINAL_SAVE_V3
 
 Utility ownership bit 0 represents Silent Boots; bit 1 represents Signal Scrubber. Equipped code 0 means none, 1 means Silent Boots, and 2 means Signal Scrubber. The loader clears an equipped selection and upgrade levels when the corresponding ownership bit is absent.
 
-For the current four missions, indices map as follows:
+For the current five missions, indices map as follows:
 
 | Index | Contract |
 | ---: | --- |
@@ -35,8 +35,9 @@ For the current four missions, indices map as follows:
 | 1 | `job-02` — Paper Trail |
 | 2 | `job-03` — Quiet Exit |
 | 3 | `job-04` — Ghost Signal |
+| 4 | `job-05` — Corporate Ghost |
 
-The fourth mission is appended at index 3; the original indices 0–2 are unchanged. Older V3/V2/V1/legacy saves with only three completion flags leave the appended mission incomplete by default. The V3 marker and player-field order are unchanged; the current writer emits four mission completion flags.
+The fifth mission is appended at index 4; the original indices 0–3 are unchanged. Older V3/V2/V1/legacy saves with only three completion flags leave both job-04 and job-05 incomplete; saves with four flags leave job-05 incomplete. The V3 marker and player-field order are unchanged; the current writer emits five mission completion flags.
 
 An active mission index of `-1` means there is no active contract. A non-negative index must be within the current mission catalog; an out-of-range index rejects the save before any in-memory state is changed. An in-range index that points to a mission marked completed in the same save is not restored as active.
 
