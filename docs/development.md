@@ -37,7 +37,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, modifier command/eligibility, launch snapshots, cancellation, and one-time modifier rewards.
 - `tests/mission_modifier_test.zig` covers typed modifier IDs, exact metadata, Detection effect definitions, and the completion bonus.
 - `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, duplicate-payout protection, atomic rejection when optional-reward accumulation overflows, and preservation of objective state on payout overflow or output failure.
-- `tests/contacts_test.zig` covers Reputation tier thresholds, Contact unlocks, optional-objective Reputation bonuses, paid intelligence, Fixer service pricing/usage, and the Ghost Signal offer.
+- `tests/contacts_test.zig` covers Reputation tier thresholds, Contact unlocks, optional-objective Reputation bonuses, paid intelligence (including rollback on output failure), Fixer service pricing/usage, and the Ghost Signal offer.
 - `tests/terminal_test.zig` covers faction-aware Operation list/details/status output, active-operation preauthorization messaging, and safe Contract Board reward-overflow reporting.
 - `tests/operation_test.zig` covers Operation catalog/state transitions, stage progression and retry, unchanged V3 save behavior, preauthorization, and preservation of outgoing facts when the transition-output writer fails.
 - `tests/rival_test.zig` covers the five-rival catalog, deterministic status transitions, rival commands/dossiers, and all five authored Node/File/Action discovery-trigger contests in both player-first and rival-first outcomes.
