@@ -37,7 +37,7 @@ jobs:
       # The full repository formatter and test suite remain deferred until
       # compatibility facades and remaining language APIs are migrated.
       - name: Check migrated-file formatting
-        run: zig fmt --check build.zig src/main.zig src/application/terminal_input.zig src/application/terminal_io.zig src/application/game.zig tests/terminal_input_test.zig tests/terminal_io_test.zig tests/save_test_support.zig tests/save_io_test.zig tests/operation_test.zig save_io_test_root.zig
+        run: zig fmt --check build.zig src/main.zig src/application/terminal_input.zig src/application/terminal_io.zig src/application/game.zig tests/terminal_input_test.zig tests/terminal_io_test.zig tests/save_test_support.zig tests/save_io_test.zig tests/operation_test.zig save_io_test_root.zig src/shop.zig src/game.zig src/save.zig src/player.zig src/mission.zig src/contacts.zig src/commands.zig src/terminal.zig src/topology.zig src/detection.zig src/progression.zig src/mission_data.zig src/mission_state.zig tests/facade_api_test.zig facade_api_test_root.zig
 
       - name: Test terminal I/O compatibility layer
         run: zig test --dep terminal_io -Mroot=tests/terminal_io_test.zig -Mterminal_io=src/application/terminal_io.zig
@@ -47,6 +47,9 @@ jobs:
 
       - name: Test Zig 0.17 type reflection compatibility
         run: zig test mission_modifier_test_root.zig
+
+      - name: Test compatibility facade exports
+        run: zig test facade_api_test_root.zig
 
       - name: Re-evaluate build graph
         run: zig build --help

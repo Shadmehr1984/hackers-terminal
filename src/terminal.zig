@@ -1,2 +1,23 @@
 // Compatibility facade; implementation lives in presentation/terminal.zig.
-pub usingnamespace @import("presentation/terminal.zig");
+const implementation = @import("presentation/terminal.zig");
+pub const printBanner = implementation.printBanner;
+pub const printHelp = implementation.printHelp;
+pub const printStatus = implementation.printStatus;
+pub const printMissions = implementation.printMissions;
+pub const printContractBoard = implementation.printContractBoard;
+pub const printRivals = implementation.printRivals;
+pub const printRival = implementation.printRival;
+pub const printRivalBriefing = implementation.printRivalBriefing;
+pub const printFactions = implementation.printFactions;
+pub const printFaction = implementation.printFaction;
+pub const printContacts = implementation.printContacts;
+pub const printContact = implementation.printContact;
+pub const printOffers = implementation.printOffers;
+pub const printObjectives = implementation.printObjectives;
+pub const printPreparation = implementation.printPreparation;
+pub const printModifierOptions = implementation.printModifierOptions;
+pub const printOperations = implementation.printOperations;
+pub const printOperationDetails = implementation.printOperationDetails;
+pub const printOperationStatus = implementation.printOperationStatus;
+pub const printHistory = implementation.printHistory;
+pub const printMap = implementation.printMap;
