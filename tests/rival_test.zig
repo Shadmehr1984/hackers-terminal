@@ -77,11 +77,14 @@ test "rivals commands list five dossiers and inspect one without exposing puzzle
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Glasswire") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Patchwork") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Redshift") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "relay-trace") == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "maintenance-telemetry") == null);
 
     capture.len = 0;
     _ = try game.runCommand(&capture, "rival null-byte", &player, &missions, &active, &session, &preparation);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Null Byte [null-byte]") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "cloudburst") == null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "mirror-fragment") == null);
 
     capture.len = 0;
     _ = try game.runCommand(&capture, "prepare job-01", &player, &missions, &active, &session, &preparation);
