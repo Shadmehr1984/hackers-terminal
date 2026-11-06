@@ -294,7 +294,7 @@ test "save writes and replaces a V3 file in an isolated directory" {
     try std.testing.expect(!restored_missions[0].completed);
     try std.testing.expect(restored_missions[3].completed);
     try std.testing.expect(restored_missions[4].completed);
-    try std.testing.expectError(error.FileNotFound, save_test_support.expectMissingFile(tmp.dir, "saves/player.sav.tmp"));
+    try save_test_support.expectMissingFile(tmp.dir, "saves/player.sav.tmp");
 }
 
 test "failed save staging leaves the previous save untouched" {
