@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Phases 0–5 implementation complete. The project and primary CI now target Zig 0.17.1; formatting, build, run smoke test, and the full aggregate suite pass in Debug/ReleaseSafe/ReleaseFast. Phase 6 documentation synchronization and full mandatory code review are in progress.**
+- Status: **Phases 0–5 complete. The project and primary CI target Zig 0.17.1; formatting, build, run argument-passthrough smoke test, full aggregate tests, and agent-doc checks pass in Debug/ReleaseSafe/ReleaseFast. Active documentation is synchronized; the mandatory full repository review and final closeout are in progress.**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`
@@ -130,20 +130,26 @@ The audit was performed against the current `main` head listed above. Earlier co
 - Full aggregate test-suite execution under Zig 0.17.1 remains Phase 5 work.
 
 ### Phase 5 — Tests and CI
-- [ ] Migrate test infrastructure and test doubles without losing failure injection.
-- [ ] Keep aggregate test list and root test module stable.
-- [ ] Update CI setup to Zig 0.17.1.
-- [ ] Run formatting, build, and tests in Debug, ReleaseSafe, ReleaseFast.
-- [ ] Confirm agent-doc check passes.
-- [ ] Commit as `ci: target Zig 0.17.1`.
+- [x] Migrate test infrastructure and test doubles to `std.Io` without losing failure injection.
+- [x] Keep the aggregate test list and root test module stable; register terminal I/O, save I/O, modifier, and facade tests in `tests/test_all.zig`.
+- [x] Update primary CI setup to exactly Zig 0.17.1.
+- [x] Run formatting, build, and the complete aggregate test suite in Debug, ReleaseSafe, and ReleaseFast.
+- [x] Confirm the terminal entry-point smoke test runs through `zig build run`.
+- [x] Verify `zig build run -- smoke-test` argument passthrough in Debug, ReleaseSafe, and ReleaseFast.
+- [x] Confirm agent-doc check passes in all three modes.
+- CI cutover commit: `f418c6d85d4958f0b369289ac1302be694d86fee`; aggregate terminal I/O registration: `484d61704a14f01a02d13b77ca4d4fd6d137c86c`; migration validation cleanup: `0f9426aa6d93ebb79e02190508f2195af474b3a0`.
+- Baseline primary CI run `42307800158` passed Debug, ReleaseSafe, and ReleaseFast formatting, build, run smoke test, full aggregate tests, and agent-doc checks.
+- Focused migration validation run `42308409872` passed exact version, formatting, save/modifier/facade tests, full application build, and aggregate test suite.
+- Argument-passthrough run `42308409941` passed formatting, build, run smoke test with `-- smoke-test`, and aggregate tests in Debug; its documentation guard exposed an obsolete `root_source_file` grep. The guard was updated to check `root_module` and `addPassthruArgs`.
+- Final all-mode rerun `42308764294` passed Debug, ReleaseSafe, and ReleaseFast, including formatting, build, argument-passthrough smoke test, aggregate tests, and agent-doc checks.
 
 ### Phase 6 — Documentation, review, and closeout
-- [ ] Update toolchain version and commands in all active agent/user docs.
-- [ ] Mark ADR 0001 superseded and retain the new accepted toolchain ADR.
-- [ ] Update roadmap/task status only after implementation, review, and CI are complete.
+- [x] Update toolchain version and commands in active agent/user docs (README, AGENTS, conventions, workflow, architecture, and development guide).
+- [x] Mark ADR 0001 superseded and retain ADR 0016 as the active accepted toolchain decision.
+- [ ] Update final roadmap/task status after review and final CI are complete.
 - [ ] Perform the full mandatory repository review using `.agent/review-checklist.md`.
 - [ ] Inspect CI for the final `main` commit after the documentation-guard correction; report manual playtest separately.
-- [ ] Commit final documentation/closeout if not already included in Phase 5.
+- [ ] Commit final review/closeout record.
 
 ## 5. Acceptance criteria
 
