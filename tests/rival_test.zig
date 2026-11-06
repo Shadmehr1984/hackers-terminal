@@ -133,7 +133,6 @@ test "decrypting before discovering contested optional evidence lets the rival c
     try std.testing.expect(session.allObjectivesComplete(missions[0].objectives));
 }
 
-
 test "decryption compromise resets the run without awarding the rival side opportunity" {
     var player = Player{};
     player.equipment.has_decryptor = true;
@@ -155,7 +154,6 @@ test "decryption compromise resets the run without awarding the rival side oppor
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[RIVAL AHEAD]") == null);
     try std.testing.expect(!missions[0].completed);
 }
-
 
 test "active briefing reports when the player outpaces the rival before decryption" {
     var player = Player{};
