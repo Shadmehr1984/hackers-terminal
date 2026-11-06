@@ -11,10 +11,11 @@ pub const RivalId = enum {
 
     /// Parses the stable command-facing rival identifier.
     pub fn parse(value: []const u8) ?RivalId {
-        inline for (@typeInfo(RivalId).Enum.fields) |field| {
-            const id: RivalId = @enumFromInt(field.value);
-            if (std.mem.eql(u8, value, id.slug())) return id;
-        }
+        if (std.mem.eql(u8, value, "ghost-operator")) return .ghost_operator;
+        if (std.mem.eql(u8, value, "null-byte")) return .null_byte;
+        if (std.mem.eql(u8, value, "glasswire")) return .glasswire;
+        if (std.mem.eql(u8, value, "patchwork")) return .patchwork;
+        if (std.mem.eql(u8, value, "redshift")) return .redshift;
         return null;
     }
 
