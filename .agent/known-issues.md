@@ -9,6 +9,7 @@ This file separates verified constraints from items that need investigation.
 - Save data is positional and has no checksum or full corruption recovery. Writes are staged through a temporary file and renamed after a successful write. Loaders accept V3, V2, V1, and numeric legacy headers; unknown non-numeric markers are rejected before mutating player or mission state.
 - Mission topology validation requires every operation node to be reachable from the entry node; decorative nodes may remain disconnected.
 - Objective progress uses a fixed-capacity 32-entry tracker keyed by stable objective IDs; catalogs exceeding 32 objectives are rejected.
+- Runtime topology traversal count is a u32. More than 2^32-1 successful moves in one mission can wrap the counter and shift the Security Sweep modifier cadence; this is a very low-probability hardening item, not a current gameplay blocker.
 - Mission difficulty is descriptive metadata, not a gameplay modifier.
 - There is no real networking layer; all hacking/host behavior is fictional and simulated.
 - The owner cannot reliably build locally at present; report CI separately from manual playtesting.
