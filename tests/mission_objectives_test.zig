@@ -47,7 +47,7 @@ test "required objective completion is tracked by stable identity" {
     session.completeObjective(.decrypt_file);
     session.completeObjective(.extract_file);
     try std.testing.expect(session.allObjectivesComplete(missions[0].objectives));
-    try std.testing.expectEqual(@as(u32, 0), session.optionalReward(missions[0].objectives));
+    try std.testing.expectEqual(@as(u32, 0), try session.optionalReward(missions[0].objectives));
 }
 
 test "visible and hidden objectives reset to their authored initial states" {
@@ -76,13 +76,13 @@ test "hidden objectives are optional, discoverable and reward only after discove
     session.completeObjective(.decrypt_file);
     session.completeObjective(.extract_file);
     try std.testing.expect(session.allObjectivesComplete(missions[0].objectives));
-    try std.testing.expectEqual(@as(u32, 0), session.optionalReward(missions[0].objectives));
+    try std.testing.expectEqual(@as(u32, 0), try session.optionalReward(missions[0].objectives));
     try std.testing.expect(!session.allOptionalObjectivesComplete(missions[0].objectives));
 
     try std.testing.expectEqual(@as(usize, 1), session.discoverNode("maintenance", missions[0].objectives));
     try std.testing.expectEqual(@as(usize, 0), session.discoverNode("maintenance", missions[0].objectives));
     session.completeObjective(.analyze_metadata);
-    try std.testing.expectEqual(@as(u32, 75), session.optionalReward(missions[0].objectives));
+    try std.testing.expectEqual(@as(u32, 75), try session.optionalReward(missions[0].objectives));
     try std.testing.expect(session.allOptionalObjectivesComplete(missions[0].objectives));
 }
 
