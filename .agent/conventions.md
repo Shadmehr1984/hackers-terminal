@@ -15,6 +15,9 @@ Derived from the current source tree; re-check source before relying on this map
 | src/domain/faction_id.zig | Stable typed faction identities and command-facing slugs | Authored faction profiles, player state, or terminal I/O |
 | src/domain/faction.zig | Faction standing and relationship types; pure standing derivation from Reputation and completed mission affiliations | Catalog data, command dispatch, persistence, or terminal I/O |
 | src/catalog/faction_data.zig | Seven authored faction profiles and symmetric static inter-faction relationships | Player standing mutation or command dispatch |
+| src/domain/rival.zig | Stable rival identities, profile shape, and status labels | Catalog data, command dispatch, persistence, or terminal I/O |
+| src/catalog/rival_data.zig | Five authored rival profiles and their hidden optional-objective contest links | Runtime state mutation or command dispatch |
+| src/domain/rival_simulation.zig | Pure rival status derivation and deterministic post-decryption optional-objective contest resolution | Terminal I/O, persistence, or external/network simulation |
 | src/domain/contract_board.zig | Pure derived contract availability, faction access, and checked reward-range query; overflow propagates as RewardOverflow; no I/O or persistence |
 | src/domain/mission.zig | Mission, category, static faction affiliations, optional topology reference, level/Reputation requirements, difficulty, stable-ID objective definitions, and static allowed-modifier metadata | Built-in catalog or runtime mutation |
 | src/domain/mission_objectives.zig | Fixed-capacity objective tracker, typed discovery triggers, objective lifecycle transitions, and checked optional-cash reward accumulation | Terminal I/O, command dispatch, or persistence |
