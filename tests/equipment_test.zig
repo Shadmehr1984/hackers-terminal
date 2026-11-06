@@ -331,8 +331,8 @@ test "invalid V3 equipment references are normalized" {
 }
 
 test "equipment enum catalog remains stable" {
-    try std.testing.expectEqual(@as(u8, 0), @intFromEnum(UtilityEquipment.silent_boots));
-    try std.testing.expectEqual(@as(u8, 1), @intFromEnum(UtilityEquipment.signal_scrubber));
+    try std.testing.expectEqual(@as(u8, 0), @backingInt(UtilityEquipment.silent_boots));
+    try std.testing.expectEqual(@as(u8, 1), @backingInt(UtilityEquipment.signal_scrubber));
 }
 
 test "older three-contract save completion flags leave appended missions incomplete" {

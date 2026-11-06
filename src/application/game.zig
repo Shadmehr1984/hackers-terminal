@@ -311,10 +311,7 @@ pub fn runCommand(
     session: *MissionSession,
     preparation: *MissionPreparation,
 ) !bool {
-    const context = if (builtin.zig_version.minor >= 16)
-        save.SaveContext{ .io = std.testing.io, .dir = std.Io.Dir.cwd() }
-    else
-        save.SaveContext{ .dir = std.fs.cwd() };
+    const context = save.SaveContext{ .io = std.testing.io, .dir = std.Io.Dir.cwd() };
     return runCommandWithSaveContext(writer, line, player, missions, active, session, preparation, context);
 }
 

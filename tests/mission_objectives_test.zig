@@ -132,6 +132,6 @@ test "optional reward accumulation rejects u32 overflow" {
     };
     var tracker = @import("../src/domain/mission_objectives.zig").Tracker{};
     try std.testing.expect(tracker.initialize(&objectives));
-    try std.testing.expectEqual(@as(usize, 2), tracker.complete(@intFromEnum(@as(@TypeOf(objectives[0].kind), .analyze))));
+    try std.testing.expectEqual(@as(usize, 2), tracker.complete(@backingInt(@as(@TypeOf(objectives[0].kind), .analyze))));
     try std.testing.expectError(error.RewardOverflow, tracker.optionalReward());
 }

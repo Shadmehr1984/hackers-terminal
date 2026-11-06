@@ -224,12 +224,12 @@ pub const MissionSession = struct {
 
     /// Marks every currently discovered objective for the supplied event kind complete.
     pub fn completeObjective(self: *MissionSession, kind: MissionObjectiveKind) void {
-        _ = self.objective_tracker.complete(@intCast(@intFromEnum(kind)));
+        _ = self.objective_tracker.complete(@intCast(@backingInt(kind)));
     }
 
     /// Reports whether a discovered objective of this event kind still awaits completion.
     pub fn hasIncompleteObjective(self: MissionSession, kind: MissionObjectiveKind) bool {
-        const value: u8 = @intCast(@intFromEnum(kind));
+        const value: u8 = @intCast(@backingInt(kind));
         for (self.objective_tracker.entries[0..self.objective_tracker.count]) |entry| {
             if (entry.kind == value and entry.state == .discovered) return true;
         }
@@ -238,7 +238,7 @@ pub const MissionSession = struct {
 
     /// Marks optional objectives for a completed event kind unavailable if that event cannot recur.
     pub fn markOptionalObjectivesUnavailableForEvent(self: *MissionSession, kind: MissionObjectiveKind) void {
-        self.objective_tracker.markOptionalUnavailableForKind(@intCast(@intFromEnum(kind)));
+        self.objective_tracker.markOptionalUnavailableForKind(@intCast(@backingInt(kind)));
     }
 
     /// Marks incomplete optional objectives unavailable when the contract is ending.
@@ -250,7 +250,7 @@ pub const MissionSession = struct {
 
     /// Reports whether at least one objective of this event kind is complete.
     pub fn isObjectiveComplete(self: MissionSession, kind: MissionObjectiveKind) bool {
-        const value: u8 = @intCast(@intFromEnum(kind));
+        const value: u8 = @intCast(@backingInt(kind));
         for (self.objective_tracker.entries[0..self.objective_tracker.count]) |entry| {
             if (entry.kind == value and entry.state == .completed) return true;
         }

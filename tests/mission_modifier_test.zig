@@ -3,7 +3,7 @@ const std = @import("std");
 const ModifierId = @import("../src/domain/mission_modifier.zig").ModifierId;
 
 test "exactly three stable modifier command IDs are defined" {
-    const field_count = if (comptime builtin.zig_version.minor >= 16) @typeInfo(ModifierId).@"enum".field_names.len else @typeInfo(ModifierId).Enum.fields.len;
+    const field_count = @typeInfo(ModifierId).@"enum".field_names.len;
     try std.testing.expectEqual(@as(usize, 3), field_count);
     try std.testing.expectEqualStrings("heightened-monitoring", ModifierId.heightened_monitoring.commandId());
     try std.testing.expectEqualStrings("security-sweep", ModifierId.security_sweep.commandId());

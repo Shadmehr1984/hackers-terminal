@@ -74,7 +74,7 @@ pub const Tracker = struct {
 
             next.entries[index] = .{
                 .id = objective.id,
-                .kind = @intFromEnum(objective.kind),
+                .kind = @backingInt(objective.kind),
                 .optional = objective.optional,
                 .bonus_reward = objective.bonus_reward,
                 .revealed = !objective.hidden,
@@ -313,12 +313,12 @@ test "same event kind completes independently discovered objectives and rewards 
     var tracker = Tracker{};
     try std.testing.expect(tracker.initialize(&objectives));
     try std.testing.expectEqual(@as(usize, 1), tracker.discoverAction(.scan_target, &objectives));
-    try std.testing.expectEqual(@as(usize, 2), tracker.complete(@intFromEnum(@as(@TypeOf(objectives[0].kind), .analyze))));
+    try std.testing.expectEqual(@as(usize, 2), tracker.complete(@backingInt(@as(@TypeOf(objectives[0].kind), .analyze))));
     try std.testing.expectEqual(ObjectiveState.completed, tracker.stateOf("visible-analysis").?);
     try std.testing.expectEqual(ObjectiveState.completed, tracker.stateOf("hidden-analysis").?);
     try std.testing.expectEqual(@as(u32, 75), try tracker.optionalReward());
     try std.testing.expect(tracker.allOptionalComplete());
-    try std.testing.expectEqual(@as(usize, 0), tracker.complete(@intFromEnum(@as(@TypeOf(objectives[0].kind), .analyze))));
+    try std.testing.expectEqual(@as(usize, 0), tracker.complete(@backingInt(@as(@TypeOf(objectives[0].kind), .analyze))));
 }
 
 test "undiscovered optional objectives prevent reputation bonus and can become unavailable" {

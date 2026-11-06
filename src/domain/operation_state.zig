@@ -26,12 +26,12 @@ pub const OperationState = struct {
 
     /// Returns whether a typed fact has been earned in this process.
     pub fn hasFact(self: OperationState, fact: OperationFact) bool {
-        return (self.facts & (@as(u8, 1) << @intFromEnum(fact))) != 0;
+        return (self.facts & (@as(u8, 1) << @backingInt(fact))) != 0;
     }
 
     /// Grants a typed fact. Repeated grants are harmless.
     pub fn grantFact(self: *OperationState, fact: OperationFact) void {
-        self.facts |= @as(u8, 1) << @intFromEnum(fact);
+        self.facts |= @as(u8, 1) << @backingInt(fact);
     }
 
     /// Advances exactly one successful stage, or records final completion.

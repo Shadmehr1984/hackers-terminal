@@ -1,4 +1,3 @@
-const builtin = @import("builtin");
 const std = @import("std");
 const Player = @import("domain/player.zig").Player;
 const MissionState = @import("domain/mission_state.zig");
@@ -7,30 +6,13 @@ const MissionPreparation = MissionState.MissionPreparation;
 const save = @import("persistence/save.zig");
 const game = @import("application/game.zig");
 const terminal_input = @import("application/terminal_input.zig");
-const terminal_io = if (builtin.zig_version.minor >= 16) @import("application/terminal_io.zig") else struct {};
+const terminal_io = @import("application/terminal_io.zig");
 const progression = @import("domain/progression.zig");
 const terminal = @import("presentation/terminal.zig");
 const mission_data = @import("catalog/mission_data.zig");
 
-/// Select the process entry point supported by the active Zig standard library.
-pub const main = if (builtin.zig_version.minor >= 16) mainWithIo else mainLegacy;
-
-fn mainLegacy() !void {
-    var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-    defer {
-        if (general_purpose_allocator.deinit() == .leak) {
-            std.debug.print("[MEMORY LEAK] GeneralPurposeAllocator detected leaked allocations.\n", .{});
-        }
-    }
-    const allocator = general_purpose_allocator.allocator();
-
-    var stdout = std.io.getStdOut().writer();
-    var stdin = std.io.getStdIn().reader();
-    try runApplication(allocator, &stdout, &stdin, save.SaveContext{ .dir = std.fs.cwd() });
-}
-
-/// Zig 0.16+ supplies process resources, including the allocator and I/O context.
-fn mainWithIo(init: std.process.Init) !void {
+/// Process entry point for Zig 0.17.1.
+pub fn main(init: std.process.Init) !void {
     var stdout = terminal_io.ProcessWriter{
         .io = init.io,
         .file = std.Io.File.stdout(),
@@ -38,7 +20,10 @@ fn mainWithIo(init: std.process.Init) !void {
     };
     var input_buffer: [terminal_input.buffer_capacity]u8 = undefined;
     var stdin = std.Io.File.stdin().readerStreaming(init.io, &input_buffer);
-    try runApplication(init.gpa, &stdout, &stdin.interface, save.SaveContext{ .io = init.io, .dir = std.Io.Dir.cwd() });
+    try runApplication(init.gpa, &stdout, &stdin.interface, save.SaveContext{
+        .io = init.io,
+        .dir = std.Io.Dir.cwd(),
+    });
 }
 
 fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype, save_context: save.SaveContext) !void {
@@ -76,27 +61,10 @@ fn runApplication(allocator: std.mem.Allocator, stdout: anytype, stdin: anytype,
 
     while (true) {
         try stdout.print("\n{s}@darknet:~$ ", .{player.handle});
-        const maybe_line = if (builtin.zig_version.minor >= 16)
-            terminal_io.readLine(stdin, stdout) catch |err| switch (err) {
-                error.CommandDiscarded => continue,
-                else => return err,
-            }
-        else
-            stdin.readUntilDelimiterOrEof(&legacy_input_buffer, '\n') catch |err| switch (err) {
-                error.StreamTooLong => {
-                    while (true) {
-                        const remaining = stdin.readUntilDelimiterOrEof(&legacy_input_buffer, '\n') catch |drain_err| switch (drain_err) {
-                            error.StreamTooLong => continue,
-                            else => return drain_err,
-                        };
-                        if (remaining == null) break;
-                        break;
-                    }
-                    try stdout.writeAll("Input too long. Command discarded.\n");
-                    continue;
-                },
-                else => return err,
-            };
+        const maybe_line = terminal_io.readLine(stdin, stdout) catch |err| switch (err) {
+            error.CommandDiscarded => continue,
+            else => return err,
+        };
         if (maybe_line == null) break;
         const raw_line = maybe_line.?;
         const line = std.mem.trim(u8, raw_line, " \r\t");

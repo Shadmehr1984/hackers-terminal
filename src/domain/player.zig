@@ -56,13 +56,13 @@ pub const Equipment = struct {
 
     /// Reports whether the player owns the specified utility.
     pub fn owns(self: Equipment, utility: UtilityEquipment) bool {
-        const bit = @as(u2, 1) << @intCast(@intFromEnum(utility));
+        const bit = @as(u2, 1) << @intCast(@backingInt(utility));
         return (self.owned_utilities & bit) != 0;
     }
 
     /// Marks the specified utility as owned.
     pub fn setOwned(self: *Equipment, utility: UtilityEquipment) void {
-        const bit = @as(u2, 1) << @intCast(@intFromEnum(utility));
+        const bit = @as(u2, 1) << @intCast(@backingInt(utility));
         self.owned_utilities |= bit;
     }
 

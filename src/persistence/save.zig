@@ -1,51 +1,27 @@
-const builtin = @import("builtin");
 const std = @import("std");
 pub const Mission = @import("../domain/mission.zig").Mission;
 pub const Player = @import("../domain/player.zig").Player;
 
 /// Filesystem capability passed from the process boundary into persistence.
-pub const SaveContext = if (builtin.zig_version.minor >= 16)
-    struct {
-        io: std.Io,
-        dir: std.Io.Dir,
-    }
-else
-    struct {
-        dir: std.fs.Dir,
-    };
+pub const SaveContext = struct {
+    io: std.Io,
+    dir: std.Io.Dir,
+};
 
 fn makeDirectoryPath(context: SaveContext, path: []const u8) !void {
-    if (builtin.zig_version.minor >= 16) {
-        try context.dir.createDirPath(context.io, path);
-    } else {
-        try context.dir.makePath(path);
-    }
+    try context.dir.createDirPath(context.io, path);
 }
 
 fn deleteFile(context: SaveContext, path: []const u8) !void {
-    if (builtin.zig_version.minor >= 16) {
-        try context.dir.deleteFile(context.io, path);
-    } else {
-        try context.dir.deleteFile(path);
-    }
+    try context.dir.deleteFile(context.io, path);
 }
 
 fn renameFile(context: SaveContext, old_path: []const u8, new_path: []const u8) !void {
-    if (builtin.zig_version.minor >= 16) {
-        try context.dir.rename(old_path, context.dir, new_path, context.io);
-    } else {
-        try context.dir.rename(old_path, new_path);
-    }
+    try context.dir.rename(old_path, context.dir, new_path, context.io);
 }
 
 fn readSaveFile(context: SaveContext, allocator: std.mem.Allocator) ![]u8 {
-    if (builtin.zig_version.minor >= 16) {
-        return context.dir.readFileAlloc(context.io, "saves/player.sav", allocator, .limited(4097));
-    } else {
-        const file = try context.dir.openFile("saves/player.sav", .{});
-        defer file.close();
-        return file.readToEndAlloc(allocator, 4096);
-    }
+    return context.dir.readFileAlloc(context.io, "saves/player.sav", allocator, .limited(4097));
 }
 
 /// Writes the current player and mission completion state to the supplied save context.
@@ -62,22 +38,13 @@ pub fn saveGameToDirectory(context: SaveContext, player: Player, missions: []con
     try makeDirectoryPath(context, "saves");
     errdefer deleteFile(context, temporary_path) catch {};
 
-    if (builtin.zig_version.minor >= 16) {
-        {
-            const file = try context.dir.createFile(context.io, temporary_path, .{ .truncate = true });
-            defer file.close(context.io);
-            var buffer: [1024]u8 = undefined;
-            var writer = file.writer(context.io, &buffer);
-            try writeSavePayload(&writer.interface, player, missions, active);
-            try writer.interface.flush();
-        }
-    } else {
-        {
-            const file = try context.dir.createFile(temporary_path, .{ .truncate = true });
-            defer file.close();
-            var writer = file.writer();
-            try writeSavePayload(&writer, player, missions, active);
-        }
+    {
+        const file = try context.dir.createFile(context.io, temporary_path, .{ .truncate = true });
+        defer file.close(context.io);
+        var buffer: [1024]u8 = undefined;
+        var writer = file.writer(context.io, &buffer);
+        try writeSavePayload(&writer.interface, player, missions, active);
+        try writer.interface.flush();
     }
 
     // Rename only after the complete new save has been flushed and closed.
@@ -85,9 +52,9 @@ pub fn saveGameToDirectory(context: SaveContext, player: Player, missions: []con
     try renameFile(context, temporary_path, save_path);
 }
 
-/// Emits the stable V3 payload through either the legacy or std.Io writer adapter.
+/// Emits the stable V3 payload through the std.Io writer.
 fn writeSavePayload(writer: anytype, player: Player, missions: []const Mission, active: ?usize) !void {
-    const equipped: u8 = if (player.equipment.equipped_utility) |utility| @intFromEnum(utility) + 1 else 0;
+    const equipped: u8 = if (player.equipment.equipped_utility) |utility| @backingInt(utility) + 1 else 0;
     try writer.print("HACKERS_TERMINAL_SAVE_V3\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n{d}\n", .{
         player.balance,                                        player.reputation,                      player.xp,
         @as(u8, if (player.equipment.has_decryptor) 1 else 0), player.equipment.owned_utilities,       equipped,
