@@ -257,7 +257,7 @@ pub fn printRivalBriefing(writer: anytype, mission_id: []const u8) !void {
     if (rival_data.forMission(mission_id)) |entry| {
         try writer.print("\nRIVAL INTELLIGENCE: {s} ({s})\n", .{ entry.name, entry.faction.slug() });
         try writer.writeAll(entry.briefing_hint);
-        try writer.writeAll("\nIf you decrypt before uncovering this optional evidence, the rival may secure it first. The main contract is never blocked.\n");
+        try writer.writeAll("\nThis is optional intelligence only; the primary contract remains completable.\n");
     }
 }
 
