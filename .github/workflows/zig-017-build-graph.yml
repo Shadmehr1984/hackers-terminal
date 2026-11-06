@@ -34,8 +34,12 @@ jobs:
       - name: Confirm toolchain version
         run: test "$(zig version)" = "0.17.1"
 
-      - name: Check complete Zig source formatting
-        run: zig fmt --check test_root.zig build.zig src tests
+      - name: Apply Zig 0.17.1 formatting and show required source changes
+        run: |
+          zig fmt test_root.zig build.zig src tests
+          git diff --stat
+          git diff -- src/persistence/save.zig src/domain/mission_state.zig src/domain/operation_state.zig src/domain/mission_objectives.zig src/domain/player.zig tests/mission_objectives_test.zig tests/equipment_test.zig
+          zig fmt --check test_root.zig build.zig src tests
 
       - name: Test terminal I/O compatibility layer
         run: zig test --dep terminal_io -Mroot=tests/terminal_io_test.zig -Mterminal_io=src/application/terminal_io.zig
