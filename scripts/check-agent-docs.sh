@@ -21,6 +21,7 @@ AGENTS.md
 .agent/tasks/HT-005-reputation-contacts.md
 .agent/tasks/HT-010-factions.md
 .agent/tasks/HT-010.1-corporate-ghost.md
+.agent/tasks/QUALITY-007-faction-and-reward-hardening.md
 .agent/decisions/0013-corporate-ghost.md
 docs/gameplay.md
 docs/commands.md
