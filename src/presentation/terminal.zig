@@ -186,7 +186,7 @@ pub fn printContractBoard(writer: anytype, missions: []const Mission, level: u32
         } else if (entry.availability == .exclusive) {
             try writer.writeAll("    Obtain this contract through its Contact offer.\n");
         } else if (entry.availability == .faction_blocked) {
-            try writer.print("    {s} is hostile to you; complete contracts for this faction to restore access.\n", .{client.name});
+            try writer.print("    {s} is hostile to you; complete contracts for this faction to restore access.\n", . {client_name});
         } else if (entry.availability == .unavailable) {
             try writer.writeAll("    Finish or fail the active contract, or cancel the current preparation, before selecting another.\n");
         }
