@@ -64,6 +64,7 @@ Derived from the current source tree; re-check source before relying on this map
 - Operation list/details/status presentation uses the same derived client-faction standing as operation-start. A successfully started Operation is preauthorized for its full linear sequence; later standing changes do not revoke access, and active Operation views label this explicitly.
 - Objective progress uses HT-008's fixed-capacity 32-entry tracker keyed by stable mission-local IDs; never use an event-kind enum ordinal as objective identity.
 - HT-009 Operation definitions are static and linear (maximum 8 stages); current stage, typed carry-over facts, and completion display state are runtime-only. Stage rewards are paid individually once, using the existing persisted mission-completed flag to suppress rewards when a completed contract is replayed inside an operation.
+- When completing an Operation stage, emit the outgoing-fact transition record successfully before mutating the runtime carried-fact state; a writer failure must leave the fact uncommitted so the stage can be retried.
 - While an operation is active, saving must preserve the existing Save V3 layout but pass no active mission index. Restart begins the operation again at stage one with no operation facts; already-completed stage contracts are replayable without rewards.
 
 ## Git workflow
