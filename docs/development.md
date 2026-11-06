@@ -16,6 +16,12 @@ zig build test
 
 CI runs formatting, build, and tests on pushes and pull requests targeting main in Debug, ReleaseSafe, and ReleaseFast.
 
+## Transactional command output
+
+State-changing command handlers stage affected Player, MissionSession, MissionPreparation, active-contract, mission-completion, and OperationState values in local copies. They commit those values only after all output belonging to the transition succeeds. This protects the game from half-applied transitions when an injected or future Writer returns an error.
+
+The regression suite injects both formatted-print and raw-write failures into critical command paths. Keep these tests aligned with any new state-changing command, especially when a command combines Detection, objective progress, rewards, or Operation stage transitions.
+
 ## Automated unit tests
 
 Automated unit tests live in the top-level `tests/` directory, separate from production source files:
@@ -27,7 +33,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/topology_test.zig` covers graph lookup, bidirectional adjacency, graph validation, and both allocation-failure points in reachability traversal.
 - `tests/equipment_test.zig` covers utility ownership, purchases, equipping, upgrade tiers, shared Detection-cost profiles, V3/V2/V1/legacy save migration, truncated/malformed save input, and purchase rollback when output fails.
 - `tests/mission_objectives_test.zig` covers required and optional objective definitions, completion tracking, checked optional-reward accumulation (including overflow), and session reset behavior.
-- `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, location-gated operations, modifier Detection costs, sweep cadence, and modifier failure boundaries. It also verifies that movement, Detection compromise, and Extraction objective state are not committed when their output writer fails.
+- `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, location-gated operations, modifier Detection costs, sweep cadence, and modifier failure boundaries. It also verifies that movement, Detection compromise, scan, authentication, decryption, analysis, contract launch, and Extraction/payout state are not committed when their output writer fails.
 - `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, modifier command/eligibility, launch snapshots, cancellation, and one-time modifier rewards.
 - `tests/mission_modifier_test.zig` covers typed modifier IDs, exact metadata, Detection effect definitions, and the completion bonus.
 - `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, duplicate-payout protection, atomic rejection when optional-reward accumulation overflows, and preservation of objective state on payout overflow or output failure.
