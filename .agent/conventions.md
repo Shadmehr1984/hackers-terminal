@@ -11,8 +11,8 @@ Derived from the current source tree; re-check source before relying on this map
 | src/application/detection.zig | Detection costs, warnings, compromise failure, and penalty | Command parsing or mission catalog data |
 | src/domain/progression.zig | XP thresholds, player levels, Reputation tiers, and mission reward application | Command dispatch or terminal I/O policy |
 | src/domain/player.zig | Player profile, typed equipment ownership, equipped utility, upgrade levels, and the single source of truth for pure utility Detection-cost profiles | Persistence and terminal I/O |
-| src/domain/contacts.zig | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing | Game command dispatch, terminal output, or persistence |
-| src/domain/contract_board.zig | Pure derived contract availability and reward-range query; no I/O or persistence |
+| src/domain/contacts.zig | Fictional Contact identities, Reputation unlock thresholds, and Fixer service pricing | Game command dispatch, terminal output, or persistence |\n| src/domain/faction_id.zig | Stable typed faction identities and command-facing slugs | Authored faction profiles, player state, or terminal I/O |\n| src/domain/faction.zig | Faction standing and relationship types; pure standing derivation from Reputation and completed mission affiliations | Catalog data, command dispatch, persistence, or terminal I/O |\n| src/catalog/faction_data.zig | Seven authored faction profiles and symmetric static inter-faction relationships | Player standing mutation or command dispatch |
+| src/domain/contract_board.zig | Pure derived contract availability, faction access, and reward-range query; no I/O or persistence |
 | src/domain/mission.zig | Mission, category, optional topology reference, level/Reputation requirements, difficulty, stable-ID objective definitions, and static allowed-modifier metadata | Built-in catalog or runtime mutation |
 | src/domain/mission_objectives.zig | Fixed-capacity objective tracker, typed discovery triggers, objective lifecycle transitions, and reward queries | Terminal I/O, command dispatch, or persistence |
 | src/domain/operation.zig | Static linear Operation/Stage definitions, typed carry-over facts, and catalog validation | Runtime mutation, command dispatch, terminal I/O, or persistence |
@@ -29,7 +29,7 @@ Derived from the current source tree; re-check source before relying on this map
 | docs/ | User, architecture, save, and developer documentation | Substitute for executable tests |
 
 ## Dependency direction
-- player.zig and mission.zig are foundational and independent of high-level orchestration.
+- player.zig, faction_id.zig, and mission.zig are foundational and independent of high-level orchestration.\n- faction.zig may depend on the mission data contract to derive standing; mission.zig depends only on faction_id.zig, never on faction Catalog or orchestration. faction_data.zig owns authored profiles and static relationships.
 - topology.zig is foundational and independent; mission.zig references its topology type.
 - mission_data.zig depends on mission and topology types.
 - mission_state.zig models transient state and should not depend on terminal output or persistence.
@@ -51,7 +51,7 @@ Derived from the current source tree; re-check source before relying on this map
 - Mission modifier eligibility is static catalog metadata; preparation rejects modifiers not explicitly allowed by the selected mission. The selected modifier is not persisted.
 - The active mission loadout and optional modifier are snapshotted at launch; Detection modifiers read the session snapshot, never live player equipment or preparation state. Preparation discloses exact effects and bonuses but does not reveal puzzle clues or answers.
 - HT-007 modifier Detection events use the central `detection.apply` path. `heightened-monitoring` adds +2 after adjusted movement cost; `security-sweep` adds +8 after every third successful traversal only if the normal event did not compromise the run; `hardened-encryption` changes incorrect decryption-key exposure to +15. Successful modified completion adds +$50/+25 XP once; a runtime session guard prevents duplicate completion payouts, and failure does not.
-- Player progression and mission completion are persisted. Reputation tiers and Contact unlocks are derived from Reputation; Fixer service usage is transient.
+- Player progression and mission completion are persisted. Reputation tiers and Contact unlocks are derived from Reputation; Fixer service usage is transient. HT-010 faction standing is derived from global Reputation and completed contract faction metadata; no per-faction score is persisted. Hostile standing toward a contract client blocks access, and faction data remains static Catalog content.
 - Save format is positional and writes V3 and reads V2, V1, and original unversioned layouts. Validate all fixed fields and every supplied completion flag before committing loaded player or mission state; truncated/malformed fixed fields must preserve the previous in-memory state. Older saves may omit trailing mission flags, which default to incomplete; extra flags are invalid. Schema changes require deliberate migration, tests, and docs/save-format.md updates.
 - Mission payout calculations use checked arithmetic and commit cash, XP, Reputation, and the runtime duplicate-payout guard only after all totals and output succeed; mission completion flags are set only after payout succeeds.
 - Objective progress uses HT-008's fixed-capacity 32-entry tracker keyed by stable mission-local IDs; never use an event-kind enum ordinal as objective identity.
