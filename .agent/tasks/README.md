@@ -15,6 +15,7 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 9 | HT-009 | Multi-stage Operations | Implemented on `main`; CI #733 passed | [Read task](HT-009-multi-stage-operations.md) |
 | 10 | HT-010 | Factions | In Progress on `main`; design accepted in ADR 0012 | [Read task](HT-010-factions.md) |
 | 10.1 | HT-010.1 | Corporate Ghost — fifth contract | Implemented on `main`; CI #42221149753 passed | [Read task](HT-010.1-corporate-ghost.md) |
+| Q-007 | QUALITY-007 | Faction-aware Operation status and checked optional rewards | In Progress on `main` | [Read task](QUALITY-007-faction-and-reward-hardening.md) |
 
 ## Gameplay Expansion Program — EXPANSION-001
 
