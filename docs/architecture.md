@@ -111,7 +111,7 @@ Progress is monotonic. Connection is independent because disconnecting must not 
 
 HT-011 defines five fictional rivals in `src/catalog/rival_data.zig`. Their stable identities and status labels live in `src/domain/rival.zig`; `rival_simulation.zig` derives DORMANT, CONTESTING, RIVAL_AHEAD, and OUTPACED from player progression, faction access, and the existing active-run objective tracker.
 
-Each rival contests one existing hidden optional objective. After successful decryption, the rival claims that opportunity only if its objective is still undiscovered. Discovering it first outpaces the rival. The event changes no required objective, Detection, cash, XP, Reputation, faction standing, or base reward. The board and pre-launch/active Briefing disclose the rival and the authored counterplay hint.
+Each rival contests one existing hidden optional objective. After successful decryption, the rival claims that opportunity only if its objective is still undiscovered. Discovering it first outpaces the rival. The event changes no required objective, Detection, cash, XP, direct Reputation, faction standing, or base reward. The existing all-optional +1 Reputation bonus rule is unchanged, but a rival-claimed optional objective can make that bonus unavailable for the run. The board and pre-launch/active Briefing disclose the rival and the authored counterplay hint.
 
 Rival profiles are static Catalog data and contest outcomes are represented by runtime-only objective state. No rival field or event state is serialized; Save V3 and legacy readers are unchanged. The `rivals` and `rival <id>` commands expose the roster and dossiers.
 
