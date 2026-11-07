@@ -140,3 +140,9 @@ test "clearing preparation also clears the selected modifier" {
     try std.testing.expect(preparation.selected_utility == null);
     try std.testing.expect(preparation.selected_modifier == null);
 }
+
+test "addDetection clamps an already out-of-range session to the compromise ceiling" {
+    var session = MissionSession{ .detection_level = 101 };
+    session.addDetection(1);
+    try std.testing.expectEqual(@as(u8, 100), session.detection_level);
+}

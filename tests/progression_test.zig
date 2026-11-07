@@ -234,3 +234,14 @@ test "optional objective accumulation overflow leaves payout state unchanged" {
     try std.testing.expectEqual(@as(u32, 0), player.xp);
     try std.testing.expect(!session.completion_reward_paid);
 }
+
+test "XP threshold clamps zero to the first supported player level" {
+    try std.testing.expectEqual(@as(u32, 100), progression.xpForNextLevel(0));
+}
+
+test "XP threshold clamps values above the player level cap" {
+    try std.testing.expectEqual(
+        @as(u32, 14800),
+        progression.xpForNextLevel(std.math.maxInt(u32)),
+    );
+}
