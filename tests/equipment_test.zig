@@ -454,7 +454,10 @@ test "save rejects invalid equipment levels without replacing the previous save"
 
     player.balance = 999;
     player.equipment.signal_scrubber_level = 3;
-    try std.testing.expectError(error.InvalidEquipmentState, save.saveGameToDirectory(context, player, &missions, null));
+    try std.testing.expectError(
+        error.InvalidEquipmentState,
+        save.saveGameToDirectory(context, player, &missions, null),
+    );
 
     const data = try save_test_support.readSaveFile(tmp.dir, std.testing.allocator, "saves/player.sav");
     defer std.testing.allocator.free(data);

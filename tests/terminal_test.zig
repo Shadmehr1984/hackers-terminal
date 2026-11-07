@@ -121,7 +121,14 @@ test "Broker contact and offers hide intelligence for faction-locked contracts" 
     missions[0].completed = true;
     missions[1].completed = true;
     var capture = Capture{};
-    try terminal.printOffers(&capture, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
+    try terminal.printOffers(
+        &capture,
+        player,
+        &missions,
+        null,
+        MissionSession{},
+        MissionState.MissionPreparation{},
+    );
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "intel-job-05") == null);
     capture.len = 0;
     try terminal.printContact(&capture, .broker, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
@@ -189,13 +196,24 @@ test "Fixer hides Ghost Signal when its client faction is hostile" {
     missions[2].target_owner_faction = .nexus_dynamics;
     missions[3].client_faction = .nexus_dynamics;
     const player = Player{ .reputation = 3, .xp = 250 };
-    try std.testing.expectEqual(faction.Standing.hostile, faction.playerStanding(.nexus_dynamics, player.reputation, &missions));
+    try std.testing.expectEqual(
+        faction.Standing.hostile,
+        faction.playerStanding(.nexus_dynamics, player.reputation, &missions),
+    );
 
     var capture = Capture{};
     try terminal.printOffers(&capture, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
 
     capture.len = 0;
-    try terminal.printContact(&capture, .fixer, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
+    try terminal.printContact(
+        &capture,
+        .fixer,
+        player,
+        &missions,
+        null,
+        MissionSession{},
+        MissionState.MissionPreparation{},
+    );
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
 }
