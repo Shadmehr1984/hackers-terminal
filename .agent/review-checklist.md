@@ -312,3 +312,23 @@ For a full review, include a category coverage matrix for Correctness, OWASP Sec
 ## 14. Reference
 
 The OWASP category names in this standard follow the final [OWASP Top 10:2025](https://top10.owasp.org/2025/). Recheck the official project when the standard is revised; do not silently substitute an older edition.
+
+
+## 15. Two-axis review supplement
+
+In addition to every mandatory pass above, report change-review findings under two independent lenses:
+
+### A. Standards
+
+- Compare the change against `AGENTS.md`, `.agent/conventions.md`, relevant ADRs, and the full project-specific checklist.
+- Apply project rules before generic style heuristics.
+- As judgement-only prompts, consider these Fowler-style smells: mysterious names, duplicated code, feature envy, data clumps, primitive obsession, repeated switches, shotgun surgery, divergent change, speculative generality, message chains, middle man, and refused bequest.
+- A smell is not automatically a violation. Explain its concrete effect and classify it using the existing severity rules. Skip issues already enforced by tooling.
+
+### B. Specification fidelity
+
+- Identify the originating accepted issue, task handoff, design, or acceptance criteria. If none exists, state that no spec was available.
+- Report missing/partial requirements, unapproved scope additions, and implementations whose behavior differs from the spec.
+- Cite the exact requirement and implementation path/line evidence.
+
+Keep Standards and Spec reports separate. Passing one axis does not imply passing the other. This supplement does not replace or narrow the full-repository review sequence, coverage accounting, security review, Zig scan, test/CI verification, or mandatory report format above.
