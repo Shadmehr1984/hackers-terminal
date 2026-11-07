@@ -167,3 +167,8 @@ A code review is read-only by default. Do not modify source, tests, documentatio
 ## Current toolchain
 
 The repository and CI now target Zig 0.17.1. `build.zig` uses explicit root modules and `addPassthruArgs`; the process entry point uses `std.process.Init` and `std.Io`; persistence uses an explicit `std.Io`/`std.Io.Dir` SaveContext. Keep the toolchain pinned to exactly 0.17.1 and preserve Save V3/V2/V1/legacy behavior, terminal input limits and error handling, transactional writer-failure guarantees, and all gameplay behavior. The completed TOOLCHAIN-001 task brief and ADR 0016 are the historical record of the migration and its verification.
+
+
+## Engineering workflow
+
+For feature design, bug diagnosis, test-first implementation, architecture surveys, two-axis code review, agent handoffs, and agent-document writing, follow **[.agent/engineering-workflow.md](.agent/engineering-workflow.md)**. Read the relevant workflow before starting that kind of work. The comprehensive review checklist remains mandatory and takes precedence over generic review heuristics.
