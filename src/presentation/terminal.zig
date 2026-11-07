@@ -1,6 +1,7 @@
 const Mission = @import("../domain/mission.zig").Mission;
 const MissionState = @import("../domain/mission_state.zig");
 const MissionSession = MissionState.MissionSession;
+const MissionLoadout = MissionState.MissionLoadout;
 const MissionPreparation = MissionState.MissionPreparation;
 const Player = @import("../domain/player.zig").Player;
 const UtilityEquipment = @import("../domain/player.zig").UtilityEquipment;
@@ -478,14 +479,12 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
         try writer.print("\nSelected loadout: {s} (level {d})\n", .{ utility.label(), player.equipment.level(utility) });
     } else try writer.writeAll("\nSelected loadout: none\n");
     try writer.writeAll("Risk indicators: scan +10, successful authentication +5, decryption +10, wrong key +10, optional analysis +5, extraction +5.\n");
-    try writer.writeAll("Movement cost: ");
-    if (selected_utility) |utility| {
-        try writer.print("{d} Detection per traversal.\n", .{utility.movementDetectionCost(player.equipment.level(utility))});
-    } else try writer.writeAll("5 Detection per traversal.\n");
-    try writer.writeAll("Incorrect password cost: ");
-    if (selected_utility) |utility| {
-        try writer.print("{d} Detection.\n", .{utility.incorrectAuthenticationDetectionCost(player.equipment.level(utility))});
-    } else try writer.writeAll("15 Detection.\n");
+    const selected_loadout = MissionLoadout{
+        .utility = selected_utility,
+        .level = if (selected_utility) |utility| player.equipment.level(utility) else 0,
+    };
+    try writer.print("Movement cost: {d} Detection per traversal.\n", .{selected_loadout.movementDetectionCost()});
+    try writer.print("Incorrect password cost: {d} Detection.\n", .{selected_loadout.incorrectAuthenticationDetectionCost()});
     try writer.writeAll("\n");
     try printModifierOptions(writer, mission, selected_modifier);
     try writer.writeAll("\nUse 'loadout <utility|none>' to change this run's utility; use 'modifier <id|none>' to choose one modifier. Then 'accept <id>' to launch or 'cancel' to leave preparation.\n");

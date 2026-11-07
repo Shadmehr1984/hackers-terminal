@@ -227,6 +227,11 @@ test "preparation displays Detection costs from the canonical utility profiles" 
     try terminal.printPreparation(&capture, missions[0], player, .signal_scrubber, null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Movement cost: 5 Detection per traversal.") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Incorrect password cost: 6 Detection.") != null);
+
+    capture.len = 0;
+    try terminal.printPreparation(&capture, missions[0], player, null, null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Movement cost: 5 Detection per traversal.") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Incorrect password cost: 15 Detection.") != null);
 }
 
 test "terminal clear helper owns the ANSI reset sequence" {
