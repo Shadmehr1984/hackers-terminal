@@ -1,7 +1,7 @@
 # Phase 2 — World, Intelligence, and Relationships
 
 **Parent program:** [EXPANSION-001](GAMEPLAY-EXPANSION-OVERVIEW.md)  
-**Status:** HT-010 and HT-010.1 Implemented on main (final CI #42224233431 passed Debug, ReleaseSafe, and ReleaseFast); HT-011 implementation is In Progress on main; HT-012 design is approved under ADR 0015 but implementation is not authorized; HT-022 and HT-025 remain Planned  
+**Status:** HT-010 and HT-010.1 are Implemented on `main` (final CI #42224233431 passed Debug, ReleaseSafe, and ReleaseFast); HT-011 is Implemented on `main` (reviewed implementation SHA `64f7a77fdff5a2947abae9370355de3a26505db6`, CI #988 / run ID `42254566536` passed all three optimization modes; repository-wide self-review complete, no independent second reviewer); HT-012 design is approved under ADR 0015 but implementation is not authorized; HT-022 and HT-025 remain Planned  
 **Goal:** Make the fictional cyber-world feel populated by organizations, competitors, information brokers, and persistent discoveries.
 
 ## Shared baseline and constraints
@@ -46,7 +46,7 @@ Real organizations, real political groups, player alliances, branching story.
 
 ## HT-011 — Rival Hackers
 
-**Status:** In Progress on `main`; approved design in [ADR 0014](../decisions/0014-rival-hackers.md), implementation handoff in [HT-011 task brief](../tasks/HT-011-rival-hackers.md).
+**Status:** Implemented on `main`; approved design in [ADR 0014](../decisions/0014-rival-hackers.md), completed implementation/review handoff in [HT-011 task brief](../tasks/HT-011-rival-hackers.md).
 
 ### Goal
 Add five fictional competitors who contest optional intelligence opportunities and leave readable traces.
@@ -71,15 +71,15 @@ Add five fictional competitors who contest optional intelligence opportunities a
 - All actors/events remain fictional, local, deterministic, and offline.
 
 ### Acceptance criteria
-- [ ] Five unique validated rival profiles and stable command IDs.
-- [ ] Deterministic derivation of all four rival statuses.
-- [ ] `rivals` and `rival <id>` terminal commands.
-- [ ] Contract Board, Preparation, and Briefing disclose rival activity and counterplay.
-- [ ] Rival claims an undiscovered linked optional objective after successful decryption.
-- [ ] Discovering the linked objective first prevents the rival claim.
-- [ ] Main contract and all required objectives remain completable.
-- [ ] No economy, Detection, Reputation, faction, or Save format changes.
-- [ ] Focused tests, documentation, code review, and CI pass.
+- [x] Five unique validated rival profiles and stable command IDs.
+- [x] Deterministic derivation of all four rival statuses.
+- [x] `rivals` and `rival <id>` terminal commands.
+- [x] Contract Board, Preparation, and Briefing disclose rival activity and counterplay.
+- [x] Rival claims an undiscovered linked optional objective after successful decryption.
+- [x] Discovering the linked objective first prevents the rival claim.
+- [x] Main contract and all required objectives remain completable.
+- [x] No economy, Detection, Reputation, faction, or Save format changes.
+- [x] Focused tests, documentation, code review, and CI pass.
 
 ### Dependencies
 HT-006 Contract Board and HT-010 Factions.
