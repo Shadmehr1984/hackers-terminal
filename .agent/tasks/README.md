@@ -18,7 +18,7 @@ Owner-approved on 2026-11-05. Follow this sequence; each brief is a handoff cont
 | 11 | HT-011 | Rival Hackers | Implemented on `main`; repository-wide self-review complete; CI #988 passed Debug, ReleaseSafe, and ReleaseFast | [Read task](HT-011-rival-hackers.md) |
 | 12 | HT-012 | Information Market / Information Warfare | Design Approved under ADR 0015; implementation not authorized | [Read task](HT-012-information-market.md) |
 | Q-007 | QUALITY-007 | Faction-aware Operation status and checked optional rewards | Implemented on `main`; CI #42224233431 passed | [Read task](QUALITY-007-faction-and-reward-hardening.md) |
-| Q-008 | QUALITY-008 | Full review follow-up: state invariants, Fixer access, and presentation consistency | Implemented on `main`; final CI #1110 and compatibility CI #44 passed | [Read task](QUALITY-008-review-remediation.md) |
+| Q-008 | QUALITY-008 | Full review follow-up: state invariants, Fixer access, and presentation consistency | Implemented on `main`; latest-main CI #1112 and compatibility CI #45 passed | [Read task](QUALITY-008-review-remediation.md) |
 
 ## Gameplay Expansion Program — EXPANSION-001
 
