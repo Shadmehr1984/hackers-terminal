@@ -606,7 +606,7 @@ pub fn runCommandWithSaveContext(
                     next_session.completeObjective(.scan_target);
                     try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                     try writer.writeAll("A password challenge was identified.\n");
-                    if (!already_scanned) _ = try detection.apply(writer, &next_player, &next_active, &next_session, 10);
+                    if (!already_scanned) _ = try detection.apply(writer, &next_player, &next_active, &next_session, MissionState.DetectionEventCost.scan);
                     player.* = next_player;
                     active.* = next_active;
                     session.* = next_session;
@@ -621,7 +621,7 @@ pub fn runCommandWithSaveContext(
                 next_session.completeObjective(.scan_target);
                 try writer.print("[SCAN COMPLETE] Fictional host {s} is reachable. One simulated service requires authentication.\n", .{arg});
                 try writer.writeAll("A password challenge was identified.\n");
-                if (!already_scanned) _ = try detection.apply(writer, &next_player, &next_active, &next_session, 10);
+                if (!already_scanned) _ = try detection.apply(writer, &next_player, &next_active, &next_session, MissionState.DetectionEventCost.scan);
                 player.* = next_player;
                 active.* = next_active;
                 session.* = next_session;
@@ -672,7 +672,7 @@ pub fn runCommandWithSaveContext(
                 next_session.completeObjective(.authenticate);
                 next_session.markOptionalObjectivesUnavailableForEvent(.authenticate);
                 try writer.writeAll("[ACCESS GRANTED] Authentication challenge solved.\n");
-                if (!already_authenticated) _ = try detection.apply(writer, &next_player, &next_active, &next_session, 5);
+                if (!already_authenticated) _ = try detection.apply(writer, &next_player, &next_active, &next_session, MissionState.DetectionEventCost.successful_authentication);
                 player.* = next_player;
                 active.* = next_active;
                 session.* = next_session;
@@ -709,7 +709,7 @@ pub fn runCommandWithSaveContext(
                 next_session.markOptionalObjectivesUnavailableForEvent(.decrypt_file);
                 try writer.writeAll("[DECRYPTED] File contents verified. You can now analyze metadata or extract the file.\n");
                 const compromised = if (!already_decrypted)
-                    try detection.apply(writer, &next_player, &next_active, &next_session, 10)
+                    try detection.apply(writer, &next_player, &next_active, &next_session, MissionState.DetectionEventCost.decryption)
                 else
                     false;
                 if (!compromised) {
@@ -729,7 +729,7 @@ pub fn runCommandWithSaveContext(
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
                 const failure_cost: u8 = if (next_session.modifier) |modifier| blk: {
                     const effect = modifier.detectionEffect();
-                    break :blk if (effect.kind == .incorrect_decryption_cost) effect.amount else 10;
+                    break :blk if (effect.kind == .incorrect_decryption_cost) effect.amount else MissionState.DetectionEventCost.incorrect_key;
                 } else 10;
                 _ = try detection.apply(writer, &next_player, &next_active, &next_session, failure_cost);
                 player.* = next_player;
@@ -765,7 +765,7 @@ pub fn runCommandWithSaveContext(
                     } else {
                         next_session.completeObjective(.analyze_metadata);
                         try writer.writeAll("[ANALYSIS COMPLETE] Metadata references recovered; matching objectives completed.\n");
-                        if (!already_analyzed) _ = try detection.apply(writer, &next_player, &next_active, &next_session, 5);
+                        if (!already_analyzed) _ = try detection.apply(writer, &next_player, &next_active, &next_session, MissionState.DetectionEventCost.analyze_metadata);
                         player.* = next_player;
                         active.* = next_active;
                         session.* = next_session;
@@ -788,7 +788,7 @@ pub fn runCommandWithSaveContext(
                 var next_mission = mission;
                 const already_extracted = next_session.isObjectiveComplete(.extract_file);
 
-                if (!already_extracted and try detection.apply(writer, &next_player, &next_active, &next_session, 5)) {
+                if (!already_extracted and try detection.apply(writer, &next_player, &next_active, &next_session, MissionState.DetectionEventCost.extraction)) {
                     try retryOperationStage(writer, next_player, missions, next_active, &next_preparation);
                     player.* = next_player;
                     active.* = next_active;

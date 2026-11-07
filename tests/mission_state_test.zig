@@ -146,3 +146,12 @@ test "addDetection clamps an already out-of-range session to the compromise ceil
     session.addDetection(1);
     try std.testing.expectEqual(@as(u8, 100), session.detection_level);
 }
+
+test "base Detection event costs match the preparation risk profile" {
+    try std.testing.expectEqual(@as(u8, 10), mission_state.DetectionEventCost.scan);
+    try std.testing.expectEqual(@as(u8, 5), mission_state.DetectionEventCost.successful_authentication);
+    try std.testing.expectEqual(@as(u8, 10), mission_state.DetectionEventCost.decryption);
+    try std.testing.expectEqual(@as(u8, 10), mission_state.DetectionEventCost.incorrect_key);
+    try std.testing.expectEqual(@as(u8, 5), mission_state.DetectionEventCost.analyze_metadata);
+    try std.testing.expectEqual(@as(u8, 5), mission_state.DetectionEventCost.extraction);
+}

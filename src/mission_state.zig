@@ -4,4 +4,5 @@ pub const MissionLoadout = implementation.MissionLoadout;
 pub const MissionPreparation = implementation.MissionPreparation;
 pub const MissionProgress = implementation.MissionProgress;
 pub const DetectionBand = implementation.DetectionBand;
+pub const DetectionEventCost = implementation.DetectionEventCost;
 pub const MissionSession = implementation.MissionSession;

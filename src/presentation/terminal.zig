@@ -478,7 +478,14 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
     if (selected_utility) |utility| {
         try writer.print("\nSelected loadout: {s} (level {d})\n", .{ utility.label(), player.equipment.level(utility) });
     } else try writer.writeAll("\nSelected loadout: none\n");
-    try writer.writeAll("Risk indicators: scan +10, successful authentication +5, decryption +10, wrong key +10, optional analysis +5, extraction +5.\n");
+    try writer.print("Risk indicators: scan +{d}, successful authentication +{d}, decryption +{d}, wrong key +{d}, optional analysis +{d}, extraction +{d}.\n", .{
+        MissionState.DetectionEventCost.scan,
+        MissionState.DetectionEventCost.successful_authentication,
+        MissionState.DetectionEventCost.decryption,
+        MissionState.DetectionEventCost.incorrect_key,
+        MissionState.DetectionEventCost.analyze_metadata,
+        MissionState.DetectionEventCost.extraction,
+    });
     const selected_loadout = MissionLoadout{
         .utility = selected_utility,
         .level = if (selected_utility) |utility| player.equipment.level(utility) else 0,

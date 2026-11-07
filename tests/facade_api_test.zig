@@ -88,5 +88,6 @@ test "compatibility facades preserve their public exports" {
     _ = mission_state.MissionPreparation;
     _ = mission_state.MissionProgress;
     _ = mission_state.DetectionBand;
+    _ = mission_state.DetectionEventCost;
     _ = mission_state.MissionSession;
 }

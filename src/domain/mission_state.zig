@@ -56,6 +56,16 @@ pub const MissionProgress = enum {
     decrypted,
 };
 
+/// Canonical base exposure costs for one-time mission actions.
+pub const DetectionEventCost = struct {
+    pub const scan: u8 = 10;
+    pub const successful_authentication: u8 = 5;
+    pub const decryption: u8 = 10;
+    pub const incorrect_key: u8 = 10;
+    pub const analyze_metadata: u8 = 5;
+    pub const extraction: u8 = 5;
+};
+
 /// Classifies the current simulated Detection exposure range.
 pub const DetectionBand = enum {
     quiet,
