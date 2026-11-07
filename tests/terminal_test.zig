@@ -185,7 +185,6 @@ test "contract board reports reward overflow without aborting or displaying a wr
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "\\n") == null);
 }
 
-
 test "Fixer hides Ghost Signal when its client faction is hostile" {
     var missions = mission_data.defaultMissions();
     missions[0].completed = true;

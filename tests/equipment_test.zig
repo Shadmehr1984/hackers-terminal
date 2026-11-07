@@ -436,7 +436,6 @@ test "shop purchases do not mutate inventory or balance when output fails" {
     try std.testing.expect(!player.equipment.owns(.silent_boots));
 }
 
-
 test "Equipment.setLevel rejects unsupported upgrade levels" {
     var equipment = Equipment{};
     equipment.setLevel(.silent_boots, 2);
