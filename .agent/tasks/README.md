@@ -49,4 +49,4 @@ Planning approved on 2026-11-05. HT-006 is implemented and merged. HT-007 implem
 
 ## Toolchain migration
 
-- [TOOLCHAIN-001 — Upgrade the Codebase to Zig 0.17.1](TOOLCHAIN-001-zig-0.17.1-migration.md) — Owner-approved; Phase 0 audit complete; implementation not started. Includes current-main inventory, phased execution plan, acceptance criteria, verification matrix, and agent handoff. See [ADR 0016](../decisions/0016-zig-0.17.1.md).
+- [TOOLCHAIN-001 — Upgrade the Codebase to Zig 0.17.1](TOOLCHAIN-001-zig-0.17.1-migration.md) — Implemented on `main`; Zig 0.17.1 is pinned in the build and primary CI. Final CI run `42309239657` passed Debug, ReleaseSafe, and ReleaseFast (format, build, terminal smoke test, aggregate tests, and agent-doc checks). See the task brief for phased migration evidence and final self-review. See [ADR 0016](../decisions/0016-zig-0.17.1.md).
