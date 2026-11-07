@@ -280,7 +280,7 @@ The next agent must:
 | Category | Status | Notes |
 | --- | --- | --- |
 | Correctness | Reviewed | State transitions, reward arithmetic, save parsing/commit, and retry paths traced; critical failure-injection tests inspected |
-| OWASP Security | Reviewed | Offline boundary, untrusted save/input handling, CI permissions/pins, and terminal output; one local terminal-control suggestion |
+| OWASP Security | Reviewed | Offline boundary, untrusted save/input handling, CI permissions/pins, and terminal output; the initial local terminal-control suggestion was withdrawn after exact allowlist tracing |
 | Architecture/Design | Reviewed | Main composition root, module boundaries, facade compatibility, runtime/persistent state separation |
 | Performance | Partially reviewed | Static complexity/allocation review only; no benchmark or profiler run |
 | Zig-specific scan | Reviewed | Formatting confirmed by CI; casts, optional unwraps, integer operations, `undefined`, resource cleanup, and build APIs inspected |

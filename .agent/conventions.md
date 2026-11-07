@@ -49,6 +49,7 @@ Derived from the current source tree; re-check source before relying on this map
 - ModifierId.detectionEffect owns each modifier's event kind, amount, and cadence. Application dispatch consumes that descriptor rather than duplicating modifier-specific numeric values.
 - ANSI terminal control sequences are emitted only by presentation helpers; application command dispatch calls those helpers.
 - MissionSession.addDetection must preserve the 0..100 Detection invariant even if its public state is already out of range; it clamps invalid pre-existing values to the compromise ceiling.
+- progression.xpForNextLevel accepts only the supported player-level domain 1..99 and clamps out-of-range public inputs to those boundaries.
 - main.zig is the composition root. Avoid circular imports.
 
 ## Zig and test conventions

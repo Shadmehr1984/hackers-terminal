@@ -27,7 +27,7 @@ The regression suite injects both formatted-print and raw-write failures into cr
 Automated unit tests live in the top-level `tests/` directory, separate from production source files:
 
 - `tests/commands_test.zig` covers command parsing.
-- `tests/mission_state_test.zig` covers mission-session state transitions.
+- `tests/mission_state_test.zig` covers mission-session state transitions, the 0..100 Detection ceiling, and canonical base action Detection-cost values.
 - `tests/mission_data_test.zig` covers built-in mission difficulty assignments, player-facing labels, mission-specific topology definitions, and Corporate Ghost's catalog metadata.
 - `tests/corporate_ghost_test.zig` covers the Nexus Hostile lock, the Quiet Exit Reputation recovery route, and a complete Corporate Ghost run including hidden-objective discovery and rewards.
 - `tests/topology_test.zig` covers graph lookup, bidirectional adjacency, graph validation, and both allocation-failure points in reachability traversal.
@@ -36,7 +36,7 @@ Automated unit tests live in the top-level `tests/` directory, separate from pro
 - `tests/game_detection_test.zig` covers action risk costs, safe actions, compromise failure, bounded penalties, retry behavior, extraction failure before payout, legal movement, location-gated operations, modifier Detection costs, sweep cadence, and modifier failure boundaries. It also verifies that movement, Detection compromise, scan, authentication, decryption, analysis, contract launch, and Extraction/payout state are not committed when their output writer fails.
 - `tests/mission_preparation_test.zig` covers intel secrecy, contract availability, loadout ownership, modifier command/eligibility, launch snapshots, cancellation, and one-time modifier rewards.
 - `tests/mission_modifier_test.zig` covers typed modifier IDs, exact metadata, Detection effect definitions, and the completion bonus.
-- `tests/progression_test.zig` covers cumulative XP thresholds, player levels, modifier completion bonus, duplicate-payout protection, atomic rejection when optional-reward accumulation overflows, and preservation of objective state on payout overflow or output failure.
+- `tests/progression_test.zig` covers cumulative XP thresholds, clamping at the supported level range, modifier completion bonus, duplicate-payout protection, atomic rejection when optional-reward accumulation overflows, and preservation of objective state on payout overflow or output failure.
 - `tests/contacts_test.zig` covers Reputation tier thresholds, Contact unlocks, optional-objective Reputation bonuses, paid intelligence (including rollback on output failure), Fixer service pricing/usage, and the Ghost Signal offer.
 - `tests/terminal_test.zig` covers faction-aware Operation list/details/status output, active-operation preauthorization messaging, Fixer offer visibility under hostile faction standing, canonical preparation cost display, terminal clearing, and safe Contract Board reward-overflow reporting.
 - `tests/operation_test.zig` covers Operation catalog/state transitions, stage progression and retry, unchanged V3 save behavior, preauthorization, and preservation of outgoing facts when the transition-output writer fails.

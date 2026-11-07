@@ -35,7 +35,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/domain/operation_state.zig` | Bounded runtime-only stage/fact lifecycle, retry, and per-stage reward eligibility |
 | `src/domain/mission.zig` | Public `Mission` contract data type, static faction affiliations, allowed-modifier metadata, optional topology reference, level/Reputation requirements and contact-offer gating, difficulty/category, and typed objectives |
 | `src/domain/topology.zig` | Static fictional graph nodes/links, node lookup, adjacency checks, and required-operation reachability validation |
-| `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, per-objective runtime tracker, detection exposure, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
+| `src/domain/mission_state.zig` | Runtime-only preparation choice (utility and optional modifier), active mission progress, connection state, per-objective runtime tracker, Detection exposure and base action-cost profile, topology position, traversal count, per-run utility/modifier snapshots, and Fixer service-use flag |
 | `src/catalog/mission_data.zig` | Five built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is at index 3 and Corporate Ghost is appended at index 4 |
 | `src/catalog/operation_data.zig` | Static authored operation sequences; currently contains the three-stage `blackout-protocol` |
 | `src/persistence/save.zig` | Shared V3 serialization and V3/V2/V1/legacy loading; single Zig 0.17.1 `std.Io`/`std.Io.Dir` SaveContext backend; explicit temp-write/flush/close/rename transaction |
