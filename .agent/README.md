@@ -27,6 +27,7 @@ Legacy top-level `src/*.zig` files are compatibility facades. New code and curre
 
 ## Contents
 - workflow.md: Explore, Understand, Plan, Implement, Verify, Document, Review, Commit.
+- engineering-workflow.md: task routing, vertical-slice TDD, evidence-first debugging, deep-module design, two-axis reviews, decision capture, handoffs, and agent-document writing.
 - conventions.md: current module contracts and dependency direction.
 - roadmap.md: owner-approved gameplay program, implementation order, and feature status.
 - known-issues.md: verified constraints separated from open questions.
