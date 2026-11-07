@@ -37,4 +37,5 @@ The game needs a small cast of fictional competitors to make the world feel acti
 
 - Catalog validation covers five unique rivals and all mission/objective references.
 - Unit tests cover all status states, deterministic resolution, command output, and the post-decryption event.
-- CI must verify Zig 0.13.0 formatting, build, full tests, and agent documentation checks in all configured optimization modes.
+- CI verification uses the repository's current pinned Zig **0.17.1** toolchain. The reviewed implementation commit `64f7a77fdff5a2947abae9370355de3a26505db6` passed formatting, build, aggregate tests, and agent-documentation checks in Debug, ReleaseSafe, and ReleaseFast (GitHub Actions run #988, ID `42254566536`).
+- The final mandatory repository-wide review was a static self-review, not an independent second review. It recorded no unresolved required remediation; see the HT-011 task handoff for full coverage accounting and limitations.
