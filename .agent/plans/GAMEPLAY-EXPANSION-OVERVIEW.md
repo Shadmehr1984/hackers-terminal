@@ -13,7 +13,7 @@ This is primarily a planning artifact, not blanket implementation authorization.
 
 ## Current baseline verified during planning
 
-- Zig 0.13.0; fictional, local, offline, single-player terminal game.
+- Zig 0.17.1; fictional, local, offline, single-player terminal game.
 - Five built-in contracts: `job-01` through `job-05`; Ghost Signal remains the exclusive Fixer offer at index 3, and Corporate Ghost is appended at index 4 as the standard Nexus Dynamics contract.
 - Static `Mission` definitions live in `src/domain/mission.zig`; authored contracts/topologies/objectives live in `src/catalog/mission_data.zig`.
 - `MissionSession` and `MissionPreparation` are runtime-only in `src/domain/mission_state.zig`; objective completion uses a fixed-capacity 32-entry tracker keyed by stable mission-local IDs. Mission modifiers and multi-stage Operation state remain runtime-only.
@@ -140,7 +140,7 @@ Before implementation:
 
 During/after implementation:
 - Follow Explore → Understand → Plan → Implement → Verify → Document → Review → Commit.
-- Add focused tests, aggregate registration, Zig 0.13.0 formatting/build/full tests, and CI inspection.
+- Add focused tests, aggregate registration, Zig 0.17.1 formatting/build/full tests, and CI inspection.
 - Update `AGENTS.md`, module contracts, gameplay/command/architecture/save docs, roadmap, and task status when their contracts actually change.
 - Perform independent review when available; otherwise record self-review honestly.
 - Do not merge or start the next phase without explicit owner approval.
