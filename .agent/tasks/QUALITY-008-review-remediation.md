@@ -24,6 +24,7 @@ The initial terminal-injection suggestion concerning the invalid-modifier respon
 6. **Presentation boundary:** the `clear` command emitted ANSI control bytes directly from the application coordinator. A presentation helper now owns the sequence and the compatibility facade exports it.
 7. **Test placement:** seven objective-tracker tests were embedded in `src/domain/mission_objectives.zig` despite the project rule that tests live under `tests/`. They were moved into the existing `tests/mission_objectives_test.zig` module, which is already registered in the aggregate.
 8. **Documentation drift:** Architecture documentation described malformed numeric save fields as falling back to defaults, contrary to the strict preflight validator. Architecture, Save Format, Commands, Gameplay, Development, agent conventions, the roadmap, and the persistence safety rules now match the implementation.
+9. **Dead code:** repository-wide symbol tracing found `hasOptionalObjective` in `src/domain/operation.zig` had no callers after the hidden-optional objective validation was consolidated. The unused helper was removed; `hasHiddenOptionalObjective` remains the single validator used by Operation stage checks.
 
 ## Acceptance criteria
 
@@ -37,6 +38,7 @@ The initial terminal-injection suggestion concerning the invalid-modifier respon
 - [x] Modifier Detection dispatch reads the typed `detectionEffect` metadata.
 - [x] ANSI clear output is centralized in presentation and exported through the legacy facade.
 - [x] Objective tracker tests live under `tests/`, not in production source modules.
+- [x] Unused pre-refactor Operation helper removed after confirming it had no callers.
 - [x] The withdrawn terminal-injection false positive is no longer listed as an active security issue.
 - [x] Relevant tests, documentation, conventions, task index, and this handoff are updated.
 - [x] Save V3 bytes, V2/V1/legacy compatibility, mission rewards, Detection balance, and fictional/offline boundaries are unchanged.

@@ -72,13 +72,6 @@ pub fn findMission(missions: []const Mission, id: []const u8) ?Mission {
     return null;
 }
 
-fn hasOptionalObjective(mission: Mission, id: []const u8) bool {
-    for (mission.objectives) |objective| {
-        if (std.mem.eql(u8, objective.id, id)) return objective.optional;
-    }
-    return false;
-}
-
 fn hasHiddenOptionalObjective(mission: Mission, id: []const u8) bool {
     for (mission.objectives) |objective| {
         if (std.mem.eql(u8, objective.id, id)) return objective.optional and objective.hidden;
