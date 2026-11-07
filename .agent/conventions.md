@@ -76,3 +76,16 @@ Derived from the current source tree; re-check source before relying on this map
 - Work directly on `main` by default, as requested by the owner on 2026-11-05.
 - Do not create feature/phase branches or pull requests unless the owner explicitly asks for them.
 - Keep each change focused; inspect the diff and verify GitHub Actions on the resulting `main` commit before reporting completion.
+
+
+## Engineering workflow integration
+
+Follow [engineering-workflow.md](engineering-workflow.md) for task-specific workflows:
+- Behavior changes and bug fixes use vertical red-green TDD slices at meaningful public seams; tests live in `tests/` and are registered in `tests/test_all.zig`.
+- Difficult bugs require a tight, red-capable reproduction before hypotheses or fixes. Performance work requires a measured baseline.
+- Architecture improvements should deepen cohesive modules behind small interfaces, improve locality/testability, and avoid speculative seams or generic abstractions.
+- Change reviews assess Standards and Spec fidelity separately; the comprehensive `review-checklist.md` remains mandatory and authoritative.
+- Ambiguous cross-module decisions are clarified and recorded in existing task documents/ADRs; handoffs reference canonical artifacts rather than duplicating them.
+- Agent-facing docs use explicit context pointers, progressive disclosure, one source of truth per rule, and checkable completion criteria.
+
+These practices are subordinate to `AGENTS.md`, accepted ADRs, and the concrete task specification.
