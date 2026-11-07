@@ -39,7 +39,7 @@ The former top-level module paths remain as thin compatibility facades so existi
 | `src/catalog/mission_data.zig` | Five built-in mission definitions, their faction affiliations, and default ordering; Ghost Signal is at index 3 and Corporate Ghost is appended at index 4 |
 | `src/catalog/operation_data.zig` | Static authored operation sequences; currently contains the three-stage `blackout-protocol` |
 | `src/persistence/save.zig` | Shared V3 serialization and V3/V2/V1/legacy loading; single Zig 0.17.1 `std.Io`/`std.Io.Dir` SaveContext backend; explicit temp-write/flush/close/rename transaction |
-| `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, faction dossiers, faction-aware Operation list/details/status, Contacts, offers, history, and topology map |
+| `src/presentation/terminal.zig` | Reusable terminal output for the banner, help, status, mission list, Contract Board, faction and rival dossiers, faction-aware Operation list/details/status, Contacts, offers, history, topology map, and rival contest disclosures |
 | `src/application/shop.zig` | Equipment catalog display, purchase/equip/upgrade validation, and inventory presentation |
 | `src/application/commands.zig` | Parses an input line into a command name and its first argument |
 | `src/application/game.zig` | Coordinates the shared preparation-aware command dispatcher, faction access, Contact commands, offer transactions, and game-state transitions |
@@ -205,4 +205,4 @@ Most user input errors are handled by printing a message and returning to the pr
 
 The root `AGENTS.md` is the mandatory instruction entry point for contributors and coding agents. The `.agent/` directory contains the workflow, module contracts, roadmap, known constraints, task template, review checklist, and accepted Architecture Decision Records. These documents describe development constraints; they do not replace source code as the authority for current runtime behavior.
 
-The accepted records capture the Zig 0.13.0 baseline and approved staged migration to Zig 0.17.1, focused one-way module boundaries, runtime-only mission sessions, preservation of older save compatibility, and the typed equipment/save V3 decision.
+The accepted records include the historical Zig 0.13.0 baseline (ADR 0001, superseded) and the active Zig 0.17.1 toolchain decision (ADR 0016), along with focused one-way module boundaries, runtime-only mission sessions, preservation of older save compatibility, and the typed equipment/Save V3 decision.
