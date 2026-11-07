@@ -6,6 +6,7 @@ AGENTS.md
 .agent/README.md
 .agent/workflow.md
 .agent/conventions.md
+.agent/engineering-workflow.md
 .agent/roadmap.md
 .agent/known-issues.md
 .agent/review-checklist.md
@@ -66,5 +67,8 @@ grep -q 'OWASP Top 10:2025' .agent/review-checklist.md
 grep -q 'Mandatory final report format' .agent/review-checklist.md
 grep -q 'For a full review' .agent/README.md
 grep -q 'Maintainability/Observability' .agent/workflow.md
+grep -q 'vertical red-green' .agent/engineering-workflow.md
+grep -q 'Two-axis code review' .agent/engineering-workflow.md
+grep -q 'engineering-workflow.md' AGENTS.md
 
 echo "Agent documentation structure check passed."
