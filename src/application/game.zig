@@ -730,7 +730,7 @@ pub fn runCommandWithSaveContext(
                 const failure_cost: u8 = if (next_session.modifier) |modifier| blk: {
                     const effect = modifier.detectionEffect();
                     break :blk if (effect.kind == .incorrect_decryption_cost) effect.amount else MissionState.DetectionEventCost.incorrect_key;
-                } else 10;
+                } else MissionState.DetectionEventCost.incorrect_key;
                 _ = try detection.apply(writer, &next_player, &next_active, &next_session, failure_cost);
                 player.* = next_player;
                 active.* = next_active;
