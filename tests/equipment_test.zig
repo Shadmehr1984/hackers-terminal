@@ -1,6 +1,7 @@
 const std = @import("std");
 const save_test_support = @import("save_test_support.zig");
 const Player = @import("../src/player.zig").Player;
+const Equipment = @import("../src/player.zig").Equipment;
 const UtilityEquipment = @import("../src/player.zig").UtilityEquipment;
 const shop = @import("../src/shop.zig");
 const save = @import("../src/save.zig");
@@ -433,4 +434,33 @@ test "shop purchases do not mutate inventory or balance when output fails" {
     );
     try std.testing.expectEqual(starting_balance, player.balance);
     try std.testing.expect(!player.equipment.owns(.silent_boots));
+}
+
+
+test "Equipment.setLevel rejects unsupported upgrade levels" {
+    var equipment = Equipment{};
+    equipment.setLevel(.silent_boots, 2);
+    equipment.setLevel(.silent_boots, 3);
+    try std.testing.expectEqual(@as(u2, 2), equipment.level(.silent_boots));
+}
+
+test "save rejects invalid equipment levels without replacing the previous save" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+    var player = Player{ .balance = 123 };
+    var missions = mission_data.defaultMissions();
+    const context = save_test_support.context(tmp.dir);
+    try save.saveGameToDirectory(context, player, &missions, null);
+
+    player.balance = 999;
+    player.equipment.signal_scrubber_level = 3;
+    try std.testing.expectError(error.InvalidEquipmentState, save.saveGameToDirectory(context, player, &missions, null));
+
+    const data = try save_test_support.readSaveFile(tmp.dir, std.testing.allocator, "saves/player.sav");
+    defer std.testing.allocator.free(data);
+    var restored = Player{};
+    var restored_missions = mission_data.defaultMissions();
+    _ = save.loadGameFromBytes(data, &restored, &restored_missions);
+    try std.testing.expectEqual(@as(u32, 123), restored.balance);
+    try save_test_support.expectMissingFile(tmp.dir, "saves/player.sav.tmp");
 }

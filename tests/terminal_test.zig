@@ -6,6 +6,7 @@ const MissionSession = MissionState.MissionSession;
 const mission_data = @import("../src/mission_data.zig");
 const FactionId = @import("../src/domain/faction_id.zig").FactionId;
 const operation_data = @import("../src/catalog/operation_data.zig");
+const faction = @import("../src/domain/faction.zig");
 
 const Capture = struct {
     buffer: [4096]u8 = undefined,
@@ -175,4 +176,26 @@ test "contract board reports reward overflow without aborting or displaying a wr
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "[job-01] Cold Storage — REWARD ERROR") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "maximum cash reward exceeds the supported range") != null);
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "\\n") == null);
+}
+
+
+test "Fixer hides Ghost Signal when its client faction is hostile" {
+    var missions = mission_data.defaultMissions();
+    missions[0].completed = true;
+    missions[1].completed = true;
+    missions[2].completed = true;
+    missions[0].target_owner_faction = .nexus_dynamics;
+    missions[1].target_owner_faction = .nexus_dynamics;
+    missions[2].target_owner_faction = .nexus_dynamics;
+    missions[3].client_faction = .nexus_dynamics;
+    const player = Player{ .reputation = 3, .xp = 250 };
+    try std.testing.expectEqual(faction.Standing.hostile, faction.playerStanding(.nexus_dynamics, player.reputation, &missions));
+
+    var capture = Capture{};
+    try terminal.printOffers(&capture, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
+
+    capture.len = 0;
+    try terminal.printContact(&capture, .fixer, player, &missions, null, MissionSession{}, MissionState.MissionPreparation{});
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
 }
