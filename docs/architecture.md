@@ -15,7 +15,7 @@ src/
 ├── application/              # Command coordination, gameplay services, and terminal I/O adapters
 │   ├── terminal_input.zig    # Shared input-buffer and command-length policy
 │   └── terminal_io.zig       # Zig 0.17.1 std.Io process stream adapter
-├── catalog/                  # Built-in mission definitions
+├── catalog/                  # Static mission, faction, operation, and rival definitions
 ├── presentation/             # Terminal output
 └── persistence/              # Save/load and legacy compatibility
 ```
@@ -181,7 +181,7 @@ Mission difficulty, objective definitions, and Reputation requirements are stati
 
 ## Error handling style
 
-Most user input errors are handled by printing a message and returning to the prompt. File creation and writing errors during `save` are caught and reported to the player. Loading is intentionally tolerant: failure to open or read the save file returns no active mission, unknown non-numeric format markers are rejected before caller state is mutated, and individual numeric parse failures inside a recognized format generally fall back to the current default value.
+Most user input errors are handled by printing a message and returning to the prompt. File creation and writing errors during `save` are caught and reported to the player. Save loading validates the complete recognized payload—including numeric fields, active mission index, equipment upgrade levels, and mission completion flags—before mutating caller-owned state. Unknown markers, malformed fields, truncated payloads, and unsupported equipment levels are rejected; the application continues with defaults while preserving the existing save file.
 
 ## Dependency direction
 

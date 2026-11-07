@@ -52,6 +52,7 @@ test "compatibility facades preserve their public exports" {
     _ = commands.ParsedCommand;
     _ = commands.parse;
     _ = terminal.printBanner;
+    _ = terminal.clear;
     _ = terminal.printHelp;
     _ = terminal.printStatus;
     _ = terminal.printMissions;

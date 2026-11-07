@@ -144,6 +144,10 @@ fn handleDeal(
             try writer.writeAll("Cancel the current preparation before choosing this offer.\n");
             return;
         }
+        if (preparation.operation_state.active) {
+            try writer.writeAll("Finish the active operation before accepting another contract offer.\n");
+            return;
+        }
         for (missions, 0..) |mission, index| {
             if (!std.mem.eql(u8, mission.id, "job-04")) continue;
             if (mission.completed) {
@@ -237,14 +241,17 @@ fn applyTraversalDetection(
 ) !bool {
     if (try detection.apply(writer, player, active, session, session.loadout.movementDetectionCost())) return true;
     if (session.modifier) |modifier| {
-        switch (modifier) {
-            .heightened_monitoring => return detection.apply(writer, player, active, session, 2),
-            .security_sweep => {
-                if (session.traversal_count > 0 and session.traversal_count % 3 == 0) {
-                    return detection.apply(writer, player, active, session, 8);
+        const effect = modifier.detectionEffect();
+        switch (effect.kind) {
+            .successful_traversal_surcharge => return detection.apply(writer, player, active, session, effect.amount),
+            .successful_traversal_cadence => {
+                if (effect.cadence > 0 and session.traversal_count > 0 and
+                    session.traversal_count % @as(u32, effect.cadence) == 0)
+                {
+                    return detection.apply(writer, player, active, session, effect.amount);
                 }
             },
-            .hardened_encryption => {},
+            .incorrect_decryption_cost => {},
         }
     }
     return false;
@@ -720,7 +727,10 @@ pub fn runCommandWithSaveContext(
                 var next_active = active.*;
                 var next_session = session.*;
                 try writer.writeAll("[DECRYPTION FAILED] Incorrect key.\n");
-                const failure_cost: u8 = if (next_session.modifier) |modifier| (if (modifier == .hardened_encryption) 15 else 10) else 10;
+                const failure_cost: u8 = if (next_session.modifier) |modifier| blk: {
+                    const effect = modifier.detectionEffect();
+                    break :blk if (effect.kind == .incorrect_decryption_cost) effect.amount else 10;
+                } else 10;
                 _ = try detection.apply(writer, &next_player, &next_active, &next_session, failure_cost);
                 player.* = next_player;
                 active.* = next_active;
@@ -867,7 +877,7 @@ pub fn runCommandWithSaveContext(
         };
         try writer.writeAll("Progress saved to saves/player.sav.\n");
     } else if (std.mem.eql(u8, command, "clear")) {
-        try writer.writeAll("\x1b[2J\x1b[H");
+        try terminal.clear(writer);
     } else if (std.mem.eql(u8, command, "exit")) {
         try writer.writeAll("Closing terminal. Stay safe, operator.\n");
         return false;

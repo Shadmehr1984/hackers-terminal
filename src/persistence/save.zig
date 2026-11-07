@@ -32,6 +32,8 @@ pub fn saveGame(context: SaveContext, player: Player, missions: []const Mission,
 /// Writes through a temporary file and renames it into place.
 /// The context also allows filesystem behavior to be tested in isolation.
 pub fn saveGameToDirectory(context: SaveContext, player: Player, missions: []const Mission, active: ?usize) !void {
+    if (!player.equipment.hasValidUpgradeLevels()) return error.InvalidEquipmentState;
+
     const save_path = "saves/player.sav";
     const temporary_path = "saves/player.sav.tmp";
 

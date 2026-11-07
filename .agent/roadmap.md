@@ -61,6 +61,6 @@ The existing HT-001 through HT-005 program remains implemented. EXPANSION-001 is
 
 | ID | Work | Status |
 | --- | --- | --- |
-| TOOLCHAIN-001 | Upgrade the repository from Zig 0.13.0 to Zig 0.17.1 while preserving gameplay, save compatibility, and I/O failure guarantees | Implemented and self-reviewed on `main`; final CI run `42309239657` passed Debug, ReleaseSafe, and ReleaseFast. One non-blocking terminal-output hardening suggestion is recorded in known issues. See [task brief](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md) and [ADR 0016](decisions/0016-zig-0.17.1.md). |
+| TOOLCHAIN-001 | Upgrade the repository from Zig 0.13.0 to Zig 0.17.1 while preserving gameplay, save compatibility, and I/O failure guarantees | Implemented and self-reviewed on `main`; final CI run `42309239657` passed Debug, ReleaseSafe, and ReleaseFast. The earlier terminal-output suggestion was withdrawn as a false positive after exact allowlist tracing. See [task brief](tasks/TOOLCHAIN-001-zig-0.17.1-migration.md) and [ADR 0016](decisions/0016-zig-0.17.1.md). |
 
 TOOLCHAIN-001 has completed its implementation and CI cutover. The primary workflow installs Zig 0.17.1, checks formatting, builds the application, smoke-tests `zig build run`, runs the complete aggregate suite, and checks agent documentation in Debug, ReleaseSafe, and ReleaseFast. The dedicated migration-validation workflow remains as focused compatibility coverage.

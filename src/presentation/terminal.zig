@@ -33,6 +33,11 @@ pub fn printBanner(writer: anytype) !void {
     );
 }
 
+/// Clears the terminal using the established ANSI reset sequence.
+pub fn clear(writer: anytype) !void {
+    try writer.writeAll("\x1b[2J\x1b[H");
+}
+
 /// Writes the available command help.
 pub fn printHelp(writer: anytype) !void {
     try writer.writeAll(
@@ -324,6 +329,22 @@ pub fn printContacts(writer: anytype, player: Player) !void {
     try writer.writeAll("\nUse contact <id> for details and offers for available deals.\n");
 }
 
+/// Reports whether Ghost Signal is currently an actionable Fixer offer.
+fn ghostSignalOfferAvailable(
+    mission: Mission,
+    player: Player,
+    missions: []const Mission,
+    active: ?usize,
+    preparation: MissionPreparation,
+) bool {
+    return active == null and preparation.mission_index == null and
+        !preparation.operation_state.active and
+        std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
+        progression.playerLevel(player) >= mission.required_level and
+        player.reputation >= mission.required_reputation and
+        faction.playerStanding(mission.client_faction, player.reputation, missions) != .hostile;
+}
+
 /// Writes the details and available services for one Contact.
 pub fn printContact(
     writer: anytype,
@@ -365,10 +386,7 @@ pub fn printContact(
                 }
             }
             for (missions) |mission| {
-                if (active == null and preparation.mission_index == null and
-                    std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
-                    progression.playerLevel(player) >= mission.required_level and player.reputation >= mission.required_reputation)
-                {
+                if (ghostSignalOfferAvailable(mission, player, missions, active, preparation)) {
                     try writer.writeAll("  deal ghost-signal — prepare the exclusive contract\n");
                 }
             }
@@ -404,10 +422,7 @@ pub fn printOffers(
             try writer.print("  scrub-detection — reduce Detection by up to 10 (${d})\n", .{contacts.fixerServicePrice(player.reputation).?});
         }
         for (missions) |mission| {
-            if (active == null and preparation.mission_index == null and
-                std.mem.eql(u8, mission.id, "job-04") and !mission.completed and
-                progression.playerLevel(player) >= mission.required_level and player.reputation >= mission.required_reputation)
-            {
+            if (ghostSignalOfferAvailable(mission, player, missions, active, preparation)) {
                 found = true;
                 try writer.writeAll("  ghost-signal — exclusive contract (no fee)\n");
             }
@@ -465,25 +480,11 @@ pub fn printPreparation(writer: anytype, mission: Mission, player: Player, selec
     try writer.writeAll("Risk indicators: scan +10, successful authentication +5, decryption +10, wrong key +10, optional analysis +5, extraction +5.\n");
     try writer.writeAll("Movement cost: ");
     if (selected_utility) |utility| {
-        if (utility == .silent_boots) {
-            const cost: u8 = switch (player.equipment.level(utility)) {
-                0 => 4,
-                1 => 3,
-                else => 2,
-            };
-            try writer.print("{d} Detection per traversal (Silent Boots).\n", .{cost});
-        } else try writer.writeAll("5 Detection per traversal.\n");
+        try writer.print("{d} Detection per traversal.\n", .{utility.movementDetectionCost(player.equipment.level(utility))});
     } else try writer.writeAll("5 Detection per traversal.\n");
     try writer.writeAll("Incorrect password cost: ");
     if (selected_utility) |utility| {
-        if (utility == .signal_scrubber) {
-            const cost: u8 = switch (player.equipment.level(utility)) {
-                0 => 12,
-                1 => 9,
-                else => 6,
-            };
-            try writer.print("{d} Detection (Signal Scrubber).\n", .{cost});
-        } else try writer.writeAll("15 Detection.\n");
+        try writer.print("{d} Detection.\n", .{utility.incorrectAuthenticationDetectionCost(player.equipment.level(utility))});
     } else try writer.writeAll("15 Detection.\n");
     try writer.writeAll("\n");
     try printModifierOptions(writer, mission, selected_modifier);

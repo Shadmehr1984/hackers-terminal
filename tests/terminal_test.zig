@@ -216,3 +216,21 @@ test "Fixer hides Ghost Signal when its client faction is hostile" {
     );
     try std.testing.expect(std.mem.indexOf(u8, capture.output(), "ghost-signal") == null);
 }
+
+test "preparation displays Detection costs from the canonical utility profiles" {
+    var player = Player{};
+    player.equipment.setOwned(.signal_scrubber);
+    player.equipment.setLevel(.signal_scrubber, 2);
+    const missions = mission_data.defaultMissions();
+    var capture = Capture{};
+
+    try terminal.printPreparation(&capture, missions[0], player, .signal_scrubber, null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Movement cost: 5 Detection per traversal.") != null);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Incorrect password cost: 6 Detection.") != null);
+}
+
+test "terminal clear helper owns the ANSI reset sequence" {
+    var capture = Capture{};
+    try terminal.clear(&capture);
+    try std.testing.expectEqualStrings("\x1b[2J\x1b[H", capture.output());
+}

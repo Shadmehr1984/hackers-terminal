@@ -2,7 +2,10 @@ const std = @import("std");
 const mission_data = @import("../src/mission_data.zig");
 const MissionObjectiveKind = @import("../src/mission.zig").MissionObjectiveKind;
 const MissionSession = @import("../src/mission_state.zig").MissionSession;
-const ObjectiveState = @import("../src/domain/mission_objectives.zig").ObjectiveState;
+const objective_tracker = @import("../src/domain/mission_objectives.zig");
+const ObjectiveState = objective_tracker.ObjectiveState;
+const Tracker = objective_tracker.Tracker;
+const DiscoveryTrigger = objective_tracker.DiscoveryTrigger;
 
 test "built-in objective catalogs have stable IDs and hidden optional entries" {
     const missions = mission_data.defaultMissions();
@@ -134,4 +137,171 @@ test "optional reward accumulation rejects u32 overflow" {
     try std.testing.expect(tracker.initialize(&objectives));
     try std.testing.expectEqual(@as(usize, 2), tracker.complete(@backingInt(@as(@TypeOf(objectives[0].kind), .analyze))));
     try std.testing.expectError(error.RewardOverflow, tracker.optionalReward());
+}
+
+test "tracker validates capacity identity and hidden objective invariants atomically" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan, analyze },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    const valid = [_]Objective{
+        .{ .id = "required", .kind = .scan },
+        .{ .id = "secret", .kind = .analyze, .optional = true, .hidden = true, .discovery_trigger = .{ .node = "vault" } },
+    };
+    var tracker = Tracker{};
+    try std.testing.expect(tracker.initialize(&valid));
+    try std.testing.expectEqual(@as(u8, 2), tracker.count);
+    try std.testing.expectEqual(ObjectiveState.discovered, tracker.stateOf("required").?);
+    try std.testing.expectEqual(ObjectiveState.undiscovered, tracker.stateOf("secret").?);
+
+    const duplicate = [_]Objective{
+        .{ .id = "same", .kind = .scan },
+        .{ .id = "same", .kind = .analyze },
+    };
+    try std.testing.expect(!tracker.initialize(&duplicate));
+    try std.testing.expectEqual(@as(u8, 2), tracker.count);
+    try std.testing.expectEqual(ObjectiveState.undiscovered, tracker.stateOf("secret").?);
+
+    const invalid_hidden = [_]Objective{
+        .{ .id = "secret", .kind = .analyze, .hidden = true },
+    };
+    try std.testing.expect(!tracker.initialize(&invalid_hidden));
+    try std.testing.expectEqual(@as(u8, 2), tracker.count);
+}
+
+test "node file and action triggers are typed idempotent and independent" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan, analyze },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    const objectives = [_]Objective{
+        .{ .id = "node-secret", .kind = .analyze, .optional = true, .hidden = true, .discovery_trigger = .{ .node = "vault" } },
+        .{ .id = "file-secret", .kind = .analyze, .optional = true, .hidden = true, .discovery_trigger = .{ .file = "trace.log" } },
+        .{ .id = "action-secret", .kind = .analyze, .optional = true, .hidden = true, .discovery_trigger = .{ .action = .scan_target } },
+    };
+    var tracker = Tracker{};
+    try std.testing.expect(tracker.initialize(&objectives));
+    try std.testing.expectEqual(@as(usize, 0), tracker.discoverNode("entry", &objectives));
+    try std.testing.expectEqual(@as(usize, 1), tracker.discoverNode("vault", &objectives));
+    try std.testing.expectEqual(@as(usize, 0), tracker.discoverNode("vault", &objectives));
+    try std.testing.expectEqual(@as(usize, 1), tracker.discoverFile("trace.log", &objectives));
+    try std.testing.expectEqual(@as(usize, 0), tracker.discoverFile("other.log", &objectives));
+    try std.testing.expectEqual(@as(usize, 1), tracker.discoverAction(.scan_target, &objectives));
+    try std.testing.expectEqual(@as(usize, 0), tracker.discoverAction(.scan_target, &objectives));
+}
+
+test "same event kind completes independently discovered objectives and rewards once" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan, analyze },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    const objectives = [_]Objective{
+        .{ .id = "visible-analysis", .kind = .analyze, .optional = true, .bonus_reward = 25 },
+        .{ .id = "hidden-analysis", .kind = .analyze, .optional = true, .bonus_reward = 50, .hidden = true, .discovery_trigger = .{ .action = .scan_target } },
+    };
+    var tracker = Tracker{};
+    try std.testing.expect(tracker.initialize(&objectives));
+    try std.testing.expectEqual(@as(usize, 1), tracker.discoverAction(.scan_target, &objectives));
+    try std.testing.expectEqual(@as(usize, 2), tracker.complete(@backingInt(@as(@TypeOf(objectives[0].kind), .analyze))));
+    try std.testing.expectEqual(ObjectiveState.completed, tracker.stateOf("visible-analysis").?);
+    try std.testing.expectEqual(ObjectiveState.completed, tracker.stateOf("hidden-analysis").?);
+    try std.testing.expectEqual(@as(u32, 75), try tracker.optionalReward());
+    try std.testing.expect(tracker.allOptionalComplete());
+    try std.testing.expectEqual(@as(usize, 0), tracker.complete(@backingInt(@as(@TypeOf(objectives[0].kind), .analyze))));
+}
+
+test "undiscovered optional objectives prevent reputation bonus and can become unavailable" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan, analyze },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    const objectives = [_]Objective{
+        .{ .id = "required", .kind = .scan },
+        .{ .id = "secret", .kind = .analyze, .optional = true, .hidden = true, .discovery_trigger = .{ .file = "secret.log" } },
+    };
+    var tracker = Tracker{};
+    try std.testing.expect(tracker.initialize(&objectives));
+    try std.testing.expect(!tracker.allOptionalComplete());
+    try std.testing.expect(!tracker.allRequiredComplete());
+    try std.testing.expect(tracker.markUnavailable("secret"));
+    try std.testing.expectEqual(ObjectiveState.unavailable, tracker.stateOf("secret").?);
+    try std.testing.expect(!tracker.markUnavailable("secret"));
+    try std.testing.expect(!tracker.allOptionalComplete());
+    try std.testing.expectEqual(@as(u32, 0), try tracker.optionalReward());
+}
+
+test "tracker rejects catalogs above the 32 objective capacity" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    var too_many: [33]Objective = undefined;
+    for (&too_many, 0..) |*objective, index| {
+        objective.* = .{ .id = if (index == 0) "objective-0" else "objective", .kind = .scan };
+    }
+    var tracker = Tracker{};
+    try std.testing.expect(!tracker.initialize(&too_many));
+    try std.testing.expectEqual(@as(u8, 0), tracker.count);
+}
+
+test "tracker accepts exactly 32 independently identified objectives" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    var ids: [32][16]u8 = undefined;
+    var catalog: [32]Objective = undefined;
+    for (&catalog, 0..) |*objective, index| {
+        const id = try std.fmt.bufPrint(&ids[index], "objective-{d}", .{index});
+        objective.* = .{ .id = id, .kind = .scan };
+    }
+    var tracker = Tracker{};
+    try std.testing.expect(tracker.initialize(&catalog));
+    try std.testing.expectEqual(@as(u8, 32), tracker.count);
+}
+
+test "one-shot event completion makes undiscovered matching optional objectives unavailable" {
+    const Objective = struct {
+        id: []const u8,
+        kind: enum { scan },
+        optional: bool = false,
+        bonus_reward: u32 = 0,
+        hidden: bool = false,
+        discovery_trigger: ?DiscoveryTrigger = null,
+    };
+    const catalog = [_]Objective{
+        .{ .id = "visible-scan", .kind = .scan },
+        .{ .id = "late-scan", .kind = .scan, .optional = true, .hidden = true, .discovery_trigger = .{ .file = "late.log" } },
+    };
+    var tracker = Tracker{};
+    try std.testing.expect(tracker.initialize(&catalog));
+    try std.testing.expectEqual(@as(usize, 1), tracker.complete(0));
+    tracker.markOptionalUnavailableForKind(0);
+    try std.testing.expectEqual(ObjectiveState.completed, tracker.stateOf("visible-scan").?);
+    try std.testing.expectEqual(ObjectiveState.unavailable, tracker.stateOf("late-scan").?);
+    try std.testing.expectEqual(@as(usize, 0), tracker.discoverFile("late.log", &catalog));
 }

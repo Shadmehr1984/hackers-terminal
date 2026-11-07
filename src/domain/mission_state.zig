@@ -144,6 +144,10 @@ pub const MissionSession = struct {
 
     /// Adds simulated exposure and caps the level at 100.
     pub fn addDetection(self: *MissionSession, amount: u8) void {
+        if (self.detection_level >= 100) {
+            self.detection_level = 100;
+            return;
+        }
         const remaining = 100 - self.detection_level;
         self.detection_level += @min(amount, remaining);
     }

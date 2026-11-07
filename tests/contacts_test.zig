@@ -279,3 +279,25 @@ test "Broker purchase does not charge the player when purchase output fails" {
 
     try std.testing.expectEqual(@as(u32, 500), player.balance);
 }
+
+test "Ghost Signal transaction rejects hostile client standing without opening preparation" {
+    var player = Player{ .reputation = 3, .xp = 250 };
+    const starting_balance = player.balance;
+    var missions = mission_data.defaultMissions();
+    missions[0].completed = true;
+    missions[1].completed = true;
+    missions[2].completed = true;
+    missions[0].target_owner_faction = .nexus_dynamics;
+    missions[1].target_owner_faction = .nexus_dynamics;
+    missions[2].target_owner_faction = .nexus_dynamics;
+    missions[3].client_faction = .nexus_dynamics;
+    var active: ?usize = null;
+    var session = MissionSession{};
+    var preparation = MissionPreparation{};
+    var capture = Capture{};
+
+    try run(&capture, "deal ghost-signal", &player, &missions, &active, &session, &preparation);
+    try std.testing.expect(preparation.mission_index == null);
+    try std.testing.expectEqual(starting_balance, player.balance);
+    try std.testing.expect(std.mem.indexOf(u8, capture.output(), "Contract access denied") != null);
+}

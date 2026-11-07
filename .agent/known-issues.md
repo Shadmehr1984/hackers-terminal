@@ -21,8 +21,8 @@ This file separates verified constraints from items that need investigation.
 - `save.zig` uses a single `std.Io`/`std.Io.Dir` SaveContext backend. V3 serialization and the temp-write/flush/close/rename transaction remain unchanged and are covered by aggregate save I/O tests.
 - Shared enum-backed bit fields and persisted numeric values use `@backingInt` under Zig 0.17.1. Their explicit backing types and numeric values are compatibility-sensitive; preserve them and keep enum catalog/save-byte tests.
 
-## Security hardening follow-up
-- Self-review on 2026-11-07 identified that the invalid-modifier response in `src/application/game.zig:479` echoes a raw local command argument. Because the input reader preserves control bytes and stdout writes them directly, a pasted ANSI/OSC sequence can affect terminal presentation. This is a non-blocking local terminal-injection hardening suggestion, not a remote vulnerability or a TOOLCHAIN-001 blocker. Avoid echoing the raw value or escape non-printable bytes when this area is next changed.
+## Review clarification
+- The initial 2026-11-07 terminal-injection suggestion for the invalid-modifier response was withdrawn after tracing the complete branch condition: the argument is printed only after exact resolution through the fixed ModifierId command allowlist, so arbitrary ANSI/OSC control sequences cannot reach that output. This was a false positive, not a confirmed vulnerability.
 
 ## Open questions, not confirmed bugs
 - Should mission-session progress survive restart, and what migration would that require?

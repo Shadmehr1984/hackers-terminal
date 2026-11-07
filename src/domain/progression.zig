@@ -39,9 +39,10 @@ pub fn playerLevel(player: Player) u32 {
     return level;
 }
 
-/// Returns the cumulative XP threshold associated with the requested level.
+/// Returns the cumulative XP threshold, clamping the requested level to 1..99.
 pub fn xpForNextLevel(level: u32) u32 {
-    return 100 + (level - 1) * 150;
+    const bounded_level = if (level == 0) 1 else if (level > 99) 99 else level;
+    return 100 + (bounded_level - 1) * 150;
 }
 
 /// Applies a completed contract's cash, XP, and Reputation rewards and writes the result.

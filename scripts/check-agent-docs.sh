@@ -24,6 +24,7 @@ AGENTS.md
 .agent/tasks/HT-010.1-corporate-ghost.md
 .agent/tasks/HT-011-rival-hackers.md
 .agent/tasks/QUALITY-007-faction-and-reward-hardening.md
+.agent/tasks/QUALITY-008-review-remediation.md
 .agent/decisions/0013-corporate-ghost.md
 .agent/decisions/0014-rival-hackers.md
 docs/gameplay.md
@@ -66,6 +67,8 @@ grep -q 'std.heap.DebugAllocator' .agent/review-checklist.md
 grep -q 'OWASP Top 10:2025' .agent/review-checklist.md
 grep -q 'Mandatory final report format' .agent/review-checklist.md
 grep -q 'For a full review' .agent/README.md
+grep -q 'Equipment.setLevel' .agent/tasks/QUALITY-008-review-remediation.md
+grep -q 'false positive' .agent/tasks/QUALITY-008-review-remediation.md
 grep -q 'Maintainability/Observability' .agent/workflow.md
 grep -q 'vertical red-green' .agent/engineering-workflow.md
 grep -q 'Two-axis code review' .agent/engineering-workflow.md

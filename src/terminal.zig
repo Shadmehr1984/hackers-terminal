@@ -1,6 +1,7 @@
 // Compatibility facade; implementation lives in presentation/terminal.zig.
 const implementation = @import("presentation/terminal.zig");
 pub const printBanner = implementation.printBanner;
+pub const clear = implementation.clear;
 pub const printHelp = implementation.printHelp;
 pub const printStatus = implementation.printStatus;
 pub const printMissions = implementation.printMissions;

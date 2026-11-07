@@ -80,11 +80,18 @@ pub const Equipment = struct {
     }
 
     /// Sets the stored upgrade level for the specified utility.
+    /// Values above the supported maximum level (2) are ignored.
     pub fn setLevel(self: *Equipment, utility: UtilityEquipment, value: u2) void {
+        if (value > 2) return;
         switch (utility) {
             .silent_boots => self.silent_boots_level = value,
             .signal_scrubber => self.signal_scrubber_level = value,
         }
+    }
+
+    /// Reports whether both persisted utility upgrade levels are supported.
+    pub fn hasValidUpgradeLevels(self: Equipment) bool {
+        return self.silent_boots_level <= 2 and self.signal_scrubber_level <= 2;
     }
 
     /// Returns the movement exposure cost from the currently equipped utility.

@@ -43,7 +43,11 @@ Derived from the current source tree; re-check source before relying on this map
 - mission_data.zig depends on mission and topology types.
 - mission_state.zig models transient state and should not depend on terminal output or persistence.
 - game.zig coordinates lower-level modules; avoid reverse imports into game.zig. Detection and progression modules must remain independent of command dispatch.
-- UtilityEquipment owns the pure cost profile for each utility and upgrade level. Equipment reads the currently equipped utility; MissionLoadout reads the launch-time snapshot. Neither caller duplicates the numeric cost tables.
+- UtilityEquipment owns the pure cost profile for each utility and upgrade level. Equipment reads the currently equipped utility; MissionLoadout reads the launch-time snapshot; preparation presentation calls the same profile methods. No caller duplicates numeric cost tables.
+- Utility upgrade levels are restricted to 0..2. Equipment.setLevel ignores unsupported values, and the persistence boundary rejects invalid in-memory levels before replacing a save.
+- ModifierId.detectionEffect owns each modifier's event kind, amount, and cadence. Application dispatch consumes that descriptor rather than duplicating modifier-specific numeric values.
+- ANSI terminal control sequences are emitted only by presentation helpers; application command dispatch calls those helpers.
+- MissionSession.addDetection must preserve the 0..100 Detection invariant even if its public state is already out of range; it clamps invalid pre-existing values to the compromise ceiling.
 - main.zig is the composition root. Avoid circular imports.
 
 ## Zig and test conventions

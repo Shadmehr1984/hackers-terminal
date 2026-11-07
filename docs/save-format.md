@@ -85,6 +85,7 @@ The first line must be a valid unsigned numeric balance, followed by reputation 
 - Unknown non-numeric format markers, truncated payloads, blank positional fields, malformed or out-of-range numeric fields (including active mission indices outside the current catalog), invalid boolean flags, and unsupported completion-flag counts are rejected before mutating player or mission state.
 - A recognized save is parsed and validated in full before the loaded player and mission-completion state are committed. A rejected save leaves every caller-owned field unchanged.
 - Current mission catalogs accept any completion-flag count up to the catalog size for backward compatibility; omitted trailing mission flags default to incomplete. Extra flags are rejected.
+- The save writer rejects in-memory equipment whose utility upgrade level exceeds the supported 0..2 range before staging a replacement, so it cannot write a V3 payload that its own loader would reject.
 - The loader reads at most 4096 bytes.
 - The format is positional: line order matters. Every required field must be present and parse successfully; extra or missing completion flags are rejected while omitted trailing flags are treated as incomplete for older catalogs.
 - The format has no checksum, backup rotation, or explicit corruption recovery. Writes use a temporary file and rename to avoid truncating the previous save on a write failure.

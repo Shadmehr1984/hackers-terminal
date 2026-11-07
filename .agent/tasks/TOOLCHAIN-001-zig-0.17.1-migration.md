@@ -1,6 +1,6 @@
 # TOOLCHAIN-001: Upgrade the Codebase to Zig 0.17.1
 
-- Status: **Complete. The project and primary CI target Zig 0.17.1. Final CI run `42309239657` passed formatting, build, terminal smoke test, full aggregate tests, and agent-doc checks in Debug/ReleaseSafe/ReleaseFast. The final self-review found no blockers; one non-blocking terminal-control-output hardening suggestion is recorded. No agent-performed manual playtest was claimed.**
+- Status: **Complete. The project and primary CI target Zig 0.17.1. Final CI run `42309239657` passed formatting, build, terminal smoke test, full aggregate tests, and agent-doc checks in Debug/ReleaseSafe/ReleaseFast. The final self-review found no blockers; the initial terminal-control-output suggestion was later withdrawn as a false positive after exact allowlist tracing. No agent-performed manual playtest was claimed.**
 - Priority: High (cross-cutting toolchain migration)
 - Target: Zig **0.17.1**
 - Baseline commit: `34e8938f12b6f7126eacf52403c5b468eee2a1a3` on `main`
@@ -265,7 +265,7 @@ The next agent must:
 - Result: **0 Blockers; 1 non-blocking Suggestion.** No migration-critical correctness or save-compatibility blocker was identified.
 
 ### Findings
-1. **[SUGGESTION] Terminal-control injection through invalid modifier echo — `src/application/game.zig:479`.** During preparation, an invalid `modifier` argument is interpolated directly into terminal output. The input reader preserves control bytes and the process writer sends bytes directly to stdout. A locally pasted argument containing ANSI/OSC control sequences can therefore alter terminal presentation. This does not provide remote access or change game state; it is a local terminal-hardening issue. Recommended follow-up: omit the raw argument from the error message or escape non-printable/control bytes before displaying it. Deliberately not changed during this toolchain migration.
+1. **Withdrawn false positive — terminal-control injection through invalid modifier echo.** The argument is printed only after exact resolution through `ModifierId.fromCommandId`'s fixed allowlist. Arbitrary ANSI/OSC control sequences cannot reach the interpolation. This is not a confirmed vulnerability or an open finding.
 2. **Verification limitation — process argument observation.** CI invokes `zig build run -- smoke-test` successfully in all three modes. The game does not currently inspect process arguments, so this confirms the build-run invocation succeeds but does not independently assert what argument bytes the executable receives. The build graph explicitly uses `addPassthruArgs()`; a dedicated argv-observation test can be added if argument delivery becomes a compatibility requirement.
 
 ### Coverage accounting
